@@ -18,6 +18,9 @@ const ContactPage = lazy(() =>
 const SchoolsPage = lazy(() =>
   import("@/pages/SchoolsPage").then((m) => ({ default: m.SchoolsPage })),
 );
+const NewsPage = lazy(() =>
+  import("@/pages/NewsPage").then((m) => ({ default: m.NewsPage })),
+);
 const NotFoundPage = lazy(() =>
   import("@/pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage })),
 );
@@ -54,6 +57,10 @@ export const router = createBrowserRouter([
       {
         path: "schools",
         element: withSuspense(<SchoolsPage />),
+      },
+      {
+        path: "news",
+        element: withSuspense(<NewsPage />),
       },
       {
         path: "contact",
