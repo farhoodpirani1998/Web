@@ -32,4 +32,6 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: "گالری", href: "/gallery" },
   { label: "آمار و ارقام", href: "/statistics" },
   { label: "تماس با ما", href: "/contact" },
+  { label: "تنظیمات سایت", href: "/site" },
+  { label: "پیش‌ثبت‌نام", href: "/pre-registration" },
 ];

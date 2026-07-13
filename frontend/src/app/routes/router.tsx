@@ -27,6 +27,12 @@ const GalleryPage = lazy(() =>
 const StatisticsPage = lazy(() =>
   import("@/pages/StatisticsPage").then((m) => ({ default: m.StatisticsPage })),
 );
+const SitePage = lazy(() =>
+  import("@/pages/SitePage").then((m) => ({ default: m.SitePage })),
+);
+const PreRegistrationPage = lazy(() =>
+  import("@/pages/PreRegistrationPage").then((m) => ({ default: m.PreRegistrationPage })),
+);
 const NotFoundPage = lazy(() =>
   import("@/pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage })),
 );
@@ -79,6 +85,14 @@ export const router = createBrowserRouter([
       {
         path: "contact",
         element: withSuspense(<ContactPage />),
+      },
+      {
+        path: "site",
+        element: withSuspense(<SitePage />),
+      },
+      {
+        path: "pre-registration",
+        element: withSuspense(<PreRegistrationPage />),
       },
       {
         path: "*",
