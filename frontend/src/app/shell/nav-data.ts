@@ -35,4 +35,5 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: "تنظیمات سایت", href: "/site" },
   { label: "پیش‌ثبت‌نام", href: "/pre-registration" },
   { label: "پردیس‌های آموزشی", href: "/campuses" },
+  { label: "کادر آموزشی", href: "/teachers" },
 ];
