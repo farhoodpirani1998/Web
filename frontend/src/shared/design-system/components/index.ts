@@ -15,6 +15,8 @@ export {
 export { Badge, badgeVariants, type BadgeProps } from "./ui/badge";
 export { Link, linkVariants, type LinkProps } from "./ui/link";
 export { Separator, separatorVariants, type SeparatorProps } from "./ui/separator";
+export { Skeleton, skeletonVariants, type SkeletonProps } from "./ui/skeleton";
+export { Avatar, avatarVariants, type AvatarProps } from "./ui/avatar";
 
 // Layout and typography primitives — PascalCase filenames (design-system
 // components authored in-house, not generated via the shadcn/ui CLI).
@@ -25,6 +27,18 @@ export { Container, containerVariants, type ContainerProps } from "./Container";
 export { Section, sectionVariants, type SectionProps } from "./Section";
 export { Stack, stackVariants, type StackProps } from "./Stack";
 export { Grid, gridVariants, type GridProps } from "./Grid";
+export { AspectRatio, type AspectRatioProps } from "./AspectRatio";
+export { Image, imageVariants, type ImageProps } from "./Image";
 
-// Existing Phase 1 primitive
+// Composite state primitives — feedback for loading/empty/error regions
+// (§12, §13, §19), built entirely from the primitives above.
+export { EmptyState, type EmptyStateProps, type EmptyStateAction } from "./EmptyState";
+export { ErrorState, type ErrorStateProps } from "./ErrorState";
+export { LoadingState, type LoadingStateProps } from "./LoadingState";
+
+// Accessibility primitives (§26)
+export { VisuallyHidden, type VisuallyHiddenProps } from "./VisuallyHidden";
+export { SkipLink, type SkipLinkProps } from "./SkipLink";
+
+// Loading primitive (Phase 1; size/tone variants added in Sprint 2B)
 export { Spinner, type SpinnerProps } from "./Spinner";
