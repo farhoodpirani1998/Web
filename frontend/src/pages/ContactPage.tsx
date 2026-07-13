@@ -1,15 +1,5 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Grid,
-  Heading,
-  Link,
-  PageLayout,
-  Stack,
-  Text,
-} from "@/shared/design-system/components";
+import { PageLayout, Stack } from "@/shared/design-system/components";
+import { ContactIntro, ContactInfo } from "@/features/contact";
 
 /**
  * Static "Contact" page (Sprint 3B "Website Pages Foundation").
@@ -17,10 +7,15 @@ import {
  * Fixed singular page, route `/contact`. Contact details (address,
  * phone, email, working hours) are ultimately Site Settings–derived
  * content (Website Frontend Architecture §8 "Layout Architecture" —
- * the same category of data the app-shell's future Footer will
- * consume), so this page only renders frontend-owned placeholder
- * strings for now — swapping them for a `useSiteSettings()`-style data
- * hook later is additive.
+ * the same category of data the app-shell's `Footer` consumes).
+ *
+ * The intro and contact-info sections are now extracted feature
+ * modules (`@/features/contact`), following the same pattern as the
+ * homepage's `hero`/`features`/`cta` features and the `about` page's
+ * sections — `ContactPage` only composes `<ContactIntro />` and
+ * `<ContactInfo />`; it no longer owns either section's markup/copy.
+ * Swapping either for a `useSiteSettings()`-style data hook later is
+ * additive and stays entirely inside that section's own feature file.
  *
  * A contact **form** is a distinct, unbuilt backend capability (no
  * public form-submission endpoint exists in the Public API contract).
@@ -33,49 +28,8 @@ export function ContactPage() {
   return (
     <PageLayout>
       <Stack gap="lg">
-        <Stack gap="sm">
-          <Heading level={1}>Contact us — placeholder title</Heading>
-          <Text variant="lead">
-            Placeholder introductory copy for how visitors can reach the
-            Group. Real contact details will be sourced from the backend
-            once the relevant content is available.
-          </Text>
-        </Stack>
-
-        <Grid cols="3" gap="md">
-          <Card variant="outline" padding="md">
-            <CardHeader className="p-0">
-              <CardTitle>Address</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 pt-2">
-              <Text variant="bodySm" color="muted">
-                Placeholder address line one, placeholder city.
-              </Text>
-            </CardContent>
-          </Card>
-
-          <Card variant="outline" padding="md">
-            <CardHeader className="p-0">
-              <CardTitle>Phone</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 pt-2">
-              <Link href="tel:+0000000000" variant="subtle">
-                +0 (000) 000-0000
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card variant="outline" padding="md">
-            <CardHeader className="p-0">
-              <CardTitle>Email</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 pt-2">
-              <Link href="mailto:info@example.com" variant="subtle">
-                info@example.com
-              </Link>
-            </CardContent>
-          </Card>
-        </Grid>
+        <ContactIntro />
+        <ContactInfo />
       </Stack>
     </PageLayout>
   );
