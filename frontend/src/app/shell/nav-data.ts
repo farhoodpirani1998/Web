@@ -24,4 +24,8 @@ export interface NavItem {
   href: string;
 }
 
-export const NAV_ITEMS: readonly NavItem[] = [{ label: "خانه", href: "/" }];
+export const NAV_ITEMS: readonly NavItem[] = [
+  { label: "خانه", href: "/" },
+  { label: "درباره ما", href: "/about" },
+  { label: "تماس با ما", href: "/contact" },
+];

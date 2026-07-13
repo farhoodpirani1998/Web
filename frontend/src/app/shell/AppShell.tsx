@@ -3,6 +3,7 @@ import * as React from "react";
 import { SkipLink } from "@/shared/design-system/components/SkipLink";
 import { Header } from "@/app/shell/Header";
 import { ContentWrapper } from "@/app/shell/ContentWrapper";
+import { Footer } from "@/app/shell/Footer";
 
 export interface AppShellProps {
   children: React.ReactNode;
@@ -22,8 +23,11 @@ export interface AppShellProps {
  * — the requirement is that *this* component stays swappable behind any
  * routing solution, not that nothing under it ever touches the router.
  *
- * Footer/Portal-selector modal (§8) are still out of scope for this
- * Sprint and mount here once their features exist.
+ * `Footer` follows the same persistent, router-agnostic pattern as
+ * `Header` (§8) — it renders once, below the routed content, and is
+ * never re-mounted on route changes.
+ *
+ * Portal-selector modal (§8) is still out of scope for this Sprint.
  */
 export function AppShell({ children }: AppShellProps) {
   return (
@@ -31,7 +35,7 @@ export function AppShell({ children }: AppShellProps) {
       <SkipLink />
       <Header />
       <ContentWrapper>{children}</ContentWrapper>
-      {/* Footer mounts here once the Footer feature exists (§8). */}
+      <Footer />
     </div>
   );
 }

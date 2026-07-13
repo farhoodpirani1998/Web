@@ -9,6 +9,12 @@ import { PageLoader } from "@/app/layout/PageLoader";
 const HomePage = lazy(() =>
   import("@/pages/HomePage").then((m) => ({ default: m.HomePage })),
 );
+const AboutPage = lazy(() =>
+  import("@/pages/AboutPage").then((m) => ({ default: m.AboutPage })),
+);
+const ContactPage = lazy(() =>
+  import("@/pages/ContactPage").then((m) => ({ default: m.ContactPage })),
+);
 const NotFoundPage = lazy(() =>
   import("@/pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage })),
 );
@@ -37,6 +43,14 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: withSuspense(<HomePage />),
+      },
+      {
+        path: "about",
+        element: withSuspense(<AboutPage />),
+      },
+      {
+        path: "contact",
+        element: withSuspense(<ContactPage />),
       },
       {
         path: "*",
