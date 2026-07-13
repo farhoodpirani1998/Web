@@ -24,6 +24,9 @@ const NewsPage = lazy(() =>
 const GalleryPage = lazy(() =>
   import("@/pages/GalleryPage").then((m) => ({ default: m.GalleryPage })),
 );
+const StatisticsPage = lazy(() =>
+  import("@/pages/StatisticsPage").then((m) => ({ default: m.StatisticsPage })),
+);
 const NotFoundPage = lazy(() =>
   import("@/pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage })),
 );
@@ -68,6 +71,10 @@ export const router = createBrowserRouter([
       {
         path: "gallery",
         element: withSuspense(<GalleryPage />),
+      },
+      {
+        path: "statistics",
+        element: withSuspense(<StatisticsPage />),
       },
       {
         path: "contact",

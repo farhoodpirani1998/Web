@@ -30,5 +30,6 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: "شعب ما", href: "/schools" },
   { label: "اخبار", href: "/news" },
   { label: "گالری", href: "/gallery" },
+  { label: "آمار و ارقام", href: "/statistics" },
   { label: "تماس با ما", href: "/contact" },
 ];
