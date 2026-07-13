@@ -24,6 +24,7 @@ export { Typography, typographyVariants, type TypographyProps } from "./Typograp
 export { Heading, type HeadingProps } from "./Heading";
 export { Text, type TextProps } from "./Text";
 export { Container, containerVariants, type ContainerProps } from "./Container";
+export { PageLayout, type PageLayoutProps } from "./PageLayout";
 export { Section, sectionVariants, type SectionProps } from "./Section";
 export { Stack, stackVariants, type StackProps } from "./Stack";
 export { Grid, gridVariants, type GridProps } from "./Grid";

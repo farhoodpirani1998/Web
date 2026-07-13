@@ -13,9 +13,9 @@ export interface SkipLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElem
  * bypass repeated chrome. Defaults to `#main-content`, matching the
  * landmark id `AppLayout` already exposes.
  *
- * This component is presentational only — mounting it inside
- * `AppLayout` (alongside the future Navbar) is a layout-composition
- * decision left to the phase that adds that chrome, not this Sprint.
+ * This component is presentational only — it is mounted once inside
+ * `AppShell` (`@/app/shell/AppShell`, Sprint 3A), ahead of `Header`, so
+ * it's the first focusable element on every routed page.
  */
 const SkipLink = React.forwardRef<HTMLAnchorElement, SkipLinkProps>(
   ({ href = "#main-content", className, children = "Skip to main content", ...props }, ref) => (
