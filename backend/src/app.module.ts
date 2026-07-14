@@ -5,10 +5,11 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { WebsiteModule } from './modules/website/website.module';
 import { resolveDatabaseSynchronize } from './config/database-synchronize.config';
+import { validateEnvironment } from './config/env-validation.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
         type: 'postgres',
