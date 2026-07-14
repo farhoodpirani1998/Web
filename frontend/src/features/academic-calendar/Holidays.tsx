@@ -1,4 +1,4 @@
-import { Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { holidays } from "./data";
 
 /**
@@ -6,19 +6,26 @@ import { holidays } from "./data";
  * holidays observed during the academic year.
  *
  * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Heading`, `Text`) — no data
+ * primitives (`Section`, `Stack`, `Badge`, `Heading`, `Text`) — no data
  * fetching, no business logic. Reuses the same ordered-list pattern as
  * `@/features/about`'s `AboutTimeline` (a semantic `<ol>` with a
  * leading border, §26 — screen readers announce entries in date
- * order natively), with each holiday's date rendered as an overline
- * label in place of a year. Holidays are grouped into a local array
- * literal (`./data`) rather than interleaved in JSX (Website Frontend
+ * order natively), with each holiday's date rendered as a `Badge` in
+ * place of a year. Holidays are grouped into a local array literal
+ * (`./data`) rather than interleaved in JSX (Website Frontend
  * Architecture §4, §8), so swapping this for a
  * `useAcademicCalendar()`-style data hook later is a matter of
  * replacing that literal — this component's JSX does not need to
  * change. Real dates are ultimately the backend's Academic Calendar
  * content-module data; this renders frontend-owned Persian
  * placeholder copy in the meantime.
+ *
+ * Visual refresh: adopts the same gold-tinted timeline `AboutTimeline`
+ * already established — the plain `border-s` rule now carries a gold
+ * tint and each entry gets a small gold dot marker sitting on that
+ * line — and the date moves from a bare overline into a navy/gold
+ * `Badge` (the same "year → Badge" promotion `AboutTimeline` made),
+ * for stronger scannability than same-weight text.
  */
 export function Holidays() {
   return (
@@ -32,22 +39,24 @@ export function Holidays() {
         <Heading id="academic-calendar-holidays-heading" level={2}>
           تعطیلات رسمی و مذهبی
         </Heading>
-        <Stack gap="none" as="ol" className="border-s border-border ps-6">
+        <Stack gap="none" as="ol" className="border-s-2 border-brand-gold/30 ps-6">
           {holidays.map((holiday, index) => (
             <Stack
               key={holiday.id}
               as="li"
               gap="xs"
-              className={
-                index === holidays.length - 1
-                  ? "pb-0 pt-6 first:pt-0"
-                  : "pb-6 pt-6 first:pt-0"
-              }
+              className={`relative ${
+                index === holidays.length - 1 ? "pb-0 pt-6 first:pt-0" : "pb-6 pt-6 first:pt-0"
+              }`}
             >
-              <Text as="span" variant="overline" color="primary">
+              <span
+                aria-hidden="true"
+                className="absolute -start-[1.875rem] top-7 h-3 w-3 rounded-full border-2 border-brand-gold bg-background"
+              />
+              <Badge variant="secondary" className="w-fit">
                 {holiday.date}
-              </Text>
-              <Text as="span" weight="semibold">
+              </Badge>
+              <Text as="span" weight="semibold" className="font-heading">
                 {holiday.name}
               </Text>
               <Text variant="bodySm" color="muted">

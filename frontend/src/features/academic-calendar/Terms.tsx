@@ -19,6 +19,15 @@ import { terms } from "./data";
  * change. Real copy is ultimately the backend's Academic Calendar
  * content-module data; this renders frontend-owned Persian
  * placeholder copy in the meantime.
+ *
+ * Visual refresh: adopts the same gold-tinted timeline `AboutTimeline`
+ * already established — the plain `border-s` rule now carries a gold
+ * tint and each entry gets a small gold dot marker sitting on that
+ * line — and moves the order `Badge` from an inline row marker to
+ * stacked above the title (the same position `AboutTimeline` uses for
+ * its year `Badge`), so a term reads with the same "badge, then
+ * title, then supporting text" hierarchy as the rest of this premium
+ * page instead of a plain two-column row.
  */
 export function Terms() {
   return (
@@ -27,33 +36,32 @@ export function Terms() {
         <Heading id="academic-calendar-terms-heading" level={2}>
           نیم‌سال‌ها و ترم‌های تحصیلی
         </Heading>
-        <Stack gap="none" as="ol" className="border-s border-border ps-6">
+        <Stack gap="none" as="ol" className="border-s-2 border-brand-gold/30 ps-6">
           {terms.map((term, index) => (
             <Stack
               key={term.id}
               as="li"
-              direction="row"
-              gap="sm"
-              className={
-                index === terms.length - 1
-                  ? "pb-0 pt-6 first:pt-0"
-                  : "pb-6 pt-6 first:pt-0"
-              }
+              gap="xs"
+              className={`relative ${
+                index === terms.length - 1 ? "pb-0 pt-6 first:pt-0" : "pb-6 pt-6 first:pt-0"
+              }`}
             >
-              <Badge variant="default" className="w-fit shrink-0">
-                {term.order}
+              <span
+                aria-hidden="true"
+                className="absolute -start-[1.875rem] top-7 h-3 w-3 rounded-full border-2 border-brand-gold bg-background"
+              />
+              <Badge variant="secondary" className="w-fit">
+                نیم‌سال {term.order}
               </Badge>
-              <Stack gap="xs">
-                <Text as="span" weight="semibold">
-                  {term.title}
-                </Text>
-                <Text as="span" variant="caption" color="muted">
-                  {term.dateRange}
-                </Text>
-                <Text variant="bodySm" color="muted">
-                  {term.description}
-                </Text>
-              </Stack>
+              <Text as="span" weight="semibold" className="font-heading">
+                {term.title}
+              </Text>
+              <Text as="span" variant="caption" color="muted">
+                {term.dateRange}
+              </Text>
+              <Text variant="bodySm" color="muted">
+                {term.description}
+              </Text>
             </Stack>
           ))}
         </Stack>

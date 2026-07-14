@@ -1,4 +1,4 @@
-import { Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { importantDates } from "./data";
 
 /**
@@ -7,7 +7,7 @@ import { importantDates } from "./data";
  * `Terms`/`Holidays`/`Exams` sections above.
  *
  * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Heading`, `Text`) — no data
+ * primitives (`Section`, `Stack`, `Badge`, `Heading`, `Text`) — no data
  * fetching, no business logic. Reuses the same ordered-list pattern as
  * `Holidays` above and `@/features/about`'s `AboutTimeline` (a
  * semantic `<ol>` with a leading border, §26 — screen readers announce
@@ -19,6 +19,12 @@ import { importantDates } from "./data";
  * change. Real dates are ultimately the backend's Academic Calendar
  * content-module data; this renders frontend-owned Persian
  * placeholder copy in the meantime.
+ *
+ * Visual refresh: adopts the same gold-tinted timeline `AboutTimeline`/
+ * `Holidays` already established — the plain `border-s` rule now
+ * carries a gold tint and each entry gets a small gold dot marker
+ * sitting on that line — and the date moves from a bare overline into
+ * a navy/gold `Badge`, matching `Holidays`'s refresh above.
  */
 export function ImportantDates() {
   return (
@@ -32,22 +38,26 @@ export function ImportantDates() {
         <Heading id="academic-calendar-important-dates-heading" level={2}>
           تاریخ‌های مهم
         </Heading>
-        <Stack gap="none" as="ol" className="border-s border-border ps-6">
+        <Stack gap="none" as="ol" className="border-s-2 border-brand-gold/30 ps-6">
           {importantDates.map((item, index) => (
             <Stack
               key={item.id}
               as="li"
               gap="xs"
-              className={
+              className={`relative ${
                 index === importantDates.length - 1
                   ? "pb-0 pt-6 first:pt-0"
                   : "pb-6 pt-6 first:pt-0"
-              }
+              }`}
             >
-              <Text as="span" variant="overline" color="primary">
+              <span
+                aria-hidden="true"
+                className="absolute -start-[1.875rem] top-7 h-3 w-3 rounded-full border-2 border-brand-gold bg-background"
+              />
+              <Badge variant="secondary" className="w-fit">
                 {item.date}
-              </Text>
-              <Text as="span" weight="semibold">
+              </Badge>
+              <Text as="span" weight="semibold" className="font-heading">
                 {item.title}
               </Text>
               <Text variant="bodySm" color="muted">
