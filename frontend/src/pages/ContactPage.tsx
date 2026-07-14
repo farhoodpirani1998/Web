@@ -17,6 +17,12 @@ import { ContactIntro, ContactInfo } from "@/features/contact";
  * Swapping either for a `useSiteSettings()`-style data hook later is
  * additive and stays entirely inside that section's own feature file.
  *
+ * Both sections now wrap themselves in a `Section` primitive (their
+ * own vertical spacing, matching `AboutHero`/`AboutStats`/etc.), so
+ * this page's outer `Stack` uses `gap="none"` — the same convention
+ * `AboutPage` already uses — to avoid doubling up spacing on top of
+ * what each `Section` already provides.
+ *
  * A contact **form** is a distinct, unbuilt backend capability (no
  * public form-submission endpoint exists in the Public API contract).
  * Per the architecture's working rules ("never mock or assume the
@@ -27,7 +33,7 @@ import { ContactIntro, ContactInfo } from "@/features/contact";
 export function ContactPage() {
   return (
     <PageLayout>
-      <Stack gap="lg">
+      <Stack gap="none">
         <ContactIntro />
         <ContactInfo />
       </Stack>

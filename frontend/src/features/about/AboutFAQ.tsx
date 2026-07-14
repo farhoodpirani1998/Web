@@ -54,6 +54,7 @@ export function AboutFAQ() {
           <Heading id="about-faq-heading" level={2}>
             سوالات متداول
           </Heading>
+          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
           <Text variant="lead" className="max-w-2xl">
             متن معرفی نمونه برای بخش سوالات متداول درباره ما.
           </Text>
@@ -61,7 +62,12 @@ export function AboutFAQ() {
 
         <Stack gap="sm" className="mx-auto w-full max-w-3xl">
           {faqItems.map((item) => (
-            <Card key={item.id} variant="outline" padding="none">
+            <Card
+              key={item.id}
+              variant="outline"
+              padding="none"
+              className="transition-colors hover:border-brand-gold/40"
+            >
               <details className="group px-6 py-4">
                 <summary
                   className={cn(
@@ -76,7 +82,7 @@ export function AboutFAQ() {
                   <Text
                     as="span"
                     aria-hidden="true"
-                    className="shrink-0 transition-transform group-open:rotate-180"
+                    className="shrink-0 text-brand-gold transition-transform group-open:rotate-180"
                   >
                     ⌄
                   </Text>

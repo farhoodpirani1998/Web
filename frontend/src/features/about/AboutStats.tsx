@@ -14,6 +14,14 @@ import { Card, Grid, Heading, Section, Stack, Text } from "@/shared/design-syste
  * design-system wiring below do not need to change. Real values are
  * ultimately Static Pages/About content-module data; this renders
  * frontend-owned Persian placeholder copy in the meantime.
+ *
+ * Visual refresh: cards move from the plain `outline` variant to
+ * `elevated` with a hover lift (the same treatment `GalleryCard`/
+ * `NewsCard` use) plus a thin gold top accent bar, and the stat value
+ * is bumped to a larger, `brand-gold`-toned numeral so the numbers
+ * read as the section's visual anchor — the same "big number, small
+ * label" hierarchy premium stat bands use, rather than same-weight
+ * value/label text.
  */
 
 const stats = [
@@ -32,9 +40,20 @@ export function AboutStats() {
         </Heading>
         <Grid cols="4" gap="md">
           {stats.map((stat) => (
-            <Card key={stat.id} variant="outline" padding="md" className="text-center">
+            <Card
+              key={stat.id}
+              variant="elevated"
+              padding="md"
+              className="group relative overflow-hidden bg-background text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+            >
+              <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-brand-gold" />
               <Stack gap="xs" align="center">
-                <Text as="span" variant="lead" weight="bold" color="primary">
+                <Text
+                  as="span"
+                  variant="body"
+                  weight="bold"
+                  className="font-heading text-3xl text-brand-gold lg:text-4xl"
+                >
                   {stat.value}
                 </Text>
                 <Text variant="bodySm" color="muted">

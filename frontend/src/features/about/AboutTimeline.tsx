@@ -1,4 +1,4 @@
-import { Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 
 /**
  * About page "Timeline" section — extracted from `AboutPage`'s inline
@@ -6,7 +6,7 @@ import { Heading, Section, Stack, Text } from "@/shared/design-system/components
  * same pattern as the homepage's `hero`/`features`/`cta` features.
  *
  * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Heading`, `Text`) — no data
+ * primitives (`Section`, `Stack`, `Badge`, `Heading`, `Text`) — no data
  * fetching, no business logic. Timeline entries are grouped into a
  * local array literal rather than interleaved in JSX (Website Frontend
  * Architecture §4, §8), so the eventual swap to a `useAboutPage()`-style
@@ -14,6 +14,14 @@ import { Heading, Section, Stack, Text } from "@/shared/design-system/components
  * design-system wiring below do not need to change. Real copy is
  * ultimately Static Pages/About content-module data; this renders
  * frontend-owned Persian placeholder copy in the meantime.
+ *
+ * Visual refresh: the plain `border-s` rule now carries a gold tint and
+ * each entry gets a small gold dot marker sitting on that line (plain
+ * `aria-hidden` `span`s, no new component), the year moves from a bare
+ * overline into a navy/gold `Badge` for stronger scannability, and the
+ * final entry's dot is filled solid to read as "today" — a clearer
+ * visual hierarchy than the previous same-weight text stack, while the
+ * list stays the same semantic `<ol>`/`<li>` structure (§26).
  */
 
 const timeline = [
@@ -47,28 +55,41 @@ export function AboutTimeline() {
   return (
     <Section spacing="lg" aria-labelledby="about-timeline-heading">
       <Stack gap="md">
-        <Heading id="about-timeline-heading" level={2}>
-          مسیر رشد
-        </Heading>
-        <Stack gap="none" as="ol" className="border-s border-border ps-6">
-          {timeline.map((item, index) => (
-            <Stack
-              key={item.id}
-              as="li"
-              gap="xs"
-              className={index === timeline.length - 1 ? "pb-0 pt-6 first:pt-0" : "pb-6 pt-6 first:pt-0"}
-            >
-              <Text as="span" variant="overline" color="primary">
-                {item.year}
-              </Text>
-              <Text as="span" weight="semibold">
-                {item.title}
-              </Text>
-              <Text variant="bodySm" color="muted">
-                {item.description}
-              </Text>
-            </Stack>
-          ))}
+        <Stack gap="xs" align="start">
+          <Heading id="about-timeline-heading" level={2}>
+            مسیر رشد
+          </Heading>
+          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
+        </Stack>
+
+        <Stack gap="none" as="ol" className="border-s-2 border-brand-gold/30 ps-6">
+          {timeline.map((item, index) => {
+            const isLast = index === timeline.length - 1;
+            return (
+              <Stack
+                key={item.id}
+                as="li"
+                gap="xs"
+                className={`relative ${isLast ? "pb-0 pt-6 first:pt-0" : "pb-6 pt-6 first:pt-0"}`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`absolute -start-[1.875rem] top-7 h-3 w-3 rounded-full border-2 border-brand-gold ${
+                    isLast ? "bg-brand-gold" : "bg-background"
+                  }`}
+                />
+                <Badge variant="secondary" className="w-fit">
+                  {item.year}
+                </Badge>
+                <Text as="span" weight="semibold" className="font-heading">
+                  {item.title}
+                </Text>
+                <Text variant="bodySm" color="muted">
+                  {item.description}
+                </Text>
+              </Stack>
+            );
+          })}
         </Stack>
       </Stack>
     </Section>
