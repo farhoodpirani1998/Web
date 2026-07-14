@@ -15,17 +15,28 @@ import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/com
  * `useStatistics()`-style data hook later is additive —
  * `StatisticsPage` only ever composes `<StatisticsHero />`, never its
  * internals.
+ *
+ * Brand pass: the eyebrow badge and gold underline now match the same
+ * treatment `Hero`/`Features`/`CTA` already use on the homepage, so a
+ * visitor landing on this page (e.g. from the header nav) reads it as
+ * the same brand system rather than a plainer, disconnected page.
  */
 export function StatisticsHero() {
   return (
     <Section spacing="lg" aria-labelledby="statistics-hero-heading">
-      <Stack gap="sm">
-        <Badge variant="secondary" className="w-fit">
+      <Stack gap="sm" align="start">
+        <Badge
+          variant="outline"
+          className="w-fit rounded-full border-brand-gold/40 bg-brand-gold/10 text-brand-navy"
+        >
           آمار و ارقام
         </Badge>
-        <Heading id="statistics-hero-heading" level={1}>
-          مجموعه ما در آینه اعداد
-        </Heading>
+        <Stack gap="xs" align="start">
+          <Heading id="statistics-hero-heading" level={1}>
+            مجموعه ما در آینه اعداد
+          </Heading>
+          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
+        </Stack>
         <Text variant="lead" className="max-w-2xl">
           متنی نمونه درباره دستاوردهای عددی مجموعه در طول سال‌های
           فعالیت. ارقام واقعی در نهایت از طریق سامانه مدیریت محتوا و
