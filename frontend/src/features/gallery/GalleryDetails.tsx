@@ -36,11 +36,16 @@ export function GalleryDetails() {
 
         <Stack gap="sm">
           {galleryItems.map((item) => (
-            <Card key={item.id} variant="outline" padding="none">
+            <Card
+              key={item.id}
+              variant="outline"
+              padding="none"
+              className="overflow-hidden transition-colors hover:border-brand-gold/40"
+            >
               <details id={`gallery-${item.id}`} className="group px-6 py-4">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                   <Stack gap="xs">
-                    <Text as="span" variant="body" weight="semibold">
+                    <Text as="span" variant="body" weight="semibold" className="font-heading">
                       {item.title}
                     </Text>
                     <Badge variant="secondary" className="w-fit">
@@ -50,14 +55,17 @@ export function GalleryDetails() {
                   <Text
                     as="span"
                     aria-hidden="true"
-                    className="shrink-0 transition-transform group-open:rotate-180"
+                    className="shrink-0 text-brand-gold transition-transform group-open:rotate-180"
                   >
                     ⌄
                   </Text>
                 </summary>
 
-                <Stack gap="sm" className="pt-3">
-                  <AspectRatio ratio={16 / 9} className="max-w-md bg-muted">
+                <Stack gap="sm" className="pt-4">
+                  <AspectRatio
+                    ratio={16 / 9}
+                    className="max-w-md bg-gradient-to-br from-brand-navy/10 via-muted to-brand-gold/15"
+                  >
                     <Stack
                       align="center"
                       justify="center"

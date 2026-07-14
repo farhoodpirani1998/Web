@@ -35,11 +35,16 @@ export function NewsDetails() {
 
         <Stack gap="sm">
           {newsItems.map((item) => (
-            <Card key={item.id} variant="outline" padding="none">
+            <Card
+              key={item.id}
+              variant="outline"
+              padding="none"
+              className="transition-colors hover:border-brand-gold/40"
+            >
               <details id={`news-${item.id}`} className="group px-6 py-4">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                   <Stack gap="xs">
-                    <Text as="span" variant="body" weight="semibold">
+                    <Text as="span" variant="body" weight="semibold" className="font-heading">
                       {item.title}
                     </Text>
                     <Stack direction="row" gap="xs" align="center">
@@ -52,7 +57,7 @@ export function NewsDetails() {
                   <Text
                     as="span"
                     aria-hidden="true"
-                    className="shrink-0 transition-transform group-open:rotate-180"
+                    className="shrink-0 text-brand-gold transition-transform group-open:rotate-180"
                   >
                     ⌄
                   </Text>
