@@ -23,6 +23,7 @@ export function CTA() {
   return (
     <Section spacing="lg" tone="primary" className="rounded-lg" aria-labelledby="admissions-cta-heading">
       <Stack gap="md" align="center" className="text-center px-6">
+        <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
         <Heading id="admissions-cta-heading" level={2} color="inherit">
           آماده شروع فرآیند ثبت‌نام هستید؟
         </Heading>
