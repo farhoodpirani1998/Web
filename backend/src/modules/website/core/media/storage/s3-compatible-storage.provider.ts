@@ -7,6 +7,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 import { StorageProvider, UploadResult } from './storage.interface';
+import { sanitizeFilename } from './sanitize-filename';
 
 /**
  * Single implementation targeting the S3 API surface — not "AWS-only".
@@ -38,7 +39,7 @@ export class S3CompatibleStorageProvider implements StorageProvider {
   }
 
   async upload(file: Express.Multer.File, path: string): Promise<UploadResult> {
-    const key = `${path}/${randomUUID()}-${file.originalname}`;
+    const key = `${path}/${randomUUID()}-${sanitizeFilename(file.originalname)}`;
     await this.client.send(
       new PutObjectCommand({
         Bucket: this.bucket,

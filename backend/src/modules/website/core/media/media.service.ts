@@ -12,9 +12,7 @@ import { MediaUsage } from './entities/media-usage.entity';
 import { STORAGE_PROVIDER, StorageProvider } from './storage/storage.interface';
 import { SiteService } from '../site/site.service';
 import { WEBSITE_EVENTS } from '../events/events.constants';
-
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+import { ALLOWED_MIME_TYPES, MAX_SIZE_BYTES, matchesAllowedMimeType } from './media.constants';
 
 @Injectable()
 export class MediaService {
@@ -28,7 +26,10 @@ export class MediaService {
   ) {}
 
   async upload(file: Express.Multer.File, altText: string): Promise<Media> {
-    if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+    if (!file?.buffer?.length) {
+      throw new BadRequestException('No file uploaded');
+    }
+    if (!ALLOWED_MIME_TYPES.includes(file.mimetype as (typeof ALLOWED_MIME_TYPES)[number])) {
       throw new BadRequestException(`Unsupported file type: ${file.mimetype}`);
     }
     if (file.size > MAX_SIZE_BYTES) {
@@ -36,6 +37,14 @@ export class MediaService {
     }
     if (!altText?.trim()) {
       throw new BadRequestException('altText is required for every upload');
+    }
+    // The declared mimetype is just a client-supplied header — confirm the
+    // actual file bytes match one of the allowed formats before it's
+    // written to storage. See media.constants.ts for why.
+    if (!matchesAllowedMimeType(file.buffer, file.mimetype)) {
+      throw new BadRequestException(
+        'File content does not match its declared type',
+      );
     }
 
     const { url, storageKey } = await this.storage.upload(file, 'media');
@@ -54,6 +63,18 @@ export class MediaService {
 
     this.events.emit(WEBSITE_EVENTS.MEDIA_UPLOADED, { mediaId: media.id });
     return media;
+  }
+
+  async findAll(status?: MediaStatus): Promise<Media[]> {
+    const siteId = this.siteService.getDefaultSiteId();
+    return this.mediaRepo.find({
+      where: { siteId, ...(status ? { status } : {}) },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findOne(id: string): Promise<Media> {
+    return this.mediaRepo.findOneByOrFail({ id });
   }
 
   async attach(mediaId: string, entityType: string, entityId: string) {
