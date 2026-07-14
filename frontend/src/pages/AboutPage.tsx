@@ -6,6 +6,7 @@ import {
   AboutValues,
   AboutTimeline,
   AboutTeam,
+  AboutFAQ,
 } from "@/features/about";
 
 /**
@@ -19,14 +20,20 @@ import {
  * so per the architecture's working rules this page renders
  * frontend-owned placeholder copy only and fetches nothing.
  *
- * Each section (Hero, Stats, Story, Values, Timeline, Team) is now an
- * extracted feature module (`@/features/about`), following the same
- * pattern as the homepage's `hero`/`features`/`cta` features —
+ * Each section (Hero, Stats, Story, Values, Timeline, Team, FAQ) is
+ * now an extracted feature module (`@/features/about`), following the
+ * same pattern as the homepage's `hero`/`features`/`cta` features —
  * `AboutPage` only composes these components and the `Separator`
  * between Timeline and Team; it no longer owns any section's
  * markup/copy. Swapping any section for a `useAboutPage()`-style data
  * hook later is additive and stays entirely inside that section's own
  * feature file.
+ *
+ * `AboutFAQ` closes the page, mirroring the trailing `FAQ` section
+ * already established by `@/features/campuses`, `@/features/teachers`,
+ * and `@/features/events` — the same native `<details>`/`<summary>`
+ * disclosure pattern, kept feature-local until a third+ instance of
+ * it graduates into a shared `Accordion` primitive.
  *
  * Persian-first: copy is authored directly in Persian (the site's
  * Phase 1 locale, §28) rather than as English placeholder text, and the
@@ -47,6 +54,7 @@ export function AboutPage() {
         <Separator className="my-2" />
 
         <AboutTeam />
+        <AboutFAQ />
       </Stack>
     </PageLayout>
   );

@@ -33,6 +33,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: "آمار و ارقام", href: "/statistics" },
   { label: "تماس با ما", href: "/contact" },
   { label: "تنظیمات سایت", href: "/site" },
+  { label: "پذیرش و ثبت‌نام", href: "/admissions" },
   { label: "پیش‌ثبت‌نام", href: "/pre-registration" },
   { label: "پردیس‌های آموزشی", href: "/campuses" },
   { label: "کادر آموزشی", href: "/teachers" },

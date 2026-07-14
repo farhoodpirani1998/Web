@@ -12,3 +12,4 @@ export { AboutStory } from "./AboutStory";
 export { AboutValues } from "./AboutValues";
 export { AboutTimeline } from "./AboutTimeline";
 export { AboutTeam } from "./AboutTeam";
+export { AboutFAQ } from "./AboutFAQ";
