@@ -1,4 +1,4 @@
-import { Grid, Heading, Section, Stack } from "@/shared/design-system/components";
+import { Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { TeacherCard } from "./TeacherCard";
 import { teachers } from "./data";
 
@@ -13,15 +13,25 @@ import { teachers } from "./data";
  * (`./data`) — no data fetching, no business logic. Swapping `./data`
  * for a `useTeachers()`-style data hook later is additive; this
  * component's JSX does not need to change.
+ *
+ * Visual refresh: adds a short lead paragraph under the heading (the
+ * same heading+lead pairing `AboutTeam`/`AboutValues`/`CampusList`
+ * use) and widens the card gap from `md` to `lg` to give the taller
+ * portrait-style `TeacherCard`s room to breathe.
  */
 export function TeacherGrid() {
   return (
     <Section spacing="lg" aria-labelledby="teachers-grid-heading">
       <Stack gap="md">
-        <Heading id="teachers-grid-heading" level={2}>
-          فهرست مدرسان
-        </Heading>
-        <Grid cols="4" gap="md">
+        <Stack gap="sm">
+          <Heading id="teachers-grid-heading" level={2}>
+            فهرست مدرسان
+          </Heading>
+          <Text variant="lead" className="max-w-2xl">
+            متن نمونه برای معرفی مدرسان مجموعه به تفکیک درس و تخصص.
+          </Text>
+        </Stack>
+        <Grid cols="4" gap="lg">
           {teachers.map((teacher) => (
             <TeacherCard key={teacher.id} teacher={teacher} />
           ))}

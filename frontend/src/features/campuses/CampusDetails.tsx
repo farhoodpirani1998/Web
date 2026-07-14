@@ -38,7 +38,12 @@ export function CampusDetails() {
 
         <Stack gap="sm">
           {campuses.map((campus) => (
-            <Card key={campus.id} variant="outline" padding="none">
+            <Card
+              key={campus.id}
+              variant="outline"
+              padding="none"
+              className="bg-background transition-colors hover:border-brand-gold/40"
+            >
               <details id={`campus-${campus.id}`} className="group px-6 py-4">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                   <Stack gap="xs">
@@ -49,13 +54,12 @@ export function CampusDetails() {
                       {campus.area}
                     </Text>
                   </Stack>
-                  <Text
-                    as="span"
+                  <span
                     aria-hidden="true"
-                    className="shrink-0 transition-transform group-open:rotate-180"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-foreground transition-transform group-open:rotate-180"
                   >
                     ⌄
-                  </Text>
+                  </span>
                 </summary>
 
                 <Stack gap="sm" className="pt-3">

@@ -16,17 +16,11 @@ import { cn } from "@/shared/utils/cn";
  *
  * Items are grouped into a local array literal rather than
  * interleaved in JSX, so swapping this for a `usePreRegistration()`-
- * style data hook later is a matter of replacing the literal. Real
+ * style data hook later is a matter of replacing the literal — the
+ * layout and design-system wiring below do not need to change. Real
  * questions/answers are ultimately Pre-registration content-module
  * data (§4, §8); this renders frontend-owned Persian placeholder copy
  * in the meantime.
- *
- * Visual refresh: adopts the same gold underline heading accent and
- * gold-hover/gold-chevron card treatment already established by
- * `AboutFAQ` (and the `campuses`/`teachers`/`events` FAQs it followed)
- * so this section reads as part of the same premium card language
- * instead of a plain bordered list — no change to the disclosure
- * behavior itself.
  */
 
 const faqItems = [
@@ -60,7 +54,6 @@ export function FAQ() {
           <Heading id="pre-registration-faq-heading" level={2}>
             سوالات متداول
           </Heading>
-          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
           <Text variant="lead" className="max-w-2xl">
             متن معرفی نمونه برای بخش سوالات متداول پیش‌ثبت‌نام.
           </Text>
@@ -68,12 +61,7 @@ export function FAQ() {
 
         <Stack gap="sm" className="mx-auto w-full max-w-3xl">
           {faqItems.map((item) => (
-            <Card
-              key={item.id}
-              variant="outline"
-              padding="none"
-              className="bg-background transition-colors hover:border-brand-gold/40"
-            >
+            <Card key={item.id} variant="outline" padding="none">
               <details className="group px-6 py-4">
                 <summary
                   className={cn(
@@ -88,7 +76,7 @@ export function FAQ() {
                   <Text
                     as="span"
                     aria-hidden="true"
-                    className="shrink-0 text-brand-gold transition-transform group-open:rotate-180"
+                    className="shrink-0 transition-transform group-open:rotate-180"
                   >
                     ⌄
                   </Text>
