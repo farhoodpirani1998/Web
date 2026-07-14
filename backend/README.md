@@ -51,19 +51,21 @@ The single biggest adaptation is in `modules/website/auth/`:
    endpoints (`/public/website/homepage`, etc.) — needs its own tighter
    throttle policy separate from admin routes (see `ThrottlerModule` note
    in `app.module.ts`).
-3. **`SMS_JWT_PUBLIC_KEY_PATH`**: get the actual public key exported from
-   SMS and drop it in `./keys/`. Until then, `WebsiteAuthGuard` will throw
-   on startup (fails loud, not silently).
+3. **`SMS_JWT_PUBLIC_KEY_PATH`**: `keys/sms-public-key.pem` currently holds
+   a locally-generated placeholder (see `keys/README.md`) so the app boots
+   for local development. Before any real deployment, replace it with the
+   actual public key exported from SMS.
 4. A real migration for `Site` seeding + first `WebsiteRoleAssignment` row
    for yourself as `website_super_admin`.
 
 ## Running locally
 
-Network access wasn't available in the environment this was scaffolded in,
-so `npm install` hasn't been run. From your machine:
-
 ```bash
 npm install
-cp .env.example .env   # fill in DB credentials + SMS public key path
+cp .env.example .env   # already done for local dev — adjust DB credentials if needed
 npm run start:dev
 ```
+
+A Postgres instance matching your `.env` `DATABASE_*` values must be
+running and reachable — `TypeOrmModule` will retry and then fail loudly if
+it isn't, same as any other missing infrastructure dependency.

@@ -1,0 +1,14 @@
+node_modules/
+dist/
+
+# Local environment — copy from .env.example instead of committing real values
+.env
+.env.local
+
+# Local-dev-only signing key generated to satisfy SMS_JWT_PUBLIC_KEY_PATH.
+# The matching public key (keys/sms-public-key.pem) IS committed on purpose —
+# it's a placeholder, not a secret, and other devs need it to boot locally.
+keys/dev-sms-private-key.pem
+
+# Local media storage (STORAGE_DRIVER=local)
+uploads/

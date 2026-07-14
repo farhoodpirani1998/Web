@@ -19,6 +19,7 @@ import { NewsModule } from './content/news/news.module';
 import { PagesModule } from './content/pages/pages.module';
 import { NavigationModule } from './content/navigation/navigation.module';
 import { SiteSettingsModule } from './content/site-settings/site-settings.module';
+import { PublicApiModule } from './public-api/public-api.module';
 
 /**
  * Composition root — imports every kernel module (and, from Phase 2
@@ -49,6 +50,7 @@ import { SiteSettingsModule } from './content/site-settings/site-settings.module
     PagesModule,
     NavigationModule,
     SiteSettingsModule,
+    PublicApiModule,
     // Phase 2+ remaining: CampusesModule,
     // StatsModule, AchievementsModule, CtaBannersModule, ...
   ],
