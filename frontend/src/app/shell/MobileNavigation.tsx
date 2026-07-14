@@ -3,6 +3,9 @@ import { NavLink, useLocation } from "react-router-dom";
 
 import { FOCUS_RING_CLASSNAME } from "@/shared/design-system/a11y";
 import { VisuallyHidden } from "@/shared/design-system/components/VisuallyHidden";
+import { Separator } from "@/shared/design-system/components/ui/separator";
+import { Link } from "@/shared/design-system/components/ui/link";
+import { buttonVariants } from "@/shared/design-system/components/ui/button";
 import { cn } from "@/shared/utils/cn";
 import { NAV_ITEMS } from "@/app/shell/nav-data";
 
@@ -18,6 +21,11 @@ const MOBILE_NAV_PANEL_ID = "mobile-nav-panel";
  * assistive technology (`aria-hidden`) and the toggle's accessible name
  * comes from real text via `VisuallyHidden`, so it reads correctly in
  * either locale/direction rather than depending on an icon's shape.
+ *
+ * Visual refresh: same open/close/escape/route-change behavior, just a
+ * more spacious panel plus the same pre-registration CTA the desktop
+ * header shows (via the existing `Separator`/`Link`/`buttonVariants`
+ * primitives) so the primary action isn't desktop-only.
  */
 export function MobileNavigation() {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -63,7 +71,7 @@ export function MobileNavigation() {
         <nav
           id={MOBILE_NAV_PANEL_ID}
           aria-label="ناوبری اصلی"
-          className="absolute inset-x-0 top-full border-t border-border bg-background px-4 py-3 shadow-md"
+          className="absolute inset-x-0 top-full max-h-[calc(100vh-5rem)] overflow-y-auto border-t border-border bg-background px-4 py-4 shadow-lg"
         >
           <ul className="flex flex-col gap-1">
             {NAV_ITEMS.map((item) => (
@@ -73,7 +81,7 @@ export function MobileNavigation() {
                   end={item.href === "/"}
                   className={({ isActive }) =>
                     cn(
-                      "block rounded-md px-3 py-2 text-start text-sm font-medium text-foreground/80",
+                      "block rounded-md px-3 py-2.5 text-start text-sm font-medium text-foreground/80",
                       "hover:bg-accent hover:text-accent-foreground",
                       FOCUS_RING_CLASSNAME,
                       isActive && "bg-accent text-foreground",
@@ -85,6 +93,18 @@ export function MobileNavigation() {
               </li>
             ))}
           </ul>
+
+          <Separator className="my-3" />
+
+          <Link
+            href="/pre-registration"
+            className={cn(
+              buttonVariants({ variant: "default", size: "default" }),
+              "w-full bg-brand-gold text-brand-navy hover:bg-brand-gold/90",
+            )}
+          >
+            پیش‌ثبت‌نام
+          </Link>
         </nav>
       )}
     </div>
