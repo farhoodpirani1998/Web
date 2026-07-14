@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { WebsiteModule } from './modules/website/website.module';
+import { resolveDatabaseSynchronize } from './config/database-synchronize.config';
 
 @Module({
   imports: [
@@ -17,8 +18,9 @@ import { WebsiteModule } from './modules/website/website.module';
         password: process.env.DATABASE_PASSWORD,
         database: process.env.DATABASE_NAME,
         autoLoadEntities: true,
-        // Migrations only in prod — never rely on synchronize outside local dev.
-        synchronize: process.env.NODE_ENV !== 'production',
+        // Validated against DATABASE_SYNCHRONIZE + NODE_ENV; throws at startup
+        // rather than ever letting synchronize run in production.
+        synchronize: resolveDatabaseSynchronize(),
       }),
     }),
     // Global throttle as a floor; public read endpoints get a tighter,
