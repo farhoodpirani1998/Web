@@ -45,6 +45,11 @@ const EventsPage = lazy(() =>
 const AdmissionsPage = lazy(() =>
   import("@/pages/AdmissionsPage").then((m) => ({ default: m.AdmissionsPage })),
 );
+const AcademicCalendarPage = lazy(() =>
+  import("@/pages/AcademicCalendarPage").then((m) => ({
+    default: m.AcademicCalendarPage,
+  })),
+);
 const NotFoundPage = lazy(() =>
   import("@/pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage })),
 );
@@ -121,6 +126,10 @@ export const router = createBrowserRouter([
       {
         path: "admissions",
         element: withSuspense(<AdmissionsPage />),
+      },
+      {
+        path: "academic-calendar",
+        element: withSuspense(<AcademicCalendarPage />),
       },
       {
         path: "*",

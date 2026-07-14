@@ -38,4 +38,5 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: "پردیس‌های آموزشی", href: "/campuses" },
   { label: "کادر آموزشی", href: "/teachers" },
   { label: "رویدادها", href: "/events" },
+  { label: "تقویم آموزشی", href: "/academic-calendar" },
 ];
