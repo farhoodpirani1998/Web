@@ -21,6 +21,12 @@ import { resolveDatabaseSynchronize } from './config/database-synchronize.config
         // Validated against DATABASE_SYNCHRONIZE + NODE_ENV; throws at startup
         // rather than ever letting synchronize run in production.
         synchronize: resolveDatabaseSynchronize(),
+        // Schema changes are applied explicitly via `npm run migration:run`
+        // (see src/data-source.ts), not automatically at boot. Multiple app
+        // instances starting concurrently would otherwise race to apply the
+        // same migration; running it as its own deploy step avoids that.
+        migrations: ['dist/migrations/*.js'],
+        migrationsRun: false,
       }),
     }),
     // Global throttle as a floor; public read endpoints get a tighter,
