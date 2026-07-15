@@ -9,6 +9,7 @@ import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
+import { SiteSettingsService } from '../site-settings/site-settings.service';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
   RevisionsService,
@@ -42,15 +43,24 @@ export class NewsService implements OnModuleInit {
     private readonly publishing: PublishingService,
     private readonly media: MediaService,
     private readonly sitemap: SitemapService,
+    private readonly siteSettings: SiteSettingsService,
     private readonly revisions: RevisionsService,
   ) {}
 
   onModuleInit() {
     // Registered once at startup, same provider-function model as
-    // AboutService. A PUBLISHED article whose publishAt is still in the
-    // future is withheld from the sitemap — this is where "Scheduling"
-    // actually takes effect, with no cron/scheduler kernel piece needed.
+    // AboutService. Also checks the feature flag itself — per
+    // SitemapService's own contract ("disabled sections are expected
+    // to return an empty array from their own provider") — since News,
+    // like Gallery/Testimonials/Faq/Events, is one of the genuinely
+    // optional sections (see SiteFeatureFlags.newsEnabled). A PUBLISHED
+    // article whose publishAt is still in the future is withheld from
+    // the sitemap — this is where "Scheduling" actually takes effect,
+    // with no cron/scheduler kernel piece needed.
     this.sitemap.register(async () => {
+      const settings = await this.siteSettings.get();
+      if (!settings.featureFlags.newsEnabled) return [];
+
       const articles = await this.findAll(PublishStatus.PUBLISHED);
       const now = new Date();
       return articles

@@ -9,6 +9,7 @@ describe('NewsService', () => {
   let publishing: any;
   let media: any;
   let sitemap: any;
+  let siteSettings: any;
   let revisions: any;
   let service: NewsService;
 
@@ -30,18 +31,31 @@ describe('NewsService', () => {
     publishing = { transition: jest.fn() };
     media = { attach: jest.fn(), detach: jest.fn() };
     sitemap = { register: jest.fn() };
+    siteSettings = {
+      get: jest.fn().mockResolvedValue({ featureFlags: { newsEnabled: true } }),
+    };
     revisions = {
       record: jest.fn(),
       list: jest.fn(),
       getVersion: jest.fn(),
     };
-    service = new NewsService(repo, siteService, publishing, media, sitemap, revisions);
+    service = new NewsService(repo, siteService, publishing, media, sitemap, siteSettings, revisions);
   });
 
   describe('onModuleInit', () => {
     it('registers a sitemap provider', () => {
       service.onModuleInit();
       expect(sitemap.register).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    it('returns no entries when newsEnabled is off', async () => {
+      siteSettings.get.mockResolvedValue({ featureFlags: { newsEnabled: false } });
+
+      service.onModuleInit();
+      const provider = sitemap.register.mock.calls[0][0];
+      const entries = await provider();
+
+      expect(entries).toEqual([]);
     });
 
     it('withholds a published article whose publishAt is still in the future', async () => {
