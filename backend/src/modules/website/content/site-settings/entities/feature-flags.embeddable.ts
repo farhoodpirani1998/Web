@@ -24,4 +24,7 @@ export class SiteFeatureFlags {
 
   @Column({ default: true })
   faqEnabled!: boolean;
+
+  @Column({ default: true })
+  eventsEnabled!: boolean;
 }

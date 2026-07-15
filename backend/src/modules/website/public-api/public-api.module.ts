@@ -6,6 +6,7 @@ import { Feature } from '../content/features/entities/feature.entity';
 import { GalleryItem } from '../content/gallery/entities/gallery-item.entity';
 import { NewsArticle } from '../content/news/entities/news-article.entity';
 import { StaticPage } from '../content/pages/entities/page.entity';
+import { CalendarEvent } from '../content/events/entities/calendar-event.entity';
 import { Faq } from '../content/faq/entities/faq.entity';
 import { Testimonial } from '../content/testimonials/entities/testimonial.entity';
 import { Menu } from '../content/navigation/entities/menu.entity';
@@ -24,6 +25,7 @@ import { PublicFeaturesController } from './features/public-features.controller'
 import { PublicGalleryController } from './gallery/public-gallery.controller';
 import { PublicNewsController } from './news/public-news.controller';
 import { PublicPagesController } from './pages/public-pages.controller';
+import { PublicEventsController } from './events/public-events.controller';
 import { PublicFaqController } from './faq/public-faq.controller';
 import { PublicTestimonialsController } from './testimonials/public-testimonials.controller';
 import { PublicNavigationController } from './navigation/public-navigation.controller';
@@ -63,6 +65,7 @@ import {
       GalleryItem,
       NewsArticle,
       StaticPage,
+      CalendarEvent,
       Faq,
       Testimonial,
       Menu,
@@ -83,6 +86,7 @@ import {
     PublicGalleryController,
     PublicNewsController,
     PublicPagesController,
+    PublicEventsController,
     PublicFaqController,
     PublicTestimonialsController,
     PublicNavigationController,

@@ -37,6 +37,7 @@ describe('SiteSettingsService', () => {
             galleryEnabled: true,
             testimonialsEnabled: true,
             faqEnabled: true,
+            eventsEnabled: true,
           },
         }),
       );
@@ -113,6 +114,7 @@ describe('SiteSettingsService', () => {
           galleryEnabled: true,
           testimonialsEnabled: true,
           faqEnabled: true,
+          eventsEnabled: true,
         },
       });
 
@@ -123,6 +125,7 @@ describe('SiteSettingsService', () => {
         galleryEnabled: false,
         testimonialsEnabled: true,
         faqEnabled: true,
+        eventsEnabled: true,
       });
       expect(events.emit).toHaveBeenCalledWith(
         WEBSITE_EVENTS.SETTINGS_UPDATED,

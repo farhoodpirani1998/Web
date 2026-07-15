@@ -17,6 +17,7 @@ import { FeaturesModule } from './content/features/features.module';
 import { GalleryModule } from './content/gallery/gallery.module';
 import { NewsModule } from './content/news/news.module';
 import { PagesModule } from './content/pages/pages.module';
+import { EventsModule as EventsContentModule } from './content/events/events.module';
 import { NavigationModule } from './content/navigation/navigation.module';
 import { SiteSettingsModule } from './content/site-settings/site-settings.module';
 import { PublicApiModule } from './public-api/public-api.module';
@@ -48,6 +49,7 @@ import { PublicApiModule } from './public-api/public-api.module';
     GalleryModule,
     NewsModule,
     PagesModule,
+    EventsContentModule,
     NavigationModule,
     SiteSettingsModule,
     PublicApiModule,

@@ -3,7 +3,7 @@ import { Translatable } from '../../core/i18n/locale.enum';
 
 /**
  * Allow-list for admin-authored rich text — the `body` field on About,
- * News, and Pages (the three modules with a WYSIWYG-editable content
+ * News, Pages, and Events (the modules with a WYSIWYG-editable content
  * field). Deliberately conservative: normal editor output (paragraphs,
  * headings, lists, links, images, basic inline formatting, tables) is
  * preserved; anything not explicitly listed here — scripts, iframes,
@@ -49,9 +49,10 @@ export function sanitizeRichTextHtml(html: string): string {
  * Applies `sanitizeRichTextHtml` to every locale value of a
  * `Translatable<string>` rich-text field. Used on `body` in
  * AboutService.update / NewsService.create+update /
- * PagesService.create+update, immediately before the entity is saved —
- * never in a public-api controller, so stored data is always already
- * sanitized by the time it's read back out.
+ * PagesService.create+update / EventsService.create+update,
+ * immediately before the entity is saved — never in a public-api
+ * controller, so stored data is always already sanitized by the time
+ * it's read back out.
  */
 export function sanitizeTranslatableRichText(
   value: Translatable<string>,

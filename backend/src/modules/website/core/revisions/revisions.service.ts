@@ -3,13 +3,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ContentRevision } from './entities/content-revision.entity';
 
-// Only these four modules get revisions — structural/list content does
-// not, since reverting a short field is trivial to just retype.
+// Only these modules get revisions — structural/list content
+// (Faq/Testimonial/Feature/GalleryItem/...) does not, since reverting
+// a short field is trivial to just retype. Each of the types below
+// carries a `body` of long-form prose worth diffing/restoring;
+// `calendar_event` joins the set for the same reason `static_page`
+// did — it's a News/Pages-shaped content type, not a structural list.
 export const REVISION_ENABLED_TYPES = [
   'hero',
   'about',
   'news_article',
   'static_page',
+  'calendar_event',
 ] as const;
 export type RevisionEnabledType = (typeof REVISION_ENABLED_TYPES)[number];
 

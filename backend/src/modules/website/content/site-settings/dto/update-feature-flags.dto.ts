@@ -16,4 +16,8 @@ export class UpdateFeatureFlagsDto {
   @IsOptional()
   @IsBoolean()
   faqEnabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  eventsEnabled?: boolean;
 }
