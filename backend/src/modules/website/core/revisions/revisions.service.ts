@@ -9,12 +9,17 @@ import { ContentRevision } from './entities/content-revision.entity';
 // carries a `body` of long-form prose worth diffing/restoring;
 // `calendar_event` joins the set for the same reason `static_page`
 // did — it's a News/Pages-shaped content type, not a structural list.
+// `campus` joins for the same reason: each campus is its own indexable
+// page with a long-form `body` (see Campus entity's doc comment); the
+// mere presence of `position` (a Feature/Testimonial-style ordering
+// field) alongside it doesn't change that.
 export const REVISION_ENABLED_TYPES = [
   'hero',
   'about',
   'news_article',
   'static_page',
   'calendar_event',
+  'campus',
 ] as const;
 export type RevisionEnabledType = (typeof REVISION_ENABLED_TYPES)[number];
 

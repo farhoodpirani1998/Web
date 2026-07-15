@@ -18,6 +18,7 @@ import { GalleryModule } from './content/gallery/gallery.module';
 import { NewsModule } from './content/news/news.module';
 import { PagesModule } from './content/pages/pages.module';
 import { EventsModule as EventsContentModule } from './content/events/events.module';
+import { CampusesModule } from './content/campuses/campuses.module';
 import { NavigationModule } from './content/navigation/navigation.module';
 import { SiteSettingsModule } from './content/site-settings/site-settings.module';
 import { PublicApiModule } from './public-api/public-api.module';
@@ -50,11 +51,11 @@ import { PublicApiModule } from './public-api/public-api.module';
     NewsModule,
     PagesModule,
     EventsContentModule,
+    CampusesModule,
     NavigationModule,
     SiteSettingsModule,
     PublicApiModule,
-    // Phase 2+ remaining: CampusesModule,
-    // StatsModule, AchievementsModule, CtaBannersModule, ...
+    // Phase 2+ remaining: Stats, Achievements, CtaBanners, ...
   ],
 })
 export class WebsiteModule {}
