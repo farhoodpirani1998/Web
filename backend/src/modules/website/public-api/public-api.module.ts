@@ -13,9 +13,11 @@ import { MenuItem } from '../content/navigation/entities/menu-item.entity';
 import { PortalLink } from '../content/site-settings/entities/portal-link.entity';
 import { Media } from '../core/media/entities/media.entity';
 import { SiteModule } from '../core/site/site.module';
+import { SeoModule } from '../core/seo/seo.module';
 import { SiteSettingsModule } from '../content/site-settings/site-settings.module';
 import { PublicVisibilityService } from './common/public-visibility.service';
 import { PublicMediaService } from './common/public-media.service';
+import { PublicSitemapController } from './sitemap/public-sitemap.controller';
 import { PublicHeroController } from './hero/public-hero.controller';
 import { PublicAboutController } from './about/public-about.controller';
 import { PublicFeaturesController } from './features/public-features.controller';
@@ -39,10 +41,12 @@ import {
  * are shaped for admin CRUD (draft+published, single-id lookup), not for
  * the public site's status+publishAt gating, slug lookups, or
  * cross-entity resolution (menu item -> page, mediaId -> url) this
- * layer needs. SiteSettingsService is the one exception — reused
- * directly for feature-flag/general-settings reads, since it already
- * exposes exactly the singleton-row read this layer needs with no
- * admin-only shaping to work around.
+ * layer needs. SiteSettingsService and SitemapService are the two
+ * exceptions — reused directly rather than re-read through a
+ * repository: SiteSettingsService already exposes exactly the
+ * singleton-row read this layer needs, and SitemapService's entries
+ * are assembled by each content module's own provider (registered in
+ * its onModuleInit), not by anything this layer would otherwise query.
  *
  * No WebsiteAuthModule import: every route here is intentionally
  * unauthenticated (see main.ts's CORS comment). Each controller carries
@@ -67,10 +71,12 @@ import {
       Media,
     ]),
     SiteModule,
+    SeoModule,
     SiteSettingsModule,
   ],
   providers: [PublicVisibilityService, PublicMediaService],
   controllers: [
+    PublicSitemapController,
     PublicHeroController,
     PublicAboutController,
     PublicFeaturesController,

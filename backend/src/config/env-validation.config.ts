@@ -123,6 +123,17 @@ class EnvironmentVariables {
   @IsOptional()
   @IsString()
   CORS_ALLOWED_ORIGINS?: string;
+
+  // --- Public site (see public-api/sitemap/public-sitemap.controller.ts) ---
+  // Absolute origin (no trailing slash) the public site is served at,
+  // e.g. "https://nedayehaghighat.example". Used only to turn each
+  // SitemapService entry's relative `loc` (e.g. "/news/some-article")
+  // into the absolute URL /sitemap.xml requires. Left unset, it falls
+  // back to "http://localhost:{PORT}" — fine for local development,
+  // but should always be set explicitly in any real deployment.
+  @IsOptional()
+  @IsString()
+  PUBLIC_SITE_URL?: string;
 }
 
 /**
