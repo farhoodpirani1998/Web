@@ -8,6 +8,7 @@ import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
+import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
   RevisionsService,
   RevisionEnabledType,
@@ -78,7 +79,7 @@ export class AboutService implements OnModuleInit {
     const previousImageMediaId = page.imageMediaId;
 
     if (dto.title !== undefined) page.title = dto.title;
-    if (dto.body !== undefined) page.body = dto.body;
+    if (dto.body !== undefined) page.body = sanitizeTranslatableRichText(dto.body);
     if (dto.imageMediaId !== undefined) page.imageMediaId = dto.imageMediaId ?? undefined;
     if (dto.seo !== undefined) page.seo = { ...page.seo, ...dto.seo };
 

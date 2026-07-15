@@ -9,6 +9,7 @@ import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
+import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
   RevisionsService,
   RevisionEnabledType,
@@ -79,7 +80,7 @@ export class NewsService implements OnModuleInit {
         title: dto.title,
         slug: dto.slug,
         excerpt: dto.excerpt,
-        body: dto.body,
+        body: sanitizeTranslatableRichText(dto.body),
         category: dto.category,
         tags: dto.tags,
         featuredImageMediaId: dto.featuredImageMediaId,
@@ -131,7 +132,7 @@ export class NewsService implements OnModuleInit {
     }
     if (dto.title !== undefined) article.title = dto.title;
     if (dto.excerpt !== undefined) article.excerpt = dto.excerpt;
-    if (dto.body !== undefined) article.body = dto.body;
+    if (dto.body !== undefined) article.body = sanitizeTranslatableRichText(dto.body);
     if (dto.category !== undefined) article.category = dto.category;
     if (dto.tags !== undefined) article.tags = dto.tags;
     if (dto.featuredImageMediaId !== undefined) {

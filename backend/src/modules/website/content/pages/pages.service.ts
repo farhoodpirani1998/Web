@@ -15,6 +15,7 @@ import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
+import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
   RevisionsService,
   RevisionEnabledType,
@@ -134,7 +135,7 @@ export class PagesService implements OnModuleInit {
         siteId,
         title: dto.title,
         slug: dto.slug,
-        body: dto.body,
+        body: sanitizeTranslatableRichText(dto.body),
         template: dto.template ?? PageTemplate.DEFAULT,
         parentId: dto.parentId,
         showInMenu: dto.showInMenu ?? true,
@@ -180,7 +181,7 @@ export class PagesService implements OnModuleInit {
       page.slug = dto.slug;
     }
     if (dto.title !== undefined) page.title = dto.title;
-    if (dto.body !== undefined) page.body = dto.body;
+    if (dto.body !== undefined) page.body = sanitizeTranslatableRichText(dto.body);
     if (dto.template !== undefined) page.template = dto.template;
     if (dto.parentId !== undefined) {
       if (dto.parentId === null) {
