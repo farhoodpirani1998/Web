@@ -7,13 +7,26 @@ import { FOCUS_RING_CLASSNAME } from "@/shared/design-system/a11y";
 import { VisuallyHidden } from "@/shared/design-system/components/VisuallyHidden";
 import { Link } from "@/shared/design-system/components/ui/link";
 import { buttonVariants } from "@/shared/design-system/components/ui/button";
+import { Skeleton } from "@/shared/design-system/components/ui/skeleton";
 import { APP_NAME } from "@/shared/config/app";
 import { cn } from "@/shared/utils/cn";
-import { NAV_ITEMS } from "@/app/shell/nav-data";
+import type { NavLinkItem } from "@/app/shell/DesktopNavigation";
 
 const MOBILE_NAV_PANEL_ID = "mobile-nav-panel";
+const EXTERNAL_URL_PATTERN = /^([a-z][a-z0-9+.-]*:)?\/\//i;
+
+function isExternalUrl(url: string): boolean {
+  return EXTERNAL_URL_PATTERN.test(url);
+}
+
+/** Fixed-width placeholder rows, same intent as `DesktopNavigation`'s skeleton bars. */
+const SKELETON_WIDTHS = ["w-24", "w-32", "w-20", "w-28", "w-16", "w-24", "w-20"] as const;
 
 export interface MobileNavigationProps {
+  /** Already resolved by `Header` — real CMS items, or the fallback list. */
+  items: readonly NavLinkItem[];
+  /** True only while the initial fetch is in flight and no data exists yet. */
+  isLoading?: boolean;
   /** Opens the shared `PortalModal` — the modal instance itself lives in `Header`. */
   onOpenPortal: () => void;
 }
@@ -45,7 +58,7 @@ export interface MobileNavigationProps {
  * assistive technology (`aria-hidden`) and the toggle's accessible name
  * comes from real text via `VisuallyHidden`.
  */
-export function MobileNavigation({ onOpenPortal }: MobileNavigationProps) {
+export function MobileNavigation({ items, isLoading = false, onOpenPortal }: MobileNavigationProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const location = useLocation();
 
@@ -124,25 +137,52 @@ export function MobileNavigation({ onOpenPortal }: MobileNavigationProps) {
                 </button>
               </div>
 
-              <ul className="flex flex-1 flex-col gap-1 overflow-y-auto p-4">
-                {NAV_ITEMS.map((item) => (
-                  <li key={item.href}>
-                    <NavLink
-                      to={item.href}
-                      end={item.href === "/"}
-                      className={({ isActive }) =>
-                        cn(
-                          "flex items-center rounded-md px-3 py-2.5 text-start text-sm font-medium text-foreground/80",
-                          "hover:bg-accent hover:text-accent-foreground",
-                          FOCUS_RING_CLASSNAME,
-                          isActive && "bg-accent text-foreground",
-                        )
+              <ul
+                className="flex flex-1 flex-col gap-1 overflow-y-auto p-4"
+                aria-busy={isLoading || undefined}
+              >
+                {isLoading
+                  ? SKELETON_WIDTHS.map((width, index) => (
+                      <li key={index} className="px-3 py-2.5">
+                        <Skeleton shape="text" className={cn(width, "h-4")} />
+                      </li>
+                    ))
+                  : items.map((item) => {
+                      const linkClassName = cn(
+                        "flex items-center rounded-md px-3 py-2.5 text-start text-sm font-medium text-foreground/80",
+                        "hover:bg-accent hover:text-accent-foreground",
+                        FOCUS_RING_CLASSNAME,
+                      );
+
+                      if (isExternalUrl(item.url)) {
+                        return (
+                          <li key={item.id}>
+                            <a
+                              href={item.url}
+                              target={item.target ?? "_blank"}
+                              rel="noopener noreferrer"
+                              className={linkClassName}
+                            >
+                              {item.label}
+                            </a>
+                          </li>
+                        );
                       }
-                    >
-                      {item.label}
-                    </NavLink>
-                  </li>
-                ))}
+
+                      return (
+                        <li key={item.id}>
+                          <NavLink
+                            to={item.url}
+                            end={item.url === "/"}
+                            className={({ isActive }) =>
+                              cn(linkClassName, isActive && "bg-accent text-foreground")
+                            }
+                          >
+                            {item.label}
+                          </NavLink>
+                        </li>
+                      );
+                    })}
               </ul>
 
               <div className="border-t border-border p-4">

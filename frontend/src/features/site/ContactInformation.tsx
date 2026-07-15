@@ -11,54 +11,67 @@ import {
   Text,
 } from "@/shared/design-system/components";
 
+import { useSiteSettings } from "./useSiteSettings";
+
 /**
  * Site Settings "Contact Information" section — the address/phone/
  * email fields a real Site Settings record would carry, following the
  * same pattern as `hero`/`about`/`contact`/`schools`/`news`/`gallery`/
  * `statistics`.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Grid`, `Card`, `Link`, `Text`) — no
- * data fetching, no business logic. Fields are grouped into a local
- * array literal (Website Frontend Architecture §4, §8) shaped the way
- * a future `useSiteSettings()` data hook's result would look, so the
- * eventual swap is a matter of replacing this literal — the layout and
- * design-system wiring below do not need to change. This is the same
- * category of data the `contact` feature's `ContactInfo` renders on the
- * public Contact page; here it is scoped as the underlying Site
+ * Backed by `useSiteSettings()` (Website Frontend Architecture §4, §8).
+ * Fields are still driven by a local array literal so the layout below
+ * doesn't need to change, but each field's `value`/`href` now reads
+ * from the API response, falling back to the section's original
+ * frontend-owned placeholder while the query is loading, has errored,
+ * or the field is absent (e.g. optional `fax`/`email`). This is the
+ * same category of data the `contact` feature's `ContactInfo` renders
+ * on the public Contact page; here it is scoped as the underlying Site
  * Settings *fields* rather than that page's own copy.
  */
 
-const contactFields = [
-  {
-    id: "address",
-    label: "آدرس",
-    type: "text",
-    value: "آدرس نمونه، خیابان نمونه، شهر نمونه.",
-  },
-  {
-    id: "phone",
-    label: "تلفن",
-    type: "link",
-    value: "+0 (000) 000-0000",
-    href: "tel:+0000000000",
-  },
-  {
-    id: "fax",
-    label: "دورنگار",
-    type: "text",
-    value: "+0 (000) 000-0001",
-  },
-  {
-    id: "email",
-    label: "ایمیل",
-    type: "link",
-    value: "info@example.com",
-    href: "mailto:info@example.com",
-  },
-] as const;
+const CONTACT_PLACEHOLDERS = {
+  address: "آدرس نمونه، خیابان نمونه، شهر نمونه.",
+  phone: "+0 (000) 000-0000",
+  phoneHref: "tel:+0000000000",
+  fax: "+0 (000) 000-0001",
+  email: "info@example.com",
+  emailHref: "mailto:info@example.com",
+} as const;
 
 export function ContactInformation() {
+  const { data } = useSiteSettings();
+  const contact = data?.contact;
+
+  const contactFields = [
+    {
+      id: "address",
+      label: "آدرس",
+      type: "text" as const,
+      value: contact?.address ?? CONTACT_PLACEHOLDERS.address,
+    },
+    {
+      id: "phone",
+      label: "تلفن",
+      type: "link" as const,
+      value: contact?.phone ?? CONTACT_PLACEHOLDERS.phone,
+      href: contact?.phoneHref ?? CONTACT_PLACEHOLDERS.phoneHref,
+    },
+    {
+      id: "fax",
+      label: "دورنگار",
+      type: "text" as const,
+      value: contact?.fax ?? CONTACT_PLACEHOLDERS.fax,
+    },
+    {
+      id: "email",
+      label: "ایمیل",
+      type: "link" as const,
+      value: contact?.email ?? CONTACT_PLACEHOLDERS.email,
+      href: contact?.emailHref ?? CONTACT_PLACEHOLDERS.emailHref,
+    },
+  ];
+
   return (
     <Section spacing="lg" aria-labelledby="site-contact-heading">
       <Stack gap="md">

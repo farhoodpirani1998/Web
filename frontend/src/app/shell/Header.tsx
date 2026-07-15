@@ -7,9 +7,33 @@ import { cn } from "@/shared/utils/cn";
 import { APP_NAME } from "@/shared/config/app";
 import { Link } from "@/shared/design-system/components/ui/link";
 import { buttonVariants } from "@/shared/design-system/components/ui/button";
-import { DesktopNavigation } from "@/app/shell/DesktopNavigation";
+import { useNavigation, type NavigationItem } from "@/features/navigation";
+import { DesktopNavigation, type NavLinkItem } from "@/app/shell/DesktopNavigation";
 import { MobileNavigation } from "@/app/shell/MobileNavigation";
 import { PortalModal } from "@/app/shell/PortalModal";
+import { NAV_ITEMS } from "@/app/shell/nav-data";
+
+/**
+ * Frontend-owned fallback used only when the CMS Navigation endpoint
+ * (`useNavigation`) has no usable data — a failed request, or (once
+ * the backend genuinely has zero items) an empty response. A header
+ * with no navigation at all is a worse failure mode than a brief,
+ * stale-but-correct list of the routes this build actually ships
+ * (`nav-data.ts`, still route-verified per that file's doc comment),
+ * so this is the same array reshaped to `NavLinkItem` rather than a
+ * second hand-maintained list.
+ */
+const FALLBACK_NAV_ITEMS: readonly NavLinkItem[] = NAV_ITEMS.map((item) => ({
+  id: item.href,
+  label: item.label,
+  url: item.href,
+}));
+
+function sortByOrder(items: readonly NavigationItem[]): NavLinkItem[] {
+  return [...items]
+    .sort((a, b) => a.order - b.order)
+    .map(({ id, label, url, target }) => ({ id, label, url, target }));
+}
 
 /**
  * Persistent header chrome (§8 "Layout Architecture"), part of the
@@ -40,6 +64,18 @@ import { PortalModal } from "@/app/shell/PortalModal";
  */
 export function Header() {
   const [isPortalOpen, setIsPortalOpen] = React.useState(false);
+  const { data, isLoading, isError } = useNavigation();
+
+  // Header is the single fetch site for nav data (§16-style "owns the
+  // state both consumers need"): DesktopNavigation and MobileNavigation
+  // stay presentational and receive the already-resolved list, so the
+  // loading/error/empty → fallback decision lives in exactly one place
+  // instead of being re-derived by each consumer.
+  const navItems = React.useMemo<readonly NavLinkItem[]>(() => {
+    if (isLoading) return [];
+    if (isError || !data || data.items.length === 0) return FALLBACK_NAV_ITEMS;
+    return sortByOrder(data.items);
+  }, [data, isLoading, isError]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/75">
@@ -60,7 +96,7 @@ export function Header() {
           </span>
         </Link>
 
-        <DesktopNavigation />
+        <DesktopNavigation items={navItems} isLoading={isLoading} />
 
         <div className="flex shrink-0 items-center gap-2">
           <button
@@ -83,7 +119,11 @@ export function Header() {
           >
             پیش‌ثبت‌نام
           </Link>
-          <MobileNavigation onOpenPortal={() => setIsPortalOpen(true)} />
+          <MobileNavigation
+            items={navItems}
+            isLoading={isLoading}
+            onOpenPortal={() => setIsPortalOpen(true)}
+          />
         </div>
       </Container>
 

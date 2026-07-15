@@ -1,31 +1,36 @@
 import { Avatar, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { APP_NAME } from "@/shared/config/app";
 
+import { useSiteSettings } from "./useSiteSettings";
+
 /**
  * Site Settings "Brand" section — first section of the `site` feature
  * (Website Frontend Architecture §4, §10 "Section Architecture"),
  * following the same pattern as `hero`/`about`/`contact`/`schools`/
  * `news`/`gallery`/`statistics`.
  *
- * This feature is presentation-only scaffolding for the backend's
- * **Site Settings** content module (§4, §8) — logo, site name,
- * tagline, contact details, social links, working hours, and
- * copyright/legal text. No such endpoint exists on the Public API yet,
- * so every value here is a frontend-owned, CMS-ready placeholder:
- * shaped the way a future `useSiteSettings()` data hook's result would
- * look, so swapping this section's constants for real data later is
- * additive — only this file changes, never its callers.
+ * Backed by `useSiteSettings()` (the Public API's Site Settings content
+ * module, §4, §8). While the query is loading, has errored, or a given
+ * field is absent from the response, each value falls back to the
+ * same frontend-owned placeholder this section rendered before it was
+ * wired up — so the section never shows an empty/broken state.
  *
- * The logo is represented with the existing `Avatar` primitive in its
- * fallback (initials) state, the same "labelled placeholder instead of
- * invented media" move already used by `AboutTeam` — there is no real
- * logo asset to point an `Image` at yet.
+ * The logo is represented with the existing `Avatar` primitive; it
+ * renders `logoUrl` when the CMS provides one, and falls back to its
+ * initials state (the same "labelled placeholder instead of invented
+ * media" move already used by `AboutTeam`) otherwise.
  */
 
 const BRAND_NAME_PLACEHOLDER = APP_NAME;
 const BRAND_TAGLINE_PLACEHOLDER = "ارتقای کیفیت آموزش، همراه شما در مسیر یادگیری";
 
 export function Brand() {
+  const { data } = useSiteSettings();
+
+  const name = data?.brand.name ?? BRAND_NAME_PLACEHOLDER;
+  const tagline = data?.brand.tagline ?? BRAND_TAGLINE_PLACEHOLDER;
+  const logoUrl = data?.brand.logoUrl;
+
   return (
     <Section spacing="lg" aria-labelledby="site-brand-heading">
       <Stack gap="md">
@@ -33,15 +38,11 @@ export function Brand() {
           هویت برند
         </Heading>
         <Stack direction="row" gap="md" align="center">
-          <Avatar
-            alt={BRAND_NAME_PLACEHOLDER}
-            fallback={BRAND_NAME_PLACEHOLDER.slice(0, 1)}
-            size="lg"
-          />
+          <Avatar src={logoUrl} alt={name} fallback={name.slice(0, 1)} size="lg" />
           <Stack gap="xs">
-            <Text weight="semibold">{BRAND_NAME_PLACEHOLDER}</Text>
+            <Text weight="semibold">{name}</Text>
             <Text variant="bodySm" color="muted">
-              {BRAND_TAGLINE_PLACEHOLDER}
+              {tagline}
             </Text>
           </Stack>
         </Stack>

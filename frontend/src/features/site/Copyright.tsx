@@ -1,6 +1,8 @@
 import { Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { APP_NAME } from "@/shared/config/app";
 
+import { useSiteSettings } from "./useSiteSettings";
+
 /**
  * Site Settings "Copyright" section — the legal/copyright line a real
  * Site Settings record would carry, following the same pattern as
@@ -9,14 +11,16 @@ import { APP_NAME } from "@/shared/config/app";
  * renders (same category of Site Settings–derived data), scoped here
  * as its own settings section rather than page chrome.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Text`) — no data fetching, no
- * business logic. The year is computed at render time (not a CMS
- * field) since it's a pure function of "now", not editorial content;
- * everything else is a frontend-owned, CMS-ready placeholder.
+ * Backed by `useSiteSettings()` (Website Frontend Architecture §4, §8):
+ * renders the CMS's fully-formed `copyright.text` line when available,
+ * falling back to the section's original render-time-computed
+ * placeholder (current year + `APP_NAME`) while the query is loading,
+ * has errored, or the field is absent.
  */
 export function Copyright() {
+  const { data } = useSiteSettings();
   const year = new Date().getFullYear();
+  const copyrightText = data?.copyright.text ?? `© ${year} ${APP_NAME}. تمامی حقوق محفوظ است.`;
 
   return (
     <Section spacing="md" aria-labelledby="site-copyright-heading">
@@ -25,7 +29,7 @@ export function Copyright() {
           کپی‌رایت
         </Heading>
         <Text variant="bodySm" color="muted">
-          {`© ${year} ${APP_NAME}. تمامی حقوق محفوظ است.`}
+          {copyrightText}
         </Text>
       </Stack>
     </Section>

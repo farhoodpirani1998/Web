@@ -7,17 +7,18 @@ import {
   Typography,
 } from "@/shared/design-system/components";
 
+import { useSiteSettings } from "./useSiteSettings";
+
 /**
  * Site Settings "Working Hours" section — the weekly schedule a real
  * Site Settings record would carry, following the same pattern as
  * `hero`/`about`/`contact`/`schools`/`news`/`gallery`/`statistics`.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Card`, `Separator`, `Text`) — no
- * data fetching, no business logic. Days are grouped into a local
- * array literal, shaped the way a future `useSiteSettings()` data
- * hook's result would look, so the eventual swap is a matter of
- * replacing this literal.
+ * Backed by `useSiteSettings()` (Website Frontend Architecture §4, §8):
+ * renders `data.workingHours` when the query has resolved with at
+ * least one row, and falls back to this section's original
+ * frontend-owned placeholder schedule while the query is loading, has
+ * errored, or the CMS has no rows configured yet.
  *
  * Rendered as a `<dl>` (day = term, hours = description) rather than a
  * generic `Grid`/`Card` row list — this is genuinely paired label/value
@@ -26,13 +27,19 @@ import {
  * proximity alone (§26 accessibility).
  */
 
-const workingHours = [
+const WORKING_HOURS_PLACEHOLDER = [
   { id: "sat-wed", day: "شنبه تا چهارشنبه", hours: "۸:۰۰ تا ۱۶:۰۰" },
   { id: "thu", day: "پنجشنبه", hours: "۸:۰۰ تا ۱۲:۰۰" },
   { id: "fri", day: "جمعه", hours: "تعطیل" },
 ] as const;
 
 export function WorkingHours() {
+  const { data } = useSiteSettings();
+  const workingHours =
+    data?.workingHours && data.workingHours.length > 0
+      ? data.workingHours
+      : WORKING_HOURS_PLACEHOLDER;
+
   return (
     <Section spacing="lg" aria-labelledby="site-hours-heading">
       <Stack gap="md">

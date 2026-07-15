@@ -12,6 +12,8 @@ import {
 } from "@/shared/design-system/components";
 import { APP_NAME } from "@/shared/config/app";
 
+import { useSiteSettings } from "./useSiteSettings";
+
 /**
  * Site Settings "General Website Information" section — the
  * miscellaneous site-level fields (name, description, founding year,
@@ -19,25 +21,45 @@ import { APP_NAME } from "@/shared/config/app";
  * the same pattern as `hero`/`about`/`contact`/`schools`/`news`/
  * `gallery`/`statistics`.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Grid`, `Card`, `Badge`, `Text`) — no
- * data fetching, no business logic. Fields are grouped into a local
- * array literal, shaped the way a future `useSiteSettings()` data
- * hook's result would look, so the eventual swap is a matter of
- * replacing this literal.
+ * Backed by `useSiteSettings()` (Website Frontend Architecture §4, §8).
+ * Fields are still grouped into a local array literal so the layout
+ * below doesn't need to change, but each field's `value` now reads
+ * from the API response, falling back to this section's original
+ * frontend-owned placeholder while the query is loading, has errored,
+ * or the field (e.g. optional `foundedYear`) is absent.
  */
 
 const SITE_DESCRIPTION_PLACEHOLDER =
   "گروه آموزشی ندای حقیقت با هدف ارتقای کیفیت آموزش و یادگیری، محتوای آموزشی و خدمات مشاوره‌ای را برای دانش‌آموزان و خانواده‌های آن‌ها فراهم می‌کند.";
-
-const generalFields = [
-  { id: "name", label: "نام سایت", value: APP_NAME },
-  { id: "founded", label: "سال تأسیس", value: "۱۳۷۸" },
-  { id: "locale", label: "زبان پیش‌فرض", value: "فارسی (fa)" },
-  { id: "status", label: "وضعیت انتشار", value: "فعال" },
-] as const;
+const SITE_FOUNDED_PLACEHOLDER = "۱۳۷۸";
+const SITE_LOCALE_PLACEHOLDER = "فارسی (fa)";
+const SITE_STATUS_LABEL: Record<"active" | "maintenance", string> = {
+  active: "فعال",
+  maintenance: "در حال تعمیر",
+};
+const SITE_STATUS_PLACEHOLDER = SITE_STATUS_LABEL.active;
 
 export function GeneralWebsiteInformation() {
+  const { data } = useSiteSettings();
+  const general = data?.general;
+
+  const description = general?.description ?? SITE_DESCRIPTION_PLACEHOLDER;
+
+  const generalFields = [
+    { id: "name", label: "نام سایت", value: data?.brand.name ?? APP_NAME },
+    { id: "founded", label: "سال تأسیس", value: general?.foundedYear ?? SITE_FOUNDED_PLACEHOLDER },
+    {
+      id: "locale",
+      label: "زبان پیش‌فرض",
+      value: general?.defaultLocale ?? SITE_LOCALE_PLACEHOLDER,
+    },
+    {
+      id: "status",
+      label: "وضعیت انتشار",
+      value: general ? SITE_STATUS_LABEL[general.status] : SITE_STATUS_PLACEHOLDER,
+    },
+  ] as const;
+
   return (
     <Section spacing="lg" aria-labelledby="site-general-heading">
       <Stack gap="md">
@@ -49,7 +71,7 @@ export function GeneralWebsiteInformation() {
             اطلاعات عمومی وب‌سایت
           </Heading>
           <Text variant="lead" className="max-w-2xl">
-            {SITE_DESCRIPTION_PLACEHOLDER}
+            {description}
           </Text>
         </Stack>
 
