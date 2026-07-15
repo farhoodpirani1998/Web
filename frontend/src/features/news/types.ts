@@ -1,16 +1,15 @@
 /**
- * CMS-ready `NewsItem` shape for the `news` feature.
+ * `NewsItem` shape for the `news` feature — the backend's
+ * News/Announcements content-module data (Website Frontend
+ * Architecture §4, §8), consumed by the feature's data-fetching hook
+ * (`./api`, `./useNews`).
  *
- * This is a frontend-owned type describing the eventual shape of the
- * backend's News/Announcements content-module data (Website Frontend
- * Architecture §4, §8) — no such Public API endpoint exists yet, so
- * nothing here is fetched. Mirrors the same structure as
- * `@/features/campuses`'s `types.ts`, `@/features/teachers`'s
- * `types.ts`, and `@/features/gallery`'s `types.ts`: a title, a
- * category, a date, an excerpt, and a longer body, so
- * `NewsCard`/`NewsList`/`NewsDetails` can be typed against real data
- * later by changing only where `newsItems` (see `./data`) comes from
- * — none of the section components need to change shape.
+ * Mirrors the same structure as `@/features/campuses`'s `types.ts`,
+ * `@/features/teachers`'s `types.ts`, and `@/features/gallery`'s
+ * `types.ts`: a title, a category, a date, an excerpt, and a longer
+ * body, so `NewsCard`/`NewsList`/`NewsDetails`/`HomeNews` stay typed
+ * the same way regardless of whether they're rendering live API data
+ * or the local placeholder fallback in `./data`.
  */
 
 export interface NewsItem {
@@ -26,4 +25,7 @@ export interface NewsItem {
   excerpt: string;
   /** Longer copy shown on `NewsDetails` (expanded context). */
   body: string;
+  /** Cover photo asset URL; omitted while no Media module-backed
+   *  value exists for the article. */
+  imageUrl?: string;
 }

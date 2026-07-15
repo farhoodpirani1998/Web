@@ -23,3 +23,5 @@ export { FAQ } from "./FAQ";
 export { EmptyState } from "./EmptyState";
 export type { NewsItem } from "./types";
 export { newsItems } from "./data";
+export { fetchNews } from "./api";
+export { useNews, newsQueryKey } from "./useNews";

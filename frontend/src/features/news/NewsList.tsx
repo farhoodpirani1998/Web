@@ -1,6 +1,7 @@
 import { Badge, Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { NewsCard } from "./NewsCard";
 import { newsItems } from "./data";
+import { useNews } from "./useNews";
 
 /**
  * News page "List" section — the news/announcement directory,
@@ -9,32 +10,19 @@ import { newsItems } from "./data";
  * `@/features/campuses`'s `CampusList`, `@/features/teachers`'s
  * `TeacherGrid`, and `@/features/gallery`'s `GalleryGrid`.
  *
- * Presentation only: composed from `Section`/`Stack`/`Grid` plus this
- * feature's own `NewsCard`, over the local `newsItems` literal
- * (`./data`) — no data fetching, no business logic. Swapping `./data`
- * for a `useNews()`-style data hook later is additive; this
- * component's JSX does not need to change.
- *
- * This is a refactor of where the six placeholder items and the
- * per-card markup live — extracted into `./data` and `./NewsCard`
- * respectively, matching the `campuses`/`teachers`/`gallery`
- * architecture — not a change to this component's public API: the
- * exported `NewsList` name, its section id (`news-list-heading`), and
- * the rendered output are unchanged, so every existing caller
- * (`NewsPage`, `@/features/news`'s `index.ts`) keeps working exactly
- * as before.
+ * Backed by `useNews()` (the Public API's News content module, §4,
+ * §8): lays out `data.news` (assumed newest-first) when the query has
+ * resolved with at least one item, and falls back to the local
+ * `newsItems` placeholder array (`./data`) while the query is loading,
+ * has errored, or the CMS has nothing published yet.
  *
  * Visual refresh: the heading now carries the same gold-badge/
  * underline eyebrow treatment the homepage `Features` section and
- * `GalleryGrid` already use, and `newsItems` is split into a "lead
+ * `GalleryGrid` already use, and the items are split into a "lead
  * story" (the first/most recent item, rendered full-width via
  * `NewsCard`'s `featured` layout) followed by the remaining items in a
  * 3-column grid — the same "one editorial lead + regular grid"
- * hierarchy premium news pages use, rather than six visually
- * identical tiles. `newsItems` itself is untouched (still assumed
- * newest-first, the same ordering `./data`'s doc comment already
- * describes); this only changes how the existing array is laid out on
- * screen.
+ * hierarchy premium news pages use, rather than uniform tiles.
  *
  * There is deliberately no per-article route/link here (§7 — no
  * generic catch-all "render whatever this slug points to" route):
@@ -43,7 +31,9 @@ import { newsItems } from "./data";
  * route.
  */
 export function NewsList() {
-  const [leadStory, ...restStories] = newsItems;
+  const { data } = useNews();
+  const items = data && data.length > 0 ? data : newsItems;
+  const [leadStory, ...restStories] = items;
 
   return (
     <Section spacing="lg" aria-labelledby="news-list-heading">

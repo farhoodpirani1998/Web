@@ -1,5 +1,6 @@
 import { Badge, Card, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { newsItems } from "./data";
+import { useNews } from "./useNews";
 
 /**
  * News page "Details" section — the expanded, full-body view of each
@@ -22,10 +23,17 @@ import { newsItems } from "./data";
  * auto-expansion, or once real interactivity is added later) reveals
  * the matching panel, no JS required for the scroll-to-anchor part.
  *
- * Reuses the same local `newsItems` literal (`./data`) as `NewsList`
- * — single source of truth for this feature's placeholder data.
+ * Backed by `useNews()` (the Public API's News content module, §4,
+ * §8): renders `data.news` when the query has resolved with at least
+ * one item, and falls back to the local `newsItems` placeholder array
+ * (`./data`) — the same source `NewsList` falls back to — while the
+ * query is loading, has errored, or the CMS has nothing published
+ * yet.
  */
 export function NewsDetails() {
+  const { data } = useNews();
+  const items = data && data.length > 0 ? data : newsItems;
+
   return (
     <Section spacing="lg" tone="muted" aria-labelledby="news-details-heading">
       <Stack gap="md">
@@ -34,7 +42,7 @@ export function NewsDetails() {
         </Heading>
 
         <Stack gap="sm">
-          {newsItems.map((item) => (
+          {items.map((item) => (
             <Card
               key={item.id}
               variant="outline"
