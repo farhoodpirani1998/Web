@@ -8,6 +8,7 @@ import { NewsArticle } from '../content/news/entities/news-article.entity';
 import { StaticPage } from '../content/pages/entities/page.entity';
 import { CalendarEvent } from '../content/events/entities/calendar-event.entity';
 import { Campus } from '../content/campuses/entities/campus.entity';
+import { Teacher } from '../content/teachers/entities/teacher.entity';
 import { Faq } from '../content/faq/entities/faq.entity';
 import { Testimonial } from '../content/testimonials/entities/testimonial.entity';
 import { Menu } from '../content/navigation/entities/menu.entity';
@@ -28,6 +29,7 @@ import { PublicNewsController } from './news/public-news.controller';
 import { PublicPagesController } from './pages/public-pages.controller';
 import { PublicEventsController } from './events/public-events.controller';
 import { PublicCampusesController } from './campuses/public-campuses.controller';
+import { PublicTeachersController } from './teachers/public-teachers.controller';
 import { PublicFaqController } from './faq/public-faq.controller';
 import { PublicTestimonialsController } from './testimonials/public-testimonials.controller';
 import { PublicNavigationController } from './navigation/public-navigation.controller';
@@ -69,6 +71,7 @@ import {
       StaticPage,
       CalendarEvent,
       Campus,
+      Teacher,
       Faq,
       Testimonial,
       Menu,
@@ -91,6 +94,7 @@ import {
     PublicPagesController,
     PublicEventsController,
     PublicCampusesController,
+    PublicTeachersController,
     PublicFaqController,
     PublicTestimonialsController,
     PublicNavigationController,

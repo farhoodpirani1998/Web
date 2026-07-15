@@ -12,7 +12,9 @@ import { ContentRevision } from './entities/content-revision.entity';
 // `campus` joins for the same reason: each campus is its own indexable
 // page with a long-form `body` (see Campus entity's doc comment); the
 // mere presence of `position` (a Feature/Testimonial-style ordering
-// field) alongside it doesn't change that.
+// field) alongside it doesn't change that. `teacher` joins for the
+// identical reason: each teacher profile is its own indexable page with
+// a long-form `bio` (see Teacher entity's doc comment).
 export const REVISION_ENABLED_TYPES = [
   'hero',
   'about',
@@ -20,6 +22,7 @@ export const REVISION_ENABLED_TYPES = [
   'static_page',
   'calendar_event',
   'campus',
+  'teacher',
 ] as const;
 export type RevisionEnabledType = (typeof REVISION_ENABLED_TYPES)[number];
 

@@ -19,6 +19,7 @@ import { NewsModule } from './content/news/news.module';
 import { PagesModule } from './content/pages/pages.module';
 import { EventsModule as EventsContentModule } from './content/events/events.module';
 import { CampusesModule } from './content/campuses/campuses.module';
+import { TeachersModule } from './content/teachers/teachers.module';
 import { NavigationModule } from './content/navigation/navigation.module';
 import { SiteSettingsModule } from './content/site-settings/site-settings.module';
 import { PublicApiModule } from './public-api/public-api.module';
@@ -52,6 +53,7 @@ import { PublicApiModule } from './public-api/public-api.module';
     PagesModule,
     EventsContentModule,
     CampusesModule,
+    TeachersModule,
     NavigationModule,
     SiteSettingsModule,
     PublicApiModule,
