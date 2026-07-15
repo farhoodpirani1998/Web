@@ -1,3 +1,6 @@
+import * as React from "react";
+import { LogIn } from "lucide-react";
+
 import { Container } from "@/shared/design-system/components/Container";
 import { FOCUS_RING_CLASSNAME } from "@/shared/design-system/a11y";
 import { cn } from "@/shared/utils/cn";
@@ -6,6 +9,7 @@ import { Link } from "@/shared/design-system/components/ui/link";
 import { buttonVariants } from "@/shared/design-system/components/ui/button";
 import { DesktopNavigation } from "@/app/shell/DesktopNavigation";
 import { MobileNavigation } from "@/app/shell/MobileNavigation";
+import { PortalModal } from "@/app/shell/PortalModal";
 
 /**
  * Persistent header chrome (§8 "Layout Architecture"), part of the
@@ -25,8 +29,18 @@ import { MobileNavigation } from "@/app/shell/MobileNavigation";
  * `buttonVariants`, `Link`) plus the same "local inline SVG" pattern
  * `MobileNavigation`'s `MenuIcon` already uses; no new shared
  * component, no new dependency, no change to nav data/behavior.
+ *
+ * Portal Login (Figma Design Reference §4.2/§4.3): `isPortalOpen` is
+ * ordinary component-local UI state (§16) — it has no reason to live
+ * anywhere else. `Header` owns it (rather than `PortalModal` owning its
+ * own open state) because both the desktop trigger below *and*
+ * `MobileNavigation`'s own trigger need to open the same single modal
+ * instance — matching Figma's `App.tsx`, where one `<PortalModal />`
+ * sits at the shell level rather than one per trigger.
  */
 export function Header() {
+  const [isPortalOpen, setIsPortalOpen] = React.useState(false);
+
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/75">
       <Container className="flex h-20 items-center justify-between gap-4">
@@ -49,6 +63,17 @@ export function Header() {
         <DesktopNavigation />
 
         <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsPortalOpen(true)}
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "hidden gap-1.5 border-brand-navy text-brand-navy hover:border-brand-gold hover:bg-transparent hover:text-brand-gold sm:inline-flex",
+            )}
+          >
+            <LogIn className="h-3.5 w-3.5" aria-hidden="true" />
+            ورود به پورتال
+          </button>
           <Link
             href="/pre-registration"
             className={cn(
@@ -58,9 +83,11 @@ export function Header() {
           >
             پیش‌ثبت‌نام
           </Link>
-          <MobileNavigation />
+          <MobileNavigation onOpenPortal={() => setIsPortalOpen(true)} />
         </div>
       </Container>
+
+      <PortalModal open={isPortalOpen} onClose={() => setIsPortalOpen(false)} />
     </header>
   );
 }

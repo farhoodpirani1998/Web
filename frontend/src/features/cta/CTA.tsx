@@ -1,84 +1,83 @@
-import { buttonVariants, Heading, Link, Section, Stack, Text } from "@/shared/design-system/components";
+import { Container, Heading, Link, Text, buttonVariants } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
 
 /**
  * Homepage "CTA" section (Website Frontend Architecture §4, §10
- * "Section Architecture", §11 "Component Hierarchy") — extracted from
- * `HomePage`'s inline placeholder section without changing its markup,
- * styling, or content, following the same pattern as the `hero` and
- * `features` features.
+ * "Section Architecture", §11 "Component Hierarchy") — rebuilt as a
+ * full-bleed `bg-primary` closing section matching the approved Figma
+ * design's `CTASection`, replacing the earlier rounded-card treatment.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Heading`, `Text`, `Link`/
- * `buttonVariants`) — no new components, no data fetching, no business
- * logic. Real headline/supporting copy/CTA target are ultimately CTA
- * content-module data (§4, §8); this renders frontend-owned Persian
- * placeholder copy in the meantime, the same convention already used
- * by `Hero`/`Features`/`Footer`/`ContactPage`/`AboutPage`. Swapping
- * this for a `useCta()`-style data hook later is additive — `HomePage`
- * only ever composes `<CTA />`, never its internals.
+ * Presentation only: composed from existing design-system primitives
+ * (`Container`, `Heading`, `Text`, `Link`/`buttonVariants`) plus a
+ * subtle `aria-hidden` dot-texture overlay (inline `radial-gradient`,
+ * matching Figma exactly — no image asset). Real headline/supporting
+ * copy are ultimately CTA content-module data (§4, §8); this renders
+ * frontend-owned Persian placeholder copy in the meantime, the same
+ * convention already used by `Hero`/`Features`/`Footer`. Both CTAs
+ * point at real existing routes (`/pre-registration`, `/admissions`) —
+ * Figma's second CTA ("Schedule a Campus Visit") has no backing route
+ * yet, so it was replaced with the existing `/admissions` link rather
+ * than wired to a placeholder (§ "no placeholder code").
  *
- * Visual refresh: stronger `xl` spacing and a rounded-2xl surface so it
- * reads as the page's closing statement, a gold underline accent to
- * match `Hero`/`Features`' eyebrow treatment, and two faint decorative
- * rings echoing the header/hero crest motif (`aria-hidden`, built only
- * from existing tokens — no new asset). A second, outlined link gives
- * the section a primary/secondary action pair instead of a single
- * button, using the existing `/admissions` route already listed in
- * `NAV_ITEMS` — no new route or backend functionality introduced.
+ * Rendered full-bleed *outside* `HomePage`'s `PageLayout`, the same
+ * reasoning as `Hero`/`HomeStatsBand` (see `HomePage.tsx`) — it needs
+ * to span the full viewport width, not sit inside `PageLayout`'s
+ * `Container` gutters.
  */
 export function CTA() {
   return (
-    <Section
-      spacing="xl"
-      tone="primary"
-      className="relative isolate overflow-hidden rounded-2xl"
-      aria-labelledby="home-cta-heading"
-    >
+    <section aria-labelledby="home-cta-heading" className="relative overflow-hidden bg-primary py-24 sm:py-32">
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-gradient-to-br from-white/5 via-transparent to-brand-gold/10"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute -end-16 -top-16 h-56 w-56 rounded-full border border-brand-gold/20"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute -start-10 -bottom-10 h-40 w-40 rounded-full border border-brand-gold/10"
+        className="absolute inset-0 opacity-[0.04]"
+        style={{
+          backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
+          backgroundSize: "48px 48px",
+        }}
       />
 
-      <Stack gap="md" align="center" className="relative px-6 text-center">
-        <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
-        <Heading id="home-cta-heading" level={2} color="inherit">
+      <Container size="xl" className="relative z-10 text-center">
+        <div className="mb-6 flex items-center justify-center gap-3">
+          <span aria-hidden="true" className="h-px w-8 bg-accent/60" />
+          <span className="text-xs font-bold text-accent">به خانواده‌ی ما بپیوندید</span>
+          <span aria-hidden="true" className="h-px w-8 bg-accent/60" />
+        </div>
+
+        <Heading
+          id="home-cta-heading"
+          level={2}
+          color="inherit"
+          className="mx-auto mb-5 max-w-2xl text-3xl leading-tight text-white md:text-5xl"
+        >
           عنوان نمونه برای بخش فراخوان اقدام
         </Heading>
-        <Text variant="lead" color="inherit" className="max-w-2xl text-white/80">
-          متن جمع‌بندی نمونه برای بخش فراخوان اقدام. این متن جایگزین محتوایی
-          است که در نهایت پس از پیاده‌سازی ماژول محتوایی فراخوان اقدام، از
-          طریق Public API بک‌اند تأمین خواهد شد.
+
+        <Text variant="lead" color="inherit" className="mx-auto mb-10 max-w-xl text-white/55">
+          متن جمع‌بندی نمونه برای بخش فراخوان اقدام. این متن جایگزین محتوایی است که در نهایت پس از
+          پیاده‌سازی ماژول محتوایی فراخوان اقدام، از طریق Public API بک‌اند تأمین خواهد شد.
         </Text>
-        <Stack direction="row" gap="sm" wrap justify="center">
+
+        <div className="flex flex-wrap items-center justify-center gap-4">
           <Link
-            href="/contact"
+            href="/pre-registration"
             className={cn(
-              buttonVariants({ variant: "secondary", size: "lg" }),
-              "bg-brand-gold text-brand-navy hover:bg-brand-gold/90",
+              buttonVariants({ size: "lg" }),
+              "rounded-full bg-accent px-8 py-4 text-primary shadow-xl shadow-accent/20 hover:bg-accent/90",
             )}
           >
-            تماس با ما
+            شروع پیش‌ثبت‌نام
           </Link>
           <Link
             href="/admissions"
             className={cn(
               buttonVariants({ variant: "outline", size: "lg" }),
-              "border-white/30 text-white hover:bg-white/10",
+              "rounded-full border-white/25 px-8 py-4 text-white hover:border-accent hover:bg-transparent hover:text-accent",
             )}
           >
             پذیرش و ثبت‌نام
           </Link>
-        </Stack>
-      </Stack>
-    </Section>
+        </div>
+      </Container>
+    </section>
   );
 }

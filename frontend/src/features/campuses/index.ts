@@ -9,6 +9,7 @@
  * `EmptyState` is exported for future wiring (see its own file's doc
  * comment) but is not composed by `CampusesPage` today.
  */
+export { HomeCampuses } from "./HomeCampuses";
 export { Hero } from "./Hero";
 export { CampusList } from "./CampusList";
 export { CampusCard, type CampusCardProps } from "./CampusCard";

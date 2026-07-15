@@ -10,6 +10,13 @@ import {
 import { FOCUS_RING_CLASSNAME } from "@/shared/design-system/a11y";
 import { cn } from "@/shared/utils/cn";
 import { APP_NAME } from "@/shared/config/app";
+import {
+  CONTACT_ADDRESS,
+  CONTACT_EMAIL,
+  CONTACT_EMAIL_HREF,
+  CONTACT_PHONE,
+  CONTACT_PHONE_HREF,
+} from "@/shared/config/contact";
 import { NAV_ITEMS } from "@/app/shell/nav-data";
 
 /**
@@ -17,25 +24,39 @@ import { NAV_ITEMS } from "@/app/shell/nav-data";
  * `AppShell` below `ContentWrapper`, never re-mounted on route changes —
  * the same pattern `Header` already follows.
  *
- * Presentation only: every string below (site name, description,
- * contact details) is a frontend-owned placeholder, shaped the way a
- * future Site Settings–derived data hook would return it (§4, §8,
- * §35 "does not invent backend functionality" — no such public
- * endpoint exists yet). Swapping these constants for real CMS content
- * later is additive; this component never assumes their shape beyond
- * plain strings. Navigation links reuse the same `NAV_ITEMS` list the
- * `Header` renders (split across two columns purely for footer
- * scannability), since both are the same frontend-owned structural
- * nav, not independently maintained content.
+ * Rebuilt to match the approved Figma design's `Footer` (Figma Design
+ * Reference §4.13): four columns — brand+description | quick links |
+ * schools list | contact info — replacing the earlier two-way NAV_ITEMS
+ * split. `Contact` details now come from the shared
+ * `shared/config/contact` constants (also used by `TopBar`) instead of
+ * duplicating them locally.
  *
- * Brand pass: a dark navy/gold surface — the same identity `Header`'s
- * `BrandMark` and `Hero`'s `HeroEmblem` already establish — so the
- * chrome reads as one consistent school brand system from top to
- * bottom of the page. Still composed only from existing design-system
- * primitives (`Container`, `Grid`, `Stack`, `Heading`, `Text`, `Link`)
- * plus local, `aria-hidden` decorative SVG helpers in the same spirit
- * as `Header`'s `BrandMark` and `Hero`'s `SparkIcon`/`HeroEmblem` — no
- * new shared component, no data fetching, no business logic.
+ * Resolved open decisions from the reference doc (§5):
+ * - §5.3 footer color: a dedicated `--footer-bg` token
+ *   (`shared/design-system/tokens/tokens.css`) matching Figma's
+ *   `#0A1E38` exactly, rather than reusing `--primary`/`--brand-navy`
+ *   at an opacity — the two are visibly distinct brand surfaces.
+ * - §5.6 `href="#"` links: Figma's Privacy/Terms/Sitemap row has no
+ *   real routes yet, so — same "no placeholder code" convention
+ *   `Hero`/`TopBar` already follow — that row is left out entirely
+ *   rather than wired to `#`. Once those routes exist, adding the row
+ *   back is additive.
+ *
+ * "Schools list" keeps its own small local `FOOTER_SCHOOLS` literal
+ * (`id`/`name` only) rather than importing `@/features/campuses`
+ * directly — footer chrome living in `app/shell` staying independent
+ * of feature internals, the same "home band owns its own placeholder
+ * content" convention `HomeCampuses` already follows for the same
+ * reason. `id`s are kept aligned with the real `campuses` records
+ * (`central`/`west`/`isfahan`/`mashhad`) so the two don't visibly
+ * disagree, and each link points at the same `/campuses#campus-{id}`
+ * in-page anchor `HomeCampuses`/`CampusCard` already use.
+ *
+ * Presentation only: composed from existing design-system primitives
+ * (`Container`, `Grid`, `Stack`, `Heading`, `Text`, `Link`) plus local,
+ * `aria-hidden` decorative SVG helpers in the same spirit as `Header`'s
+ * `BrandMark` — no new shared component, no data fetching, no business
+ * logic.
  *
  * Persian-first and RTL-compatible: the document root already sets
  * `lang="fa"`/`dir="rtl"` (see `index.html`), and every primitive used
@@ -47,11 +68,18 @@ import { NAV_ITEMS } from "@/app/shell/nav-data";
 const SITE_DESCRIPTION_PLACEHOLDER =
   "گروه آموزشی ندای حقیقت با هدف ارتقای کیفیت آموزش و یادگیری، محتوای آموزشی و خدمات مشاوره‌ای را برای دانش‌آموزان و خانواده‌های آن‌ها فراهم می‌کند.";
 
-const CONTACT_ADDRESS_PLACEHOLDER = "تهران، خیابان ولیعصر، پلاک ۱۲۳، طبقه ۲";
-const CONTACT_PHONE_PLACEHOLDER = "۰۲۱-۱۲۳۴۵۶۷۸";
-const CONTACT_PHONE_HREF = "tel:+982112345678";
-const CONTACT_EMAIL_PLACEHOLDER = "info@example.com";
-const CONTACT_EMAIL_HREF = "mailto:info@example.com";
+/** Figma's primary nav set (§4.2), reused here as the footer's "quick links" column. */
+const FOOTER_QUICK_LINKS = NAV_ITEMS.filter((item) =>
+  ["/", "/schools", "/about", "/news", "/pre-registration", "/contact"].includes(item.href),
+);
+
+/** Footer-owned schools list — see the doc comment above for why this isn't `campuses/data.ts`. */
+const FOOTER_SCHOOLS: readonly { id: string; name: string }[] = [
+  { id: "central", name: "پردیس مرکزی" },
+  { id: "west", name: "پردیس غرب تهران" },
+  { id: "isfahan", name: "پردیس اصفهان" },
+  { id: "mashhad", name: "پردیس مشهد" },
+];
 
 /** Shared on-navy link treatment for every footer link (nav + contact). */
 const FOOTER_LINK_CLASSNAME = cn(
@@ -59,16 +87,11 @@ const FOOTER_LINK_CLASSNAME = cn(
   FOCUS_RING_CLASSNAME,
 );
 
-/** `NAV_ITEMS`, split into two even columns purely for footer layout. */
-const FOOTER_NAV_SPLIT = Math.ceil(NAV_ITEMS.length / 2);
-const FOOTER_NAV_COLUMN_ONE = NAV_ITEMS.slice(0, FOOTER_NAV_SPLIT);
-const FOOTER_NAV_COLUMN_TWO = NAV_ITEMS.slice(FOOTER_NAV_SPLIT);
-
 export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-brand-gold/20 bg-brand-navy text-white">
+    <footer className="border-t border-brand-gold/20 bg-footer text-white">
       <Container>
         <Section spacing="lg" tone="transparent" as="div">
           <Grid cols="4" gap="lg">
@@ -89,12 +112,12 @@ export function Footer() {
               </Text>
             </Stack>
 
-            <Stack gap="sm" as="nav" aria-label="پیوندهای کاربردی فوتر (بخش اول)">
+            <Stack gap="sm" as="nav" aria-label="لینک‌های سریع فوتر">
               <Text variant="overline" as="span" className="text-brand-gold">
                 لینک‌های سریع
               </Text>
               <Stack gap="xs" as="ul" className="list-none p-0 m-0">
-                {FOOTER_NAV_COLUMN_ONE.map((item) => (
+                {FOOTER_QUICK_LINKS.map((item) => (
                   <li key={item.href}>
                     <Link href={item.href} variant="muted" className={FOOTER_LINK_CLASSNAME}>
                       {item.label}
@@ -104,15 +127,19 @@ export function Footer() {
               </Stack>
             </Stack>
 
-            <Stack gap="sm" as="nav" aria-label="پیوندهای کاربردی فوتر (بخش دوم)">
+            <Stack gap="sm" as="nav" aria-label="فهرست مدارس در فوتر">
               <Text variant="overline" as="span" className="text-brand-gold">
-                دسترسی بیشتر
+                مدارس ما
               </Text>
               <Stack gap="xs" as="ul" className="list-none p-0 m-0">
-                {FOOTER_NAV_COLUMN_TWO.map((item) => (
-                  <li key={item.href}>
-                    <Link href={item.href} variant="muted" className={FOOTER_LINK_CLASSNAME}>
-                      {item.label}
+                {FOOTER_SCHOOLS.map((school) => (
+                  <li key={school.id}>
+                    <Link
+                      href={`/campuses#campus-${school.id}`}
+                      variant="muted"
+                      className={FOOTER_LINK_CLASSNAME}
+                    >
+                      {school.name}
                     </Link>
                   </li>
                 ))}
@@ -127,7 +154,7 @@ export function Footer() {
                 <Stack direction="row" gap="sm" align="start">
                   <MapPinIcon className="mt-0.5 h-4 w-4 shrink-0 text-brand-gold" />
                   <Text variant="bodySm" className="text-white/70">
-                    {CONTACT_ADDRESS_PLACEHOLDER}
+                    {CONTACT_ADDRESS}
                   </Text>
                 </Stack>
                 <Stack direction="row" gap="sm" align="center">
@@ -138,7 +165,7 @@ export function Footer() {
                     className={FOOTER_LINK_CLASSNAME}
                     dir="ltr"
                   >
-                    {CONTACT_PHONE_PLACEHOLDER}
+                    {CONTACT_PHONE}
                   </Link>
                 </Stack>
                 <Stack direction="row" gap="sm" align="center">
@@ -149,7 +176,7 @@ export function Footer() {
                     className={FOOTER_LINK_CLASSNAME}
                     dir="ltr"
                   >
-                    {CONTACT_EMAIL_PLACEHOLDER}
+                    {CONTACT_EMAIL}
                   </Link>
                 </Stack>
               </Stack>

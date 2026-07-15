@@ -15,43 +15,49 @@
 
 :root {
   /* Brand core */
-  --brand-navy: 219 61% 16%; /* #0a1f44 */
-  --brand-gold: 40 51% 51%; /* #c9a24b */
+  --brand-navy: 213 69% 19%; /* #0F2D52 */
+  --brand-gold: 46 68% 47%; /* #C9A227 */
 
   /* Semantic tokens (shadcn/ui convention: HSL channel triplets) */
   --background: 0 0% 100%;
-  --foreground: 219 61% 12%;
+  --foreground: 222 34% 15%; /* #1A2235 */
 
-  --card: 0 0% 100%;
-  --card-foreground: 219 61% 12%;
+  --card: 216 45% 98%; /* #F7F9FC */
+  --card-foreground: 222 34% 15%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 219 61% 12%;
+  --popover-foreground: 222 34% 15%;
 
-  --primary: 219 61% 16%;
+  --primary: 213 69% 19%; /* #0F2D52 */
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 40 51% 51%;
-  --secondary-foreground: 219 61% 12%;
+  --secondary: 216 42% 95%; /* #EEF2F8 */
+  --secondary-foreground: 213 69% 19%;
 
-  --muted: 220 14% 96%;
-  --muted-foreground: 220 9% 40%;
+  --muted: 216 42% 95%; /* #EEF2F8 */
+  --muted-foreground: 224 11% 47%; /* #6B7285 */
 
-  --accent: 40 51% 92%;
-  --accent-foreground: 219 61% 16%;
+  --accent: 46 68% 47%; /* #C9A227 — solid gold, per approved Figma design */
+  --accent-foreground: 213 69% 19%;
 
-  --destructive: 0 72% 51%;
+  --destructive: 348 80% 46%; /* #d4183d */
   --destructive-foreground: 0 0% 100%;
 
-  --border: 220 13% 89%;
+  --border: 213 69% 19% / 0.1; /* rgba(15, 45, 82, 0.1) per Figma */
   --input: 220 13% 89%;
-  --ring: 219 61% 16%;
+  --ring: 46 68% 47%; /* gold ring, per approved Figma design */
 
-  --radius: 0.5rem;
+  /* Footer surface — darker than --primary per the approved Figma
+     design (#0A1E38 vs. #0F2D52). A dedicated token rather than an
+     opacity/darken derivation of --primary, since the two are visibly
+     distinct brand surfaces, not the same color at different alphas. */
+  --footer-bg: 216 66% 12%; /* #0A1E38 */
 
-  /* Typography */
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-heading: "Inter", system-ui, sans-serif;
+  --radius: 1rem;
+
+  /* Typography — Vazirmatn per approved Figma design (Persian RTL identity) */
+  --font-sans: "Vazirmatn", system-ui, sans-serif;
+  --font-heading: "Vazirmatn", system-ui, sans-serif;
 }
 
 /*

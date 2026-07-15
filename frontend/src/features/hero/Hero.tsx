@@ -1,140 +1,104 @@
-import { Badge, buttonVariants, Heading, Link, Section, Stack, Text } from "@/shared/design-system/components";
+import { ArrowLeft } from "lucide-react";
+
+import { Container, Image, Link, buttonVariants } from "@/shared/design-system/components";
 import { APP_NAME } from "@/shared/config/app";
 import { cn } from "@/shared/utils/cn";
 
 /**
  * Homepage "Hero" section (Website Frontend Architecture §4, §10
- * "Section Architecture", §11 "Component Hierarchy") — the first real
- * feature module, extracted from `HomePage`'s inline placeholder
- * section without changing its markup, styling, or content.
+ * "Section Architecture", §11 "Component Hierarchy").
  *
- * Presentation only: composed from existing design-system primitives
- * (`Section`, `Stack`, `Heading`, `Text`, `Badge`, `Link`/
- * `buttonVariants`) plus two small local, `aria-hidden` decorative SVG
- * helpers (`SparkIcon`, `HeroEmblem`) in the same spirit as
- * `MobileNavigation`'s existing `MenuIcon` — no new shared component,
- * no data fetching, no business logic. Real headline/supporting
- * copy/CTAs are ultimately Site Settings/Hero content-module data (§4,
- * §8); this still renders frontend-owned Persian placeholder copy in
- * the meantime, the same convention already used by
- * `Footer`/`ContactPage`/`AboutPage`.
+ * Full-bleed, image-backed hero matching the approved Figma design:
+ * a `min-h-[600px] h-[90vh]` section with a cover photo, a `--primary`
+ * (navy) scrim/gradient over it, and the headline/CTAs sitting on top.
+ * Deliberately rendered *outside* `HomePage`'s `PageLayout`/`Container`
+ * (see `HomePage.tsx`) so it can span the full viewport width; it opens
+ * its own `Container` only for the text column, matching Figma's
+ * `max-w-7xl` inner wrapper.
  *
- * Visual refresh: the centered single column becomes an asymmetric
- * two-column layout (text + a decorative navy/gold crest echoing the
- * header's `BrandMark`) on `lg`+, collapsing back to a single stacked
- * column below it. `Section` still sits inside `HomePage`'s existing
- * `PageLayout`/`Container`, so no extra `Container` is introduced here
- * — that would double up the horizontal gutters already provided by
- * the page.
+ * The background photo is a stand-in: hero imagery is ultimately
+ * sourced from the Site/CMS content module (§4, §8), so this renders a
+ * placeholder image and frontend-owned Persian copy in the meantime —
+ * same convention as `Footer`/`ContactPage`/`AboutPage`. Both CTAs
+ * point at real existing routes (`/pre-registration`, `/contact`); no
+ * portal-login route exists yet, so that Figma CTA is intentionally
+ * left out rather than wired to a placeholder link (§ "no placeholder
+ * code").
+ *
+ * Entrance motion uses `tailwindcss-animate`'s `animate-in` utilities
+ * (already a dependency) instead of adding a runtime animation
+ * library — CSS-only, no new dependency.
  */
 export function Hero() {
   return (
-    <Section spacing="xl" aria-labelledby="home-hero-heading" className="relative isolate overflow-hidden">
+    <section
+      aria-labelledby="home-hero-heading"
+      className="relative flex h-[90vh] min-h-[600px] items-center overflow-hidden bg-primary"
+    >
+      <Image
+        src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920&h=1080&fit=crop&auto=format"
+        alt="نمای ساختمان و محوطه‌ی آموزشی مجتمع"
+        loading="eager"
+        fit="cover"
+        containerClassName="absolute inset-0 h-full w-full"
+      />
+      <div aria-hidden="true" className="absolute inset-0 bg-primary/78" />
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 rounded-[2.5rem] bg-gradient-to-b from-muted/70 via-muted/15 to-transparent"
+        className="absolute inset-0 bg-gradient-to-r from-primary/60 via-primary/30 to-transparent"
       />
 
-      <div className="grid items-center gap-12 py-4 lg:min-h-[26rem] lg:grid-cols-12 lg:gap-10">
-        <Stack gap="lg" align="start" className="lg:col-span-7">
-          <Stack gap="sm" align="start">
-            <Badge
-              variant="outline"
-              className="gap-1.5 rounded-full border-brand-gold/40 bg-brand-gold/10 px-3 py-1 text-brand-navy"
-            >
-              <SparkIcon className="h-3 w-3" />
-              {APP_NAME}
-            </Badge>
+      <Container size="xl" className="relative z-10 w-full pt-8">
+        <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="mb-7 inline-flex items-center gap-3 animate-in fade-in slide-in-from-start-4 duration-700 delay-150 fill-mode-both">
+            <span aria-hidden="true" className="h-px w-10 bg-accent" />
+            <span className="text-xs font-bold text-accent">{APP_NAME}</span>
+          </div>
 
-            <Stack gap="xs" align="start">
-              <Heading id="home-hero-heading" level={1} className="max-w-xl">
-                عنوان اصلی نمونه برای بخش هیرو
-              </Heading>
-              <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
-            </Stack>
+          <h1
+            id="home-hero-heading"
+            className="mb-6 text-4xl font-bold leading-[1.3] tracking-tight text-white md:text-5xl lg:text-[3.4rem]"
+          >
+            آینده‌ای روشن با <span className="text-accent">آموزشی معنادار</span>
+          </h1>
 
-            <Text variant="lead" className="max-w-lg text-foreground/70">
-              متن معرفی نمونه برای بخش هیرو. این متن جایگزین محتوایی است که
-              در نهایت پس از پیاده‌سازی ماژول محتوایی هیرو، از طریق Public
-              API بک‌اند تأمین خواهد شد.
-            </Text>
-          </Stack>
+          <p className="mb-10 max-w-xl text-base font-light leading-relaxed text-white/65 md:text-lg">
+            متن معرفی نمونه برای بخش هیرو. این متن جایگزین محتوایی است که در نهایت پس از پیاده‌سازی ماژول
+            محتوایی هیرو، از طریق Public API بک‌اند تأمین خواهد شد.
+          </p>
 
-          <Stack direction="row" gap="sm" wrap>
+          <div className="flex flex-wrap gap-3">
             <Link
-              href="/about"
+              href="/pre-registration"
               className={cn(
-                buttonVariants({ variant: "default", size: "lg" }),
-                "bg-brand-gold text-brand-navy shadow-sm hover:bg-brand-gold/90",
+                buttonVariants({ size: "lg" }),
+                "gap-2 rounded-full bg-accent text-primary shadow-lg shadow-accent/20 hover:bg-accent/90",
               )}
             >
-              بیشتر بدانید
+              پیش‌ثبت‌نام
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             </Link>
             <Link
               href="/contact"
               className={cn(
                 buttonVariants({ variant: "outline", size: "lg" }),
-                "border-brand-navy/25 text-brand-navy hover:bg-brand-navy hover:text-white",
+                "gap-2 rounded-full border-white/30 text-white backdrop-blur-sm hover:border-accent hover:bg-transparent hover:text-accent",
               )}
             >
               تماس با ما
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             </Link>
-          </Stack>
-        </Stack>
-
-        <div className="lg:col-span-5">
-          <HeroEmblem className="mx-auto w-full max-w-xs sm:max-w-sm" />
+          </div>
         </div>
+      </Container>
+
+      <div
+        aria-hidden="true"
+        className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 animate-in fade-in duration-700 delay-500 fill-mode-both"
+      >
+        <span className="text-[10px] font-medium text-white/30">اسکرول کنید</span>
+        <span className="h-10 w-px bg-gradient-to-b from-white/30 to-transparent" />
       </div>
-    </Section>
-  );
-}
-
-/** Small "quality mark" glyph used inside the eyebrow badge. Decorative only. */
-function SparkIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 16 16" className={className} aria-hidden="true" focusable="false">
-      <path
-        d="M8 0.5 9.4 6.1 15 8 9.4 9.9 8 15.5 6.6 9.9 1 8 6.6 6.1 8 0.5Z"
-        className="fill-brand-gold"
-      />
-    </svg>
-  );
-}
-
-/**
- * Decorative navy/gold crest — the hero's signature visual, echoing
- * `Header`'s `BrandMark` at a larger scale so the two areas read as one
- * brand system. Purely presentational (`aria-hidden`), built only from
- * existing tokens (`brand-navy`/`brand-gold`/`accent`/`background`), no
- * external image asset.
- */
-function HeroEmblem({ className }: { className?: string }) {
-  return (
-    <div className={cn("relative aspect-square", className)} aria-hidden="true">
-      <div className="absolute inset-0 rounded-[2rem] bg-accent" />
-      <div className="absolute inset-6 rounded-[1.5rem] border border-brand-gold/30" />
-      <svg viewBox="0 0 200 200" className="absolute inset-10">
-        <circle cx="100" cy="100" r="92" className="fill-brand-navy" />
-        <circle cx="100" cy="100" r="90" className="fill-none stroke-brand-gold/70" strokeWidth="1.5" />
-        <path
-          d="M55 118V72l45-24 45 24v46"
-          className="fill-none stroke-brand-gold"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path d="M100 48v70" className="stroke-brand-gold" strokeWidth="3" strokeLinecap="round" />
-        <circle cx="100" cy="130" r="4" className="fill-brand-gold" />
-        <path
-          d="M55 118q45 22 90 0"
-          className="fill-none stroke-background/60"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </svg>
-      <span className="absolute -top-2 end-10 h-3 w-3 rounded-full bg-brand-gold shadow-sm" />
-      <span className="absolute bottom-8 start-0 h-2 w-2 rounded-full bg-brand-navy/50" />
-    </div>
+    </section>
   );
 }

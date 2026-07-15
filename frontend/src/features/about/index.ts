@@ -6,6 +6,7 @@
  * section components only from here — never from the individual
  * `./AboutHero`, `./AboutStats`, etc. files directly.
  */
+export { HomeAbout } from "./HomeAbout";
 export { AboutHero } from "./AboutHero";
 export { AboutStats } from "./AboutStats";
 export { AboutStory } from "./AboutStory";

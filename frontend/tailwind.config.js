@@ -55,6 +55,9 @@ export default {
           navy: "hsl(var(--brand-navy))",
           gold: "hsl(var(--brand-gold))",
         },
+        footer: {
+          DEFAULT: "hsl(var(--footer-bg))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

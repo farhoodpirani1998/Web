@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { SkipLink } from "@/shared/design-system/components/SkipLink";
+import { TopBar } from "@/app/shell/TopBar";
 import { Header } from "@/app/shell/Header";
 import { ContentWrapper } from "@/app/shell/ContentWrapper";
 import { Footer } from "@/app/shell/Footer";
@@ -27,12 +28,20 @@ export interface AppShellProps {
  * `Header` (§8) — it renders once, below the routed content, and is
  * never re-mounted on route changes.
  *
- * Portal-selector modal (§8) is still out of scope for this Sprint.
+ * `TopBar` (Figma Design Reference §4.1) sits above `Header`, same
+ * persistent/router-agnostic pattern, hidden below `sm` (its own
+ * internal responsibility, not `AppShell`'s).
+ *
+ * Portal-selector modal (Figma Design Reference §4.3) is owned by
+ * `Header` — see that file's doc comment — since its two triggers
+ * (`Header`'s own button, `MobileNavigation`'s button) both live under
+ * `Header`.
  */
 export function AppShell({ children }: AppShellProps) {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <SkipLink />
+      <TopBar />
       <Header />
       <ContentWrapper>{children}</ContentWrapper>
       <Footer />

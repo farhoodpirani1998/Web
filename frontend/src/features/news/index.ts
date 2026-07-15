@@ -14,6 +14,7 @@
  * `EmptyState` is exported for future wiring (see its own file's doc
  * comment) but is not composed by `NewsPage` today.
  */
+export { HomeNews } from "./HomeNews";
 export { NewsHero } from "./NewsHero";
 export { NewsList } from "./NewsList";
 export { NewsCard, type NewsCardProps } from "./NewsCard";

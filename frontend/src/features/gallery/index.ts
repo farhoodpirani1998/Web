@@ -17,6 +17,7 @@
  */
 export { GalleryHero } from "./GalleryHero";
 export { GalleryGrid } from "./GalleryGrid";
+export { HomeGallery } from "./HomeGallery";
 export { GalleryCard, type GalleryCardProps } from "./GalleryCard";
 export { GalleryDetails } from "./GalleryDetails";
 export { FAQ } from "./FAQ";

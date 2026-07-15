@@ -5,43 +5,43 @@
  * brand/chrome assets, bundled with the frontend build (never CMS content),
  * so they belong here rather than being fetched from the Public API.
  *
- * Phase 1 ships the @font-face scaffolding wired to the design tokens
- * (--font-sans / --font-heading in tokens.css) with a system-font fallback
- * stack, so the app renders correctly today. Drop the approved brand
- * typeface's actual .woff2 files into src/assets/fonts/ and uncomment the
- * @font-face blocks below when the brand typeface is finalized — no other
- * change is required, since every component already reads the font
- * through the token, never a hardcoded family name.
+ * Brand typeface is Vazirmatn (Persian RTL identity, per approved Figma
+ * design). Phase 1 ships the @font-face scaffolding wired to the design
+ * tokens (--font-sans / --font-heading in tokens.css) with a system-font
+ * fallback stack, so the app renders correctly today. Drop the Vazirmatn
+ * .woff2 files into src/assets/fonts/ and uncomment the @font-face blocks
+ * below to self-host — no other change is required, since every component
+ * already reads the font through the token, never a hardcoded family name.
  */
 
 /*
 @font-face {
-  font-family: "Inter";
-  src: url("/src/assets/fonts/inter-regular.woff2") format("woff2");
+  font-family: "Vazirmatn";
+  src: url("/src/assets/fonts/vazirmatn-regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Inter";
-  src: url("/src/assets/fonts/inter-medium.woff2") format("woff2");
+  font-family: "Vazirmatn";
+  src: url("/src/assets/fonts/vazirmatn-medium.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Inter";
-  src: url("/src/assets/fonts/inter-semibold.woff2") format("woff2");
+  font-family: "Vazirmatn";
+  src: url("/src/assets/fonts/vazirmatn-semibold.woff2") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Inter";
-  src: url("/src/assets/fonts/inter-bold.woff2") format("woff2");
+  font-family: "Vazirmatn";
+  src: url("/src/assets/fonts/vazirmatn-bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;

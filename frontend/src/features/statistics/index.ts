@@ -8,3 +8,4 @@
  */
 export { StatisticsHero } from "./StatisticsHero";
 export { StatisticsGrid } from "./StatisticsGrid";
+export { HomeStatsBand } from "./HomeStatsBand";
