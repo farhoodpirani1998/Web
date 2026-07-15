@@ -1,16 +1,15 @@
 /**
- * CMS-ready `GalleryItem` shape for the `gallery` feature.
+ * `GalleryItem` shape for the `gallery` feature — the backend's
+ * Gallery/Media content-module data (Website Frontend Architecture
+ * §4, §8), consumed by the feature's data-fetching hook (`./api`,
+ * `./useGallery`).
  *
- * This is a frontend-owned type describing the eventual shape of the
- * backend's Gallery/Media content-module data (Website Frontend
- * Architecture §4, §8) — no such Public API endpoint exists yet, so
- * nothing here is fetched. Mirrors the same structure as
- * `@/features/campuses`'s `types.ts` (`Campus`/`CampusImage`) and
- * `@/features/teachers`'s `types.ts` (`Teacher`/`TeacherImage`): a
- * title, a category, an image, and a longer description, so
- * `GalleryCard`/`GalleryGrid`/`GalleryDetails` can be typed against
- * real data later by changing only where `galleryItems` (see `./data`)
- * comes from — none of the section components need to change shape.
+ * Mirrors the same structure as `@/features/campuses`'s `types.ts`
+ * (`Campus`/`CampusImage`) and `@/features/teachers`'s `types.ts`
+ * (`Teacher`/`TeacherImage`): a title, a category, an image, and a
+ * longer description, so `GalleryCard`/`GalleryGrid`/`GalleryDetails`
+ * stay typed the same way regardless of whether they're rendering
+ * live API data or the local placeholder fallback in `./data`.
  */
 
 export interface GalleryImage {

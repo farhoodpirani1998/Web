@@ -1,5 +1,6 @@
-import { AspectRatio, Badge, Card, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { AspectRatio, Badge, Card, Heading, Image, Section, Stack, Text } from "@/shared/design-system/components";
 import { galleryItems } from "./data";
+import { useGallery } from "./useGallery";
 
 /**
  * Gallery page "Details" section — the expanded, in-depth view of
@@ -22,11 +23,19 @@ import { galleryItems } from "./data";
  * interactivity is added later) reveals the matching panel, no JS
  * required for the scroll-to-anchor part.
  *
- * Reuses the same local `galleryItems` literal (`./data`) as
- * `GalleryGrid` — single source of truth for this feature's
- * placeholder data.
+ * Backed by `useGallery()` (the Public API's Gallery/Media content
+ * module, §4, §8): renders `data.gallery` when the query has resolved
+ * with at least one item, and falls back to the local `galleryItems`
+ * placeholder array (`./data`) — the same source `GalleryGrid` falls
+ * back to — while the query is loading, has errored, or the CMS has
+ * nothing published yet. Each panel's photo prefers the CMS's own
+ * `item.image.src`, rendered through the shared `Image` primitive,
+ * falling back to the same labelled placeholder surface when absent.
  */
 export function GalleryDetails() {
+  const { data } = useGallery();
+  const items = data && data.length > 0 ? data : galleryItems;
+
   return (
     <Section spacing="lg" tone="muted" aria-labelledby="gallery-details-heading">
       <Stack gap="md">
@@ -35,7 +44,7 @@ export function GalleryDetails() {
         </Heading>
 
         <Stack gap="sm">
-          {galleryItems.map((item) => (
+          {items.map((item) => (
             <Card
               key={item.id}
               variant="outline"
@@ -62,20 +71,35 @@ export function GalleryDetails() {
                 </summary>
 
                 <Stack gap="sm" className="pt-4">
-                  <AspectRatio
-                    ratio={16 / 9}
-                    className="max-w-md bg-gradient-to-br from-brand-navy/10 via-muted to-brand-gold/15"
-                  >
-                    <Stack
-                      align="center"
-                      justify="center"
-                      className="absolute inset-0 h-full w-full px-2 text-center"
+                  {item.image.src ? (
+                    <Image
+                      src={item.image.src}
+                      alt={item.image.alt}
+                      ratio={16 / 9}
+                      fit="cover"
+                      containerClassName="max-w-md"
+                      fallback={
+                        <div className="flex h-full w-full items-center justify-center bg-muted text-sm text-muted-foreground">
+                          تصویر نمونه
+                        </div>
+                      }
+                    />
+                  ) : (
+                    <AspectRatio
+                      ratio={16 / 9}
+                      className="max-w-md bg-gradient-to-br from-brand-navy/10 via-muted to-brand-gold/15"
                     >
-                      <Text variant="bodySm" color="muted">
-                        تصویر نمونه
-                      </Text>
-                    </Stack>
-                  </AspectRatio>
+                      <Stack
+                        align="center"
+                        justify="center"
+                        className="absolute inset-0 h-full w-full px-2 text-center"
+                      >
+                        <Text variant="bodySm" color="muted">
+                          تصویر نمونه
+                        </Text>
+                      </Stack>
+                    </AspectRatio>
+                  )}
                   <Text variant="bodySm" color="muted">
                     {item.description}
                   </Text>

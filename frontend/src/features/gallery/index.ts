@@ -24,3 +24,5 @@ export { FAQ } from "./FAQ";
 export { EmptyState } from "./EmptyState";
 export type { GalleryItem, GalleryImage } from "./types";
 export { galleryItems } from "./data";
+export { fetchGallery } from "./api";
+export { useGallery, galleryQueryKey } from "./useGallery";

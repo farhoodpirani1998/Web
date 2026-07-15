@@ -1,4 +1,4 @@
-import { AspectRatio, Badge, Card, Link, Stack, Text } from "@/shared/design-system/components";
+import { AspectRatio, Badge, Card, Image, Link, Stack, Text } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
 import type { GalleryItem } from "./types";
 
@@ -18,19 +18,16 @@ export interface GalleryCardProps {
  * lived) so it can also be reused elsewhere later (e.g. a homepage
  * "featured photos" section) without duplicating this markup.
  *
- * No real photo assets exist yet (Gallery/Media content-module data,
- * §4, §8, no Public API endpoint today), so the image slot still
- * renders a labelled placeholder surface rather than wiring the
- * `Image` component against a URL that doesn't exist. Visual refresh:
- * the placeholder is now a soft navy/gold gradient tile with a
- * decorative photo glyph (matching the crest/emblem language the
- * homepage `Hero` already established) instead of a flat grey box, the
- * category badge floats over the image as a frosted chip for stronger
- * hierarchy, and the whole card lifts on hover — the same
- * `elevated`/hover-shadow treatment the homepage `Features` cards use.
- * Once `item.image.src` is populated by real data, swapping the
- * placeholder block below for `<Image src={item.image.src} ... />` is
- * a change contained entirely to this file.
+ * Now that the Gallery/Media content module is wired up (`./useGallery`),
+ * `item.image.src` renders through the shared `Image` primitive —
+ * navy/gold gradient tile with a decorative photo glyph, as before —
+ * when the CMS hasn't set an image for a given entry (or the query is
+ * still on its local placeholder fallback), the same soft navy/gold
+ * gradient tile with a decorative photo glyph is rendered instead of
+ * guessing a URL. The category badge floats over the image as a
+ * frosted chip either way, and the whole card lifts on hover — the
+ * same `elevated`/hover-shadow treatment the homepage `Features` cards
+ * use.
  *
  * The "توضیحات بیشتر" link points at `GalleryDetails`'s matching
  * `#gallery-{id}` anchor, the same "card links to its own details
@@ -43,21 +40,24 @@ export function GalleryCard({ item }: GalleryCardProps) {
       padding="none"
       className="group overflow-hidden bg-background transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
     >
-      <AspectRatio
-        ratio={4 / 3}
-        className="bg-gradient-to-br from-brand-navy/10 via-muted to-brand-gold/15"
-      >
-        <Stack
-          align="center"
-          justify="center"
-          gap="xs"
-          className="absolute inset-0 h-full w-full px-2 text-center transition-transform duration-300 group-hover:scale-105"
-        >
-          <PhotoGlyph className="h-9 w-9 text-brand-navy/25" />
-          <Text variant="caption" color="muted">
-            تصویر نمونه
-          </Text>
-        </Stack>
+      <div className="relative">
+        {item.image.src ? (
+          <Image
+            src={item.image.src}
+            alt={item.image.alt}
+            ratio={4 / 3}
+            fit="cover"
+            className="transition-transform duration-300 group-hover:scale-105"
+            fallback={<GalleryPlaceholder />}
+          />
+        ) : (
+          <AspectRatio
+            ratio={4 / 3}
+            className="bg-gradient-to-br from-brand-navy/10 via-muted to-brand-gold/15"
+          >
+            <GalleryPlaceholder className="transition-transform duration-300 group-hover:scale-105" />
+          </AspectRatio>
+        )}
 
         <Badge
           variant="secondary"
@@ -65,7 +65,7 @@ export function GalleryCard({ item }: GalleryCardProps) {
         >
           {item.category}
         </Badge>
-      </AspectRatio>
+      </div>
 
       <Stack gap="xs" className="p-4">
         <Text variant="body" weight="semibold" className="font-heading leading-snug">
@@ -86,6 +86,23 @@ export function GalleryCard({ item }: GalleryCardProps) {
         </Link>
       </Stack>
     </Card>
+  );
+}
+
+/** Placeholder tile shown while no real photo asset is available for an item. */
+function GalleryPlaceholder({ className }: { className?: string }) {
+  return (
+    <Stack
+      align="center"
+      justify="center"
+      gap="xs"
+      className={cn("absolute inset-0 h-full w-full px-2 text-center", className)}
+    >
+      <PhotoGlyph className="h-9 w-9 text-brand-navy/25" />
+      <Text variant="caption" color="muted">
+        تصویر نمونه
+      </Text>
+    </Stack>
   );
 }
 

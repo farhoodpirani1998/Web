@@ -1,6 +1,7 @@
 import { Badge, Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { GalleryCard } from "./GalleryCard";
 import { galleryItems } from "./data";
+import { useGallery } from "./useGallery";
 
 /**
  * Gallery page "Grid" section — the image directory, following the
@@ -9,24 +10,16 @@ import { galleryItems } from "./data";
  * `@/features/campuses`'s `CampusList` and `@/features/teachers`'s
  * `TeacherGrid`.
  *
- * Presentation only: composed from `Section`/`Stack`/`Grid` plus this
- * feature's own `GalleryCard`, over the local `galleryItems` literal
- * (`./data`) — no data fetching, no business logic. Swapping `./data`
- * for a `useGallery()`-style data hook later is additive; this
- * component's JSX does not need to change.
- *
- * Visual refresh: the heading now carries the same gold-badge/
- * underline eyebrow treatment and centered intro copy the homepage
- * `Features` section already established, so the section reads with
- * clearer hierarchy above the card grid, and the grid gap is bumped to
- * `lg` to give the (now visually heavier, `elevated`) `GalleryCard`
- * tiles room to breathe. This is a styling change only — the exported
- * `GalleryGrid` name, its section id (`gallery-grid-heading`), the
- * `cols="4"` layout, and the rendered items are unchanged, so every
- * existing caller (`GalleryPage`, `@/features/gallery`'s `index.ts`)
- * keeps working exactly as before.
+ * Backed by `useGallery()` (the Public API's Gallery/Media content
+ * module, §4, §8): lays out `data.gallery` when the query has resolved
+ * with at least one item, and falls back to the local `galleryItems`
+ * placeholder array (`./data`) while the query is loading, has
+ * errored, or the CMS has nothing published yet.
  */
 export function GalleryGrid() {
+  const { data } = useGallery();
+  const items = data && data.length > 0 ? data : galleryItems;
+
   return (
     <Section spacing="lg" aria-labelledby="gallery-grid-heading">
       <Stack gap="xl">
@@ -47,7 +40,7 @@ export function GalleryGrid() {
         </Stack>
 
         <Grid cols="4" gap="lg">
-          {galleryItems.map((item) => (
+          {items.map((item) => (
             <GalleryCard key={item.id} item={item} />
           ))}
         </Grid>
