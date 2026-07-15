@@ -6,3 +6,7 @@
  * only from here — never from `./Hero` directly.
  */
 export { Hero } from "./Hero";
+
+export { fetchHero } from "./api";
+export { useHero, heroQueryKey } from "./useHero";
+export type { Hero as HeroData, HeroImage, HeroCta } from "./types";
