@@ -1,9 +1,11 @@
 import {
   Controller,
+  DefaultValuePipe,
   Get,
   Header,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Query,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -22,6 +24,7 @@ import {
   PUBLIC_THROTTLE,
   PUBLIC_CACHE_CONTROL,
 } from '../common/public-rate-limit.constants';
+import { clampPagination, paginate, PaginatedResult } from '../common/pagination';
 
 interface PublicNewsListItemDto {
   id: string;
@@ -42,7 +45,7 @@ interface PublicNewsDetailDto extends PublicNewsListItemDto {
 
 /**
  * Optional section — gated by featureFlags.newsEnabled. Unlike Gallery
- * (empty list when disabled), the detail route 404s when disabled: a
+ * (empty page when disabled), the detail route 404s when disabled: a
  * direct link to a specific article that's now behind a disabled
  * section genuinely isn't reachable, not merely "no items."
  */
@@ -63,9 +66,15 @@ export class PublicNewsController {
   async findAll(
     @Query('category') category?: string,
     @Query('tag') tag?: string,
-  ): Promise<PublicNewsListItemDto[]> {
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) rawPage = 1,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) rawLimit = 20,
+  ): Promise<PaginatedResult<PublicNewsListItemDto>> {
+    const { page, limit } = clampPagination(rawPage, rawLimit);
+
     const settings = await this.siteSettings.get();
-    if (!settings.featureFlags.newsEnabled) return [];
+    if (!settings.featureFlags.newsEnabled) {
+      return paginate([], 0, page, limit);
+    }
 
     const siteId = this.siteService.getDefaultSiteId();
     const qb = this.newsRepo
@@ -73,22 +82,39 @@ export class PublicNewsController {
       .where('article.siteId = :siteId', { siteId })
       .andWhere('article.status = :status', {
         status: PublishStatus.PUBLISHED,
-      });
+      })
+      // Same "not yet due" gate PublicVisibilityService.isVisible applies
+      // in-memory, pushed into the query here (rather than relied on
+      // in-memory below) so `total`/pagination reflect the true visible
+      // set instead of the pre-filter row count.
+      .andWhere(
+        '(article.publishAt IS NULL OR article.publishAt <= :now)',
+        { now: new Date() },
+      );
     if (category) qb.andWhere('article.category = :category', { category });
     if (tag) qb.andWhere(':tag = ANY(article.tags)', { tag });
 
     // Same NULLS LAST reasoning as NewsService.findAll.
-    const articles = await qb
+    const [articles, total] = await qb
       .addOrderBy('article.publishAt', 'DESC', 'NULLS LAST')
       .addOrderBy('article.createdAt', 'DESC')
-      .getMany();
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+    // Redundant with the SQL gate above by construction — kept as the
+    // same defensive pass every other public controller applies.
     const visible = this.visibility.filterVisible(articles);
 
     const mediaMap = await this.media.resolveMany(
       visible.map((article) => article.featuredImageMediaId),
     );
 
-    return visible.map((article) => this.toListItem(article, mediaMap));
+    return paginate(
+      visible.map((article) => this.toListItem(article, mediaMap)),
+      total,
+      page,
+      limit,
+    );
   }
 
   @Get(':slug')

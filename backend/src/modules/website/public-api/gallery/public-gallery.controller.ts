@@ -1,4 +1,11 @@
-import { Controller, Get, Header, Query } from '@nestjs/common';
+import {
+  Controller,
+  DefaultValuePipe,
+  Get,
+  Header,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
@@ -15,6 +22,7 @@ import {
   PUBLIC_THROTTLE,
   PUBLIC_CACHE_CONTROL,
 } from '../common/public-rate-limit.constants';
+import { clampPagination, paginate, PaginatedResult } from '../common/pagination';
 
 interface PublicGalleryItemDto {
   id: string;
@@ -26,9 +34,10 @@ interface PublicGalleryItemDto {
 
 /**
  * Optional section — gated by featureFlags.galleryEnabled. Disabled
- * returns an empty list rather than 404: an off flag means "no items
- * to show," not "this endpoint doesn't exist," so a frontend that
- * always calls it doesn't need special-case error handling.
+ * returns an empty page (`items: []`, `meta.total: 0`) rather than 404:
+ * an off flag means "no items to show," not "this endpoint doesn't
+ * exist," so a frontend that always calls it doesn't need special-case
+ * error handling.
  */
 @Throttle(PUBLIC_THROTTLE)
 @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -46,9 +55,15 @@ export class PublicGalleryController {
   @Get()
   async findAll(
     @Query('category') category?: string,
-  ): Promise<PublicGalleryItemDto[]> {
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) rawPage = 1,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) rawLimit = 20,
+  ): Promise<PaginatedResult<PublicGalleryItemDto>> {
+    const { page, limit } = clampPagination(rawPage, rawLimit);
+
     const settings = await this.siteSettings.get();
-    if (!settings.featureFlags.galleryEnabled) return [];
+    if (!settings.featureFlags.galleryEnabled) {
+      return paginate([], 0, page, limit);
+    }
 
     const siteId = this.siteService.getDefaultSiteId();
     const qb = this.galleryRepo
@@ -57,19 +72,32 @@ export class PublicGalleryController {
       .andWhere('item.status = :status', { status: PublishStatus.PUBLISHED });
     if (category) qb.andWhere('item.category = :category', { category });
 
-    const items = await qb.addOrderBy('item.position', 'ASC').getMany();
+    const [items, total] = await qb
+      .addOrderBy('item.position', 'ASC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+    // GalleryItem has no `publishAt`, so this only re-confirms `status`
+    // (already filtered above) — same defensive pass every other public
+    // controller applies, kept for consistency even though it's a no-op
+    // here.
     const visible = this.visibility.filterVisible(items);
 
     const mediaMap = await this.media.resolveMany(
       visible.map((item) => item.imageMediaId),
     );
 
-    return visible.map((item) => ({
-      id: item.id,
-      image: mediaMap.get(item.imageMediaId) ?? null,
-      caption: item.caption,
-      category: item.category,
-      position: item.position,
-    }));
+    return paginate(
+      visible.map((item) => ({
+        id: item.id,
+        image: mediaMap.get(item.imageMediaId) ?? null,
+        caption: item.caption,
+        category: item.category,
+        position: item.position,
+      })),
+      total,
+      page,
+      limit,
+    );
   }
 }
