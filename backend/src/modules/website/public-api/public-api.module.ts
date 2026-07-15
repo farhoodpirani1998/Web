@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HeroSlide } from '../content/hero/entities/hero-slide.entity';
 import { AboutPage } from '../content/about/entities/about.entity';
 import { Feature } from '../content/features/entities/feature.entity';
+import { Statistic } from '../content/statistics/entities/statistic.entity';
 import { GalleryItem } from '../content/gallery/entities/gallery-item.entity';
 import { NewsArticle } from '../content/news/entities/news-article.entity';
 import { StaticPage } from '../content/pages/entities/page.entity';
@@ -24,6 +25,7 @@ import { PublicSitemapController } from './sitemap/public-sitemap.controller';
 import { PublicHeroController } from './hero/public-hero.controller';
 import { PublicAboutController } from './about/public-about.controller';
 import { PublicFeaturesController } from './features/public-features.controller';
+import { PublicStatisticsController } from './statistics/public-statistics.controller';
 import { PublicGalleryController } from './gallery/public-gallery.controller';
 import { PublicNewsController } from './news/public-news.controller';
 import { PublicPagesController } from './pages/public-pages.controller';
@@ -66,6 +68,7 @@ import {
       HeroSlide,
       AboutPage,
       Feature,
+      Statistic,
       GalleryItem,
       NewsArticle,
       StaticPage,
@@ -89,6 +92,7 @@ import {
     PublicHeroController,
     PublicAboutController,
     PublicFeaturesController,
+    PublicStatisticsController,
     PublicGalleryController,
     PublicNewsController,
     PublicPagesController,

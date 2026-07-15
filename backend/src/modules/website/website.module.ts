@@ -14,6 +14,7 @@ import { TestimonialsModule } from './content/testimonials/testimonials.module';
 import { HeroModule } from './content/hero/hero.module';
 import { AboutModule } from './content/about/about.module';
 import { FeaturesModule } from './content/features/features.module';
+import { StatisticsModule } from './content/statistics/statistics.module';
 import { GalleryModule } from './content/gallery/gallery.module';
 import { NewsModule } from './content/news/news.module';
 import { PagesModule } from './content/pages/pages.module';
@@ -48,6 +49,7 @@ import { PublicApiModule } from './public-api/public-api.module';
     HeroModule,
     AboutModule,
     FeaturesModule,
+    StatisticsModule,
     GalleryModule,
     NewsModule,
     PagesModule,
