@@ -8,6 +8,10 @@
  *
  * `EmptyState` is exported for future wiring (see its own file's
  * doc comment) but is not composed by `TeachersPage` today.
+ *
+ * `fetchTeachers`/`useTeachers`/`teachersQueryKey` are additive
+ * exports, following the same shape `@/features/campuses`'s public
+ * surface already exports its fetch layer through.
  */
 export { Hero } from "./Hero";
 export { TeacherGrid } from "./TeacherGrid";
@@ -17,3 +21,5 @@ export { FAQ } from "./FAQ";
 export { EmptyState } from "./EmptyState";
 export type { Teacher, TeacherImage } from "./types";
 export { teachers } from "./data";
+export { fetchTeachers } from "./api";
+export { useTeachers, teachersQueryKey } from "./useTeachers";
