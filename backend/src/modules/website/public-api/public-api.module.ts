@@ -4,6 +4,7 @@ import { HeroSlide } from '../content/hero/entities/hero-slide.entity';
 import { AboutPage } from '../content/about/entities/about.entity';
 import { Feature } from '../content/features/entities/feature.entity';
 import { Statistic } from '../content/statistics/entities/statistic.entity';
+import { CtaBanner } from '../content/cta/entities/cta.entity';
 import { GalleryItem } from '../content/gallery/entities/gallery-item.entity';
 import { NewsArticle } from '../content/news/entities/news-article.entity';
 import { StaticPage } from '../content/pages/entities/page.entity';
@@ -26,6 +27,7 @@ import { PublicHeroController } from './hero/public-hero.controller';
 import { PublicAboutController } from './about/public-about.controller';
 import { PublicFeaturesController } from './features/public-features.controller';
 import { PublicStatisticsController } from './statistics/public-statistics.controller';
+import { PublicCtaController } from './cta/public-cta.controller';
 import { PublicGalleryController } from './gallery/public-gallery.controller';
 import { PublicNewsController } from './news/public-news.controller';
 import { PublicPagesController } from './pages/public-pages.controller';
@@ -69,6 +71,7 @@ import {
       AboutPage,
       Feature,
       Statistic,
+      CtaBanner,
       GalleryItem,
       NewsArticle,
       StaticPage,
@@ -93,6 +96,7 @@ import {
     PublicAboutController,
     PublicFeaturesController,
     PublicStatisticsController,
+    PublicCtaController,
     PublicGalleryController,
     PublicNewsController,
     PublicPagesController,

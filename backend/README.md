@@ -42,11 +42,11 @@ The single biggest adaptation is in `modules/website/auth/`:
 ## Not yet built (next steps, in order)
 
 1. **Content modules** (Phase 2+):
-   Stats, Achievements, CTA Banners — each importing only the
-   kernel pieces it actually needs. (FAQ, Testimonials, Hero, About,
-   Features, Gallery, News, Static Pages, Events, Campuses, Navigation, and
-   Site Settings — which bundles General/Contact/Social/SEO/Feature Flags
-   plus Portal Links — are already in place.)
+   Achievements — each importing only the kernel pieces it actually
+   needs. (FAQ, Testimonials, Hero, About, Features, Statistics, Gallery,
+   News, Static Pages, Events, Campuses, Teachers, Navigation, CTA Banner,
+   and Site Settings — which bundles General/Contact/Social/SEO/Feature
+   Flags plus Portal Links — are already in place.)
 2. **Public API layer**: read-only, cached, unauthenticated, aggregated
    endpoints (`/public/website/homepage`, etc.) — needs its own tighter
    throttle policy separate from admin routes (see `ThrottlerModule` note

@@ -15,6 +15,7 @@ import { HeroModule } from './content/hero/hero.module';
 import { AboutModule } from './content/about/about.module';
 import { FeaturesModule } from './content/features/features.module';
 import { StatisticsModule } from './content/statistics/statistics.module';
+import { CtaModule } from './content/cta/cta.module';
 import { GalleryModule } from './content/gallery/gallery.module';
 import { NewsModule } from './content/news/news.module';
 import { PagesModule } from './content/pages/pages.module';
@@ -50,6 +51,7 @@ import { PublicApiModule } from './public-api/public-api.module';
     AboutModule,
     FeaturesModule,
     StatisticsModule,
+    CtaModule,
     GalleryModule,
     NewsModule,
     PagesModule,
@@ -59,7 +61,7 @@ import { PublicApiModule } from './public-api/public-api.module';
     NavigationModule,
     SiteSettingsModule,
     PublicApiModule,
-    // Phase 2+ remaining: Stats, Achievements, CtaBanners, ...
+    // Phase 2+ remaining: Achievements, ...
   ],
 })
 export class WebsiteModule {}

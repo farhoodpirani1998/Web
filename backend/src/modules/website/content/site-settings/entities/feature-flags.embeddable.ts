@@ -10,7 +10,9 @@ import { Column } from 'typeorm';
  *
  * Only the modules that are genuinely optional/supplementary get a
  * flag here — Hero, About, Static Pages, and Navigation are core to
- * every site and are not gateable.
+ * every site and are not gateable. CTA joins this set for the same
+ * reason News/Gallery/Testimonials/Faq/Events do: not every site needs
+ * a bottom-of-page pitch banner (see CtaBanner entity doc).
  */
 export class SiteFeatureFlags {
   @Column({ default: true })
@@ -27,4 +29,7 @@ export class SiteFeatureFlags {
 
   @Column({ default: true })
   eventsEnabled!: boolean;
+
+  @Column({ default: true })
+  ctaEnabled!: boolean;
 }

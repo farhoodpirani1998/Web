@@ -38,6 +38,7 @@ describe('SiteSettingsService', () => {
             testimonialsEnabled: true,
             faqEnabled: true,
             eventsEnabled: true,
+            ctaEnabled: true,
           },
         }),
       );

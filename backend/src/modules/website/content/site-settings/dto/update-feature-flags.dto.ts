@@ -20,4 +20,8 @@ export class UpdateFeatureFlagsDto {
   @IsOptional()
   @IsBoolean()
   eventsEnabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  ctaEnabled?: boolean;
 }

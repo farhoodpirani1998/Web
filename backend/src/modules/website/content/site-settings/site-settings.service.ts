@@ -53,6 +53,7 @@ export class SiteSettingsService implements OnModuleInit {
             testimonialsEnabled: true,
             faqEnabled: true,
             eventsEnabled: true,
+            ctaEnabled: true,
           },
         }),
       );
