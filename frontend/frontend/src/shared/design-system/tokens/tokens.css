@@ -1,0 +1,104 @@
+/**
+ * Design tokens — the single place visual-brand decisions live
+ * (Website Frontend Architecture §12 "Design System Philosophy",
+ * §24 "Theme Strategy").
+ *
+ * Brand direction: navy-and-gold educational identity, per the approved
+ * Figma design. Only one theme ships today; dark-mode variables are
+ * scaffolded for tooling compatibility but are NOT a maintained second
+ * theme (§24) — do not wire a theme switcher against them without an
+ * explicit product decision to do so.
+ *
+ * These tokens are consumed by tailwind.config.js and must not be
+ * hardcoded again inside components — see §13 "Shared Component Rules".
+ */
+
+:root {
+  /* Brand core */
+  --brand-navy: 213 69% 19%; /* #0F2D52 */
+  --brand-gold: 46 68% 47%; /* #C9A227 */
+
+  /* Semantic tokens (shadcn/ui convention: HSL channel triplets) */
+  --background: 0 0% 100%;
+  --foreground: 222 34% 15%; /* #1A2235 */
+
+  --card: 216 45% 98%; /* #F7F9FC */
+  --card-foreground: 222 34% 15%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 34% 15%;
+
+  --primary: 213 69% 19%; /* #0F2D52 */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 216 42% 95%; /* #EEF2F8 */
+  --secondary-foreground: 213 69% 19%;
+
+  --muted: 216 42% 95%; /* #EEF2F8 */
+  --muted-foreground: 224 11% 47%; /* #6B7285 */
+
+  --accent: 46 68% 47%; /* #C9A227 — solid gold, per approved Figma design */
+  --accent-foreground: 213 69% 19%;
+
+  --destructive: 348 80% 46%; /* #d4183d */
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 213 69% 19% / 0.1; /* rgba(15, 45, 82, 0.1) per Figma */
+  --input: 220 13% 89%;
+  --ring: 46 68% 47%; /* gold ring, per approved Figma design */
+
+  /* Footer surface — darker than --primary per the approved Figma
+     design (#0A1E38 vs. #0F2D52). A dedicated token rather than an
+     opacity/darken derivation of --primary, since the two are visibly
+     distinct brand surfaces, not the same color at different alphas. */
+  --footer-bg: 216 66% 12%; /* #0A1E38 */
+
+  --radius: 1rem;
+
+  /* Typography — Vazirmatn per approved Figma design (Persian RTL identity) */
+  --font-sans: "Vazirmatn", system-ui, sans-serif;
+  --font-heading: "Vazirmatn", system-ui, sans-serif;
+}
+
+/*
+ * Scaffolding only — not a current product requirement (§24).
+ * Left unused until a dark theme is explicitly requested.
+ */
+.dark {
+  --background: 219 61% 8%;
+  --foreground: 0 0% 96%;
+
+  --card: 219 61% 10%;
+  --card-foreground: 0 0% 96%;
+
+  --popover: 219 61% 10%;
+  --popover-foreground: 0 0% 96%;
+
+  --primary: 40 51% 51%;
+  --primary-foreground: 219 61% 12%;
+
+  --secondary: 219 40% 20%;
+  --secondary-foreground: 0 0% 96%;
+
+  --muted: 219 30% 16%;
+  --muted-foreground: 220 9% 70%;
+
+  --accent: 219 30% 20%;
+  --accent-foreground: 0 0% 96%;
+
+  --destructive: 0 63% 40%;
+  --destructive-foreground: 0 0% 96%;
+
+  --border: 219 30% 20%;
+  --input: 219 30% 20%;
+  --ring: 40 51% 51%;
+}
+
+/* Locale-driven direction (Website Frontend Architecture §28) */
+[dir="rtl"] {
+  direction: rtl;
+}
+
+[dir="ltr"] {
+  direction: ltr;
+}
