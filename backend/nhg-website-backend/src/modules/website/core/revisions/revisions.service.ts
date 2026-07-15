@@ -1,0 +1,60 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ContentRevision } from './entities/content-revision.entity';
+
+// Only these four modules get revisions — structural/list content does
+// not, since reverting a short field is trivial to just retype.
+export const REVISION_ENABLED_TYPES = [
+  'hero',
+  'about',
+  'news_article',
+  'static_page',
+] as const;
+export type RevisionEnabledType = (typeof REVISION_ENABLED_TYPES)[number];
+
+@Injectable()
+export class RevisionsService {
+  constructor(
+    @InjectRepository(ContentRevision)
+    private readonly repo: Repository<ContentRevision>,
+  ) {}
+
+  async record(
+    entityType: RevisionEnabledType,
+    entityId: string,
+    snapshot: Record<string, unknown>,
+    authorId: string,
+  ): Promise<ContentRevision> {
+    const last = await this.repo.findOne({
+      where: { entityType, entityId },
+      order: { versionNumber: 'DESC' },
+    });
+    const versionNumber = (last?.versionNumber ?? 0) + 1;
+    return this.repo.save(
+      this.repo.create({ entityType, entityId, versionNumber, snapshot, authorId }),
+    );
+  }
+
+  async list(entityType: RevisionEnabledType, entityId: string) {
+    return this.repo.find({
+      where: { entityType, entityId },
+      order: { versionNumber: 'DESC' },
+    });
+  }
+
+  async getVersion(
+    entityType: RevisionEnabledType,
+    entityId: string,
+    versionNumber: number,
+  ) {
+    return this.repo.findOneOrFail({
+      where: { entityType, entityId, versionNumber },
+    });
+  }
+
+  // Restoring copies a past snapshot's fields back into the live entity
+  // as a new edit, which itself creates a new revision — non-destructive.
+  // The actual field copy happens in the calling content service, since
+  // only it knows its own entity shape; this just hands back the snapshot.
+}
