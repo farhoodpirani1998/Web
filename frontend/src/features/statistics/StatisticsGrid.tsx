@@ -1,20 +1,20 @@
 import { Card, Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { useStatistics } from "./useStatistics";
+import type { StatisticItem } from "./types";
 
 /**
  * Statistics page "Grid" section — the figures directory, following
  * the same pattern as `hero`/`features`/`cta`/`about`/`contact`/
  * `schools`/`news`/`gallery` (and specifically `AboutStats`, whose
- * card shape this reuses for a dedicated, more complete figures page).
+ * card shape this reuses for a dedicated, more complete figures page),
+ * and now (as of this extension) also `@/features/campuses`'s
+ * `CampusList`.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Grid`, `Card`, `Heading`, `Text`) —
- * no data fetching, no business logic. Stat items are grouped into a
- * local array literal rather than interleaved in JSX (Website Frontend
- * Architecture §4, §8), so the eventual swap to a `useStatistics()`-
- * style data hook is a matter of replacing this literal — the layout
- * and design-system wiring below do not need to change. Real values
- * are ultimately the backend's Statistics content-module data; this
- * renders frontend-owned Persian placeholder copy in the meantime.
+ * Backed by `useStatistics()` (the Public API's Statistics content
+ * module, §4, §8): lays out `data` when the query has resolved with
+ * at least one item, and falls back to the local `fallbackStats`
+ * literal while the query is loading, has errored, or the CMS has
+ * nothing published yet.
  *
  * Accessible by construction: each tile's figure and label are both
  * rendered as plain visible text (no information conveyed by color or
@@ -30,7 +30,7 @@ import { Card, Grid, Heading, Section, Stack, Text } from "@/shared/design-syste
  * still the same `Card` composition, just restyled.
  */
 
-const stats = [
+const fallbackStats: readonly StatisticItem[] = [
   { id: "founded", value: "۱۳۷۸", label: "سال تأسیس" },
   { id: "students", value: "+۱۲٬۰۰۰", label: "دانش‌آموز و دانشجو" },
   { id: "campuses", value: "۶", label: "شعبه فعال" },
@@ -39,9 +39,12 @@ const stats = [
   { id: "courses", value: "+۶۰", label: "دوره آموزشی" },
   { id: "satisfaction", value: "٪۹۶", label: "رضایت خانواده‌ها" },
   { id: "top-rank", value: "+۲۰۰", label: "رتبه برتر کنکور" },
-] as const;
+];
 
 export function StatisticsGrid() {
+  const { data } = useStatistics();
+  const stats = data && data.length > 0 ? data : fallbackStats;
+
   return (
     <Section spacing="lg" tone="muted" aria-labelledby="statistics-grid-heading">
       <Stack gap="lg">
