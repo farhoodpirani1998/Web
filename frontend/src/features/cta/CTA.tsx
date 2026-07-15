@@ -1,30 +1,46 @@
 import { Container, Heading, Link, Text, buttonVariants } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
 
+import { useCTA } from "./useCTA";
+
 /**
  * Homepage "CTA" section (Website Frontend Architecture §4, §10
  * "Section Architecture", §11 "Component Hierarchy") — rebuilt as a
  * full-bleed `bg-primary` closing section matching the approved Figma
  * design's `CTASection`, replacing the earlier rounded-card treatment.
  *
- * Presentation only: composed from existing design-system primitives
- * (`Container`, `Heading`, `Text`, `Link`/`buttonVariants`) plus a
- * subtle `aria-hidden` dot-texture overlay (inline `radial-gradient`,
- * matching Figma exactly — no image asset). Real headline/supporting
- * copy are ultimately CTA content-module data (§4, §8); this renders
- * frontend-owned Persian placeholder copy in the meantime, the same
- * convention already used by `Hero`/`Features`/`Footer`. Both CTAs
- * point at real existing routes (`/pre-registration`, `/admissions`) —
- * Figma's second CTA ("Schedule a Campus Visit") has no backing route
- * yet, so it was replaced with the existing `/admissions` link rather
- * than wired to a placeholder (§ "no placeholder code").
+ * Backed by `useCTA()` (the Public API's CTA content module, §4, §8).
+ * While the query is loading, has errored, or a given field is absent
+ * from the response, each value falls back to the same frontend-owned
+ * Persian placeholder copy this section rendered before it was wired
+ * up — same convention already used by `Hero`/`Features`/`Footer`.
+ * Both CTAs fall back to real existing routes (`/pre-registration`,
+ * `/admissions`) rather than a placeholder link (§ "no placeholder
+ * code").
  *
  * Rendered full-bleed *outside* `HomePage`'s `PageLayout`, the same
  * reasoning as `Hero`/`HomeStatsBand` (see `HomePage.tsx`) — it needs
  * to span the full viewport width, not sit inside `PageLayout`'s
  * `Container` gutters.
  */
+
+const CTA_EYEBROW_PLACEHOLDER = "به خانواده‌ی ما بپیوندید";
+const CTA_TITLE_PLACEHOLDER = "عنوان نمونه برای بخش فراخوان اقدام";
+const CTA_DESCRIPTION_PLACEHOLDER =
+  "متن جمع‌بندی نمونه برای بخش فراخوان اقدام. این متن جایگزین محتوایی است که در نهایت پس از " +
+  "پیاده‌سازی ماژول محتوایی فراخوان اقدام، از طریق Public API بک‌اند تأمین خواهد شد.";
+const CTA_PRIMARY_PLACEHOLDER = { label: "شروع پیش‌ثبت‌نام", href: "/pre-registration" };
+const CTA_SECONDARY_PLACEHOLDER = { label: "پذیرش و ثبت‌نام", href: "/admissions" };
+
 export function CTA() {
+  const { data } = useCTA();
+
+  const eyebrow = data?.eyebrow ?? CTA_EYEBROW_PLACEHOLDER;
+  const title = data?.title ?? CTA_TITLE_PLACEHOLDER;
+  const description = data?.description ?? CTA_DESCRIPTION_PLACEHOLDER;
+  const primaryCta = data?.primaryCta ?? CTA_PRIMARY_PLACEHOLDER;
+  const secondaryCta = data?.secondaryCta ?? CTA_SECONDARY_PLACEHOLDER;
+
   return (
     <section aria-labelledby="home-cta-heading" className="relative overflow-hidden bg-primary py-24 sm:py-32">
       <div
@@ -39,7 +55,7 @@ export function CTA() {
       <Container size="xl" className="relative z-10 text-center">
         <div className="mb-6 flex items-center justify-center gap-3">
           <span aria-hidden="true" className="h-px w-8 bg-accent/60" />
-          <span className="text-xs font-bold text-accent">به خانواده‌ی ما بپیوندید</span>
+          <span className="text-xs font-bold text-accent">{eyebrow}</span>
           <span aria-hidden="true" className="h-px w-8 bg-accent/60" />
         </div>
 
@@ -49,32 +65,31 @@ export function CTA() {
           color="inherit"
           className="mx-auto mb-5 max-w-2xl text-3xl leading-tight text-white md:text-5xl"
         >
-          عنوان نمونه برای بخش فراخوان اقدام
+          {title}
         </Heading>
 
         <Text variant="lead" color="inherit" className="mx-auto mb-10 max-w-xl text-white/55">
-          متن جمع‌بندی نمونه برای بخش فراخوان اقدام. این متن جایگزین محتوایی است که در نهایت پس از
-          پیاده‌سازی ماژول محتوایی فراخوان اقدام، از طریق Public API بک‌اند تأمین خواهد شد.
+          {description}
         </Text>
 
         <div className="flex flex-wrap items-center justify-center gap-4">
           <Link
-            href="/pre-registration"
+            href={primaryCta.href}
             className={cn(
               buttonVariants({ size: "lg" }),
               "rounded-full bg-accent px-8 py-4 text-primary shadow-xl shadow-accent/20 hover:bg-accent/90",
             )}
           >
-            شروع پیش‌ثبت‌نام
+            {primaryCta.label}
           </Link>
           <Link
-            href="/admissions"
+            href={secondaryCta.href}
             className={cn(
               buttonVariants({ variant: "outline", size: "lg" }),
               "rounded-full border-white/25 px-8 py-4 text-white hover:border-accent hover:bg-transparent hover:text-accent",
             )}
           >
-            پذیرش و ثبت‌نام
+            {secondaryCta.label}
           </Link>
         </div>
       </Container>

@@ -6,3 +6,7 @@
  * only from here — never from `./CTA` directly.
  */
 export { CTA } from "./CTA";
+
+export { fetchCTA } from "./api";
+export { useCTA, ctaQueryKey } from "./useCTA";
+export type { CTA as CTAData, CTALink } from "./types";
