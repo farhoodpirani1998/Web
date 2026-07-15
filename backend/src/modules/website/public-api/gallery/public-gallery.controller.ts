@@ -1,5 +1,6 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Header, Query } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { GalleryItem } from '../../content/gallery/entities/gallery-item.entity';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
@@ -10,6 +11,10 @@ import {
   PublicMediaService,
   PublicMediaRef,
 } from '../common/public-media.service';
+import {
+  PUBLIC_THROTTLE,
+  PUBLIC_CACHE_CONTROL,
+} from '../common/public-rate-limit.constants';
 
 interface PublicGalleryItemDto {
   id: string;
@@ -25,6 +30,8 @@ interface PublicGalleryItemDto {
  * to show," not "this endpoint doesn't exist," so a frontend that
  * always calls it doesn't need special-case error handling.
  */
+@Throttle(PUBLIC_THROTTLE)
+@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/gallery')
 export class PublicGalleryController {
   constructor(

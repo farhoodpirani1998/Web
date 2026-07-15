@@ -30,10 +30,12 @@ import { validateEnvironment } from './config/env-validation.config';
         migrationsRun: false,
       }),
     }),
-    // Global throttle as a floor; public read endpoints get a tighter,
-    // route-specific limit once the public-api layer exists (Phase 6),
-    // so a traffic spike on /public/* can't be amplified by this same
-    // process serving admin writes.
+    // Global throttle as a floor for every route. Public content routes
+    // additionally override this 'default' throttler with a tighter,
+    // dedicated limit via @Throttle(PUBLIC_THROTTLE) on each controller
+    // (see public-api/common/public-rate-limit.constants.ts) — admin/auth
+    // routes have no such override, so they're governed by this config
+    // alone, unchanged.
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 300 }]),
     WebsiteModule,
   ],

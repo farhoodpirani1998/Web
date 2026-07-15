@@ -1,5 +1,6 @@
-import { Controller, Get, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Header, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { AboutPage } from '../../content/about/entities/about.entity';
 import { SiteService } from '../../core/site/site.service';
@@ -8,6 +9,10 @@ import {
   PublicMediaService,
   PublicMediaRef,
 } from '../common/public-media.service';
+import {
+  PUBLIC_THROTTLE,
+  PUBLIC_CACHE_CONTROL,
+} from '../common/public-rate-limit.constants';
 
 interface PublicAboutDto {
   title: AboutPage['title'];
@@ -18,6 +23,8 @@ interface PublicAboutDto {
 }
 
 /** Core section, singleton per site — same shape as PublicSiteSettingsController. */
+@Throttle(PUBLIC_THROTTLE)
+@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/about')
 export class PublicAboutController {
   constructor(

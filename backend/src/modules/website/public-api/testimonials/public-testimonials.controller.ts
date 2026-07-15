@@ -1,5 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Header } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { Testimonial } from '../../content/testimonials/entities/testimonial.entity';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
@@ -10,6 +11,10 @@ import {
   PublicMediaService,
   PublicMediaRef,
 } from '../common/public-media.service';
+import {
+  PUBLIC_THROTTLE,
+  PUBLIC_CACHE_CONTROL,
+} from '../common/public-rate-limit.constants';
 
 interface PublicTestimonialDto {
   id: string;
@@ -22,6 +27,8 @@ interface PublicTestimonialDto {
 }
 
 /** Optional section — gated by featureFlags.testimonialsEnabled, empty list when disabled. */
+@Throttle(PUBLIC_THROTTLE)
+@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/testimonials')
 export class PublicTestimonialsController {
   constructor(

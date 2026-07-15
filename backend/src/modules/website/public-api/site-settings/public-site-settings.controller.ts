@@ -1,5 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Header } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { SiteSettingsService } from '../../content/site-settings/site-settings.service';
 import { PortalLink } from '../../content/site-settings/entities/portal-link.entity';
@@ -9,6 +10,10 @@ import {
   PublicMediaService,
   PublicMediaRef,
 } from '../common/public-media.service';
+import {
+  PUBLIC_THROTTLE,
+  PUBLIC_CACHE_CONTROL,
+} from '../common/public-rate-limit.constants';
 
 interface PublicSiteSettingsDto {
   siteName: SiteSettings['siteName'];
@@ -37,6 +42,8 @@ interface PublicPortalLinkDto {
  * always "live," so there's nothing for PublicVisibilityService to gate
  * here, unlike every other controller in this module.
  */
+@Throttle(PUBLIC_THROTTLE)
+@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/site-settings')
 export class PublicSiteSettingsController {
   constructor(
@@ -73,6 +80,8 @@ export class PublicSiteSettingsController {
  * uses on the admin side — Portal Links is conceptually part of Site
  * Settings but lives in its own table/endpoint.
  */
+@Throttle(PUBLIC_THROTTLE)
+@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/portal-links')
 export class PublicPortalLinksController {
   constructor(

@@ -45,8 +45,10 @@ import {
  * admin-only shaping to work around.
  *
  * No WebsiteAuthModule import: every route here is intentionally
- * unauthenticated (see main.ts's CORS comment). No rate limiting yet —
- * deferred past this phase.
+ * unauthenticated (see main.ts's CORS comment). Each controller carries
+ * its own dedicated rate limit and Cache-Control header — see
+ * common/public-rate-limit.constants.ts — rather than anything
+ * configured at this module level.
  */
 @Module({
   imports: [

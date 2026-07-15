@@ -1,11 +1,13 @@
 import {
   Controller,
   Get,
+  Header,
   NotFoundException,
   Param,
   Query,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { NewsArticle } from '../../content/news/entities/news-article.entity';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
@@ -16,6 +18,10 @@ import {
   PublicMediaService,
   PublicMediaRef,
 } from '../common/public-media.service';
+import {
+  PUBLIC_THROTTLE,
+  PUBLIC_CACHE_CONTROL,
+} from '../common/public-rate-limit.constants';
 
 interface PublicNewsListItemDto {
   id: string;
@@ -40,6 +46,8 @@ interface PublicNewsDetailDto extends PublicNewsListItemDto {
  * direct link to a specific article that's now behind a disabled
  * section genuinely isn't reachable, not merely "no items."
  */
+@Throttle(PUBLIC_THROTTLE)
+@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/news')
 export class PublicNewsController {
   constructor(

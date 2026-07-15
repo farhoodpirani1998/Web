@@ -1,5 +1,12 @@
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Header,
+  NotFoundException,
+  Param,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { StaticPage } from '../../content/pages/entities/page.entity';
 import { SiteService } from '../../core/site/site.service';
@@ -8,6 +15,10 @@ import {
   PublicMediaService,
   PublicMediaRef,
 } from '../common/public-media.service';
+import {
+  PUBLIC_THROTTLE,
+  PUBLIC_CACHE_CONTROL,
+} from '../common/public-rate-limit.constants';
 
 interface PublicPageDto {
   id: string;
@@ -25,6 +36,8 @@ interface PublicPageDto {
  * Core section — not feature-flag gated. `homepage` is registered
  * before `:slug` so it's never shadowed by the dynamic route.
  */
+@Throttle(PUBLIC_THROTTLE)
+@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/pages')
 export class PublicPagesController {
   constructor(

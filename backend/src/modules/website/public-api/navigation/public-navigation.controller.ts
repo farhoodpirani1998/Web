@@ -1,5 +1,12 @@
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Header,
+  NotFoundException,
+  Param,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Throttle } from '@nestjs/throttler';
 import { In, Repository } from 'typeorm';
 import { Menu } from '../../content/navigation/entities/menu.entity';
 import { MenuItem } from '../../content/navigation/entities/menu-item.entity';
@@ -7,6 +14,10 @@ import { MenuItemLinkType } from '../../content/navigation/entities/menu-item-li
 import { StaticPage } from '../../content/pages/entities/page.entity';
 import { SiteService } from '../../core/site/site.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
+import {
+  PUBLIC_THROTTLE,
+  PUBLIC_CACHE_CONTROL,
+} from '../common/public-rate-limit.constants';
 
 interface PublicMenuItemNode {
   id: string;
@@ -27,6 +38,8 @@ interface PublicMenuItemNode {
  * rather than 404" posture PagesService/NewsService already apply via
  * their sitemap providers.
  */
+@Throttle(PUBLIC_THROTTLE)
+@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/navigation')
 export class PublicNavigationController {
   constructor(

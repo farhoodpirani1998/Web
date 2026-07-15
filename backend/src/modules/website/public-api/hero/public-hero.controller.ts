@@ -1,5 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Header } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { HeroSlide } from '../../content/hero/entities/hero-slide.entity';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
@@ -9,6 +10,10 @@ import {
   PublicMediaService,
   PublicMediaRef,
 } from '../common/public-media.service';
+import {
+  PUBLIC_THROTTLE,
+  PUBLIC_CACHE_CONTROL,
+} from '../common/public-rate-limit.constants';
 
 interface PublicHeroSlideDto {
   id: string;
@@ -24,6 +29,8 @@ interface PublicHeroSlideDto {
  * Core section — not feature-flag gated, same as About/Pages/Navigation
  * (see SiteFeatureFlags doc: only genuinely optional sections get a flag).
  */
+@Throttle(PUBLIC_THROTTLE)
+@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/hero')
 export class PublicHeroController {
   constructor(
