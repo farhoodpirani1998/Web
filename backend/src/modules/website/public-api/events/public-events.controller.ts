@@ -54,7 +54,6 @@ interface PublicEventDetailDto extends PublicEventListItemDto {
  * section genuinely isn't reachable, not merely "no items."
  */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/events')
 export class PublicEventsController {
   constructor(
@@ -66,6 +65,7 @@ export class PublicEventsController {
     private readonly siteSettings: SiteSettingsService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(
     @Query('category') category?: string,
@@ -140,6 +140,7 @@ export class PublicEventsController {
     );
   }
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get(':slug')
   async findBySlug(@Param('slug') slug: string): Promise<PublicEventDetailDto> {
     const settings = await this.siteSettings.get();

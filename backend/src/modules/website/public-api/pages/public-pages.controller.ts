@@ -37,7 +37,6 @@ interface PublicPageDto {
  * before `:slug` so it's never shadowed by the dynamic route.
  */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/pages')
 export class PublicPagesController {
   constructor(
@@ -48,6 +47,7 @@ export class PublicPagesController {
     private readonly media: PublicMediaService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get('homepage')
   async getHomepage(): Promise<PublicPageDto> {
     const siteId = this.siteService.getDefaultSiteId();
@@ -60,6 +60,7 @@ export class PublicPagesController {
     return this.toDto(page);
   }
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get(':slug')
   async findBySlug(@Param('slug') slug: string): Promise<PublicPageDto> {
     const siteId = this.siteService.getDefaultSiteId();

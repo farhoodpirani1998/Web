@@ -28,7 +28,6 @@ interface PublicTestimonialDto {
 
 /** Optional section — gated by featureFlags.testimonialsEnabled, empty list when disabled. */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/testimonials')
 export class PublicTestimonialsController {
   constructor(
@@ -40,6 +39,7 @@ export class PublicTestimonialsController {
     private readonly siteSettings: SiteSettingsService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(): Promise<PublicTestimonialDto[]> {
     const settings = await this.siteSettings.get();

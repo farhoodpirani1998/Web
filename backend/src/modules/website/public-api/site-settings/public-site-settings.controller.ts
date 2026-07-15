@@ -43,7 +43,6 @@ interface PublicPortalLinkDto {
  * here, unlike every other controller in this module.
  */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/site-settings')
 export class PublicSiteSettingsController {
   constructor(
@@ -51,6 +50,7 @@ export class PublicSiteSettingsController {
     private readonly media: PublicMediaService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async get(): Promise<PublicSiteSettingsDto> {
     const settings = await this.siteSettings.get();
@@ -81,7 +81,6 @@ export class PublicSiteSettingsController {
  * Settings but lives in its own table/endpoint.
  */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/portal-links')
 export class PublicPortalLinksController {
   constructor(
@@ -90,6 +89,7 @@ export class PublicPortalLinksController {
     private readonly siteService: SiteService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(): Promise<PublicPortalLinkDto[]> {
     const siteId = this.siteService.getDefaultSiteId();

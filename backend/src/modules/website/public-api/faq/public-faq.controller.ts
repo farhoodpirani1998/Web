@@ -22,7 +22,6 @@ interface PublicFaqDto {
 
 /** Optional section — gated by featureFlags.faqEnabled, empty list when disabled. */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/faq')
 export class PublicFaqController {
   constructor(
@@ -33,6 +32,7 @@ export class PublicFaqController {
     private readonly siteSettings: SiteSettingsService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(@Query('category') category?: string): Promise<PublicFaqDto[]> {
     const settings = await this.siteSettings.get();

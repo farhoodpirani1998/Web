@@ -51,7 +51,6 @@ interface PublicCampusDetailDto extends PublicCampusListItemDto {
  * slug).
  */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/campuses')
 export class PublicCampusesController {
   constructor(
@@ -62,6 +61,7 @@ export class PublicCampusesController {
     private readonly media: PublicMediaService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(): Promise<PublicCampusListItemDto[]> {
     const siteId = this.siteService.getDefaultSiteId();
@@ -78,6 +78,7 @@ export class PublicCampusesController {
     return visible.map((campus) => this.toListItem(campus, mediaMap));
   }
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get(':slug')
   async findBySlug(@Param('slug') slug: string): Promise<PublicCampusDetailDto> {
     const siteId = this.siteService.getDefaultSiteId();

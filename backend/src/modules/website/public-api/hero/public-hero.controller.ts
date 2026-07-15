@@ -30,7 +30,6 @@ interface PublicHeroSlideDto {
  * (see SiteFeatureFlags doc: only genuinely optional sections get a flag).
  */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/hero')
 export class PublicHeroController {
   constructor(
@@ -41,6 +40,7 @@ export class PublicHeroController {
     private readonly media: PublicMediaService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(): Promise<PublicHeroSlideDto[]> {
     const siteId = this.siteService.getDefaultSiteId();

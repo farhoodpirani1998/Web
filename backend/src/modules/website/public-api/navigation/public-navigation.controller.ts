@@ -39,7 +39,6 @@ interface PublicMenuItemNode {
  * their sitemap providers.
  */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/navigation')
 export class PublicNavigationController {
   constructor(
@@ -53,6 +52,7 @@ export class PublicNavigationController {
     private readonly visibility: PublicVisibilityService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get(':key')
   async getByKey(@Param('key') key: string): Promise<PublicMenuItemNode[]> {
     const siteId = this.siteService.getDefaultSiteId();

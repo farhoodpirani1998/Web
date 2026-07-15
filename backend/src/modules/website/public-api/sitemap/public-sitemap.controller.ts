@@ -24,8 +24,6 @@ import {
  * and main.ts sets no global prefix, so this is safe to add here.
  */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
-@Header('Content-Type', 'application/xml')
 @Controller()
 export class PublicSitemapController {
   constructor(
@@ -33,6 +31,8 @@ export class PublicSitemapController {
     private readonly config: ConfigService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
+  @Header('Content-Type', 'application/xml')
   @Get('sitemap.xml')
   async getSitemap(): Promise<string> {
     const entries = await this.sitemap.generate();

@@ -40,7 +40,6 @@ interface PublicGalleryItemDto {
  * error handling.
  */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/gallery')
 export class PublicGalleryController {
   constructor(
@@ -52,6 +51,7 @@ export class PublicGalleryController {
     private readonly siteSettings: SiteSettingsService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(
     @Query('category') category?: string,

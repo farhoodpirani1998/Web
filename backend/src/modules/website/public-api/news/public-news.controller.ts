@@ -50,7 +50,6 @@ interface PublicNewsDetailDto extends PublicNewsListItemDto {
  * section genuinely isn't reachable, not merely "no items."
  */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/news')
 export class PublicNewsController {
   constructor(
@@ -62,6 +61,7 @@ export class PublicNewsController {
     private readonly siteSettings: SiteSettingsService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(
     @Query('category') category?: string,
@@ -117,6 +117,7 @@ export class PublicNewsController {
     );
   }
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get(':slug')
   async findBySlug(@Param('slug') slug: string): Promise<PublicNewsDetailDto> {
     const settings = await this.siteSettings.get();

@@ -54,7 +54,6 @@ interface PublicTeacherDetailDto extends PublicTeacherListItemDto {
  * slug).
  */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/teachers')
 export class PublicTeachersController {
   constructor(
@@ -65,6 +64,7 @@ export class PublicTeachersController {
     private readonly media: PublicMediaService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(
     @Query('campusId') campusId?: string,
@@ -89,6 +89,7 @@ export class PublicTeachersController {
     return visible.map((teacher) => this.toListItem(teacher, mediaMap));
   }
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get(':slug')
   async findBySlug(@Param('slug') slug: string): Promise<PublicTeacherDetailDto> {
     const siteId = this.siteService.getDefaultSiteId();

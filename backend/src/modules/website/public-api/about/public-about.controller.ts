@@ -24,7 +24,6 @@ interface PublicAboutDto {
 
 /** Core section, singleton per site — same shape as PublicSiteSettingsController. */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/about')
 export class PublicAboutController {
   constructor(
@@ -35,6 +34,7 @@ export class PublicAboutController {
     private readonly media: PublicMediaService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async get(): Promise<PublicAboutDto> {
     const siteId = this.siteService.getDefaultSiteId();

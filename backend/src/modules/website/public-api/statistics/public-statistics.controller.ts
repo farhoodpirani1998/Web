@@ -26,7 +26,6 @@ interface PublicStatisticDto {
  * curated set of counters, not a growing feed).
  */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/statistics')
 export class PublicStatisticsController {
   constructor(
@@ -36,6 +35,7 @@ export class PublicStatisticsController {
     private readonly visibility: PublicVisibilityService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(): Promise<PublicStatisticDto[]> {
     const siteId = this.siteService.getDefaultSiteId();

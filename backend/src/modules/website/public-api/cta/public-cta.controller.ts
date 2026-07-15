@@ -34,7 +34,6 @@ interface PublicCtaDto {
  * singleton when not yet published.
  */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/cta')
 export class PublicCtaController {
   constructor(
@@ -46,6 +45,7 @@ export class PublicCtaController {
     private readonly siteSettings: SiteSettingsService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async get(): Promise<PublicCtaDto> {
     const settings = await this.siteSettings.get();

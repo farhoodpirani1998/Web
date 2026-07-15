@@ -21,7 +21,6 @@ interface PublicFeatureDto {
 
 /** Core section, not feature-flag gated (see SiteFeatureFlags doc). */
 @Throttle(PUBLIC_THROTTLE)
-@Header('Cache-Control', PUBLIC_CACHE_CONTROL)
 @Controller('public/features')
 export class PublicFeaturesController {
   constructor(
@@ -31,6 +30,7 @@ export class PublicFeaturesController {
     private readonly visibility: PublicVisibilityService,
   ) {}
 
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(): Promise<PublicFeatureDto[]> {
     const siteId = this.siteService.getDefaultSiteId();
