@@ -1,6 +1,6 @@
+import { useFaq } from "@/features/faq/useFaq";
 import { Card, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
-import { useAboutPage } from "./useAboutPage";
 import type { AboutFAQItem } from "./types";
 
 /**
@@ -15,11 +15,11 @@ import type { AboutFAQItem } from "./types";
  * this (now a fifth identical instance of the pattern) to a shared
  * `Accordion` primitive is a natural follow-up.
  *
- * Backed by `useAboutPage()` (the Public API's Static Pages/About
- * content module, §4, §8), following the same "fetched list with a
- * local-literal fallback" convention `@/features/news`'s `NewsList`
- * established: lays out `data.faq` once the query has resolved with
- * at least one item, and falls back to the local `fallbackFaqItems`
+ * Backed by the shared `useFaq()` hook (`@/features/faq`, `GET
+ * /faq`), following the same "fetched list with a local-literal
+ * fallback" convention `@/features/news`'s `NewsList` established:
+ * lays out the fetched list once the query has resolved with at
+ * least one item, and falls back to the local `fallbackFaqItems`
  * literal while the query is loading, has errored, or the CMS has
  * nothing published yet.
  */
@@ -48,8 +48,8 @@ const fallbackFaqItems: readonly AboutFAQItem[] = [
 ];
 
 export function AboutFAQ() {
-  const { data } = useAboutPage();
-  const faqItems = data && data.faq.length > 0 ? data.faq : fallbackFaqItems;
+  const { data } = useFaq();
+  const faqItems: readonly AboutFAQItem[] = data && data.length > 0 ? data : fallbackFaqItems;
 
   return (
     <Section spacing="lg" aria-labelledby="about-faq-heading">

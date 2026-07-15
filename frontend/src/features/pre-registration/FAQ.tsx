@@ -1,3 +1,4 @@
+import { useFaq } from "@/features/faq/useFaq";
 import { Card, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
 
@@ -21,6 +22,13 @@ import { cn } from "@/shared/utils/cn";
  * questions/answers are ultimately Pre-registration content-module
  * data (§4, §8); this renders frontend-owned Persian placeholder copy
  * in the meantime.
+ *
+ * Now backed by the shared `useFaq()` hook (`@/features/faq`, `GET
+ * /faq`). The local `faqItems` literal above is kept as-is and used
+ * as the fallback: while the request is loading, if it errors, or if
+ * the API returns an empty list, this still renders the local
+ * placeholder copy, so the section is never empty. No other
+ * design/markup changes.
  */
 
 const faqItems = [
@@ -47,6 +55,9 @@ const faqItems = [
 ] as const;
 
 export function FAQ() {
+  const { data } = useFaq();
+  const items = data && data.length > 0 ? data : faqItems;
+
   return (
     <Section spacing="lg" tone="muted" aria-labelledby="pre-registration-faq-heading">
       <Stack gap="lg">
@@ -60,7 +71,7 @@ export function FAQ() {
         </Stack>
 
         <Stack gap="sm" className="mx-auto w-full max-w-3xl">
-          {faqItems.map((item) => (
+          {items.map((item) => (
             <Card key={item.id} variant="outline" padding="none">
               <details className="group px-6 py-4">
                 <summary
