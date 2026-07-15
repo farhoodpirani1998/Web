@@ -3,6 +3,29 @@ import { ArrowLeft } from "lucide-react";
 import { Container, Image, Link, buttonVariants } from "@/shared/design-system/components";
 import { APP_NAME } from "@/shared/config/app";
 import { cn } from "@/shared/utils/cn";
+import { useHero } from "./useHero";
+import type { Hero as HeroContent } from "./types";
+
+/**
+ * Frontend-owned Persian placeholder copy, rendered while `useHero()`
+ * is loading, has errored, or the CMS has not published a Hero block
+ * yet — the same "local literal as fallback" convention
+ * `@/features/about`'s `AboutHero` and `@/features/site`'s `Brand`
+ * established.
+ */
+const fallbackHero: HeroContent = {
+  eyebrow: APP_NAME,
+  title: "آینده‌ای روشن با آموزشی معنادار",
+  description:
+    "متن معرفی نمونه برای بخش هیرو. این متن جایگزین محتوایی است که در نهایت پس از پیاده‌سازی ماژول " +
+    "محتوایی هیرو، از طریق Public API بک‌اند تأمین خواهد شد.",
+  image: {
+    src: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920&h=1080&fit=crop&auto=format",
+    alt: "نمای ساختمان و محوطه‌ی آموزشی مجتمع",
+  },
+  primaryCta: { label: "پیش‌ثبت‌نام", href: "/pre-registration" },
+  secondaryCta: { label: "تماس با ما", href: "/contact" },
+};
 
 /**
  * Homepage "Hero" section (Website Frontend Architecture §4, §10
@@ -16,28 +39,34 @@ import { cn } from "@/shared/utils/cn";
  * its own `Container` only for the text column, matching Figma's
  * `max-w-7xl` inner wrapper.
  *
- * The background photo is a stand-in: hero imagery is ultimately
- * sourced from the Site/CMS content module (§4, §8), so this renders a
- * placeholder image and frontend-owned Persian copy in the meantime —
- * same convention as `Footer`/`ContactPage`/`AboutPage`. Both CTAs
- * point at real existing routes (`/pre-registration`, `/contact`); no
- * portal-login route exists yet, so that Figma CTA is intentionally
- * left out rather than wired to a placeholder link (§ "no placeholder
- * code").
+ * Backed by `useHero()` (the Public API's Hero content module, §4,
+ * §8): renders `data` once the query has resolved, and falls back to
+ * `fallbackHero` while the query is loading, has errored, or the CMS
+ * has nothing published yet — the same convention `AboutHero`/`Brand`
+ * already use. `title` now renders as a single plain string rather
+ * than the previous two-tone "headline + accent-colored second half"
+ * split, since a CMS-sourced title has no markup to split on — the
+ * same "lose the inline highlight, keep the layout" trade-off
+ * `AboutStory`'s pull-paragraph treatment already made for its own
+ * CMS-sourced copy. `primaryCta`/`secondaryCta` are optional per the
+ * response type, so each button only renders when its CTA is present.
  *
  * Entrance motion uses `tailwindcss-animate`'s `animate-in` utilities
  * (already a dependency) instead of adding a runtime animation
  * library — CSS-only, no new dependency.
  */
 export function Hero() {
+  const { data } = useHero();
+  const hero = data ?? fallbackHero;
+
   return (
     <section
       aria-labelledby="home-hero-heading"
       className="relative flex h-[90vh] min-h-[600px] items-center overflow-hidden bg-primary"
     >
       <Image
-        src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920&h=1080&fit=crop&auto=format"
-        alt="نمای ساختمان و محوطه‌ی آموزشی مجتمع"
+        src={hero.image.src}
+        alt={hero.image.alt}
         loading="eager"
         fit="cover"
         containerClassName="absolute inset-0 h-full w-full"
@@ -50,45 +79,52 @@ export function Hero() {
 
       <Container size="xl" className="relative z-10 w-full pt-8">
         <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <div className="mb-7 inline-flex items-center gap-3 animate-in fade-in slide-in-from-start-4 duration-700 delay-150 fill-mode-both">
-            <span aria-hidden="true" className="h-px w-10 bg-accent" />
-            <span className="text-xs font-bold text-accent">{APP_NAME}</span>
-          </div>
+          {hero.eyebrow && (
+            <div className="mb-7 inline-flex items-center gap-3 animate-in fade-in slide-in-from-start-4 duration-700 delay-150 fill-mode-both">
+              <span aria-hidden="true" className="h-px w-10 bg-accent" />
+              <span className="text-xs font-bold text-accent">{hero.eyebrow}</span>
+            </div>
+          )}
 
           <h1
             id="home-hero-heading"
             className="mb-6 text-4xl font-bold leading-[1.3] tracking-tight text-white md:text-5xl lg:text-[3.4rem]"
           >
-            آینده‌ای روشن با <span className="text-accent">آموزشی معنادار</span>
+            {hero.title}
           </h1>
 
           <p className="mb-10 max-w-xl text-base font-light leading-relaxed text-white/65 md:text-lg">
-            متن معرفی نمونه برای بخش هیرو. این متن جایگزین محتوایی است که در نهایت پس از پیاده‌سازی ماژول
-            محتوایی هیرو، از طریق Public API بک‌اند تأمین خواهد شد.
+            {hero.description}
           </p>
 
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/pre-registration"
-              className={cn(
-                buttonVariants({ size: "lg" }),
-                "gap-2 rounded-full bg-accent text-primary shadow-lg shadow-accent/20 hover:bg-accent/90",
+          {(hero.primaryCta || hero.secondaryCta) && (
+            <div className="flex flex-wrap gap-3">
+              {hero.primaryCta && (
+                <Link
+                  href={hero.primaryCta.href}
+                  className={cn(
+                    buttonVariants({ size: "lg" }),
+                    "gap-2 rounded-full bg-accent text-primary shadow-lg shadow-accent/20 hover:bg-accent/90",
+                  )}
+                >
+                  {hero.primaryCta.label}
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                </Link>
               )}
-            >
-              پیش‌ثبت‌نام
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            </Link>
-            <Link
-              href="/contact"
-              className={cn(
-                buttonVariants({ variant: "outline", size: "lg" }),
-                "gap-2 rounded-full border-white/30 text-white backdrop-blur-sm hover:border-accent hover:bg-transparent hover:text-accent",
+              {hero.secondaryCta && (
+                <Link
+                  href={hero.secondaryCta.href}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "lg" }),
+                    "gap-2 rounded-full border-white/30 text-white backdrop-blur-sm hover:border-accent hover:bg-transparent hover:text-accent",
+                  )}
+                >
+                  {hero.secondaryCta.label}
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                </Link>
               )}
-            >
-              تماس با ما
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          </div>
+            </div>
+          )}
         </div>
       </Container>
 
