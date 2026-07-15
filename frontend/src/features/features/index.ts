@@ -6,3 +6,7 @@
  * only from here — never from `./Features` directly.
  */
 export { Features } from "./Features";
+
+export { fetchFeatures } from "./api";
+export { useFeatures, featuresQueryKey } from "./useFeatures";
+export type { Features as FeaturesData, FeatureItem } from "./types";
