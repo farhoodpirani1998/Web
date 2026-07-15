@@ -17,3 +17,5 @@ export { FAQ } from "./FAQ";
 export { EmptyState } from "./EmptyState";
 export type { Event, EventImage } from "./types";
 export { events } from "./data";
+export { fetchEvents } from "./api";
+export { useEvents, eventsQueryKey } from "./useEvents";

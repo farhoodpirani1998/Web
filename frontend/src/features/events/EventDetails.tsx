@@ -1,5 +1,6 @@
 import { Badge, Card, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { events } from "./data";
+import { useEvents } from "./useEvents";
 
 /**
  * Events page "Details" section — the expanded, in-depth view of each
@@ -8,23 +9,30 @@ import { events } from "./data";
  * `@/features/campuses`'s `CampusDetails` and `@/features/teachers`'s
  * `TeacherDetails`.
  *
- * Presentation only, no business logic. Like `CampusDetails`,
- * `TeacherDetails`, and `FAQ` (`campuses`/`teachers`/
- * `pre-registration`), each panel uses the native `<details>`/
- * `<summary>` elements rather than a controlled `open`/`onToggle`
- * state — fully interactive, keyboard/screen-reader accessible
- * disclosure (§26), zero React/component state, in keeping with this
- * feature's "no state management" scope. Each `<details>` carries the
- * id `EventCard`'s "جزئیات بیشتر" link points at (`#event-{id}`), so
- * following that link both scrolls to and (once the browser supports
- * `:target` auto-expansion, or once real interactivity is added
- * later) reveals the matching panel — no JS required for the
- * scroll-to-anchor part.
+ * Presentation only, no business logic beyond the data source below.
+ * Like `CampusDetails`, `TeacherDetails`, and `FAQ` (`campuses`/
+ * `teachers`/`pre-registration`), each panel uses the native
+ * `<details>`/`<summary>` elements rather than a controlled `open`/
+ * `onToggle` state — fully interactive, keyboard/screen-reader
+ * accessible disclosure (§26), zero React/component state, in keeping
+ * with this feature's "no state management" scope. Each `<details>`
+ * carries the id `EventCard`'s "جزئیات بیشتر" link points at
+ * (`#event-{id}`), so following that link both scrolls to and (once
+ * the browser supports `:target` auto-expansion, or once real
+ * interactivity is added later) reveals the matching panel — no JS
+ * required for the scroll-to-anchor part.
  *
- * Reuses the same local `events` literal (`./data`) as `EventList` —
- * single source of truth for this feature's placeholder data.
+ * Backed by `useEvents()` (the Public API's Events content module,
+ * §4, §8): renders `data.events` when the query has resolved with at
+ * least one item, and falls back to the local `events` placeholder
+ * array (`./data`) — the same source `EventList` falls back to —
+ * while the query is loading, has errored, or the CMS has nothing
+ * published yet.
  */
 export function EventDetails() {
+  const { data } = useEvents();
+  const items = data && data.length > 0 ? data : events;
+
   return (
     <Section spacing="lg" tone="muted" aria-labelledby="events-details-heading">
       <Stack gap="md">
@@ -33,7 +41,7 @@ export function EventDetails() {
         </Heading>
 
         <Stack gap="sm">
-          {events.map((event) => (
+          {items.map((event) => (
             <Card
               key={event.id}
               variant="outline"

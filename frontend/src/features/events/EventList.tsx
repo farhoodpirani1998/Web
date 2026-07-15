@@ -1,6 +1,7 @@
 import { Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { EventCard } from "./EventCard";
 import { events } from "./data";
+import { useEvents } from "./useEvents";
 
 /**
  * Events page "List" section — the compact overview grid, mirroring
@@ -9,18 +10,16 @@ import { events } from "./data";
  * `SchoolsList`/`GalleryGrid`/`Information`, §4, §8, §10 "Section
  * Architecture").
  *
- * Presentation only: composed from `Section`/`Stack`/`Grid` plus this
- * feature's own `EventCard`, over the local `events` literal
- * (`./data`) — no data fetching, no business logic. Swapping `./data`
- * for a `useEvents()`-style data hook later is additive; this
- * component's JSX does not need to change.
- *
- * Visual refresh: adds a short lead paragraph under the heading (the
- * same heading+lead pairing `CampusList`/`TeacherGrid` use) and
- * widens the card gap from `md` to `lg` to give the taller `elevated`
- * `EventCard`s room to breathe.
+ * Backed by `useEvents()` (the Public API's Events content module,
+ * §4, §8): lays out `data.events` when the query has resolved with at
+ * least one item, and falls back to the local `events` placeholder
+ * array (`./data`) while the query is loading, has errored, or the
+ * CMS has nothing published yet.
  */
 export function EventList() {
+  const { data } = useEvents();
+  const items = data && data.length > 0 ? data : events;
+
   return (
     <Section spacing="lg" aria-labelledby="events-list-heading">
       <Stack gap="md">
@@ -33,7 +32,7 @@ export function EventList() {
           </Text>
         </Stack>
         <Grid cols="3" gap="lg">
-          {events.map((event) => (
+          {items.map((event) => (
             <EventCard key={event.id} event={event} />
           ))}
         </Grid>

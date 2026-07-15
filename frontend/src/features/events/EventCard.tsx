@@ -5,6 +5,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Image,
   Link,
   Stack,
   Text,
@@ -28,22 +29,19 @@ export interface EventCardProps {
  * (e.g. a homepage "upcoming events" section) without duplicating
  * this markup.
  *
- * No real photo assets exist yet (Events/Media content-module data,
- * §4, §8, no Public API endpoint today), so the image slot still
- * renders a labelled placeholder surface rather than wiring the
- * `Image` component against a URL that doesn't exist. Visual refresh:
- * the placeholder is now a soft navy/gold gradient tile with a
- * decorative calendar glyph — the same "crest/emblem instead of a
- * flat grey box" treatment `GalleryCard`/`CampusCard` already
- * established — with the category floating over it as a frosted chip,
- * the card lifting on hover (`elevated` + hover-shadow, matching
+ * Now that the Events content module is wired up (`./useEvents`),
+ * `event.image.src` renders through the shared `Image` primitive;
+ * when the CMS hasn't set an image for a given entry (or the query is
+ * still on its local placeholder fallback), the same soft navy/gold
+ * gradient tile with a decorative calendar glyph — the same
+ * "crest/emblem instead of a flat grey box" treatment
+ * `GalleryCard`/`CampusCard` already established — is rendered
+ * instead, with the category floating over it as a frosted chip, the
+ * card lifting on hover (`elevated` + hover-shadow, matching
  * `GalleryCard`/`NewsCard`/`CampusCard`), and the date/time/location
  * rows picking up small inline glyphs (matching `CampusCard`'s
  * address/phone rows) so the schedule details read as structured data
- * rather than plain text. Once `event.image.src` is populated by real
- * data, swapping the placeholder block below for
- * `<Image src={event.image.src} ... />` is a change contained entirely
- * to this file.
+ * rather than plain text.
  */
 export function EventCard({ event }: EventCardProps) {
   return (
@@ -52,21 +50,24 @@ export function EventCard({ event }: EventCardProps) {
       padding="none"
       className="group overflow-hidden bg-background transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
     >
-      <AspectRatio
-        ratio={4 / 3}
-        className="bg-gradient-to-br from-brand-navy/10 via-muted to-brand-gold/15"
-      >
-        <Stack
-          align="center"
-          justify="center"
-          gap="xs"
-          className="absolute inset-0 h-full w-full px-2 text-center transition-transform duration-300 group-hover:scale-105"
-        >
-          <CalendarGlyph className="h-9 w-9 text-brand-navy/25" />
-          <Text variant="caption" color="muted">
-            تصویر نمونه
-          </Text>
-        </Stack>
+      <div className="relative">
+        {event.image.src ? (
+          <Image
+            src={event.image.src}
+            alt={event.image.alt}
+            ratio={4 / 3}
+            fit="cover"
+            className="transition-transform duration-300 group-hover:scale-105"
+            fallback={<EventPlaceholder />}
+          />
+        ) : (
+          <AspectRatio
+            ratio={4 / 3}
+            className="bg-gradient-to-br from-brand-navy/10 via-muted to-brand-gold/15"
+          >
+            <EventPlaceholder className="transition-transform duration-300 group-hover:scale-105" />
+          </AspectRatio>
+        )}
 
         <Badge
           variant="secondary"
@@ -74,7 +75,7 @@ export function EventCard({ event }: EventCardProps) {
         >
           {event.category}
         </Badge>
-      </AspectRatio>
+      </div>
 
       <CardHeader className="gap-2 p-4 pb-0">
         <CardTitle className="font-heading">{event.title}</CardTitle>
@@ -125,6 +126,23 @@ export function EventCard({ event }: EventCardProps) {
         </Stack>
       </CardContent>
     </Card>
+  );
+}
+
+/** Placeholder tile shown while no real photo asset is available for an event. */
+function EventPlaceholder({ className }: { className?: string }) {
+  return (
+    <Stack
+      align="center"
+      justify="center"
+      gap="xs"
+      className={cn("absolute inset-0 h-full w-full px-2 text-center", className)}
+    >
+      <CalendarGlyph className="h-9 w-9 text-brand-navy/25" />
+      <Text variant="caption" color="muted">
+        تصویر نمونه
+      </Text>
+    </Stack>
   );
 }
 

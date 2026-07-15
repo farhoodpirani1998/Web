@@ -1,16 +1,16 @@
 /**
- * CMS-ready `Event` shape for the `events` feature.
+ * `Event` shape for the `events` feature — the backend's Events
+ * content-module data (Website Frontend Architecture §4, §8),
+ * consumed by the feature's data-fetching hook (`./api`,
+ * `./useEvents`).
  *
- * This is a frontend-owned type describing the eventual shape of the
- * backend's Events content-module data (Website Frontend Architecture
- * §4, §8) — no such Public API endpoint exists yet, so nothing here
- * is fetched. Mirrors the same structure as `@/features/campuses`'s
- * `types.ts` (`Campus`/`CampusImage`) and `@/features/teachers`'s
- * `types.ts` (`Teacher`/`TeacherImage`): a short summary, a longer
- * description, an image, and a set of tag labels, so `EventCard`/
- * `EventList`/`EventDetails` can be typed against real data later by
- * changing only where `events` (see `./data`) comes from — none of
- * the section components need to change shape.
+ * Mirrors the same structure as `@/features/campuses`'s `types.ts`
+ * (`Campus`/`CampusImage`) and `@/features/teachers`'s `types.ts`
+ * (`Teacher`/`TeacherImage`): a short summary, a longer description,
+ * an image, and a set of tag labels, so `EventCard`/`EventList`/
+ * `EventDetails` stay typed the same way regardless of whether
+ * they're rendering live API data or the local placeholder fallback
+ * in `./data`.
  */
 
 export interface EventImage {
