@@ -1,29 +1,30 @@
 import { Card, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
+import { useAboutPage } from "./useAboutPage";
+import type { AboutFAQItem } from "./types";
 
 /**
  * About page "FAQ" section.
  *
- * Presentation only, no business logic. Matches the pattern already
- * established by `@/features/campuses`'s, `@/features/teachers`'s,
- * and `@/features/events`'s `FAQ`: native `<details>`/`<summary>`
- * disclosure widgets (keyboard + screen-reader accessible, §26)
- * instead of a controlled `open`/`onToggle` state, so this section is
- * fully interactive with zero React/component state. No accordion
- * primitive exists yet in the design system; promoting this (now a
- * fifth identical instance of the pattern) to a shared `Accordion`
- * primitive is a natural follow-up.
+ * Matches the pattern already established by `@/features/campuses`'s,
+ * `@/features/teachers`'s, and `@/features/events`'s `FAQ`: native
+ * `<details>`/`<summary>` disclosure widgets (keyboard + screen-reader
+ * accessible, §26) instead of a controlled `open`/`onToggle` state, so
+ * this section is fully interactive with zero React/component state.
+ * No accordion primitive exists yet in the design system; promoting
+ * this (now a fifth identical instance of the pattern) to a shared
+ * `Accordion` primitive is a natural follow-up.
  *
- * Items are grouped into a local array literal rather than
- * interleaved in JSX, matching this feature's other sections
- * (`AboutStats`/`AboutTeam`/`AboutTimeline`/`AboutValues`) and so
- * swapping this for a `useAboutPage()`-style data hook later is a
- * matter of replacing the literal. Real questions/answers are
- * ultimately Static Pages/About content-module data (§4, §8); this
- * renders frontend-owned Persian placeholder copy in the meantime.
+ * Backed by `useAboutPage()` (the Public API's Static Pages/About
+ * content module, §4, §8), following the same "fetched list with a
+ * local-literal fallback" convention `@/features/news`'s `NewsList`
+ * established: lays out `data.faq` once the query has resolved with
+ * at least one item, and falls back to the local `fallbackFaqItems`
+ * literal while the query is loading, has errored, or the CMS has
+ * nothing published yet.
  */
 
-const faqItems = [
+const fallbackFaqItems: readonly AboutFAQItem[] = [
   {
     id: "history",
     question: "مجموعه از چه سالی فعالیت خود را آغاز کرده است؟",
@@ -44,9 +45,12 @@ const faqItems = [
     question: "چگونه می‌توان با اعضای تیم مجموعه در تماس بود؟",
     answer: "متن نمونه پاسخ درباره روش هماهنگی و تماس با تیم مجموعه.",
   },
-] as const;
+];
 
 export function AboutFAQ() {
+  const { data } = useAboutPage();
+  const faqItems = data && data.faq.length > 0 ? data.faq : fallbackFaqItems;
+
   return (
     <Section spacing="lg" aria-labelledby="about-faq-heading">
       <Stack gap="lg">

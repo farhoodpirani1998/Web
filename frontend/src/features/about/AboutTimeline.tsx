@@ -1,19 +1,18 @@
 import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { useAboutPage } from "./useAboutPage";
+import type { AboutTimelineItem } from "./types";
 
 /**
- * About page "Timeline" section — extracted from `AboutPage`'s inline
- * markup without changing layout, styling, or content, following the
- * same pattern as the homepage's `hero`/`features`/`cta` features.
+ * About page "Timeline" section, following the same pattern as the
+ * homepage's `hero`/`features`/`cta` features and now (as of this
+ * extension) also `@/features/news`'s `NewsList`.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Badge`, `Heading`, `Text`) — no data
- * fetching, no business logic. Timeline entries are grouped into a
- * local array literal rather than interleaved in JSX (Website Frontend
- * Architecture §4, §8), so the eventual swap to a `useAboutPage()`-style
- * data hook is a matter of replacing this literal — the layout and
- * design-system wiring below do not need to change. Real copy is
- * ultimately Static Pages/About content-module data; this renders
- * frontend-owned Persian placeholder copy in the meantime.
+ * Backed by `useAboutPage()` (the Public API's Static Pages/About
+ * content module, §4, §8): lays out `data.timeline` once the query
+ * has resolved with at least one item, and falls back to the local
+ * `fallbackTimeline` literal while the query is loading, has errored,
+ * or the CMS has nothing published yet. The last entry (whichever
+ * source it comes from) keeps the filled "today" marker dot.
  *
  * Visual refresh: the plain `border-s` rule now carries a gold tint and
  * each entry gets a small gold dot marker sitting on that line (plain
@@ -24,7 +23,7 @@ import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/com
  * list stays the same semantic `<ol>`/`<li>` structure (§26).
  */
 
-const timeline = [
+const fallbackTimeline: readonly AboutTimelineItem[] = [
   {
     id: "y1378",
     year: "۱۳۷۸",
@@ -49,9 +48,12 @@ const timeline = [
     title: "امروز",
     description: "فعالیت در ۶ شعبه با صدها دوره حضوری و آنلاین در سال.",
   },
-] as const;
+];
 
 export function AboutTimeline() {
+  const { data } = useAboutPage();
+  const timeline = data && data.timeline.length > 0 ? data.timeline : fallbackTimeline;
+
   return (
     <Section spacing="lg" aria-labelledby="about-timeline-heading">
       <Stack gap="md">

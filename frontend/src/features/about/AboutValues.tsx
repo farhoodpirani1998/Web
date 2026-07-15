@@ -9,21 +9,19 @@ import {
   Stack,
   Text,
 } from "@/shared/design-system/components";
+import { useAboutPage } from "./useAboutPage";
+import type { AboutValueItem } from "./types";
 
 /**
- * About page "Values" section — extracted from `AboutPage`'s inline
- * markup without changing layout, styling, or content, following the
- * same pattern as the homepage's `hero`/`features`/`cta` features.
+ * About page "Values" section, following the same pattern as the
+ * homepage's `hero`/`features`/`cta` features and now (as of this
+ * extension) also `@/features/news`'s `NewsList`.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Grid`, `Card`, `Heading`, `Text`) —
- * no data fetching, no business logic. Value items are grouped into a
- * local array literal rather than interleaved in JSX (Website Frontend
- * Architecture §4, §8), so the eventual swap to a `useAboutPage()`-style
- * data hook is a matter of replacing this literal — the layout and
- * design-system wiring below do not need to change. Real copy is
- * ultimately Static Pages/About content-module data; this renders
- * frontend-owned Persian placeholder copy in the meantime.
+ * Backed by `useAboutPage()` (the Public API's Static Pages/About
+ * content module, §4, §8): lays out `data.values` once the query has
+ * resolved with at least one item, and falls back to the local
+ * `fallbackValues` literal while the query is loading, has errored, or
+ * the CMS has nothing published yet.
  *
  * Visual refresh: adopts the same numbered navy/gold marker + oversized
  * numeral watermark treatment the homepage `Features` cards already
@@ -33,7 +31,7 @@ import {
  * homepage instead of a plain bordered list.
  */
 
-const values = [
+const fallbackValues: readonly AboutValueItem[] = [
   {
     index: "۰۱",
     id: "quality",
@@ -62,9 +60,12 @@ const values = [
     description:
       "اطلاع‌رسانی روشن درباره برنامه درسی، هزینه‌ها و پیشرفت تحصیلی به خانواده‌ها.",
   },
-] as const;
+];
 
 export function AboutValues() {
+  const { data } = useAboutPage();
+  const values = data && data.values.length > 0 ? data.values : fallbackValues;
+
   return (
     <Section spacing="lg" tone="muted" className="rounded-lg" aria-labelledby="about-values-heading">
       <Stack gap="md">

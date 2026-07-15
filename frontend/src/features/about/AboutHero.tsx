@@ -1,18 +1,31 @@
 import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { useAboutPage } from "./useAboutPage";
+import type { AboutHeroContent } from "./types";
 
 /**
- * About page "Hero" section — extracted from `AboutPage`'s inline
- * markup without changing layout, styling, or content, following the
- * same pattern as the homepage's `hero`/`features`/`cta` features.
+ * Frontend-owned Persian placeholder copy, rendered while
+ * `useAboutPage()` is loading, has errored, or the CMS has not
+ * published a Hero block yet — the same "local literal as fallback"
+ * convention `@/features/news`'s `NewsList` established.
+ */
+const fallbackHero: AboutHeroContent = {
+  eyebrow: "درباره ما",
+  title: "با گروه آموزشی ما بیشتر آشنا شوید",
+  description:
+    "متنی نمونه برای معرفی کلی مجموعه. این پاراگراف جایگزین خلاصه‌ای " +
+    "است که در آینده از طریق سامانه مدیریت محتوا و از سرویس عمومی " +
+    "بک‌اند دریافت خواهد شد.",
+};
+
+/**
+ * About page "Hero" section, following the same pattern as the
+ * homepage's `hero`/`features`/`cta` features and now (as of this
+ * extension) also `@/features/news`'s `NewsList`.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Badge`, `Heading`, `Text`) — no data
- * fetching, no business logic. Real copy is ultimately Static
- * Pages/About content-module data (Website Frontend Architecture §4,
- * §8); this renders frontend-owned Persian placeholder copy in the
- * meantime. Swapping this for a `useAboutPage()`-style data hook later
- * is additive — `AboutPage` only ever composes `<AboutHero />`, never
- * its internals.
+ * Backed by `useAboutPage()` (the Public API's Static Pages/About
+ * content module, §4, §8): renders `data.hero` once the query has
+ * resolved, and falls back to `fallbackHero` while the query is
+ * loading, has errored, or the CMS has nothing published yet.
  *
  * Visual refresh: adopts the same gold-badge/underline eyebrow
  * treatment and soft gradient backdrop already established by the
@@ -23,6 +36,9 @@ import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/com
  * from existing tokens, the same technique `Hero` already uses.
  */
 export function AboutHero() {
+  const { data } = useAboutPage();
+  const hero = data?.hero ?? fallbackHero;
+
   return (
     <Section
       spacing="lg"
@@ -35,24 +51,24 @@ export function AboutHero() {
       />
 
       <Stack gap="sm" align="start" className="max-w-2xl">
-        <Badge
-          variant="outline"
-          className="w-fit gap-1.5 rounded-full border-brand-gold/40 bg-brand-gold/10 px-3 py-1 text-brand-navy"
-        >
-          درباره ما
-        </Badge>
+        {hero.eyebrow && (
+          <Badge
+            variant="outline"
+            className="w-fit gap-1.5 rounded-full border-brand-gold/40 bg-brand-gold/10 px-3 py-1 text-brand-navy"
+          >
+            {hero.eyebrow}
+          </Badge>
+        )}
 
         <Stack gap="xs" align="start">
           <Heading id="about-hero-heading" level={1}>
-            با گروه آموزشی ما بیشتر آشنا شوید
+            {hero.title}
           </Heading>
           <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
         </Stack>
 
         <Text variant="lead" className="max-w-2xl text-foreground/70">
-          متنی نمونه برای معرفی کلی مجموعه. این پاراگراف جایگزین خلاصه‌ای
-          است که در آینده از طریق سامانه مدیریت محتوا و از سرویس عمومی
-          بک‌اند دریافت خواهد شد.
+          {hero.description}
         </Text>
       </Stack>
     </Section>

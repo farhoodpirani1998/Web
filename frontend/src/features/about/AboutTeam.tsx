@@ -1,20 +1,19 @@
 import { Avatar, Card, Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { useAboutPage } from "./useAboutPage";
+import type { AboutTeamMember } from "./types";
 
 /**
- * About page "Team" section — extracted from `AboutPage`'s inline
- * markup without changing layout, styling, or content, following the
- * same pattern as the homepage's `hero`/`features`/`cta` features.
+ * About page "Team" section, following the same pattern as the
+ * homepage's `hero`/`features`/`cta` features and now (as of this
+ * extension) also `@/features/news`'s `NewsList`.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Grid`, `Card`, `Avatar`, `Heading`,
- * `Text`) — no data fetching, no business logic. Team members are
- * grouped into a local array literal rather than interleaved in JSX
- * (Website Frontend Architecture §4, §8), so the eventual swap to a
- * `useAboutPage()`-style data hook is a matter of replacing this
- * literal — the layout and design-system wiring below do not need to
- * change. Real names/roles/photos are ultimately Static Pages/About
- * content-module data; this renders frontend-owned Persian placeholder
- * copy in the meantime.
+ * Backed by `useAboutPage()` (the Public API's Static Pages/About
+ * content module, §4, §8): lays out `data.team` once the query has
+ * resolved with at least one item, and falls back to the local
+ * `fallbackTeam` literal while the query is loading, has errored, or
+ * the CMS has nothing published yet. `Avatar`'s own `src`/`fallback`
+ * handling (§ its file's doc comment) covers members without a photo
+ * — no extra branching needed here.
  *
  * Visual refresh: cards move from a compact horizontal row to a
  * centered, `elevated` profile-card layout — larger avatar with a gold
@@ -24,13 +23,16 @@ import { Avatar, Card, Grid, Heading, Section, Stack, Text } from "@/shared/desi
  * consistent card language across the page.
  */
 
-const team = [
+const fallbackTeam: readonly AboutTeamMember[] = [
   { id: "p1", name: "نام و نام‌خانوادگی نمونه", role: "مدیر آموزشی" },
   { id: "p2", name: "نام و نام‌خانوادگی نمونه", role: "سرپرست گروه علمی" },
   { id: "p3", name: "نام و نام‌خانوادگی نمونه", role: "مسئول امور دانش‌آموزی" },
-] as const;
+];
 
 export function AboutTeam() {
+  const { data } = useAboutPage();
+  const team = data && data.team.length > 0 ? data.team : fallbackTeam;
+
   return (
     <Section spacing="lg" aria-labelledby="about-team-heading">
       <Stack gap="md">
@@ -55,7 +57,12 @@ export function AboutTeam() {
             >
               <Stack gap="sm" align="center">
                 <span className="rounded-full p-1 ring-2 ring-brand-gold/40 transition-colors group-hover:ring-brand-gold">
-                  <Avatar alt={member.name} fallback={member.name.slice(0, 1)} size="lg" />
+                  <Avatar
+                    src={member.avatarUrl}
+                    alt={member.name}
+                    fallback={member.name.slice(0, 1)}
+                    size="lg"
+                  />
                 </span>
                 <Stack gap="none" align="center">
                   <Text weight="semibold" className="font-heading">

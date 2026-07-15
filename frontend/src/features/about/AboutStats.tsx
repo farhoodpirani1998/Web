@@ -1,19 +1,17 @@
 import { Card, Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { useAboutPage } from "./useAboutPage";
+import type { AboutStatItem } from "./types";
 
 /**
- * About page "Stats" section — extracted from `AboutPage`'s inline
- * markup without changing layout, styling, or content, following the
- * same pattern as the homepage's `hero`/`features`/`cta` features.
+ * About page "Stats" section, following the same pattern as the
+ * homepage's `hero`/`features`/`cta` features and now (as of this
+ * extension) also `@/features/news`'s `NewsList`.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Grid`, `Card`, `Heading`, `Text`) —
- * no data fetching, no business logic. Stat items are grouped into a
- * local array literal rather than interleaved in JSX (Website Frontend
- * Architecture §4, §8), so the eventual swap to a `useAboutPage()`-style
- * data hook is a matter of replacing this literal — the layout and
- * design-system wiring below do not need to change. Real values are
- * ultimately Static Pages/About content-module data; this renders
- * frontend-owned Persian placeholder copy in the meantime.
+ * Backed by `useAboutPage()` (the Public API's Static Pages/About
+ * content module, §4, §8): lays out `data.stats` once the query has
+ * resolved with at least one item, and falls back to the local
+ * `fallbackStats` literal while the query is loading, has errored, or
+ * the CMS has nothing published yet.
  *
  * Visual refresh: cards move from the plain `outline` variant to
  * `elevated` with a hover lift (the same treatment `GalleryCard`/
@@ -24,14 +22,17 @@ import { Card, Grid, Heading, Section, Stack, Text } from "@/shared/design-syste
  * value/label text.
  */
 
-const stats = [
+const fallbackStats: readonly AboutStatItem[] = [
   { id: "founded", value: "۱۳۷۸", label: "سال تأسیس" },
   { id: "students", value: "+۱۲٬۰۰۰", label: "دانش‌آموز و دانشجو" },
   { id: "campuses", value: "۶", label: "شعبه فعال" },
   { id: "staff", value: "+۴۰۰", label: "مدرس و کارشناس" },
-] as const;
+];
 
 export function AboutStats() {
+  const { data } = useAboutPage();
+  const stats = data && data.stats.length > 0 ? data.stats : fallbackStats;
+
   return (
     <Section spacing="md" tone="muted" className="rounded-lg" aria-labelledby="about-stats-heading">
       <Stack gap="md">
