@@ -1,17 +1,20 @@
 import { Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { CampusCard } from "./CampusCard";
-import { campuses } from "./data";
+import { campuses as fallbackCampuses } from "./data";
+import { useCampuses } from "./useCampuses";
 
 /**
  * Campuses page "List" section — the compact overview grid, following
  * the same pattern as `SchoolsList`/`GalleryGrid`/`Information`
- * (§4, §8, §10 "Section Architecture").
+ * (§4, §8, §10 "Section Architecture"), and now (as of this
+ * extension) also mirroring `@/features/news`'s `NewsList` and
+ * `@/features/gallery`'s `GalleryGrid`.
  *
- * Presentation only: composed from `Section`/`Stack`/`Grid` plus this
- * feature's own `CampusCard`, over the local `campuses` literal
- * (`./data`) — no data fetching, no business logic. Swapping `./data`
- * for a `useCampuses()`-style data hook later is additive; this
- * component's JSX does not need to change.
+ * Backed by `useCampuses()` (the Public API's Campuses content
+ * module, §4, §8): lays out `data` when the query has resolved with
+ * at least one item, and falls back to the local `fallbackCampuses`
+ * placeholder array (`./data`) while the query is loading, has
+ * errored, or the CMS has nothing published yet.
  *
  * Visual refresh: adds a short lead paragraph under the heading (the
  * same heading+lead pairing `AboutTeam`/`AboutValues` use) so the
@@ -20,6 +23,9 @@ import { campuses } from "./data";
  * `elevated` `CampusCard`s room to breathe.
  */
 export function CampusList() {
+  const { data } = useCampuses();
+  const campuses = data && data.length > 0 ? data : fallbackCampuses;
+
   return (
     <Section spacing="lg" aria-labelledby="campuses-list-heading">
       <Stack gap="md">

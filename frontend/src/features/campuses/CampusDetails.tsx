@@ -7,28 +7,38 @@ import {
   Stack,
   Text,
 } from "@/shared/design-system/components";
-import { campuses } from "./data";
+import { campuses as fallbackCampuses } from "./data";
+import { useCampuses } from "./useCampuses";
 
 /**
  * Campuses page "Details" section — the expanded, in-depth view of
  * each campus (full description, all contact channels, full feature
  * list), distinct from `CampusList`'s compact overview cards.
  *
- * Presentation only, no business logic. Like `FAQ` (pre-registration
- * feature), each panel uses the native `<details>`/`<summary>`
- * elements rather than a controlled `open`/`onToggle` state — fully
- * interactive, keyboard/screen-reader accessible disclosure (§26),
- * zero React/component state, in keeping with this Sprint's "no state
- * management" scope. Each `<details>` carries the id `CampusCard`'s
+ * Presentation only, no business logic beyond the fetched-or-fallback
+ * source selection below. Like `FAQ` (pre-registration feature), each
+ * panel uses the native `<details>`/`<summary>` elements rather than a
+ * controlled `open`/`onToggle` state — fully interactive,
+ * keyboard/screen-reader accessible disclosure (§26), zero
+ * React/component state. Each `<details>` carries the id `CampusCard`'s
  * "جزئیات بیشتر" link points at (`#campus-{id}`), so following that
  * link both scrolls to and (once the browser supports `:target`
  * auto-expansion, or once real interactivity is added later) reveals
  * the matching panel — no JS required for the scroll-to-anchor part.
  *
- * Reuses the same local `campuses` literal (`./data`) as `CampusList`
- * — single source of truth for this Sprint's placeholder data.
+ * Backed by `useCampuses()` (the Public API's Campuses content
+ * module, §4, §8), the same `useCampuses()` call `CampusList` makes —
+ * TanStack Query dedupes the two into a single request/cache entry
+ * (§14). Renders `data` once the query has resolved with at least one
+ * item, and falls back to the local `fallbackCampuses` literal
+ * (`./data`) while the query is loading, has errored, or the CMS has
+ * nothing published yet — the same convention `NewsList`/`NewsDetails`
+ * and `GalleryGrid`/`GalleryDetails` already use.
  */
 export function CampusDetails() {
+  const { data } = useCampuses();
+  const campuses = data && data.length > 0 ? data : fallbackCampuses;
+
   return (
     <Section spacing="lg" tone="muted" aria-labelledby="campuses-details-heading">
       <Stack gap="md">
