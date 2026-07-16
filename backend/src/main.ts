@@ -11,11 +11,18 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { resolve } from 'path';
 import helmet from 'helmet';
+import { json, urlencoded } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // bodyParser: false — the default body-parser Nest would otherwise
+  // register has a fixed limit that isn't configurable per deployment.
+  // Replaced below with our own json()/urlencoded() using env-driven
+  // limits (see BODY_LIMIT_JSON_BYTES / BODY_LIMIT_URLENCODED_BYTES).
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bodyParser: false,
+  });
 
   // Security headers (X-Content-Type-Options, X-Frame-Options, HSTS,
   // a default Content-Security-Policy, etc). crossOriginResourcePolicy is
@@ -38,6 +45,21 @@ async function bootstrap() {
   );
 
   const config = app.get(ConfigService);
+
+  // Request payload limits: protects against oversized-body abuse
+  // (memory/CPU exhaustion) independent of auth — enforced by express's
+  // parsers before a request body ever reaches a controller or
+  // ValidationPipe. Configurable via BODY_LIMIT_JSON_BYTES /
+  // BODY_LIMIT_URLENCODED_BYTES (see .env.example); falls back to 1 MiB
+  // for each when unset (more generous than express's own built-in
+  // 100kb default, but still bounded).
+  app.use(json({ limit: config.get<number>('BODY_LIMIT_JSON_BYTES', 1_048_576) }));
+  app.use(
+    urlencoded({
+      extended: true,
+      limit: config.get<number>('BODY_LIMIT_URLENCODED_BYTES', 1_048_576),
+    }),
+  );
 
   // CORS: public content routes are open by design (cacheable,
   // unauthenticated) and admin routes are protected by the SMS-JWT guard

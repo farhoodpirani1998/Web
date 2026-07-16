@@ -124,6 +124,21 @@ class EnvironmentVariables {
   @IsString()
   CORS_ALLOWED_ORIGINS?: string;
 
+  // --- Request payload limits (see main.ts) ---
+  // Byte ceiling for a single JSON/urlencoded request body, enforced by
+  // express's body parsers before any controller or ValidationPipe runs.
+  // Optional; each falls back to a 1 MiB default (1_048_576 bytes) when
+  // unset, so behavior is unchanged until a deployment opts in.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  BODY_LIMIT_JSON_BYTES?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  BODY_LIMIT_URLENCODED_BYTES?: number;
+
   // --- Public site (see public-api/sitemap/public-sitemap.controller.ts) ---
   // Absolute origin (no trailing slash) the public site is served at,
   // e.g. "https://nedayehaghighat.example". Used only to turn each
