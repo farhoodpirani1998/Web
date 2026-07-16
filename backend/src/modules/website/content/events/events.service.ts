@@ -14,6 +14,7 @@ import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
+import { SeoService } from '../../core/seo/seo.service';
 import { SiteSettingsService } from '../site-settings/site-settings.service';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
@@ -72,6 +73,7 @@ export class EventsService implements OnModuleInit {
       const now = new Date();
       return events
         .filter((event) => !event.publishAt || event.publishAt <= now)
+        .filter((event) => SeoService.isIndexable(event.seo))
         .map((event) => ({ loc: `/events/${event.slug}`, lastmod: event.updatedAt }));
     });
   }

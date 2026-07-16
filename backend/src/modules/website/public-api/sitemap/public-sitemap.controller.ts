@@ -22,6 +22,13 @@ import {
  * Deliberately mounted at the site root, not /public/sitemap.xml —
  * search engines and SEO tooling expect a literal /sitemap.xml path,
  * and main.ts sets no global prefix, so this is safe to add here.
+ *
+ * /robots.txt lives on the same controller for the same reason: search
+ * engines expect it at the site root, and it links back to this same
+ * /sitemap.xml — no admin/site-settings model for robots rules exists
+ * today, so this emits a single static, permissive policy that just
+ * points crawlers at the sitemap, rather than adding new configurable
+ * state.
  */
 @Throttle(PUBLIC_THROTTLE)
 @Controller()
@@ -39,5 +46,14 @@ export class PublicSitemapController {
     const port = this.config.get<number>('PORT', 3100);
     const baseUrl = this.config.get<string>('PUBLIC_SITE_URL', `http://localhost:${port}`);
     return buildSitemapXml(entries, baseUrl);
+  }
+
+  @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
+  @Header('Content-Type', 'text/plain')
+  @Get('robots.txt')
+  getRobots(): string {
+    const port = this.config.get<number>('PORT', 3100);
+    const baseUrl = this.config.get<string>('PUBLIC_SITE_URL', `http://localhost:${port}`);
+    return ['User-agent: *', 'Allow: /', `Sitemap: ${baseUrl}/sitemap.xml`, ''].join('\n');
   }
 }

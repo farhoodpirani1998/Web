@@ -9,6 +9,7 @@ import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
+import { SeoService } from '../../core/seo/seo.service';
 import { SiteSettingsService } from '../site-settings/site-settings.service';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
@@ -65,6 +66,7 @@ export class NewsService implements OnModuleInit {
       const now = new Date();
       return articles
         .filter((article) => !article.publishAt || article.publishAt <= now)
+        .filter((article) => SeoService.isIndexable(article.seo))
         .map((article) => ({ loc: `/news/${article.slug}`, lastmod: article.updatedAt }));
     });
   }

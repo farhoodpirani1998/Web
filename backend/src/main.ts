@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { resolve } from 'path';
 import helmet from 'helmet';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -59,6 +60,36 @@ async function bootstrap() {
       index: false,
       redirect: false,
     });
+  }
+
+  // API documentation (Swagger/OpenAPI). Reads request/response shapes
+  // from the existing controller and DTO decorators already used for
+  // validation (@Body, @Param, class-validator decorators, etc) — no
+  // business logic touched. Left off in production by default so the
+  // schema/UI isn't publicly exposed unless explicitly opted into via
+  // SWAGGER_ENABLED=true.
+  const swaggerEnabled =
+    config.get<string>('NODE_ENV') !== 'production' ||
+    config.get<string>('SWAGGER_ENABLED') === 'true';
+  if (swaggerEnabled) {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('NHG Website Backend API')
+      .setDescription(
+        'Admin CMS + public content API for the Nedaye Haghighat Educational Group website.',
+      )
+      .setVersion(process.env.npm_package_version ?? '0.1.0')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'SMS-issued JWT (RS256), verified against SMS_JWT_PUBLIC_KEY_PATH',
+        },
+        'sms-jwt',
+      )
+      .build();
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('api/docs', app, document);
   }
 
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3100;

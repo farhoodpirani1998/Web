@@ -10,6 +10,7 @@ import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
+import { SeoService } from '../../core/seo/seo.service';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
   RevisionsService,
@@ -64,6 +65,7 @@ export class CampusesService implements OnModuleInit {
       const now = new Date();
       return campuses
         .filter((campus) => !campus.publishAt || campus.publishAt <= now)
+        .filter((campus) => SeoService.isIndexable(campus.seo))
         .map((campus) => ({
           loc: `/campuses/${campus.slug}`,
           lastmod: campus.updatedAt,

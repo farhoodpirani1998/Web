@@ -8,6 +8,7 @@ import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
+import { SeoService } from '../../core/seo/seo.service';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
   RevisionsService,
@@ -65,6 +66,7 @@ export class AboutService implements OnModuleInit {
     this.sitemap.register(async () => {
       const page = await this.get();
       if (page.status !== PublishStatus.PUBLISHED) return [];
+      if (!SeoService.isIndexable(page.seo)) return [];
       return [{ loc: '/about', lastmod: page.updatedAt }];
     });
   }

@@ -15,6 +15,7 @@ import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
+import { SeoService } from '../../core/seo/seo.service';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
   RevisionsService,
@@ -68,6 +69,7 @@ export class PagesService implements OnModuleInit {
       const now = new Date();
       return pages
         .filter((page) => !page.publishAt || page.publishAt <= now)
+        .filter((page) => SeoService.isIndexable(page.seo))
         .map((page) => ({
           loc: page.isHomepage ? '/' : `/${page.slug}`,
           lastmod: page.updatedAt,
