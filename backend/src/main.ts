@@ -15,6 +15,25 @@ import { json, urlencoded } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
+/**
+ * Translates TRUST_PROXY (see .env.example) into whatever shape express's
+ * `trust proxy` setting expects: `true`/`false`, a hop count (number of
+ * proxies between the client and this app), or a comma-separated list of
+ * specific IPs/CIDR ranges/keywords (e.g. "loopback,linklocal,uniquelocal").
+ * Left unset, returns `false` — express's own default, unchanged.
+ */
+function parseTrustProxy(raw: string | undefined): boolean | number | string[] {
+  if (!raw) return false;
+  const value = raw.trim();
+  if (value.toLowerCase() === 'true') return true;
+  if (value.toLowerCase() === 'false') return false;
+  if (/^\d+$/.test(value)) return parseInt(value, 10);
+  return value
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
 async function bootstrap() {
   // bodyParser: false — the default body-parser Nest would otherwise
   // register has a fixed limit that isn't configurable per deployment.
@@ -45,6 +64,16 @@ async function bootstrap() {
   );
 
   const config = app.get(ConfigService);
+
+  // Trust proxy: when this app sits behind a reverse proxy/load balancer
+  // (nginx, ALB, etc), express otherwise sees the proxy's IP as the
+  // client on every request — throttling (see ThrottlerModule in
+  // app.module.ts) and any IP-based logic would then key off that one
+  // address instead of the real client. Configurable via TRUST_PROXY
+  // (see .env.example: "true", a hop count like "1", or a comma-separated
+  // list of specific IPs/CIDRs/keywords); left unset, falls back to
+  // `false` — express's own default, unchanged.
+  app.set('trust proxy', parseTrustProxy(config.get<string>('TRUST_PROXY')));
 
   // Request payload limits: protects against oversized-body abuse
   // (memory/CPU exhaustion) independent of auth — enforced by express's

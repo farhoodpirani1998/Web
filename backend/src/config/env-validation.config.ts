@@ -117,6 +117,15 @@ class EnvironmentVariables {
   @IsString()
   LOCAL_STORAGE_PATH?: string;
 
+  // --- Trust proxy (see main.ts) ---
+  // "true"/"false", a hop count (e.g. "1"), or a comma-separated list of
+  // specific IPs/CIDR ranges/keywords (e.g. "loopback,linklocal"). Left
+  // unset, main.ts falls back to `false` (express's own default,
+  // unchanged).
+  @IsOptional()
+  @IsString()
+  TRUST_PROXY?: string;
+
   // --- CORS (see main.ts) ---
   // Comma-separated allow-list, e.g. "https://nhg.example,https://admin.nhg.example".
   // Left unset, main.ts falls back to "*" (today's default, unchanged).
