@@ -6,13 +6,21 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { extname } from 'path';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Media, MediaStatus } from './entities/media.entity';
 import { MediaUsage } from './entities/media-usage.entity';
 import { STORAGE_PROVIDER, StorageProvider } from './storage/storage.interface';
 import { SiteService } from '../site/site.service';
 import { WEBSITE_EVENTS } from '../events/events.constants';
-import { ALLOWED_MIME_TYPES, MAX_SIZE_BYTES, matchesAllowedMimeType } from './media.constants';
+import { sanitizeFilename } from './storage/sanitize-filename';
+import {
+  ALLOWED_EXTENSIONS,
+  ALLOWED_MIME_TYPES,
+  MAX_SIZE_BYTES,
+  extensionMatchesMimeType,
+  matchesAllowedMimeType,
+} from './media.constants';
 
 @Injectable()
 export class MediaService {
@@ -33,7 +41,9 @@ export class MediaService {
       throw new BadRequestException(`Unsupported file type: ${file.mimetype}`);
     }
     if (file.size > MAX_SIZE_BYTES) {
-      throw new BadRequestException('File exceeds maximum size of 10MB');
+      throw new BadRequestException(
+        `File exceeds maximum size of ${Math.floor(MAX_SIZE_BYTES / (1024 * 1024))}MB`,
+      );
     }
     if (!altText?.trim()) {
       throw new BadRequestException('altText is required for every upload');
@@ -45,6 +55,19 @@ export class MediaService {
       throw new BadRequestException(
         'File content does not match its declared type',
       );
+    }
+    // Extension is checked against the same allow-list applied to the
+    // storage key (sanitizeFilename) so what's validated here is exactly
+    // what ends up on disk/S3, then cross-checked against the
+    // already-verified content type — a "payload.jpg" whose bytes are
+    // actually a PNG is rejected even though each check would pass on
+    // its own.
+    const extension = extname(sanitizeFilename(file.originalname)).toLowerCase();
+    if (!ALLOWED_EXTENSIONS.includes(extension as (typeof ALLOWED_EXTENSIONS)[number])) {
+      throw new BadRequestException(`Unsupported file extension: ${extension || '(none)'}`);
+    }
+    if (!extensionMatchesMimeType(extension, file.mimetype)) {
+      throw new BadRequestException('File extension does not match its content type');
     }
 
     const { url, storageKey } = await this.storage.upload(file, 'media');

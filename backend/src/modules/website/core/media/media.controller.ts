@@ -13,10 +13,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
 import { MediaService } from './media.service';
 import { UploadMediaDto } from './dto/upload-media.dto';
 import { MediaStatus } from './entities/media.entity';
-import { ALLOWED_MIME_TYPES, MAX_SIZE_BYTES } from './media.constants';
+import { ALLOWED_EXTENSIONS, ALLOWED_MIME_TYPES, MAX_SIZE_BYTES } from './media.constants';
 import { RequireWebsitePermission } from '../../auth/website-permission.decorator';
 import { WebsitePermission } from '../../auth/website-role.enum';
 
@@ -47,14 +48,24 @@ export class MediaController {
   @UseInterceptors(
     FileInterceptor('file', {
       // Defense in depth: rejects an oversized file before it's fully
-      // buffered, and rejects an obviously-wrong Content-Type before it
-      // ever reaches the service. MediaService still re-checks both
-      // (plus the actual file bytes) as the authoritative check.
+      // buffered, and rejects an obviously-wrong Content-Type or
+      // extension before it ever reaches the service. MediaService
+      // still re-checks all of these (plus the actual file bytes and
+      // the extension/content-type cross-match) as the authoritative
+      // check.
       limits: { fileSize: MAX_SIZE_BYTES },
       fileFilter: (_req, file, callback) => {
         if (!ALLOWED_MIME_TYPES.includes(file.mimetype as (typeof ALLOWED_MIME_TYPES)[number])) {
           callback(
             new UnsupportedMediaTypeException(`Unsupported file type: ${file.mimetype}`),
+            false,
+          );
+          return;
+        }
+        const extension = extname(file.originalname).toLowerCase();
+        if (!ALLOWED_EXTENSIONS.includes(extension as (typeof ALLOWED_EXTENSIONS)[number])) {
+          callback(
+            new UnsupportedMediaTypeException(`Unsupported file extension: ${extension || '(none)'}`),
             false,
           );
           return;

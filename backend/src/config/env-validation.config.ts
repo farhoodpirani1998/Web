@@ -117,6 +117,32 @@ class EnvironmentVariables {
   @IsString()
   LOCAL_STORAGE_PATH?: string;
 
+  // --- Media upload limits (see media.constants.ts) ---
+  // Byte ceiling for a single media upload. Optional; falls back to the
+  // previous hardcoded 10MB (10485760 bytes) when unset.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  MEDIA_MAX_SIZE_BYTES?: number;
+
+  // Comma-separated subset of "image/jpeg,image/png,image/webp" — the
+  // only formats media.constants.ts can verify by content (magic bytes)
+  // today. Optional; can only narrow the default set, never add a
+  // format outside it (an unrecognized entry is ignored and the
+  // default list is used instead). Left unset, all 3 are allowed.
+  @IsOptional()
+  @IsString()
+  MEDIA_ALLOWED_MIME_TYPES?: string;
+
+  // Comma-separated subset of ".jpg,.jpeg,.png,.webp" — same narrowing
+  // rule as MEDIA_ALLOWED_MIME_TYPES above (and the two should stay in
+  // sync: e.g. removing "image/webp" without also removing ".webp"
+  // still blocks .webp uploads, since the content-type check runs
+  // first). Left unset, all 4 are allowed.
+  @IsOptional()
+  @IsString()
+  MEDIA_ALLOWED_EXTENSIONS?: string;
+
   // --- Trust proxy (see main.ts) ---
   // "true"/"false", a hop count (e.g. "1"), or a comma-separated list of
   // specific IPs/CIDR ranges/keywords (e.g. "loopback,linklocal"). Left
