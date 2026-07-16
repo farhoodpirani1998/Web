@@ -8,6 +8,7 @@ import { MenusController } from './menus.controller';
 import { MenuItemsController } from './menu-items.controller';
 import { SiteModule } from '../../core/site/site.module';
 import { OrderingModule } from '../../core/ordering/ordering.module';
+import { RedisModule } from '../../core/redis/redis.module';
 import { WebsiteAuthModule } from '../../auth/auth.module';
 import { PagesModule } from '../pages/pages.module';
 
@@ -29,6 +30,7 @@ import { PagesModule } from '../pages/pages.module';
     TypeOrmModule.forFeature([Menu, MenuItem]),
     SiteModule,
     OrderingModule,
+    RedisModule,
     WebsiteAuthModule,
     PagesModule,
   ],

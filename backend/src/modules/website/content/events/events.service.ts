@@ -16,6 +16,8 @@ import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
 import { SeoService } from '../../core/seo/seo.service';
 import { SiteSettingsService } from '../site-settings/site-settings.service';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
   RevisionsService,
@@ -56,7 +58,16 @@ export class EventsService implements OnModuleInit {
     private readonly sitemap: SitemapService,
     private readonly siteSettings: SiteSettingsService,
     private readonly revisions: RevisionsService,
+    private readonly redis: RedisService,
   ) {}
+
+  /** Same reasoning as NewsService.invalidatePublicCache. */
+  private async invalidatePublicCache(...slugs: Array<string | undefined>): Promise<void> {
+    for (const slug of slugs) {
+      if (slug) await this.redis.delete(buildPublicCacheKey('events', 'detail', slug));
+    }
+    await this.redis.deleteByPrefix(`${buildPublicCacheKey('events', 'list')}:`);
+  }
 
   onModuleInit() {
     // Same provider-function model as News/Pages. Unlike those two,
@@ -130,6 +141,7 @@ export class EventsService implements OnModuleInit {
       await this.media.attach(event.featuredImageMediaId, ENTITY_TYPE, event.id);
     }
     await this.revisions.record(ENTITY_TYPE, event.id, snapshotOf(event), authorId);
+    await this.invalidatePublicCache(event.slug);
     return event;
   }
 
@@ -157,6 +169,7 @@ export class EventsService implements OnModuleInit {
     authorId: string,
   ): Promise<CalendarEvent> {
     const event = await this.findOne(id);
+    const previousSlug = event.slug;
     const previousFeaturedImageMediaId = event.featuredImageMediaId;
 
     if (dto.slug !== undefined && dto.slug !== event.slug) {
@@ -195,6 +208,7 @@ export class EventsService implements OnModuleInit {
     }
 
     await this.revisions.record(ENTITY_TYPE, saved.id, snapshotOf(saved), authorId);
+    await this.invalidatePublicCache(previousSlug, saved.slug);
     return saved;
   }
 
@@ -204,6 +218,7 @@ export class EventsService implements OnModuleInit {
       await this.media.detach(event.featuredImageMediaId, ENTITY_TYPE, event.id);
     }
     await this.eventsRepo.delete({ id });
+    await this.invalidatePublicCache(event.slug);
   }
 
   async updateStatus(id: string, to: PublishStatus): Promise<CalendarEvent> {
@@ -216,13 +231,17 @@ export class EventsService implements OnModuleInit {
       siteId: event.siteId,
     });
     event.status = to;
-    return this.eventsRepo.save(event);
+    const saved = await this.eventsRepo.save(event);
+    await this.invalidatePublicCache(saved.slug);
+    return saved;
   }
 
   async schedule(id: string, publishAt: string | null): Promise<CalendarEvent> {
     const event = await this.findOne(id);
     event.publishAt = publishAt ? new Date(publishAt) : undefined;
-    return this.eventsRepo.save(event);
+    const saved = await this.eventsRepo.save(event);
+    await this.invalidatePublicCache(saved.slug);
+    return saved;
   }
 
   async listRevisions(id: string) {

@@ -11,6 +11,8 @@ import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
 import { SeoService } from '../../core/seo/seo.service';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
   RevisionsService,
@@ -51,7 +53,21 @@ export class CampusesService implements OnModuleInit {
     private readonly media: MediaService,
     private readonly sitemap: SitemapService,
     private readonly revisions: RevisionsService,
+    private readonly redis: RedisService,
   ) {}
+
+  /**
+   * Clears the public read cache for one campus's detail route plus the
+   * single list route (no filter variants here — Campuses' public list
+   * has no query params, unlike News/Teachers — so a plain delete is
+   * enough, no deleteByPrefix needed).
+   */
+  private async invalidatePublicCache(...slugs: Array<string | undefined>): Promise<void> {
+    for (const slug of slugs) {
+      if (slug) await this.redis.delete(buildPublicCacheKey('campuses', 'detail', slug));
+    }
+    await this.redis.delete(buildPublicCacheKey('campuses', 'list'));
+  }
 
   onModuleInit() {
     // Same provider-function model as News/Events/Pages. A PUBLISHED
@@ -118,6 +134,7 @@ export class CampusesService implements OnModuleInit {
       await this.media.attach(campus.featuredImageMediaId, ENTITY_TYPE, campus.id);
     }
     await this.revisions.record(ENTITY_TYPE, campus.id, snapshotOf(campus), authorId);
+    await this.invalidatePublicCache(campus.slug);
     return campus;
   }
 
@@ -143,6 +160,7 @@ export class CampusesService implements OnModuleInit {
     authorId: string,
   ): Promise<Campus> {
     const campus = await this.findOne(id);
+    const previousSlug = campus.slug;
     const previousFeaturedImageMediaId = campus.featuredImageMediaId;
 
     if (dto.slug !== undefined && dto.slug !== campus.slug) {
@@ -177,6 +195,7 @@ export class CampusesService implements OnModuleInit {
     }
 
     await this.revisions.record(ENTITY_TYPE, saved.id, snapshotOf(saved), authorId);
+    await this.invalidatePublicCache(previousSlug, saved.slug);
     return saved;
   }
 
@@ -186,6 +205,7 @@ export class CampusesService implements OnModuleInit {
       await this.media.detach(campus.featuredImageMediaId, ENTITY_TYPE, campus.id);
     }
     await this.campusesRepo.delete({ id });
+    await this.invalidatePublicCache(campus.slug);
   }
 
   async updateStatus(id: string, to: PublishStatus): Promise<Campus> {
@@ -198,18 +218,26 @@ export class CampusesService implements OnModuleInit {
       siteId: campus.siteId,
     });
     campus.status = to;
-    return this.campusesRepo.save(campus);
+    const saved = await this.campusesRepo.save(campus);
+    await this.invalidatePublicCache(saved.slug);
+    return saved;
   }
 
   async schedule(id: string, publishAt: string | null): Promise<Campus> {
     const campus = await this.findOne(id);
     campus.publishAt = publishAt ? new Date(publishAt) : undefined;
-    return this.campusesRepo.save(campus);
+    const saved = await this.campusesRepo.save(campus);
+    await this.invalidatePublicCache(saved.slug);
+    return saved;
   }
 
   /** Same drag-and-drop reorder idiom as FeaturesService.reorder. */
   async reorder(orderedIds: string[]): Promise<void> {
     await this.ordering.reorder(this.campusesRepo.manager, TABLE_NAME, orderedIds);
+    // Reordering changes the list route's response (position order)
+    // without touching any individual campus's updatedAt/slug, so only
+    // the list cache — not any detail cache — needs clearing.
+    await this.invalidatePublicCache();
   }
 
   async listRevisions(id: string) {

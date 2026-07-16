@@ -11,6 +11,8 @@ import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
 import { SeoService } from '../../core/seo/seo.service';
 import { SiteSettingsService } from '../site-settings/site-settings.service';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
   RevisionsService,
@@ -46,7 +48,23 @@ export class NewsService implements OnModuleInit {
     private readonly sitemap: SitemapService,
     private readonly siteSettings: SiteSettingsService,
     private readonly revisions: RevisionsService,
+    private readonly redis: RedisService,
   ) {}
+
+  /**
+   * Clears the public read cache for one article's detail route plus
+   * every cached list-page/filter variant (see
+   * public-api/common/public-cache.constants.ts) — a create/update/
+   * remove/publish/schedule can change which articles appear, in what
+   * order, on any list page, not just the one article's own detail
+   * route.
+   */
+  private async invalidatePublicCache(...slugs: Array<string | undefined>): Promise<void> {
+    for (const slug of slugs) {
+      if (slug) await this.redis.delete(buildPublicCacheKey('news', 'detail', slug));
+    }
+    await this.redis.deleteByPrefix(`${buildPublicCacheKey('news', 'list')}:`);
+  }
 
   onModuleInit() {
     // Registered once at startup, same provider-function model as
@@ -105,6 +123,7 @@ export class NewsService implements OnModuleInit {
       await this.media.attach(article.featuredImageMediaId, ENTITY_TYPE, article.id);
     }
     await this.revisions.record(ENTITY_TYPE, article.id, snapshotOf(article), authorId);
+    await this.invalidatePublicCache(article.slug);
     return article;
   }
 
@@ -136,6 +155,7 @@ export class NewsService implements OnModuleInit {
     authorId: string,
   ): Promise<NewsArticle> {
     const article = await this.findOne(id);
+    const previousSlug = article.slug;
     const previousFeaturedImageMediaId = article.featuredImageMediaId;
 
     if (dto.slug !== undefined && dto.slug !== article.slug) {
@@ -167,6 +187,7 @@ export class NewsService implements OnModuleInit {
     }
 
     await this.revisions.record(ENTITY_TYPE, saved.id, snapshotOf(saved), authorId);
+    await this.invalidatePublicCache(previousSlug, saved.slug);
     return saved;
   }
 
@@ -176,6 +197,7 @@ export class NewsService implements OnModuleInit {
       await this.media.detach(article.featuredImageMediaId, ENTITY_TYPE, article.id);
     }
     await this.newsRepo.delete({ id });
+    await this.invalidatePublicCache(article.slug);
   }
 
   async updateStatus(id: string, to: PublishStatus): Promise<NewsArticle> {
@@ -188,13 +210,17 @@ export class NewsService implements OnModuleInit {
       siteId: article.siteId,
     });
     article.status = to;
-    return this.newsRepo.save(article);
+    const saved = await this.newsRepo.save(article);
+    await this.invalidatePublicCache(saved.slug);
+    return saved;
   }
 
   async schedule(id: string, publishAt: string | null): Promise<NewsArticle> {
     const article = await this.findOne(id);
     article.publishAt = publishAt ? new Date(publishAt) : undefined;
-    return this.newsRepo.save(article);
+    const saved = await this.newsRepo.save(article);
+    await this.invalidatePublicCache(saved.slug);
+    return saved;
   }
 
   async listRevisions(id: string) {

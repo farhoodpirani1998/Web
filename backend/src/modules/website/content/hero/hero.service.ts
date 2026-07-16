@@ -9,6 +9,8 @@ import { OrderingService } from '../../core/ordering/ordering.service';
 import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 import {
   RevisionsService,
   RevisionEnabledType,
@@ -37,7 +39,12 @@ export class HeroService {
     private readonly publishing: PublishingService,
     private readonly media: MediaService,
     private readonly revisions: RevisionsService,
+    private readonly redis: RedisService,
   ) {}
+
+  private async invalidatePublicCache(): Promise<void> {
+    await this.redis.delete(buildPublicCacheKey('hero'));
+  }
 
   async create(dto: CreateHeroSlideDto, authorId: string): Promise<HeroSlide> {
     const siteId = this.siteService.getDefaultSiteId();
@@ -64,6 +71,7 @@ export class HeroService {
       await this.media.attach(slide.backgroundMediaId, ENTITY_TYPE, slide.id);
     }
     await this.revisions.record(ENTITY_TYPE, slide.id, snapshotOf(slide), authorId);
+    await this.invalidatePublicCache();
     return slide;
   }
 
@@ -110,6 +118,7 @@ export class HeroService {
     }
 
     await this.revisions.record(ENTITY_TYPE, saved.id, snapshotOf(saved), authorId);
+    await this.invalidatePublicCache();
     return saved;
   }
 
@@ -119,6 +128,7 @@ export class HeroService {
       await this.media.detach(slide.backgroundMediaId, ENTITY_TYPE, slide.id);
     }
     await this.heroRepo.delete({ id });
+    await this.invalidatePublicCache();
   }
 
   async updateStatus(id: string, to: PublishStatus): Promise<HeroSlide> {
@@ -131,11 +141,14 @@ export class HeroService {
       siteId: slide.siteId,
     });
     slide.status = to;
-    return this.heroRepo.save(slide);
+    const saved = await this.heroRepo.save(slide);
+    await this.invalidatePublicCache();
+    return saved;
   }
 
   async reorder(orderedIds: string[]): Promise<void> {
     await this.ordering.reorder(this.heroRepo.manager, 'hero_slides', orderedIds);
+    await this.invalidatePublicCache();
   }
 
   async listRevisions(id: string) {

@@ -10,6 +10,8 @@ import { UpdateFeatureFlagsDto } from './dto/update-feature-flags.dto';
 import { SeoMetadataDto } from '../common/dto/seo-metadata.dto';
 import { SiteService } from '../../core/site/site.service';
 import { MediaService } from '../../core/media/media.service';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 import { WEBSITE_EVENTS, SettingsUpdatedPayload } from '../../core/events/events.constants';
 
 const ENTITY_TYPE = 'site_settings';
@@ -35,6 +37,7 @@ export class SiteSettingsService implements OnModuleInit {
     private readonly siteService: SiteService,
     private readonly media: MediaService,
     private readonly events: EventEmitter2,
+    private readonly redis: RedisService,
   ) {}
 
   async onModuleInit() {
@@ -65,9 +68,13 @@ export class SiteSettingsService implements OnModuleInit {
     return this.settingsRepo.findOneByOrFail({ siteId });
   }
 
-  private emitUpdated(siteId: string, group: string) {
+  private async emitUpdated(siteId: string, group: string) {
     const payload: SettingsUpdatedPayload = { siteId, group };
     this.events.emit(WEBSITE_EVENTS.SETTINGS_UPDATED, payload);
+    // The public read (PublicSiteSettingsController) caches the whole
+    // settings row as one object, regardless of which section changed
+    // — so any section update invalidates the same single key.
+    await this.redis.delete(buildPublicCacheKey('site-settings'));
   }
 
   /** Attaches/detaches MediaUsage when a media reference field actually changes. */
@@ -98,7 +105,7 @@ export class SiteSettingsService implements OnModuleInit {
     await this.swapMedia(previousLogoMediaId, dto.logoMediaId, saved.id);
     await this.swapMedia(previousFaviconMediaId, dto.faviconMediaId, saved.id);
 
-    this.emitUpdated(saved.siteId, 'general');
+    await this.emitUpdated(saved.siteId, 'general');
     return saved;
   }
 
@@ -110,7 +117,7 @@ export class SiteSettingsService implements OnModuleInit {
     if (dto.mapUrl !== undefined) settings.mapUrl = dto.mapUrl;
 
     const saved = await this.settingsRepo.save(settings);
-    this.emitUpdated(saved.siteId, 'contact');
+    await this.emitUpdated(saved.siteId, 'contact');
     return saved;
   }
 
@@ -119,7 +126,7 @@ export class SiteSettingsService implements OnModuleInit {
     settings.socialLinks = dto.socialLinks;
 
     const saved = await this.settingsRepo.save(settings);
-    this.emitUpdated(saved.siteId, 'social');
+    await this.emitUpdated(saved.siteId, 'social');
     return saved;
   }
 
@@ -128,7 +135,7 @@ export class SiteSettingsService implements OnModuleInit {
     settings.defaultSeo = { ...settings.defaultSeo, ...dto };
 
     const saved = await this.settingsRepo.save(settings);
-    this.emitUpdated(saved.siteId, 'seo');
+    await this.emitUpdated(saved.siteId, 'seo');
     return saved;
   }
 
@@ -137,7 +144,7 @@ export class SiteSettingsService implements OnModuleInit {
     settings.featureFlags = { ...settings.featureFlags, ...dto };
 
     const saved = await this.settingsRepo.save(settings);
-    this.emitUpdated(saved.siteId, 'feature_flags');
+    await this.emitUpdated(saved.siteId, 'feature_flags');
     return saved;
   }
 }

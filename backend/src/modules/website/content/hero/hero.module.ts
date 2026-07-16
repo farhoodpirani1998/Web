@@ -7,6 +7,7 @@ import { SiteModule } from '../../core/site/site.module';
 import { OrderingModule } from '../../core/ordering/ordering.module';
 import { PublishingModule } from '../../core/publishing/publishing.module';
 import { MediaModule } from '../../core/media/media.module';
+import { RedisModule } from '../../core/redis/redis.module';
 import { RevisionsModule } from '../../core/revisions/revisions.module';
 import { WebsiteAuthModule } from '../../auth/auth.module';
 
@@ -24,6 +25,7 @@ import { WebsiteAuthModule } from '../../auth/auth.module';
     PublishingModule,
     MediaModule,
     RevisionsModule,
+    RedisModule,
     WebsiteAuthModule,
   ],
   providers: [HeroService],

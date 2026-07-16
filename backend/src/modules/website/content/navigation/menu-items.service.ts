@@ -7,6 +7,8 @@ import { CreateMenuItemDto } from './dto/create-menu-item.dto';
 import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
 import { SiteService } from '../../core/site/site.service';
 import { OrderingService } from '../../core/ordering/ordering.service';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 import { MenusService } from './menus.service';
 import { PagesService } from '../pages/pages.service';
 
@@ -23,7 +25,16 @@ export class MenuItemsService {
     private readonly ordering: OrderingService,
     private readonly menusService: MenusService,
     private readonly pagesService: PagesService,
+    private readonly redis: RedisService,
   ) {}
+
+  /** Invalidates the public nav-tree cache for the menu an item belongs to. */
+  private async invalidateMenu(menuId: string): Promise<void> {
+    const menu = await this.menusService.findOne(menuId).catch(() => undefined);
+    if (menu) {
+      await this.redis.delete(buildPublicCacheKey('navigation', menu.key));
+    }
+  }
 
   private async assertValidMenu(siteId: string, menuId: string): Promise<void> {
     const menu = await this.menusService.findOne(menuId).catch(() => undefined);
@@ -123,7 +134,7 @@ export class MenuItemsService {
       )
       .getRawOne<{ max: number | null }>();
 
-    return this.menuItemRepo.save(
+    const item = await this.menuItemRepo.save(
       this.menuItemRepo.create({
         siteId,
         menuId: dto.menuId,
@@ -136,6 +147,8 @@ export class MenuItemsService {
         visible: dto.visible ?? true,
       }),
     );
+    await this.invalidateMenu(item.menuId);
+    return item;
   }
 
   /**
@@ -185,7 +198,9 @@ export class MenuItemsService {
     item.url = nextUrl;
     if (dto.visible !== undefined) item.visible = dto.visible;
 
-    return this.menuItemRepo.save(item);
+    const saved = await this.menuItemRepo.save(item);
+    await this.invalidateMenu(saved.menuId);
+    return saved;
   }
 
   /**
@@ -202,6 +217,7 @@ export class MenuItemsService {
       );
     }
     await this.menuItemRepo.delete({ id });
+    await this.invalidateMenu(item.menuId);
   }
 
   /**
@@ -236,5 +252,6 @@ export class MenuItemsService {
     }
 
     await this.ordering.reorder(this.menuItemRepo.manager, 'menu_items', orderedIds);
+    await this.invalidateMenu(menuId);
   }
 }

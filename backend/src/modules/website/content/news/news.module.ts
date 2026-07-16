@@ -7,6 +7,7 @@ import { SiteModule } from '../../core/site/site.module';
 import { PublishingModule } from '../../core/publishing/publishing.module';
 import { MediaModule } from '../../core/media/media.module';
 import { SeoModule } from '../../core/seo/seo.module';
+import { RedisModule } from '../../core/redis/redis.module';
 import { RevisionsModule } from '../../core/revisions/revisions.module';
 import { SiteSettingsModule } from '../site-settings/site-settings.module';
 import { WebsiteAuthModule } from '../../auth/auth.module';
@@ -30,6 +31,7 @@ import { WebsiteAuthModule } from '../../auth/auth.module';
     SeoModule,
     RevisionsModule,
     SiteSettingsModule,
+    RedisModule,
     WebsiteAuthModule,
   ],
   providers: [NewsService],

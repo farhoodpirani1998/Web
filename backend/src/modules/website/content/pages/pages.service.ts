@@ -16,6 +16,8 @@ import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
 import { SeoService } from '../../core/seo/seo.service';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
   RevisionsService,
@@ -56,7 +58,21 @@ export class PagesService implements OnModuleInit {
     private readonly media: MediaService,
     private readonly sitemap: SitemapService,
     private readonly revisions: RevisionsService,
+    private readonly redis: RedisService,
   ) {}
+
+  /**
+   * Clears the public detail-route cache for one page slug. Pages has
+   * no public list route (unlike News/Events), so — unlike
+   * NewsService/EventsService — there's no list-prefix to clear here.
+   */
+  private async invalidateDetail(slug: string | undefined): Promise<void> {
+    if (slug) await this.redis.delete(buildPublicCacheKey('pages', 'detail', slug));
+  }
+
+  private async invalidateHomepage(): Promise<void> {
+    await this.redis.delete(buildPublicCacheKey('pages', 'homepage'));
+  }
 
   onModuleInit() {
     // Same provider-function model as News/About. A PUBLISHED page whose
@@ -151,6 +167,7 @@ export class PagesService implements OnModuleInit {
       await this.media.attach(page.featuredImageMediaId, ENTITY_TYPE, page.id);
     }
     await this.revisions.record(ENTITY_TYPE, page.id, snapshotOf(page), authorId);
+    await this.invalidateDetail(page.slug);
     return page;
   }
 
@@ -176,6 +193,7 @@ export class PagesService implements OnModuleInit {
     authorId: string,
   ): Promise<StaticPage> {
     const page = await this.findOne(id);
+    const previousSlug = page.slug;
     const previousFeaturedImageMediaId = page.featuredImageMediaId;
 
     if (dto.slug !== undefined && dto.slug !== page.slug) {
@@ -214,6 +232,12 @@ export class PagesService implements OnModuleInit {
     }
 
     await this.revisions.record(ENTITY_TYPE, saved.id, snapshotOf(saved), authorId);
+    // previousSlug and saved.slug can differ (slug rename) and, unlike
+    // News, this page's content can also be served under 'homepage' —
+    // clear that too whenever the edited page is the current homepage.
+    await this.invalidateDetail(previousSlug);
+    await this.invalidateDetail(saved.slug);
+    if (saved.isHomepage) await this.invalidateHomepage();
     return saved;
   }
 
@@ -234,6 +258,8 @@ export class PagesService implements OnModuleInit {
       await this.media.detach(page.featuredImageMediaId, ENTITY_TYPE, page.id);
     }
     await this.pagesRepo.delete({ id });
+    await this.invalidateDetail(page.slug);
+    if (page.isHomepage) await this.invalidateHomepage();
   }
 
   async updateStatus(id: string, to: PublishStatus): Promise<StaticPage> {
@@ -245,6 +271,7 @@ export class PagesService implements OnModuleInit {
       entityId: page.id,
       siteId: page.siteId,
     });
+    const wasHomepage = page.isHomepage;
     page.status = to;
     // A page that stops being PUBLISHED can no longer serve as the
     // homepage — otherwise the site would have no reachable homepage
@@ -252,13 +279,19 @@ export class PagesService implements OnModuleInit {
     if (page.isHomepage && to !== PublishStatus.PUBLISHED) {
       page.isHomepage = false;
     }
-    return this.pagesRepo.save(page);
+    const saved = await this.pagesRepo.save(page);
+    await this.invalidateDetail(saved.slug);
+    if (wasHomepage) await this.invalidateHomepage();
+    return saved;
   }
 
   async schedule(id: string, publishAt: string | null): Promise<StaticPage> {
     const page = await this.findOne(id);
     page.publishAt = publishAt ? new Date(publishAt) : undefined;
-    return this.pagesRepo.save(page);
+    const saved = await this.pagesRepo.save(page);
+    await this.invalidateDetail(saved.slug);
+    if (saved.isHomepage) await this.invalidateHomepage();
+    return saved;
   }
 
   /**
@@ -275,6 +308,12 @@ export class PagesService implements OnModuleInit {
       if (page.status !== PublishStatus.PUBLISHED) {
         throw new BadRequestException('Only a published page can be set as the homepage');
       }
+      // Read the previous homepage (if any) before the transaction so its
+      // detail cache can be invalidated too — its `isHomepage` field in
+      // the cached DTO is about to become stale.
+      const previousHomepage = await this.pagesRepo.findOne({
+        where: { siteId: page.siteId, isHomepage: true },
+      });
       await this.pagesRepo.manager.transaction(async (trx) => {
         await trx.update(
           StaticPage,
@@ -285,11 +324,20 @@ export class PagesService implements OnModuleInit {
       });
       // Re-fetch rather than mutating the in-memory object, so the
       // returned entity reflects the updatedAt the transaction produced.
-      return this.findOne(page.id);
+      const saved = await this.findOne(page.id);
+      await this.invalidateHomepage();
+      await this.invalidateDetail(saved.slug);
+      if (previousHomepage && previousHomepage.id !== saved.id) {
+        await this.invalidateDetail(previousHomepage.slug);
+      }
+      return saved;
     }
 
     page.isHomepage = false;
-    return this.pagesRepo.save(page);
+    const saved = await this.pagesRepo.save(page);
+    await this.invalidateHomepage();
+    await this.invalidateDetail(saved.slug);
+    return saved;
   }
 
   async listRevisions(id: string) {

@@ -7,6 +7,8 @@ import { CreatePortalLinkDto } from './dto/create-portal-link.dto';
 import { UpdatePortalLinkDto } from './dto/update-portal-link.dto';
 import { SiteService } from '../../core/site/site.service';
 import { OrderingService } from '../../core/ordering/ordering.service';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 import { WEBSITE_EVENTS, SettingsUpdatedPayload } from '../../core/events/events.constants';
 
 /**
@@ -26,11 +28,13 @@ export class PortalLinksService {
     private readonly siteService: SiteService,
     private readonly ordering: OrderingService,
     private readonly events: EventEmitter2,
+    private readonly redis: RedisService,
   ) {}
 
-  private emitUpdated(siteId: string) {
+  private async emitUpdated(siteId: string) {
     const payload: SettingsUpdatedPayload = { siteId, group: 'portal_links' };
     this.events.emit(WEBSITE_EVENTS.SETTINGS_UPDATED, payload);
+    await this.redis.delete(buildPublicCacheKey('portal-links'));
   }
 
   async create(dto: CreatePortalLinkDto): Promise<PortalLink> {
@@ -52,7 +56,7 @@ export class PortalLinksService {
       }),
     );
 
-    this.emitUpdated(siteId);
+    await this.emitUpdated(siteId);
     return saved;
   }
 
@@ -76,18 +80,18 @@ export class PortalLinksService {
     if (dto.visible !== undefined) portalLink.visible = dto.visible;
 
     const saved = await this.portalLinkRepo.save(portalLink);
-    this.emitUpdated(saved.siteId);
+    await this.emitUpdated(saved.siteId);
     return saved;
   }
 
   async remove(id: string): Promise<void> {
     const portalLink = await this.findOne(id);
     await this.portalLinkRepo.delete({ id });
-    this.emitUpdated(portalLink.siteId);
+    await this.emitUpdated(portalLink.siteId);
   }
 
   async reorder(orderedIds: string[]): Promise<void> {
     await this.ordering.reorder(this.portalLinkRepo.manager, 'portal_links', orderedIds);
-    this.emitUpdated(this.siteService.getDefaultSiteId());
+    await this.emitUpdated(this.siteService.getDefaultSiteId());
   }
 }

@@ -11,6 +11,8 @@ import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
 import { SeoService } from '../../core/seo/seo.service';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
   RevisionsService,
@@ -51,7 +53,21 @@ export class TeachersService implements OnModuleInit {
     private readonly media: MediaService,
     private readonly sitemap: SitemapService,
     private readonly revisions: RevisionsService,
+    private readonly redis: RedisService,
   ) {}
+
+  /**
+   * Clears the public read cache for one teacher's detail route plus
+   * every cached list-page/campusId-filter variant (the list route is
+   * keyed by an optional `?campusId=`, same as News' category/tag
+   * variants, so a prefix delete is needed rather than a single key).
+   */
+  private async invalidatePublicCache(...slugs: Array<string | undefined>): Promise<void> {
+    for (const slug of slugs) {
+      if (slug) await this.redis.delete(buildPublicCacheKey('teachers', 'detail', slug));
+    }
+    await this.redis.deleteByPrefix(`${buildPublicCacheKey('teachers', 'list')}:`);
+  }
 
   onModuleInit() {
     // Same provider-function model as Campus/News/Events/Pages. A
@@ -119,6 +135,7 @@ export class TeachersService implements OnModuleInit {
       await this.media.attach(teacher.avatarMediaId, ENTITY_TYPE, teacher.id);
     }
     await this.revisions.record(ENTITY_TYPE, teacher.id, snapshotOf(teacher), authorId);
+    await this.invalidatePublicCache(teacher.slug);
     return teacher;
   }
 
@@ -144,6 +161,7 @@ export class TeachersService implements OnModuleInit {
     authorId: string,
   ): Promise<Teacher> {
     const teacher = await this.findOne(id);
+    const previousSlug = teacher.slug;
     const previousAvatarMediaId = teacher.avatarMediaId;
 
     if (dto.slug !== undefined && dto.slug !== teacher.slug) {
@@ -179,6 +197,7 @@ export class TeachersService implements OnModuleInit {
     }
 
     await this.revisions.record(ENTITY_TYPE, saved.id, snapshotOf(saved), authorId);
+    await this.invalidatePublicCache(previousSlug, saved.slug);
     return saved;
   }
 
@@ -188,6 +207,7 @@ export class TeachersService implements OnModuleInit {
       await this.media.detach(teacher.avatarMediaId, ENTITY_TYPE, teacher.id);
     }
     await this.teachersRepo.delete({ id });
+    await this.invalidatePublicCache(teacher.slug);
   }
 
   async updateStatus(id: string, to: PublishStatus): Promise<Teacher> {
@@ -200,18 +220,26 @@ export class TeachersService implements OnModuleInit {
       siteId: teacher.siteId,
     });
     teacher.status = to;
-    return this.teachersRepo.save(teacher);
+    const saved = await this.teachersRepo.save(teacher);
+    await this.invalidatePublicCache(saved.slug);
+    return saved;
   }
 
   async schedule(id: string, publishAt: string | null): Promise<Teacher> {
     const teacher = await this.findOne(id);
     teacher.publishAt = publishAt ? new Date(publishAt) : undefined;
-    return this.teachersRepo.save(teacher);
+    const saved = await this.teachersRepo.save(teacher);
+    await this.invalidatePublicCache(saved.slug);
+    return saved;
   }
 
   /** Same drag-and-drop reorder idiom as CampusesService.reorder. */
   async reorder(orderedIds: string[]): Promise<void> {
     await this.ordering.reorder(this.teachersRepo.manager, TABLE_NAME, orderedIds);
+    // Reordering changes the list route's response (position order)
+    // without touching any individual teacher's updatedAt/slug, so only
+    // the list-cache variants — not any detail cache — need clearing.
+    await this.invalidatePublicCache();
   }
 
   async listRevisions(id: string) {

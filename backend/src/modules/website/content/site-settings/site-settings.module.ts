@@ -9,6 +9,7 @@ import { PortalLinksController } from './portal-links.controller';
 import { SiteModule } from '../../core/site/site.module';
 import { MediaModule } from '../../core/media/media.module';
 import { OrderingModule } from '../../core/ordering/ordering.module';
+import { RedisModule } from '../../core/redis/redis.module';
 import { EventsModule } from '../../core/events/events.module';
 import { WebsiteAuthModule } from '../../auth/auth.module';
 
@@ -37,6 +38,7 @@ import { WebsiteAuthModule } from '../../auth/auth.module';
     MediaModule,
     OrderingModule,
     EventsModule,
+    RedisModule,
     WebsiteAuthModule,
   ],
   providers: [SiteSettingsService, PortalLinksService],
