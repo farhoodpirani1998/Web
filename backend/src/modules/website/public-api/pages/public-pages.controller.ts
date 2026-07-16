@@ -6,10 +6,12 @@ import {
   Param,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { StaticPage } from '../../content/pages/entities/page.entity';
 import { SiteService } from '../../core/site/site.service';
+import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
   PublicMediaService,
@@ -28,7 +30,7 @@ interface PublicPageDto {
   template: StaticPage['template'];
   isHomepage: boolean;
   featuredImage: PublicMediaRef | null;
-  seo: StaticPage['seo'];
+  seo: PublicSeoDto;
   updatedAt: Date;
 }
 
@@ -45,6 +47,8 @@ export class PublicPagesController {
     private readonly siteService: SiteService,
     private readonly visibility: PublicVisibilityService,
     private readonly media: PublicMediaService,
+    private readonly seo: SeoService,
+    private readonly config: ConfigService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -73,6 +77,7 @@ export class PublicPagesController {
 
   private async toDto(page: StaticPage): Promise<PublicPageDto> {
     const image = await this.media.resolveOne(page.featuredImageMediaId);
+    const baseUrl = this.seo.resolveBaseUrl(this.config);
     return {
       id: page.id,
       title: page.title,
@@ -81,7 +86,12 @@ export class PublicPagesController {
       template: page.template,
       isHomepage: page.isHomepage,
       featuredImage: image,
-      seo: page.seo,
+      seo: this.seo.resolvePublicSeo(
+        page.seo,
+        page.title,
+        page.isHomepage ? '/' : `/${page.slug}`,
+        baseUrl,
+      ),
       updatedAt: page.updatedAt,
     };
   }

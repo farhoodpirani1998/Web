@@ -9,11 +9,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { NewsArticle } from '../../content/news/entities/news-article.entity';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
+import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
 import { SiteSettingsService } from '../../content/site-settings/site-settings.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
@@ -39,7 +41,7 @@ interface PublicNewsListItemDto {
 
 interface PublicNewsDetailDto extends PublicNewsListItemDto {
   body: NewsArticle['body'];
-  seo: NewsArticle['seo'];
+  seo: PublicSeoDto;
   updatedAt: Date;
 }
 
@@ -59,6 +61,8 @@ export class PublicNewsController {
     private readonly visibility: PublicVisibilityService,
     private readonly media: PublicMediaService,
     private readonly siteSettings: SiteSettingsService,
+    private readonly seo: SeoService,
+    private readonly config: ConfigService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -132,11 +136,17 @@ export class PublicNewsController {
     }
 
     const image = await this.media.resolveOne(article.featuredImageMediaId);
+    const baseUrl = this.seo.resolveBaseUrl(this.config);
     return {
       ...this.toListItem(article, new Map()),
       featuredImage: image,
       body: article.body,
-      seo: article.seo,
+      seo: this.seo.resolvePublicSeo(
+        article.seo,
+        article.title,
+        `/news/${article.slug}`,
+        baseUrl,
+      ),
       updatedAt: article.updatedAt,
     };
   }

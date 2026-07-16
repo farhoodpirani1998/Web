@@ -6,11 +6,13 @@ import {
   Param,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { Campus } from '../../content/campuses/entities/campus.entity';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
+import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
   PublicMediaService,
@@ -36,7 +38,7 @@ interface PublicCampusListItemDto {
 
 interface PublicCampusDetailDto extends PublicCampusListItemDto {
   body: Campus['body'];
-  seo: Campus['seo'];
+  seo: PublicSeoDto;
   updatedAt: Date;
 }
 
@@ -59,6 +61,8 @@ export class PublicCampusesController {
     private readonly siteService: SiteService,
     private readonly visibility: PublicVisibilityService,
     private readonly media: PublicMediaService,
+    private readonly seo: SeoService,
+    private readonly config: ConfigService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -88,11 +92,17 @@ export class PublicCampusesController {
     }
 
     const image = await this.media.resolveOne(campus.featuredImageMediaId);
+    const baseUrl = this.seo.resolveBaseUrl(this.config);
     return {
       ...this.toListItem(campus, new Map()),
       featuredImage: image,
       body: campus.body,
-      seo: campus.seo,
+      seo: this.seo.resolvePublicSeo(
+        campus.seo,
+        campus.title,
+        `/campuses/${campus.slug}`,
+        baseUrl,
+      ),
       updatedAt: campus.updatedAt,
     };
   }

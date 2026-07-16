@@ -9,11 +9,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { CalendarEvent } from '../../content/events/entities/calendar-event.entity';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
+import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
 import { SiteSettingsService } from '../../content/site-settings/site-settings.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
@@ -43,7 +45,7 @@ interface PublicEventListItemDto {
 
 interface PublicEventDetailDto extends PublicEventListItemDto {
   body: CalendarEvent['body'];
-  seo: CalendarEvent['seo'];
+  seo: PublicSeoDto;
   updatedAt: Date;
 }
 
@@ -63,6 +65,8 @@ export class PublicEventsController {
     private readonly visibility: PublicVisibilityService,
     private readonly media: PublicMediaService,
     private readonly siteSettings: SiteSettingsService,
+    private readonly seo: SeoService,
+    private readonly config: ConfigService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -155,11 +159,17 @@ export class PublicEventsController {
     }
 
     const image = await this.media.resolveOne(event.featuredImageMediaId);
+    const baseUrl = this.seo.resolveBaseUrl(this.config);
     return {
       ...this.toListItem(event, new Map()),
       featuredImage: image,
       body: event.body,
-      seo: event.seo,
+      seo: this.seo.resolvePublicSeo(
+        event.seo,
+        event.title,
+        `/events/${event.slug}`,
+        baseUrl,
+      ),
       updatedAt: event.updatedAt,
     };
   }

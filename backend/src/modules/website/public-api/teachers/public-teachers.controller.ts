@@ -7,11 +7,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { Teacher } from '../../content/teachers/entities/teacher.entity';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
+import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
   PublicMediaService,
@@ -38,7 +40,7 @@ interface PublicTeacherListItemDto {
 
 interface PublicTeacherDetailDto extends PublicTeacherListItemDto {
   bio: Teacher['bio'];
-  seo: Teacher['seo'];
+  seo: PublicSeoDto;
   updatedAt: Date;
 }
 
@@ -62,6 +64,8 @@ export class PublicTeachersController {
     private readonly siteService: SiteService,
     private readonly visibility: PublicVisibilityService,
     private readonly media: PublicMediaService,
+    private readonly seo: SeoService,
+    private readonly config: ConfigService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -99,11 +103,17 @@ export class PublicTeachersController {
     }
 
     const avatar = await this.media.resolveOne(teacher.avatarMediaId);
+    const baseUrl = this.seo.resolveBaseUrl(this.config);
     return {
       ...this.toListItem(teacher, new Map()),
       avatar,
       bio: teacher.bio,
-      seo: teacher.seo,
+      seo: this.seo.resolvePublicSeo(
+        teacher.seo,
+        teacher.fullName,
+        `/teachers/${teacher.slug}`,
+        baseUrl,
+      ),
       updatedAt: teacher.updatedAt,
     };
   }

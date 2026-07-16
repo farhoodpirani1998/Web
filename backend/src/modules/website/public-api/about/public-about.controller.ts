@@ -1,9 +1,11 @@
 import { Controller, Get, Header, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { AboutPage } from '../../content/about/entities/about.entity';
 import { SiteService } from '../../core/site/site.service';
+import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
   PublicMediaService,
@@ -18,7 +20,7 @@ interface PublicAboutDto {
   title: AboutPage['title'];
   body: AboutPage['body'];
   image: PublicMediaRef | null;
-  seo: AboutPage['seo'];
+  seo: PublicSeoDto;
   updatedAt: Date;
 }
 
@@ -32,6 +34,8 @@ export class PublicAboutController {
     private readonly siteService: SiteService,
     private readonly visibility: PublicVisibilityService,
     private readonly media: PublicMediaService,
+    private readonly seo: SeoService,
+    private readonly config: ConfigService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -44,11 +48,12 @@ export class PublicAboutController {
     }
 
     const image = await this.media.resolveOne(page.imageMediaId);
+    const baseUrl = this.seo.resolveBaseUrl(this.config);
     return {
       title: page.title,
       body: page.body,
       image,
-      seo: page.seo,
+      seo: this.seo.resolvePublicSeo(page.seo, page.title, '/about', baseUrl),
       updatedAt: page.updatedAt,
     };
   }
