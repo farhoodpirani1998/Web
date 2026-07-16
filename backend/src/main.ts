@@ -166,6 +166,32 @@ async function bootstrap() {
     config.get<string>('NODE_ENV') !== 'production' ||
     config.get<string>('SWAGGER_ENABLED') === 'true';
   if (swaggerEnabled) {
+    // Swagger UI's HTML bootstraps itself with an inline <script> and
+    // injects inline <style> tags — the strict default CSP set by the
+    // global helmet() call above (script-src/style-src 'self' only,
+    // no 'unsafe-inline') silently blocks both, so the page loads with
+    // no styling and no UI. Scoped to just this path via app.use's path
+    // filter, registered after the global helmet middleware so it runs
+    // second and overwrites the header only for requests under
+    // /api/docs; every other route keeps the strict default untouched.
+    // Still same-origin only — no external script/style domains are
+    // allowed, so this doesn't open the page up to arbitrary third-party
+    // content, just to Swagger's own inline bootstrap code.
+    app.use(
+      '/api/docs',
+      helmet({
+        contentSecurityPolicy: {
+          directives: {
+            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+            'script-src': ["'self'", "'unsafe-inline'"],
+            'style-src': ["'self'", "'unsafe-inline'"],
+            'img-src': ["'self'", 'data:'],
+          },
+        },
+        crossOriginResourcePolicy: { policy: 'cross-origin' },
+      }),
+    );
+
     const swaggerConfig = new DocumentBuilder()
       .setTitle('NHG Website Backend API')
       .setDescription(
