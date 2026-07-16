@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
@@ -35,8 +35,20 @@ import { validateEnvironment } from './config/env-validation.config';
     // dedicated limit via @Throttle(PUBLIC_THROTTLE) on each controller
     // (see public-api/common/public-rate-limit.constants.ts) — admin/auth
     // routes have no such override, so they're governed by this config
-    // alone, unchanged.
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 300 }]),
+    // alone. Configurable via THROTTLE_DEFAULT_TTL_MS/THROTTLE_DEFAULT_LIMIT
+    // (see .env.example); falls back to the previous hardcoded 300/60s when
+    // unset, so behavior is unchanged until a deployment opts in — same
+    // forRootAsync + ConfigService idiom as TypeOrmModule above.
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => [
+        {
+          ttl: config.get<number>('THROTTLE_DEFAULT_TTL_MS', 60_000),
+          limit: config.get<number>('THROTTLE_DEFAULT_LIMIT', 300),
+        },
+      ],
+    }),
     WebsiteModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

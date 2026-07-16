@@ -163,6 +163,43 @@ class EnvironmentVariables {
   @IsOptional()
   @IsIn(['true', 'false'])
   REDIS_TLS?: string;
+
+  // --- Rate limiting (see app.module.ts / public-api/common/public-rate-limit.constants.ts) ---
+  // All optional; each falls back to today's hardcoded value when unset,
+  // so behavior is unchanged until a deployment opts in by setting one.
+  // TTL is the throttling window in milliseconds; LIMIT is the max
+  // requests allowed within that window.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_DEFAULT_TTL_MS?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_DEFAULT_LIMIT?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_PUBLIC_TTL_MS?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_PUBLIC_LIMIT?: number;
+
+  // Stricter profile for any public endpoint that accepts user input
+  // (see PUBLIC_FORM_THROTTLE) rather than only serving cached reads.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_PUBLIC_FORM_TTL_MS?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_PUBLIC_FORM_LIMIT?: number;
 }
 
 /**
