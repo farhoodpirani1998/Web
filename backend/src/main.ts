@@ -34,6 +34,15 @@ function parseTrustProxy(raw: string | undefined): boolean | number | string[] {
     .filter(Boolean);
 }
 
+/** "true"/"false" (case-insensitive) from an env-sourced string, or `fallback` when unset/unrecognized. */
+function parseBool(raw: string | undefined, fallback: boolean): boolean {
+  if (raw === undefined) return fallback;
+  const value = raw.trim().toLowerCase();
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  return fallback;
+}
+
 async function bootstrap() {
   // bodyParser: false — the default body-parser Nest would otherwise
   // register has a fixed limit that isn't configurable per deployment.
@@ -43,15 +52,30 @@ async function bootstrap() {
     bodyParser: false,
   });
 
+  const config = app.get(ConfigService);
+
   // Security headers (X-Content-Type-Options, X-Frame-Options, HSTS,
   // a default Content-Security-Policy, etc). crossOriginResourcePolicy is
   // relaxed to "cross-origin": helmet's default ("same-origin") would
   // otherwise block browsers from loading media served from /uploads
   // (see LocalStorageProvider) when embedded on a different origin —
   // which is the whole point of this backend's public media/content.
+  //
+  // HSTS is spelled out explicitly (rather than left to helmet's
+  // built-in default) so each part is independently configurable via
+  // HSTS_MAX_AGE_SECONDS / HSTS_INCLUDE_SUBDOMAINS / HSTS_PRELOAD (see
+  // .env.example) — left unset, the values match helmet's own defaults
+  // (180 days, sub-domains included, no preload), so behavior is
+  // unchanged. Harmless to send over plain HTTP in local development:
+  // browsers only ever act on this header when it arrives over HTTPS.
   app.use(
     helmet({
       crossOriginResourcePolicy: { policy: 'cross-origin' },
+      hsts: {
+        maxAge: config.get<number>('HSTS_MAX_AGE_SECONDS', 15_552_000),
+        includeSubDomains: parseBool(config.get<string>('HSTS_INCLUDE_SUBDOMAINS'), true),
+        preload: parseBool(config.get<string>('HSTS_PRELOAD'), false),
+      },
     }),
   );
 
@@ -62,8 +86,6 @@ async function bootstrap() {
       transform: true,
     }),
   );
-
-  const config = app.get(ConfigService);
 
   // Trust proxy: when this app sits behind a reverse proxy/load balancer
   // (nginx, ALB, etc), express otherwise sees the proxy's IP as the

@@ -152,6 +152,23 @@ class EnvironmentVariables {
   @IsString()
   TRUST_PROXY?: string;
 
+  // --- HSTS (see main.ts) ---
+  // Explicit override of helmet's built-in Strict-Transport-Security
+  // defaults. All optional; left unset, each matches helmet's own
+  // default (180 days, sub-domains included, no preload) — unchanged.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  HSTS_MAX_AGE_SECONDS?: number;
+
+  @IsOptional()
+  @IsIn(['true', 'false'])
+  HSTS_INCLUDE_SUBDOMAINS?: string;
+
+  @IsOptional()
+  @IsIn(['true', 'false'])
+  HSTS_PRELOAD?: string;
+
   // --- CORS (see main.ts) ---
   // Comma-separated allow-list, e.g. "https://nhg.example,https://admin.nhg.example".
   // Left unset, main.ts falls back to "*" (today's default, unchanged).
