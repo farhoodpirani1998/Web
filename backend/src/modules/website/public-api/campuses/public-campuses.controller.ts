@@ -13,6 +13,7 @@ import { Campus } from '../../content/campuses/entities/campus.entity';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
 import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
+import { RedisService } from '../../core/redis/redis.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
   PublicMediaService,
@@ -22,6 +23,10 @@ import {
   PUBLIC_THROTTLE,
   PUBLIC_CACHE_CONTROL,
 } from '../common/public-rate-limit.constants';
+import {
+  buildPublicCacheKey,
+  PUBLIC_CACHE_TTL_SECONDS,
+} from '../common/public-cache.constants';
 
 interface PublicCampusListItemDto {
   id: string;
@@ -64,11 +69,16 @@ export class PublicCampusesController {
     private readonly media: PublicMediaService,
     private readonly seo: SeoService,
     private readonly config: ConfigService,
+    private readonly redis: RedisService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(): Promise<PublicCampusListItemDto[]> {
+    const cacheKey = buildPublicCacheKey('campuses', 'list');
+    const cached = await this.redis.get<PublicCampusListItemDto[]>(cacheKey);
+    if (cached) return cached;
+
     const siteId = this.siteService.getDefaultSiteId();
     const campuses = await this.campusesRepo.find({
       where: { siteId, status: PublishStatus.PUBLISHED },
@@ -80,12 +90,18 @@ export class PublicCampusesController {
       visible.map((campus) => campus.featuredImageMediaId),
     );
 
-    return visible.map((campus) => this.toListItem(campus, mediaMap));
+    const dto = visible.map((campus) => this.toListItem(campus, mediaMap));
+    await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get(':slug')
   async findBySlug(@Param('slug') slug: string): Promise<PublicCampusDetailDto> {
+    const detailCacheKey = buildPublicCacheKey('campuses', 'detail', slug);
+    const cached = await this.redis.get<PublicCampusDetailDto>(detailCacheKey);
+    if (cached) return cached;
+
     const siteId = this.siteService.getDefaultSiteId();
     const campus = await this.campusesRepo.findOne({ where: { siteId, slug } });
     if (!campus || !this.visibility.isVisible(campus)) {
@@ -96,7 +112,7 @@ export class PublicCampusesController {
     const baseUrl = this.seo.resolveBaseUrl(this.config);
     const title = SeoService.resolveTranslatable(campus.title) ?? campus.slug;
     const url = `${baseUrl}/campuses/${campus.slug}`;
-    return {
+    const dto: PublicCampusDetailDto = {
       ...this.toListItem(campus, new Map()),
       featuredImage: image,
       body: campus.body,
@@ -110,6 +126,8 @@ export class PublicCampusesController {
       ],
       updatedAt: campus.updatedAt,
     };
+    await this.redis.set(detailCacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 
   private toListItem(

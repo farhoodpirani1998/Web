@@ -17,6 +17,7 @@ import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
 import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
 import { SiteSettingsService } from '../../content/site-settings/site-settings.service';
+import { RedisService } from '../../core/redis/redis.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
   PublicMediaService,
@@ -26,6 +27,10 @@ import {
   PUBLIC_THROTTLE,
   PUBLIC_CACHE_CONTROL,
 } from '../common/public-rate-limit.constants';
+import {
+  buildPublicCacheKey,
+  PUBLIC_CACHE_TTL_SECONDS,
+} from '../common/public-cache.constants';
 import { clampPagination, paginate, PaginatedResult } from '../common/pagination';
 
 interface PublicEventListItemDto {
@@ -68,6 +73,7 @@ export class PublicEventsController {
     private readonly siteSettings: SiteSettingsService,
     private readonly seo: SeoService,
     private readonly config: ConfigService,
+    private readonly redis: RedisService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -85,6 +91,18 @@ export class PublicEventsController {
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) rawLimit = 20,
   ): Promise<PaginatedResult<PublicEventListItemDto>> {
     const { page, limit } = clampPagination(rawPage, rawLimit);
+    const cacheKey = buildPublicCacheKey(
+      'events',
+      'list',
+      category,
+      tag,
+      when,
+      page,
+      limit,
+    );
+    const cached =
+      await this.redis.get<PaginatedResult<PublicEventListItemDto>>(cacheKey);
+    if (cached) return cached;
 
     const settings = await this.siteSettings.get();
     if (!settings.featureFlags.eventsEnabled) {
@@ -137,17 +155,23 @@ export class PublicEventsController {
       visible.map((event) => event.featuredImageMediaId),
     );
 
-    return paginate(
+    const dto = paginate(
       visible.map((event) => this.toListItem(event, mediaMap)),
       total,
       page,
       limit,
     );
+    await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get(':slug')
   async findBySlug(@Param('slug') slug: string): Promise<PublicEventDetailDto> {
+    const detailCacheKey = buildPublicCacheKey('events', 'detail', slug);
+    const cached = await this.redis.get<PublicEventDetailDto>(detailCacheKey);
+    if (cached) return cached;
+
     const settings = await this.siteSettings.get();
     if (!settings.featureFlags.eventsEnabled) {
       throw new NotFoundException(`Event "${slug}" not found`);
@@ -163,7 +187,7 @@ export class PublicEventsController {
     const baseUrl = this.seo.resolveBaseUrl(this.config);
     const title = SeoService.resolveTranslatable(event.title) ?? event.slug;
     const url = `${baseUrl}/events/${event.slug}`;
-    return {
+    const dto: PublicEventDetailDto = {
       ...this.toListItem(event, new Map()),
       featuredImage: image,
       body: event.body,
@@ -186,6 +210,8 @@ export class PublicEventsController {
       ],
       updatedAt: event.updatedAt,
     };
+    await this.redis.set(detailCacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 
   private toListItem(

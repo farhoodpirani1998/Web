@@ -17,6 +17,7 @@ import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
 import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
 import { SiteSettingsService } from '../../content/site-settings/site-settings.service';
+import { RedisService } from '../../core/redis/redis.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
   PublicMediaService,
@@ -26,6 +27,10 @@ import {
   PUBLIC_THROTTLE,
   PUBLIC_CACHE_CONTROL,
 } from '../common/public-rate-limit.constants';
+import {
+  buildPublicCacheKey,
+  PUBLIC_CACHE_TTL_SECONDS,
+} from '../common/public-cache.constants';
 import { clampPagination, paginate, PaginatedResult } from '../common/pagination';
 
 interface PublicNewsListItemDto {
@@ -64,6 +69,7 @@ export class PublicNewsController {
     private readonly siteSettings: SiteSettingsService,
     private readonly seo: SeoService,
     private readonly config: ConfigService,
+    private readonly redis: RedisService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -75,6 +81,17 @@ export class PublicNewsController {
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) rawLimit = 20,
   ): Promise<PaginatedResult<PublicNewsListItemDto>> {
     const { page, limit } = clampPagination(rawPage, rawLimit);
+    const cacheKey = buildPublicCacheKey(
+      'news',
+      'list',
+      category,
+      tag,
+      page,
+      limit,
+    );
+    const cached =
+      await this.redis.get<PaginatedResult<PublicNewsListItemDto>>(cacheKey);
+    if (cached) return cached;
 
     const settings = await this.siteSettings.get();
     if (!settings.featureFlags.newsEnabled) {
@@ -114,17 +131,23 @@ export class PublicNewsController {
       visible.map((article) => article.featuredImageMediaId),
     );
 
-    return paginate(
+    const dto = paginate(
       visible.map((article) => this.toListItem(article, mediaMap)),
       total,
       page,
       limit,
     );
+    await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get(':slug')
   async findBySlug(@Param('slug') slug: string): Promise<PublicNewsDetailDto> {
+    const detailCacheKey = buildPublicCacheKey('news', 'detail', slug);
+    const cached = await this.redis.get<PublicNewsDetailDto>(detailCacheKey);
+    if (cached) return cached;
+
     const settings = await this.siteSettings.get();
     if (!settings.featureFlags.newsEnabled) {
       throw new NotFoundException(`News article "${slug}" not found`);
@@ -141,7 +164,7 @@ export class PublicNewsController {
     const title = SeoService.resolveTranslatable(article.title) ?? article.slug;
     const url = `${baseUrl}/news/${article.slug}`;
     const publisherName = SeoService.resolveTranslatable(settings.siteName);
-    return {
+    const dto: PublicNewsDetailDto = {
       ...this.toListItem(article, new Map()),
       featuredImage: image,
       body: article.body,
@@ -164,6 +187,8 @@ export class PublicNewsController {
       ],
       updatedAt: article.updatedAt,
     };
+    await this.redis.set(detailCacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 
   private toListItem(

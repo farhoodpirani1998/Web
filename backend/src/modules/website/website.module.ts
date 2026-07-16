@@ -3,6 +3,7 @@ import { CommonModule } from './core/common/common.module';
 import { EventsModule } from './core/events/events.module';
 import { SiteModule } from './core/site/site.module';
 import { SeoModule } from './core/seo/seo.module';
+import { RedisModule } from './core/redis/redis.module';
 import { PublishingModule } from './core/publishing/publishing.module';
 import { OrderingModule } from './core/ordering/ordering.module';
 import { I18nModule } from './core/i18n/i18n.module';
@@ -39,6 +40,7 @@ import { PublicApiModule } from './public-api/public-api.module';
     EventsModule,
     SiteModule,
     SeoModule,
+    RedisModule,
     PublishingModule,
     OrderingModule,
     I18nModule,

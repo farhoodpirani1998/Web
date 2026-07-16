@@ -14,6 +14,7 @@ import { Teacher } from '../../content/teachers/entities/teacher.entity';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
 import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
+import { RedisService } from '../../core/redis/redis.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
   PublicMediaService,
@@ -23,6 +24,10 @@ import {
   PUBLIC_THROTTLE,
   PUBLIC_CACHE_CONTROL,
 } from '../common/public-rate-limit.constants';
+import {
+  buildPublicCacheKey,
+  PUBLIC_CACHE_TTL_SECONDS,
+} from '../common/public-cache.constants';
 
 interface PublicTeacherListItemDto {
   id: string;
@@ -67,6 +72,7 @@ export class PublicTeachersController {
     private readonly media: PublicMediaService,
     private readonly seo: SeoService,
     private readonly config: ConfigService,
+    private readonly redis: RedisService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -74,6 +80,10 @@ export class PublicTeachersController {
   async findAll(
     @Query('campusId') campusId?: string,
   ): Promise<PublicTeacherListItemDto[]> {
+    const cacheKey = buildPublicCacheKey('teachers', 'list', campusId);
+    const cached = await this.redis.get<PublicTeacherListItemDto[]>(cacheKey);
+    if (cached) return cached;
+
     const siteId = this.siteService.getDefaultSiteId();
     const where: Record<string, unknown> = {
       siteId,
@@ -91,12 +101,18 @@ export class PublicTeachersController {
       visible.map((teacher) => teacher.avatarMediaId),
     );
 
-    return visible.map((teacher) => this.toListItem(teacher, mediaMap));
+    const dto = visible.map((teacher) => this.toListItem(teacher, mediaMap));
+    await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get(':slug')
   async findBySlug(@Param('slug') slug: string): Promise<PublicTeacherDetailDto> {
+    const detailCacheKey = buildPublicCacheKey('teachers', 'detail', slug);
+    const cached = await this.redis.get<PublicTeacherDetailDto>(detailCacheKey);
+    if (cached) return cached;
+
     const siteId = this.siteService.getDefaultSiteId();
     const teacher = await this.teachersRepo.findOne({ where: { siteId, slug } });
     if (!teacher || !this.visibility.isVisible(teacher)) {
@@ -106,7 +122,7 @@ export class PublicTeachersController {
     const avatar = await this.media.resolveOne(teacher.avatarMediaId);
     const baseUrl = this.seo.resolveBaseUrl(this.config);
     const url = `${baseUrl}/teachers/${teacher.slug}`;
-    return {
+    const dto: PublicTeacherDetailDto = {
       ...this.toListItem(teacher, new Map()),
       avatar,
       bio: teacher.bio,
@@ -125,6 +141,8 @@ export class PublicTeachersController {
       ],
       updatedAt: teacher.updatedAt,
     };
+    await this.redis.set(detailCacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 
   private toListItem(

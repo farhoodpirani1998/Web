@@ -134,6 +134,35 @@ class EnvironmentVariables {
   @IsOptional()
   @IsString()
   PUBLIC_SITE_URL?: string;
+
+  // --- Redis (see core/redis/redis.module.ts) ---
+  // Connection for RedisService's single shared client. All optional
+  // with dev-friendly defaults (a local Redis on its standard port,
+  // no auth, db 0) — same reasoning STORAGE_DRIVER/local defaults to
+  // "just works" without configuration, unlike DATABASE_* which has no
+  // safe default and is required.
+  @IsOptional()
+  @IsString()
+  REDIS_HOST?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  REDIS_PORT?: number;
+
+  @IsOptional()
+  @IsString()
+  REDIS_PASSWORD?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  REDIS_DB?: number;
+
+  @IsOptional()
+  @IsIn(['true', 'false'])
+  REDIS_TLS?: string;
 }
 
 /**

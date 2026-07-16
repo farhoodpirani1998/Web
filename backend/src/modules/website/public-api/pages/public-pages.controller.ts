@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { StaticPage } from '../../content/pages/entities/page.entity';
 import { SiteService } from '../../core/site/site.service';
 import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
+import { RedisService } from '../../core/redis/redis.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
   PublicMediaService,
@@ -21,6 +22,10 @@ import {
   PUBLIC_THROTTLE,
   PUBLIC_CACHE_CONTROL,
 } from '../common/public-rate-limit.constants';
+import {
+  buildPublicCacheKey,
+  PUBLIC_CACHE_TTL_SECONDS,
+} from '../common/public-cache.constants';
 
 interface PublicPageDto {
   id: string;
@@ -50,11 +55,16 @@ export class PublicPagesController {
     private readonly media: PublicMediaService,
     private readonly seo: SeoService,
     private readonly config: ConfigService,
+    private readonly redis: RedisService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get('homepage')
   async getHomepage(): Promise<PublicPageDto> {
+    const cacheKey = buildPublicCacheKey('pages', 'homepage');
+    const cached = await this.redis.get<PublicPageDto>(cacheKey);
+    if (cached) return cached;
+
     const siteId = this.siteService.getDefaultSiteId();
     const page = await this.pagesRepo.findOne({
       where: { siteId, isHomepage: true },
@@ -62,18 +72,26 @@ export class PublicPagesController {
     if (!page || !this.visibility.isVisible(page)) {
       throw new NotFoundException('No published homepage is set for this site');
     }
-    return this.toDto(page);
+    const dto = await this.toDto(page);
+    await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get(':slug')
   async findBySlug(@Param('slug') slug: string): Promise<PublicPageDto> {
+    const cacheKey = buildPublicCacheKey('pages', 'detail', slug);
+    const cached = await this.redis.get<PublicPageDto>(cacheKey);
+    if (cached) return cached;
+
     const siteId = this.siteService.getDefaultSiteId();
     const page = await this.pagesRepo.findOne({ where: { siteId, slug } });
     if (!page || !this.visibility.isVisible(page)) {
       throw new NotFoundException(`Page "${slug}" not found`);
     }
-    return this.toDto(page);
+    const dto = await this.toDto(page);
+    await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 
   private async toDto(page: StaticPage): Promise<PublicPageDto> {

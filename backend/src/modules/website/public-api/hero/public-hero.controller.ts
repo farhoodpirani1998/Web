@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { HeroSlide } from '../../content/hero/entities/hero-slide.entity';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
+import { RedisService } from '../../core/redis/redis.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
   PublicMediaService,
@@ -14,6 +15,10 @@ import {
   PUBLIC_THROTTLE,
   PUBLIC_CACHE_CONTROL,
 } from '../common/public-rate-limit.constants';
+import {
+  buildPublicCacheKey,
+  PUBLIC_CACHE_TTL_SECONDS,
+} from '../common/public-cache.constants';
 
 interface PublicHeroSlideDto {
   id: string;
@@ -38,11 +43,16 @@ export class PublicHeroController {
     private readonly siteService: SiteService,
     private readonly visibility: PublicVisibilityService,
     private readonly media: PublicMediaService,
+    private readonly redis: RedisService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(): Promise<PublicHeroSlideDto[]> {
+    const cacheKey = buildPublicCacheKey('hero');
+    const cached = await this.redis.get<PublicHeroSlideDto[]>(cacheKey);
+    if (cached) return cached;
+
     const siteId = this.siteService.getDefaultSiteId();
     const slides = await this.heroRepo.find({
       where: { siteId, status: PublishStatus.PUBLISHED },
@@ -56,7 +66,7 @@ export class PublicHeroController {
       visible.map((slide) => slide.backgroundMediaId),
     );
 
-    return visible.map((slide) => ({
+    const dto = visible.map((slide) => ({
       id: slide.id,
       heading: slide.heading,
       subheading: slide.subheading,
@@ -67,5 +77,7 @@ export class PublicHeroController {
         : null,
       position: slide.position,
     }));
+    await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 }

@@ -13,11 +13,16 @@ import { MenuItem } from '../../content/navigation/entities/menu-item.entity';
 import { MenuItemLinkType } from '../../content/navigation/entities/menu-item-link-type.enum';
 import { StaticPage } from '../../content/pages/entities/page.entity';
 import { SiteService } from '../../core/site/site.service';
+import { RedisService } from '../../core/redis/redis.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
   PUBLIC_THROTTLE,
   PUBLIC_CACHE_CONTROL,
 } from '../common/public-rate-limit.constants';
+import {
+  buildPublicCacheKey,
+  PUBLIC_CACHE_TTL_SECONDS,
+} from '../common/public-cache.constants';
 
 interface PublicMenuItemNode {
   id: string;
@@ -50,11 +55,16 @@ export class PublicNavigationController {
     private readonly pagesRepo: Repository<StaticPage>,
     private readonly siteService: SiteService,
     private readonly visibility: PublicVisibilityService,
+    private readonly redis: RedisService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get(':key')
   async getByKey(@Param('key') key: string): Promise<PublicMenuItemNode[]> {
+    const cacheKey = buildPublicCacheKey('navigation', key);
+    const cached = await this.redis.get<PublicMenuItemNode[]>(cacheKey);
+    if (cached) return cached;
+
     const siteId = this.siteService.getDefaultSiteId();
     const menu = await this.menuRepo.findOne({ where: { siteId, key } });
     if (!menu) {
@@ -82,7 +92,9 @@ export class PublicNavigationController {
       return !!page && this.visibility.isVisible(page);
     });
 
-    return this.buildTree(resolvable, undefined, pageMap);
+    const dto = this.buildTree(resolvable, undefined, pageMap);
+    await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 
   private buildTree(

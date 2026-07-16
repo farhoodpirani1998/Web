@@ -8,6 +8,7 @@ import { PortalLink } from '../../content/site-settings/entities/portal-link.ent
 import { SiteSettings } from '../../content/site-settings/entities/site-settings.entity';
 import { SiteService } from '../../core/site/site.service';
 import { SeoService } from '../../core/seo/seo.service';
+import { RedisService } from '../../core/redis/redis.service';
 import {
   PublicMediaService,
   PublicMediaRef,
@@ -16,6 +17,10 @@ import {
   PUBLIC_THROTTLE,
   PUBLIC_CACHE_CONTROL,
 } from '../common/public-rate-limit.constants';
+import {
+  buildPublicCacheKey,
+  PUBLIC_CACHE_TTL_SECONDS,
+} from '../common/public-cache.constants';
 
 interface PublicSiteSettingsDto {
   siteName: SiteSettings['siteName'];
@@ -53,11 +58,16 @@ export class PublicSiteSettingsController {
     private readonly media: PublicMediaService,
     private readonly seo: SeoService,
     private readonly config: ConfigService,
+    private readonly redis: RedisService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async get(): Promise<PublicSiteSettingsDto> {
+    const cacheKey = buildPublicCacheKey('site-settings');
+    const cached = await this.redis.get<PublicSiteSettingsDto>(cacheKey);
+    if (cached) return cached;
+
     const settings = await this.siteSettings.get();
     const [logo, favicon] = await Promise.all([
       this.media.resolveOne(settings.logoMediaId),
@@ -74,7 +84,7 @@ export class PublicSiteSettingsController {
       sameAs: settings.socialLinks.map((link) => link.url),
     });
 
-    return {
+    const dto: PublicSiteSettingsDto = {
       siteName: settings.siteName,
       tagline: settings.tagline,
       logo,
@@ -88,6 +98,8 @@ export class PublicSiteSettingsController {
       featureFlags: settings.featureFlags,
       organizationSchema,
     };
+    await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 }
 
@@ -103,23 +115,30 @@ export class PublicPortalLinksController {
     @InjectRepository(PortalLink)
     private readonly portalLinkRepo: Repository<PortalLink>,
     private readonly siteService: SiteService,
+    private readonly redis: RedisService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(): Promise<PublicPortalLinkDto[]> {
+    const cacheKey = buildPublicCacheKey('portal-links');
+    const cached = await this.redis.get<PublicPortalLinkDto[]>(cacheKey);
+    if (cached) return cached;
+
     const siteId = this.siteService.getDefaultSiteId();
     const links = await this.portalLinkRepo.find({
       where: { siteId, visible: true },
       order: { position: 'ASC' },
     });
 
-    return links.map((link) => ({
+    const dto = links.map((link) => ({
       id: link.id,
       label: link.label,
       url: link.url,
       icon: link.icon,
       position: link.position,
     }));
+    await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 }

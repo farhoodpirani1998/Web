@@ -19,6 +19,7 @@ import { PortalLink } from '../content/site-settings/entities/portal-link.entity
 import { Media } from '../core/media/entities/media.entity';
 import { SiteModule } from '../core/site/site.module';
 import { SeoModule } from '../core/seo/seo.module';
+import { RedisModule } from '../core/redis/redis.module';
 import { SiteSettingsModule } from '../content/site-settings/site-settings.module';
 import { PublicVisibilityService } from './common/public-visibility.service';
 import { PublicMediaService } from './common/public-media.service';
@@ -62,7 +63,10 @@ import {
  * unauthenticated (see main.ts's CORS comment). Each controller carries
  * its own dedicated rate limit and Cache-Control header — see
  * common/public-rate-limit.constants.ts — rather than anything
- * configured at this module level.
+ * configured at this module level. Read-through Redis caching (see
+ * common/public-cache.constants.ts and core/redis/redis.service.ts) is
+ * likewise handled per-controller, not here — RedisModule is imported
+ * so every controller in this module can inject RedisService.
  */
 @Module({
   imports: [
@@ -87,6 +91,7 @@ import {
     ]),
     SiteModule,
     SeoModule,
+    RedisModule,
     SiteSettingsModule,
   ],
   providers: [PublicVisibilityService, PublicMediaService],
