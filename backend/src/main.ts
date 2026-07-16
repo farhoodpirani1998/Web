@@ -11,6 +11,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { resolve } from 'path';
 import helmet from 'helmet';
+import hpp from 'hpp';
 import { json, urlencoded } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -111,6 +112,17 @@ async function bootstrap() {
       limit: config.get<number>('BODY_LIMIT_URLENCODED_BYTES', 1_048_576),
     }),
   );
+
+  // HTTP Parameter Pollution: without this, a repeated query key
+  // (?role=user&role=admin) or repeated body field arrives as an array
+  // to route handlers/DTOs, which can silently change validation and
+  // business-logic behavior (e.g. filters, sort fields, comparisons
+  // written for a single value). hpp collapses repeated keys down to
+  // the last occurrence, matching what most handlers already assume.
+  // Must run after the body parsers above (it reads req.body too), and
+  // before route handling. No allowlist configured — none of this API's
+  // params are meant to be legitimately repeated in the query string.
+  app.use(hpp());
 
   // CORS: public content routes are open by design (cacheable,
   // unauthenticated) and admin routes are protected by the SMS-JWT guard
