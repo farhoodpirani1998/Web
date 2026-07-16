@@ -39,6 +39,7 @@ interface PublicCampusListItemDto {
 interface PublicCampusDetailDto extends PublicCampusListItemDto {
   body: Campus['body'];
   seo: PublicSeoDto;
+  structuredData: Record<string, unknown>[];
   updatedAt: Date;
 }
 
@@ -93,16 +94,20 @@ export class PublicCampusesController {
 
     const image = await this.media.resolveOne(campus.featuredImageMediaId);
     const baseUrl = this.seo.resolveBaseUrl(this.config);
+    const title = SeoService.resolveTranslatable(campus.title) ?? campus.slug;
+    const url = `${baseUrl}/campuses/${campus.slug}`;
     return {
       ...this.toListItem(campus, new Map()),
       featuredImage: image,
       body: campus.body,
-      seo: this.seo.resolvePublicSeo(
-        campus.seo,
-        campus.title,
-        `/campuses/${campus.slug}`,
-        baseUrl,
-      ),
+      seo: this.seo.resolvePublicSeo(campus.seo, title, `/campuses/${campus.slug}`, baseUrl),
+      structuredData: [
+        this.seo.buildBreadcrumbSchema([
+          { name: 'Home', url: baseUrl },
+          { name: 'Campuses', url: `${baseUrl}/campuses` },
+          { name: title, url },
+        ]),
+      ],
       updatedAt: campus.updatedAt,
     };
   }

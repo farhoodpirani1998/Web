@@ -1,11 +1,13 @@
 import { Controller, Get, Header } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { SiteSettingsService } from '../../content/site-settings/site-settings.service';
 import { PortalLink } from '../../content/site-settings/entities/portal-link.entity';
 import { SiteSettings } from '../../content/site-settings/entities/site-settings.entity';
 import { SiteService } from '../../core/site/site.service';
+import { SeoService } from '../../core/seo/seo.service';
 import {
   PublicMediaService,
   PublicMediaRef,
@@ -27,6 +29,7 @@ interface PublicSiteSettingsDto {
   socialLinks: SiteSettings['socialLinks'];
   defaultSeo: SiteSettings['defaultSeo'];
   featureFlags: SiteSettings['featureFlags'];
+  organizationSchema: Record<string, unknown>;
 }
 
 interface PublicPortalLinkDto {
@@ -48,6 +51,8 @@ export class PublicSiteSettingsController {
   constructor(
     private readonly siteSettings: SiteSettingsService,
     private readonly media: PublicMediaService,
+    private readonly seo: SeoService,
+    private readonly config: ConfigService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -58,6 +63,16 @@ export class PublicSiteSettingsController {
       this.media.resolveOne(settings.logoMediaId),
       this.media.resolveOne(settings.faviconMediaId),
     ]);
+    const baseUrl = this.seo.resolveBaseUrl(this.config);
+    const organizationSchema = this.seo.buildOrganizationSchema({
+      name: SeoService.resolveTranslatable(settings.siteName) ?? '',
+      url: baseUrl,
+      description: SeoService.resolveTranslatable(settings.tagline),
+      logoUrl: logo?.url,
+      email: settings.contactEmail,
+      phone: settings.contactPhone,
+      sameAs: settings.socialLinks.map((link) => link.url),
+    });
 
     return {
       siteName: settings.siteName,
@@ -71,6 +86,7 @@ export class PublicSiteSettingsController {
       socialLinks: settings.socialLinks,
       defaultSeo: settings.defaultSeo,
       featureFlags: settings.featureFlags,
+      organizationSchema,
     };
   }
 }

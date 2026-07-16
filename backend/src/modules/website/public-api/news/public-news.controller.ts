@@ -42,6 +42,7 @@ interface PublicNewsListItemDto {
 interface PublicNewsDetailDto extends PublicNewsListItemDto {
   body: NewsArticle['body'];
   seo: PublicSeoDto;
+  structuredData: Record<string, unknown>[];
   updatedAt: Date;
 }
 
@@ -137,16 +138,30 @@ export class PublicNewsController {
 
     const image = await this.media.resolveOne(article.featuredImageMediaId);
     const baseUrl = this.seo.resolveBaseUrl(this.config);
+    const title = SeoService.resolveTranslatable(article.title) ?? article.slug;
+    const url = `${baseUrl}/news/${article.slug}`;
+    const publisherName = SeoService.resolveTranslatable(settings.siteName);
     return {
       ...this.toListItem(article, new Map()),
       featuredImage: image,
       body: article.body,
-      seo: this.seo.resolvePublicSeo(
-        article.seo,
-        article.title,
-        `/news/${article.slug}`,
-        baseUrl,
-      ),
+      seo: this.seo.resolvePublicSeo(article.seo, title, `/news/${article.slug}`, baseUrl),
+      structuredData: [
+        this.seo.buildArticleSchema({
+          headline: title,
+          description: SeoService.resolveTranslatable(article.excerpt),
+          imageUrl: image?.url,
+          datePublished: article.publishAt,
+          dateModified: article.updatedAt,
+          url,
+          publisherName,
+        }),
+        this.seo.buildBreadcrumbSchema([
+          { name: 'Home', url: baseUrl },
+          { name: 'News', url: `${baseUrl}/news` },
+          { name: title, url },
+        ]),
+      ],
       updatedAt: article.updatedAt,
     };
   }

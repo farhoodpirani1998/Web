@@ -31,6 +31,7 @@ interface PublicPageDto {
   isHomepage: boolean;
   featuredImage: PublicMediaRef | null;
   seo: PublicSeoDto;
+  structuredData: Record<string, unknown>[];
   updatedAt: Date;
 }
 
@@ -78,6 +79,8 @@ export class PublicPagesController {
   private async toDto(page: StaticPage): Promise<PublicPageDto> {
     const image = await this.media.resolveOne(page.featuredImageMediaId);
     const baseUrl = this.seo.resolveBaseUrl(this.config);
+    const title = SeoService.resolveTranslatable(page.title) ?? page.slug;
+    const canonicalPath = page.isHomepage ? '/' : `/${page.slug}`;
     return {
       id: page.id,
       title: page.title,
@@ -86,12 +89,17 @@ export class PublicPagesController {
       template: page.template,
       isHomepage: page.isHomepage,
       featuredImage: image,
-      seo: this.seo.resolvePublicSeo(
-        page.seo,
-        page.title,
-        page.isHomepage ? '/' : `/${page.slug}`,
-        baseUrl,
-      ),
+      seo: this.seo.resolvePublicSeo(page.seo, title, canonicalPath, baseUrl),
+      structuredData: [
+        this.seo.buildBreadcrumbSchema(
+          page.isHomepage
+            ? [{ name: title, url: baseUrl }]
+            : [
+                { name: 'Home', url: baseUrl },
+                { name: title, url: `${baseUrl}${canonicalPath}` },
+              ],
+        ),
+      ],
       updatedAt: page.updatedAt,
     };
   }

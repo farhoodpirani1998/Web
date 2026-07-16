@@ -41,6 +41,7 @@ interface PublicTeacherListItemDto {
 interface PublicTeacherDetailDto extends PublicTeacherListItemDto {
   bio: Teacher['bio'];
   seo: PublicSeoDto;
+  structuredData: Record<string, unknown>[];
   updatedAt: Date;
 }
 
@@ -104,6 +105,7 @@ export class PublicTeachersController {
 
     const avatar = await this.media.resolveOne(teacher.avatarMediaId);
     const baseUrl = this.seo.resolveBaseUrl(this.config);
+    const url = `${baseUrl}/teachers/${teacher.slug}`;
     return {
       ...this.toListItem(teacher, new Map()),
       avatar,
@@ -114,6 +116,13 @@ export class PublicTeachersController {
         `/teachers/${teacher.slug}`,
         baseUrl,
       ),
+      structuredData: [
+        this.seo.buildBreadcrumbSchema([
+          { name: 'Home', url: baseUrl },
+          { name: 'Teachers', url: `${baseUrl}/teachers` },
+          { name: teacher.fullName, url },
+        ]),
+      ],
       updatedAt: teacher.updatedAt,
     };
   }

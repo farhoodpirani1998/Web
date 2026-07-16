@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SeoMetadata } from './seo-metadata.embeddable';
+import { Translatable, DEFAULT_LOCALE } from '../i18n/locale.enum';
 
 /**
  * Resolved SEO data for a single public page — what
@@ -18,6 +19,12 @@ export interface PublicSeoDto {
   canonicalUrl: string;
   ogImageUrl?: string;
   robots: string;
+}
+
+/** One crumb in a BreadcrumbList — see SeoService.buildBreadcrumbSchema. */
+export interface BreadcrumbItem {
+  name: string;
+  url: string;
 }
 
 @Injectable()
@@ -75,5 +82,105 @@ export class SeoService {
       ogImageUrl: seo?.ogImageUrl,
       robots: SeoService.isIndexable(seo) ? 'index, follow' : 'noindex, nofollow',
     };
+  }
+
+  /**
+   * A Translatable<string> field (siteName, tagline, address, ...)
+   * resolved to a single plain string for JSON-LD, which has no
+   * concept of per-locale values. Static (no DI needed) — a pure
+   * lookup, same reasoning as isIndexable.
+   */
+  static resolveTranslatable(value: Translatable<string> | undefined): string | undefined {
+    return value?.[DEFAULT_LOCALE];
+  }
+
+  /**
+   * Site-wide Organization schema — one instance per site, built from
+   * SiteSettings (see PublicSiteSettingsController), not per content
+   * page. Fields the editor hasn't filled in (logo, contact, social)
+   * are simply omitted rather than emitted empty.
+   */
+  buildOrganizationSchema(fields: {
+    name: string;
+    url: string;
+    description?: string;
+    logoUrl?: string;
+    email?: string;
+    phone?: string;
+    sameAs?: string[];
+  }) {
+    return this.toJsonLd('Organization', {
+      name: fields.name,
+      url: fields.url,
+      description: fields.description,
+      logo: fields.logoUrl,
+      email: fields.email,
+      telephone: fields.phone,
+      sameAs: fields.sameAs?.length ? fields.sameAs : undefined,
+    });
+  }
+
+  /** Article schema for a single News detail page. */
+  buildArticleSchema(fields: {
+    headline: string;
+    description?: string;
+    imageUrl?: string;
+    datePublished?: Date;
+    dateModified: Date;
+    url: string;
+    publisherName?: string;
+  }) {
+    return this.toJsonLd('Article', {
+      headline: fields.headline,
+      description: fields.description,
+      image: fields.imageUrl ? [fields.imageUrl] : undefined,
+      datePublished: fields.datePublished?.toISOString(),
+      dateModified: fields.dateModified.toISOString(),
+      mainEntityOfPage: fields.url,
+      publisher: fields.publisherName
+        ? { '@type': 'Organization', name: fields.publisherName }
+        : undefined,
+    });
+  }
+
+  /** Event schema for a single Events detail page. */
+  buildEventSchema(fields: {
+    name: string;
+    description?: string;
+    imageUrl?: string;
+    startDate: Date;
+    endDate?: Date;
+    location?: string;
+    url: string;
+  }) {
+    return this.toJsonLd('Event', {
+      name: fields.name,
+      description: fields.description,
+      image: fields.imageUrl ? [fields.imageUrl] : undefined,
+      startDate: fields.startDate.toISOString(),
+      endDate: fields.endDate?.toISOString(),
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      eventStatus: 'https://schema.org/EventScheduled',
+      location: fields.location
+        ? { '@type': 'Place', name: fields.location }
+        : undefined,
+      url: fields.url,
+    });
+  }
+
+  /**
+   * BreadcrumbList schema — used by every content detail page that has
+   * a natural crumb trail (News/Events/Campuses/Teachers/Pages/About;
+   * see each controller's `structuredData` field).
+   */
+  buildBreadcrumbSchema(items: BreadcrumbItem[]) {
+    return this.toJsonLd('BreadcrumbList', {
+      itemListElement: items.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.name,
+        item: item.url,
+      })),
+    });
   }
 }

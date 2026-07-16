@@ -21,6 +21,7 @@ interface PublicAboutDto {
   body: AboutPage['body'];
   image: PublicMediaRef | null;
   seo: PublicSeoDto;
+  structuredData: Record<string, unknown>[];
   updatedAt: Date;
 }
 
@@ -49,11 +50,18 @@ export class PublicAboutController {
 
     const image = await this.media.resolveOne(page.imageMediaId);
     const baseUrl = this.seo.resolveBaseUrl(this.config);
+    const title = SeoService.resolveTranslatable(page.title) ?? 'About';
     return {
       title: page.title,
       body: page.body,
       image,
-      seo: this.seo.resolvePublicSeo(page.seo, page.title, '/about', baseUrl),
+      seo: this.seo.resolvePublicSeo(page.seo, title, '/about', baseUrl),
+      structuredData: [
+        this.seo.buildBreadcrumbSchema([
+          { name: 'Home', url: baseUrl },
+          { name: title, url: `${baseUrl}/about` },
+        ]),
+      ],
       updatedAt: page.updatedAt,
     };
   }

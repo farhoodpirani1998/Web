@@ -46,6 +46,7 @@ interface PublicEventListItemDto {
 interface PublicEventDetailDto extends PublicEventListItemDto {
   body: CalendarEvent['body'];
   seo: PublicSeoDto;
+  structuredData: Record<string, unknown>[];
   updatedAt: Date;
 }
 
@@ -160,16 +161,29 @@ export class PublicEventsController {
 
     const image = await this.media.resolveOne(event.featuredImageMediaId);
     const baseUrl = this.seo.resolveBaseUrl(this.config);
+    const title = SeoService.resolveTranslatable(event.title) ?? event.slug;
+    const url = `${baseUrl}/events/${event.slug}`;
     return {
       ...this.toListItem(event, new Map()),
       featuredImage: image,
       body: event.body,
-      seo: this.seo.resolvePublicSeo(
-        event.seo,
-        event.title,
-        `/events/${event.slug}`,
-        baseUrl,
-      ),
+      seo: this.seo.resolvePublicSeo(event.seo, title, `/events/${event.slug}`, baseUrl),
+      structuredData: [
+        this.seo.buildEventSchema({
+          name: title,
+          description: SeoService.resolveTranslatable(event.excerpt),
+          imageUrl: image?.url,
+          startDate: event.startAt,
+          endDate: event.endAt,
+          location: SeoService.resolveTranslatable(event.location),
+          url,
+        }),
+        this.seo.buildBreadcrumbSchema([
+          { name: 'Home', url: baseUrl },
+          { name: 'Events', url: `${baseUrl}/events` },
+          { name: title, url },
+        ]),
+      ],
       updatedAt: event.updatedAt,
     };
   }
