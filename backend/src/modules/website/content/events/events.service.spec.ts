@@ -11,6 +11,7 @@ describe('EventsService', () => {
   let sitemap: any;
   let siteSettings: any;
   let revisions: any;
+  let redis: any;
   let service: EventsService;
 
   beforeEach(() => {
@@ -39,6 +40,7 @@ describe('EventsService', () => {
       list: jest.fn(),
       getVersion: jest.fn(),
     };
+    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
     service = new EventsService(
       repo,
       siteService,
@@ -47,6 +49,7 @@ describe('EventsService', () => {
       sitemap,
       siteSettings,
       revisions,
+      redis,
     );
   });
 

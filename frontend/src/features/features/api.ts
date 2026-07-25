@@ -8,6 +8,10 @@ import type { Features } from "./types";
  * Per §14/§30, this is the only file in the `features` feature aware
  * of the endpoint's URL — `useFeatures` and any future consumer call
  * `fetchFeatures`, never `apiClient` directly.
+ *
+ * No adapter needed here (unlike `hero`/`navigation`/`cta`): the real
+ * response is already the flat `FeatureItem[]` list `Features` now
+ * mirrors — see `./types.ts`.
  */
 export async function fetchFeatures(): Promise<Features> {
   const response = await apiClient.get<Features>("/features");

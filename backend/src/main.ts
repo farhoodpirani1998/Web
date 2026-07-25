@@ -5,6 +5,7 @@
 // place by then. Same reason data-source.ts calls dotenv's config()
 // directly instead of relying on ConfigModule.
 import 'dotenv/config';
+import * as Sentry from '@sentry/node';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
@@ -45,6 +46,23 @@ function parseBool(raw: string | undefined, fallback: boolean): boolean {
 }
 
 async function bootstrap() {
+  // Error reporting (see GlobalExceptionFilter, the only caller of
+  // Sentry.captureException). Initialized here, before the Nest app is
+  // built, so it's ready to catch anything thrown during bootstrap
+  // itself, not just later request handling. No tracing/performance
+  // integrations enabled — capture-only, to keep this a small,
+  // dependency-light addition rather than a full APM setup. Skipped
+  // entirely when SENTRY_DSN is unset (local/dev without a Sentry
+  // project) — Sentry.captureException calls elsewhere are always
+  // safe no-ops in that case.
+  if (process.env.SENTRY_DSN) {
+    Sentry.init({
+      dsn: process.env.SENTRY_DSN,
+      environment: process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV,
+      tracesSampleRate: 0,
+    });
+  }
+
   // bodyParser: false — the default body-parser Nest would otherwise
   // register has a fixed limit that isn't configurable per deployment.
   // Replaced below with our own json()/urlencoded() using env-driven
@@ -125,21 +143,36 @@ async function bootstrap() {
   app.use(hpp());
 
   // CORS: public content routes are open by design (cacheable,
-  // unauthenticated) and admin routes are protected by the SMS-JWT guard
-  // regardless of origin — CORS here only controls which origins a
-  // browser will let read the response, not authorization. Defaults to
-  // "*" (today's behavior, unchanged) unless CORS_ALLOWED_ORIGINS is set
-  // to a comma-separated allow-list for production deployments.
+  // unauthenticated) and admin routes are protected by the SMS-JWT/CMS
+  // guards regardless of origin — CORS here only controls which origins
+  // a browser will let read the response, not authorization. In
+  // production, CORS_ALLOWED_ORIGINS is required (validateEnvironment
+  // in env-validation.config.ts refuses to start otherwise), so the
+  // `origin: true` fallback below only ever applies in
+  // development/test. There it reflects the caller's own Origin header
+  // rather than a literal `"*"` — permissive in the same spirit as a
+  // wildcard for any route that ignores credentials, but also the form
+  // browsers require for one that doesn't (see `credentials: true`
+  // below).
+  //
+  // credentials: true (Sprint — Persistent Login) — the CMS Admin
+  // refresh-token cookie (`identity/auth/cms-refresh-cookie.util.ts`) is
+  // httpOnly and must round-trip on cross-origin XHR/fetch calls from
+  // the admin SPA. Browsers only send/accept credentialed cross-origin
+  // requests when this is enabled *and* the reflected
+  // `Access-Control-Allow-Origin` is a specific origin, never `*` —
+  // which is exactly what the `origin: true` fallback above provides in
+  // development, and what the real allow-list provides in production.
   const corsOrigins = config
     .get<string>('CORS_ALLOWED_ORIGINS', '')
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
   app.enableCors({
-    origin: corsOrigins.length ? corsOrigins : '*',
+    origin: corsOrigins.length ? corsOrigins : true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-    credentials: false,
+    credentials: true,
   });
 
   // Serve locally-stored media (see LocalStorageProvider) at the same

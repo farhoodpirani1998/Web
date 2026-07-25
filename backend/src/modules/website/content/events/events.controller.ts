@@ -15,9 +15,10 @@ import { CreateCalendarEventDto } from './dto/create-calendar-event.dto';
 import { UpdateCalendarEventDto } from './dto/update-calendar-event.dto';
 import { UpdateCalendarEventStatusDto } from './dto/update-calendar-event-status.dto';
 import { ScheduleCalendarEventDto } from './dto/schedule-calendar-event.dto';
-import { RequireWebsitePermission } from '../../auth/website-permission.decorator';
+import { RequireCmsPermission } from '../../identity/auth/cms-permission.decorator';
 import { WebsitePermission } from '../../auth/website-role.enum';
-import { CurrentWebsiteUser, WebsiteRequestUser } from '../../auth/current-website-user.decorator';
+import { CurrentAdmin } from '../../identity/auth/current-admin.decorator';
+import { CmsRequestUser } from '../../identity/auth/cms-jwt-payload.interface';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 
 /**
@@ -31,44 +32,44 @@ export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Get()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_READ)
+  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
   findAll(@Query('status') status?: PublishStatus, @Query('category') category?: string) {
     return this.eventsService.findAll(status, category);
   }
 
   @Get(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_READ)
+  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.eventsService.findOne(id);
   }
 
   @Get(':id/revisions')
-  @RequireWebsitePermission(WebsitePermission.REVISIONS_VIEW)
+  @RequireCmsPermission(WebsitePermission.REVISIONS_VIEW)
   listRevisions(@Param('id', ParseUUIDPipe) id: string) {
     return this.eventsService.listRevisions(id);
   }
 
   @Post()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   create(
     @Body() dto: CreateCalendarEventDto,
-    @CurrentWebsiteUser() user: WebsiteRequestUser,
+    @CurrentAdmin() user: CmsRequestUser,
   ) {
-    return this.eventsService.create(dto, user.externalUserId);
+    return this.eventsService.create(dto, user.id);
   }
 
   @Patch(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateCalendarEventDto,
-    @CurrentWebsiteUser() user: WebsiteRequestUser,
+    @CurrentAdmin() user: CmsRequestUser,
   ) {
-    return this.eventsService.update(id, dto, user.externalUserId);
+    return this.eventsService.update(id, dto, user.id);
   }
 
   @Patch(':id/status')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_PUBLISH)
+  @RequireCmsPermission(WebsitePermission.CONTENT_PUBLISH)
   updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateCalendarEventStatusDto,
@@ -82,7 +83,7 @@ export class EventsController {
   // confused with `startAt`/`endAt` (when the event itself happens),
   // which are ordinary fields set via the generic update endpoint.
   @Patch(':id/schedule')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_PUBLISH)
+  @RequireCmsPermission(WebsitePermission.CONTENT_PUBLISH)
   schedule(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: ScheduleCalendarEventDto,
@@ -91,17 +92,17 @@ export class EventsController {
   }
 
   @Post(':id/revisions/:versionNumber/restore')
-  @RequireWebsitePermission(WebsitePermission.REVISIONS_RESTORE)
+  @RequireCmsPermission(WebsitePermission.REVISIONS_RESTORE)
   restoreRevision(
     @Param('id', ParseUUIDPipe) id: string,
     @Param('versionNumber', ParseIntPipe) versionNumber: number,
-    @CurrentWebsiteUser() user: WebsiteRequestUser,
+    @CurrentAdmin() user: CmsRequestUser,
   ) {
-    return this.eventsService.restoreRevision(id, versionNumber, user.externalUserId);
+    return this.eventsService.restoreRevision(id, versionNumber, user.id);
   }
 
   @Delete(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.eventsService.remove(id);
   }

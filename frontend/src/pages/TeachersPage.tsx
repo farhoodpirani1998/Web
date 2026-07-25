@@ -1,5 +1,21 @@
 import { PageLayout, Stack } from "@/shared/design-system/components";
+import { Seo } from "@/shared/seo";
 import { Hero, TeacherGrid, TeacherDetails, FAQ } from "@/features/teachers";
+
+/**
+ * Static (frontend-hardcoded, not backend-resolved) SEO for this list
+ * page — no `useTeachers()`-style query exists yet (see below), so
+ * unlike `AboutPage`/`HomePage`'s `seo`/`structuredData` from their
+ * own public-api response, this page builds its own
+ * `PublicSeoDto`-shaped object and passes it to the same shared
+ * `<Seo />` (`@/shared/seo`, §21) directly.
+ */
+const TEACHERS_SEO = {
+  title: "کادر آموزشی",
+  description: "با کادر آموزشی مجموعه و تخصص هر یک از مدرسان آشنا شوید.",
+  canonicalUrl: `${window.location.origin}/teachers`,
+  robots: "index, follow",
+};
 
 /**
  * Static "Teachers" page.
@@ -42,6 +58,7 @@ import { Hero, TeacherGrid, TeacherDetails, FAQ } from "@/features/teachers";
 export function TeachersPage() {
   return (
     <PageLayout>
+      <Seo seo={TEACHERS_SEO} />
       <Stack gap="none">
         <Hero />
         <TeacherGrid />

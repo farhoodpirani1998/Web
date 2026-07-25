@@ -2,9 +2,10 @@ import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs
 import { AboutService } from './about.service';
 import { UpdateAboutDto } from './dto/update-about.dto';
 import { UpdateAboutStatusDto } from './dto/update-about-status.dto';
-import { RequireWebsitePermission } from '../../auth/website-permission.decorator';
+import { RequireCmsPermission } from '../../identity/auth/cms-permission.decorator';
 import { WebsitePermission } from '../../auth/website-role.enum';
-import { CurrentWebsiteUser, WebsiteRequestUser } from '../../auth/current-website-user.decorator';
+import { CurrentAdmin } from '../../identity/auth/current-admin.decorator';
+import { CmsRequestUser } from '../../identity/auth/cms-jwt-payload.interface';
 
 /**
  * Admin surface for the singleton About page — no :id in the routes,
@@ -17,35 +18,35 @@ export class AboutController {
   constructor(private readonly aboutService: AboutService) {}
 
   @Get()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_READ)
+  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
   get() {
     return this.aboutService.get();
   }
 
   @Get('revisions')
-  @RequireWebsitePermission(WebsitePermission.REVISIONS_VIEW)
+  @RequireCmsPermission(WebsitePermission.REVISIONS_VIEW)
   listRevisions() {
     return this.aboutService.listRevisions();
   }
 
   @Patch()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
-  update(@Body() dto: UpdateAboutDto, @CurrentWebsiteUser() user: WebsiteRequestUser) {
-    return this.aboutService.update(dto, user.externalUserId);
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
+  update(@Body() dto: UpdateAboutDto, @CurrentAdmin() user: CmsRequestUser) {
+    return this.aboutService.update(dto, user.id);
   }
 
   @Patch('status')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_PUBLISH)
+  @RequireCmsPermission(WebsitePermission.CONTENT_PUBLISH)
   updateStatus(@Body() dto: UpdateAboutStatusDto) {
     return this.aboutService.updateStatus(dto.status);
   }
 
   @Post('revisions/:versionNumber/restore')
-  @RequireWebsitePermission(WebsitePermission.REVISIONS_RESTORE)
+  @RequireCmsPermission(WebsitePermission.REVISIONS_RESTORE)
   restoreRevision(
     @Param('versionNumber', ParseIntPipe) versionNumber: number,
-    @CurrentWebsiteUser() user: WebsiteRequestUser,
+    @CurrentAdmin() user: CmsRequestUser,
   ) {
-    return this.aboutService.restoreRevision(versionNumber, user.externalUserId);
+    return this.aboutService.restoreRevision(versionNumber, user.id);
   }
 }

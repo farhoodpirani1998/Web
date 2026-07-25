@@ -5,7 +5,7 @@ import { UpdateContactSettingsDto } from './dto/update-contact-settings.dto';
 import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
 import { UpdateFeatureFlagsDto } from './dto/update-feature-flags.dto';
 import { SeoMetadataDto } from '../common/dto/seo-metadata.dto';
-import { RequireWebsitePermission } from '../../auth/website-permission.decorator';
+import { RequireCmsPermission } from '../../identity/auth/cms-permission.decorator';
 import { WebsitePermission } from '../../auth/website-role.enum';
 
 /**
@@ -22,37 +22,37 @@ export class SiteSettingsController {
   constructor(private readonly siteSettingsService: SiteSettingsService) {}
 
   @Get()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_READ)
+  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
   get() {
     return this.siteSettingsService.get();
   }
 
   @Patch('general')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   updateGeneral(@Body() dto: UpdateGeneralSettingsDto) {
     return this.siteSettingsService.updateGeneral(dto);
   }
 
   @Patch('contact')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   updateContact(@Body() dto: UpdateContactSettingsDto) {
     return this.siteSettingsService.updateContact(dto);
   }
 
   @Patch('social')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   updateSocial(@Body() dto: UpdateSocialLinksDto) {
     return this.siteSettingsService.updateSocial(dto);
   }
 
   @Patch('seo')
-  @RequireWebsitePermission(WebsitePermission.SEO_MANAGE)
+  @RequireCmsPermission(WebsitePermission.SEO_MANAGE)
   updateSeo(@Body() dto: SeoMetadataDto) {
     return this.siteSettingsService.updateSeo(dto);
   }
 
   @Patch('feature-flags')
-  @RequireWebsitePermission(WebsitePermission.FEATURE_FLAGS_MANAGE)
+  @RequireCmsPermission(WebsitePermission.FEATURE_FLAGS_MANAGE)
   updateFeatureFlags(@Body() dto: UpdateFeatureFlagsDto) {
     return this.siteSettingsService.updateFeatureFlags(dto);
   }

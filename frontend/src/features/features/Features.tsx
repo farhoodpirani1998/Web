@@ -99,17 +99,21 @@ const WHY_CHOOSE_ITEMS_PLACEHOLDER: WhyChooseItem[] = [
 export function Features() {
   const { data } = useFeatures();
 
-  const eyebrow = data?.eyebrow ?? FEATURES_EYEBROW_PLACEHOLDER;
-  const heading = data?.heading ?? FEATURES_HEADING_PLACEHOLDER;
-  const description = data?.description ?? FEATURES_DESCRIPTION_PLACEHOLDER;
+  // The backend's Features module has no section-level eyebrow/
+  // heading/intro field (see ./types.ts) — that copy is this
+  // component's own static placeholder, not CMS content, so it's
+  // never read from `data`.
+  const eyebrow = FEATURES_EYEBROW_PLACEHOLDER;
+  const heading = FEATURES_HEADING_PLACEHOLDER;
+  const description = FEATURES_DESCRIPTION_PLACEHOLDER;
 
   const items: WhyChooseItem[] =
-    data?.items && data.items.length > 0
-      ? data.items.map((item) => ({
+    data && data.length > 0
+      ? data.map((item) => ({
           id: item.id,
-          icon: ICON_MAP[item.icon] ?? FALLBACK_ICON,
-          title: item.title,
-          description: item.description,
+          icon: (item.icon && ICON_MAP[item.icon]) ?? FALLBACK_ICON,
+          title: item.title.fa,
+          description: item.description.fa,
         }))
       : WHY_CHOOSE_ITEMS_PLACEHOLDER;
 

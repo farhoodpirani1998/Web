@@ -111,7 +111,7 @@ export function EventCard({ event }: EventCardProps) {
           </Stack>
 
           <Link
-            href={`#event-${event.id}`}
+            href={`/events/${event.slug}`}
             variant="subtle"
             className="group/link inline-flex w-fit items-center gap-1 text-brand-navy"
           >

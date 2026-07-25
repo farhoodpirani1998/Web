@@ -14,6 +14,7 @@ import type { Campus } from "./types";
 export const campuses: readonly Campus[] = [
   {
     id: "central",
+    slug: "central",
     name: "پردیس مرکزی",
     description: "متن نمونه معرفی کوتاه برای پردیس مرکزی.",
     detailedDescription:
@@ -26,6 +27,7 @@ export const campuses: readonly Campus[] = [
   },
   {
     id: "west",
+    slug: "west",
     name: "پردیس غرب تهران",
     description: "متن نمونه معرفی کوتاه برای پردیس غرب تهران.",
     detailedDescription:
@@ -38,6 +40,7 @@ export const campuses: readonly Campus[] = [
   },
   {
     id: "isfahan",
+    slug: "isfahan",
     name: "پردیس اصفهان",
     description: "متن نمونه معرفی کوتاه برای پردیس اصفهان.",
     detailedDescription:
@@ -54,6 +57,7 @@ export const campuses: readonly Campus[] = [
   },
   {
     id: "mashhad",
+    slug: "mashhad",
     name: "پردیس مشهد",
     description: "متن نمونه معرفی کوتاه برای پردیس مشهد.",
     detailedDescription:

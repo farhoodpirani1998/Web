@@ -7,6 +7,7 @@ describe('SiteSettingsService', () => {
   let siteService: any;
   let media: any;
   let events: any;
+  let redis: any;
   let service: SiteSettingsService;
 
   beforeEach(() => {
@@ -19,7 +20,8 @@ describe('SiteSettingsService', () => {
     siteService = { getDefaultSiteId: jest.fn().mockReturnValue(siteId) };
     media = { attach: jest.fn(), detach: jest.fn() };
     events = { emit: jest.fn() };
-    service = new SiteSettingsService(repo, siteService, media, events);
+    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
+    service = new SiteSettingsService(repo, siteService, media, events, redis);
   });
 
   describe('onModuleInit', () => {

@@ -14,7 +14,7 @@ import { CreateFeatureDto } from './dto/create-feature.dto';
 import { UpdateFeatureDto } from './dto/update-feature.dto';
 import { UpdateFeatureStatusDto } from './dto/update-feature-status.dto';
 import { ReorderFeaturesDto } from './dto/reorder-features.dto';
-import { RequireWebsitePermission } from '../../auth/website-permission.decorator';
+import { RequireCmsPermission } from '../../identity/auth/cms-permission.decorator';
 import { WebsitePermission } from '../../auth/website-role.enum';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 
@@ -28,37 +28,37 @@ export class FeaturesController {
   constructor(private readonly featuresService: FeaturesService) {}
 
   @Get()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_READ)
+  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
   findAll(@Query('status') status?: PublishStatus) {
     return this.featuresService.findAll(status);
   }
 
   @Get(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_READ)
+  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.featuresService.findOne(id);
   }
 
   @Post()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   create(@Body() dto: CreateFeatureDto) {
     return this.featuresService.create(dto);
   }
 
   @Patch('reorder')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   reorder(@Body() dto: ReorderFeaturesDto) {
     return this.featuresService.reorder(dto.orderedIds);
   }
 
   @Patch(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateFeatureDto) {
     return this.featuresService.update(id, dto);
   }
 
   @Patch(':id/status')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_PUBLISH)
+  @RequireCmsPermission(WebsitePermission.CONTENT_PUBLISH)
   updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateFeatureStatusDto,
@@ -67,7 +67,7 @@ export class FeaturesController {
   }
 
   @Delete(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.featuresService.remove(id);
   }

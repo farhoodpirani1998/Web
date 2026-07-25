@@ -16,9 +16,10 @@ import { UpdateTeacherDto } from './dto/update-teacher.dto';
 import { UpdateTeacherStatusDto } from './dto/update-teacher-status.dto';
 import { ScheduleTeacherDto } from './dto/schedule-teacher.dto';
 import { ReorderTeachersDto } from './dto/reorder-teachers.dto';
-import { RequireWebsitePermission } from '../../auth/website-permission.decorator';
+import { RequireCmsPermission } from '../../identity/auth/cms-permission.decorator';
 import { WebsitePermission } from '../../auth/website-role.enum';
-import { CurrentWebsiteUser, WebsiteRequestUser } from '../../auth/current-website-user.decorator';
+import { CurrentAdmin } from '../../identity/auth/current-admin.decorator';
+import { CmsRequestUser } from '../../identity/auth/cms-jwt-payload.interface';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 
 /**
@@ -36,50 +37,50 @@ export class TeachersController {
   constructor(private readonly teachersService: TeachersService) {}
 
   @Get()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_READ)
+  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
   findAll(@Query('status') status?: PublishStatus) {
     return this.teachersService.findAll(status);
   }
 
   @Get(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_READ)
+  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.teachersService.findOne(id);
   }
 
   @Get(':id/revisions')
-  @RequireWebsitePermission(WebsitePermission.REVISIONS_VIEW)
+  @RequireCmsPermission(WebsitePermission.REVISIONS_VIEW)
   listRevisions(@Param('id', ParseUUIDPipe) id: string) {
     return this.teachersService.listRevisions(id);
   }
 
   @Post()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   create(
     @Body() dto: CreateTeacherDto,
-    @CurrentWebsiteUser() user: WebsiteRequestUser,
+    @CurrentAdmin() user: CmsRequestUser,
   ) {
-    return this.teachersService.create(dto, user.externalUserId);
+    return this.teachersService.create(dto, user.id);
   }
 
   @Patch('reorder')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   reorder(@Body() dto: ReorderTeachersDto) {
     return this.teachersService.reorder(dto.orderedIds);
   }
 
   @Patch(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateTeacherDto,
-    @CurrentWebsiteUser() user: WebsiteRequestUser,
+    @CurrentAdmin() user: CmsRequestUser,
   ) {
-    return this.teachersService.update(id, dto, user.externalUserId);
+    return this.teachersService.update(id, dto, user.id);
   }
 
   @Patch(':id/status')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_PUBLISH)
+  @RequireCmsPermission(WebsitePermission.CONTENT_PUBLISH)
   updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateTeacherStatusDto,
@@ -91,7 +92,7 @@ export class TeachersController {
   // gates when a PUBLISHED teacher's page actually becomes visible
   // (sitemap today; public API too — see PublicTeachersController).
   @Patch(':id/schedule')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_PUBLISH)
+  @RequireCmsPermission(WebsitePermission.CONTENT_PUBLISH)
   schedule(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: ScheduleTeacherDto,
@@ -100,17 +101,17 @@ export class TeachersController {
   }
 
   @Post(':id/revisions/:versionNumber/restore')
-  @RequireWebsitePermission(WebsitePermission.REVISIONS_RESTORE)
+  @RequireCmsPermission(WebsitePermission.REVISIONS_RESTORE)
   restoreRevision(
     @Param('id', ParseUUIDPipe) id: string,
     @Param('versionNumber', ParseIntPipe) versionNumber: number,
-    @CurrentWebsiteUser() user: WebsiteRequestUser,
+    @CurrentAdmin() user: CmsRequestUser,
   ) {
-    return this.teachersService.restoreRevision(id, versionNumber, user.externalUserId);
+    return this.teachersService.restoreRevision(id, versionNumber, user.id);
   }
 
   @Delete(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.teachersService.remove(id);
   }

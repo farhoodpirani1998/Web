@@ -1,5 +1,22 @@
 import { PageLayout, Stack } from "@/shared/design-system/components";
+import { Seo } from "@/shared/seo";
 import { Hero, EventList, EventDetails, FAQ } from "@/features/events";
+
+/**
+ * Static (frontend-hardcoded, not backend-resolved) SEO for this list
+ * page — no `useEvents()`-style query exists yet (see below), so
+ * unlike `AboutPage`/`HomePage`'s `seo`/`structuredData` from their
+ * own public-api response, this page builds its own
+ * `PublicSeoDto`-shaped object and passes it to the same shared
+ * `<Seo />` (`@/shared/seo`, §21) directly.
+ */
+const EVENTS_SEO = {
+  title: "رویدادها و برنامه‌ها",
+  description:
+    "رویدادهای پیش‌رو، جشن‌ها، کارگاه‌های آموزشی و بازدیدهای علمی مجموعه.",
+  canonicalUrl: `${window.location.origin}/events`,
+  robots: "index, follow",
+};
 
 /**
  * Static "Events" page.
@@ -46,6 +63,7 @@ import { Hero, EventList, EventDetails, FAQ } from "@/features/events";
 export function EventsPage() {
   return (
     <PageLayout>
+      <Seo seo={EVENTS_SEO} />
       <Stack gap="none">
         <Hero />
         <EventList />

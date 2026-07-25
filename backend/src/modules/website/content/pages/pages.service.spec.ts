@@ -10,6 +10,7 @@ describe('PagesService', () => {
   let media: any;
   let sitemap: any;
   let revisions: any;
+  let redis: any;
   let service: PagesService;
 
   beforeEach(() => {
@@ -39,7 +40,8 @@ describe('PagesService', () => {
       list: jest.fn(),
       getVersion: jest.fn(),
     };
-    service = new PagesService(repo, siteService, publishing, media, sitemap, revisions);
+    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
+    service = new PagesService(repo, siteService, publishing, media, sitemap, revisions, redis);
   });
 
   describe('onModuleInit', () => {

@@ -9,7 +9,7 @@ import { PublishingModule } from '../../core/publishing/publishing.module';
 import { MediaModule } from '../../core/media/media.module';
 import { RedisModule } from '../../core/redis/redis.module';
 import { RevisionsModule } from '../../core/revisions/revisions.module';
-import { WebsiteAuthModule } from '../../auth/auth.module';
+import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
 
 /**
  * Kernel pieces used: site scoping, ordering (carousel position),
@@ -26,7 +26,7 @@ import { WebsiteAuthModule } from '../../auth/auth.module';
     MediaModule,
     RevisionsModule,
     RedisModule,
-    WebsiteAuthModule,
+    CmsAuthModule,
   ],
   providers: [HeroService],
   controllers: [HeroController],

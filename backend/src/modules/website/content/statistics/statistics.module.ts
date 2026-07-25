@@ -6,7 +6,7 @@ import { StatisticsController } from './statistics.controller';
 import { SiteModule } from '../../core/site/site.module';
 import { OrderingModule } from '../../core/ordering/ordering.module';
 import { PublishingModule } from '../../core/publishing/publishing.module';
-import { WebsiteAuthModule } from '../../auth/auth.module';
+import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
 
 /**
  * Imports only the kernel pieces it actually uses: site scoping,
@@ -24,7 +24,7 @@ import { WebsiteAuthModule } from '../../auth/auth.module';
     SiteModule,
     OrderingModule,
     PublishingModule,
-    WebsiteAuthModule,
+    CmsAuthModule,
   ],
   providers: [StatisticsService],
   controllers: [StatisticsController],

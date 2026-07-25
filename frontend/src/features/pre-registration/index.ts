@@ -6,11 +6,15 @@
  * section components only from here — never from the individual
  * section files directly.
  *
- * `SuccessState` is exported for future wiring (see its own file's
- * doc comment) but is not composed by `PreRegistrationPage` today.
+ * `SuccessState` is now composed internally by `RegistrationForm`
+ * (rendered in place of the form after a successful submission) — it
+ * remains exported here too since it's a standalone presentational
+ * component other callers could reuse.
  */
 export { Hero } from "./Hero";
 export { Information } from "./Information";
 export { RegistrationForm } from "./RegistrationForm";
 export { FAQ } from "./FAQ";
 export { SuccessState } from "./SuccessState";
+export { submitPreRegistration } from "./api";
+export type { PreRegistrationPayload } from "./types";

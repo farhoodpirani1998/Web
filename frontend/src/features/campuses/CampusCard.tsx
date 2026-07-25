@@ -64,12 +64,14 @@ export function CampusCard({ campus }: CampusCardProps) {
           </Text>
         </Stack>
 
-        <Badge
-          variant="secondary"
-          className="absolute start-3 top-3 border-brand-gold/30 bg-background/85 text-brand-navy backdrop-blur-sm"
-        >
-          {campus.area}
-        </Badge>
+        {campus.area && (
+          <Badge
+            variant="secondary"
+            className="absolute start-3 top-3 border-brand-gold/30 bg-background/85 text-brand-navy backdrop-blur-sm"
+          >
+            {campus.area}
+          </Badge>
+        )}
       </AspectRatio>
 
       <CardHeader className="gap-2 p-4 pb-0">
@@ -82,31 +84,39 @@ export function CampusCard({ campus }: CampusCardProps) {
             {campus.description}
           </Text>
 
-          <Stack direction="row" gap="xs" wrap>
-            {campus.features.map((feature) => (
-              <Badge key={feature} variant="outline">
-                {feature}
-              </Badge>
-            ))}
-          </Stack>
+          {campus.features && campus.features.length > 0 && (
+            <Stack direction="row" gap="xs" wrap>
+              {campus.features.map((feature) => (
+                <Badge key={feature} variant="outline">
+                  {feature}
+                </Badge>
+              ))}
+            </Stack>
+          )}
 
-          <Stack gap="xs" className="border-t border-border pt-3">
-            <Stack direction="row" gap="xs" align="start">
-              <PinGlyph className="mt-0.5 h-4 w-4 shrink-0 text-brand-gold" />
-              <Text variant="bodySm" color="muted">
-                {campus.address}
-              </Text>
+          {(campus.address || campus.contact.phone) && (
+            <Stack gap="xs" className="border-t border-border pt-3">
+              {campus.address && (
+                <Stack direction="row" gap="xs" align="start">
+                  <PinGlyph className="mt-0.5 h-4 w-4 shrink-0 text-brand-gold" />
+                  <Text variant="bodySm" color="muted">
+                    {campus.address}
+                  </Text>
+                </Stack>
+              )}
+              {campus.contact.phone && campus.contact.phoneHref && (
+                <Stack direction="row" gap="xs" align="center">
+                  <PhoneGlyph className="h-4 w-4 shrink-0 text-brand-gold" />
+                  <Link href={campus.contact.phoneHref} variant="subtle">
+                    {campus.contact.phone}
+                  </Link>
+                </Stack>
+              )}
             </Stack>
-            <Stack direction="row" gap="xs" align="center">
-              <PhoneGlyph className="h-4 w-4 shrink-0 text-brand-gold" />
-              <Link href={campus.contact.phoneHref} variant="subtle">
-                {campus.contact.phone}
-              </Link>
-            </Stack>
-          </Stack>
+          )}
 
           <Link
-            href={`#campus-${campus.id}`}
+            href={`/campuses/${campus.slug}`}
             variant="subtle"
             className="group/link inline-flex w-fit items-center gap-1 text-brand-navy"
           >

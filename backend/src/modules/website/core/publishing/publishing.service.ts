@@ -38,6 +38,7 @@ export class PublishingService {
       entityType: params.entityType,
       entityId: params.entityId,
       siteId: params.siteId,
+      status: params.to,
     };
     this.events.emit(WEBSITE_EVENTS.CONTENT_UPDATED, updatedPayload);
 

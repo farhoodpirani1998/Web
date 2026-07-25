@@ -42,13 +42,12 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       return (
         <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-6 text-center">
           <h1 className="font-heading text-2xl font-semibold text-foreground">
-            Something went wrong
+            مشکلی پیش آمد
           </h1>
           <p className="max-w-md text-muted-foreground">
-            We ran into an unexpected problem. Please try returning to the
-            homepage.
+            با خطایی غیرمنتظره مواجه شدیم. لطفاً به صفحه اصلی بازگردید.
           </p>
-          <Button onClick={this.handleReset}>Back to homepage</Button>
+          <Button onClick={this.handleReset}>بازگشت به صفحه اصلی</Button>
         </div>
       );
     }

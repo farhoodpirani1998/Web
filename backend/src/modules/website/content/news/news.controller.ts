@@ -15,9 +15,10 @@ import { CreateNewsArticleDto } from './dto/create-news-article.dto';
 import { UpdateNewsArticleDto } from './dto/update-news-article.dto';
 import { UpdateNewsArticleStatusDto } from './dto/update-news-article-status.dto';
 import { ScheduleNewsArticleDto } from './dto/schedule-news-article.dto';
-import { RequireWebsitePermission } from '../../auth/website-permission.decorator';
+import { RequireCmsPermission } from '../../identity/auth/cms-permission.decorator';
 import { WebsitePermission } from '../../auth/website-role.enum';
-import { CurrentWebsiteUser, WebsiteRequestUser } from '../../auth/current-website-user.decorator';
+import { CurrentAdmin } from '../../identity/auth/current-admin.decorator';
+import { CmsRequestUser } from '../../identity/auth/cms-jwt-payload.interface';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 
 /**
@@ -31,44 +32,44 @@ export class NewsController {
   constructor(private readonly newsService: NewsService) {}
 
   @Get()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_READ)
+  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
   findAll(@Query('status') status?: PublishStatus, @Query('category') category?: string) {
     return this.newsService.findAll(status, category);
   }
 
   @Get(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_READ)
+  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.newsService.findOne(id);
   }
 
   @Get(':id/revisions')
-  @RequireWebsitePermission(WebsitePermission.REVISIONS_VIEW)
+  @RequireCmsPermission(WebsitePermission.REVISIONS_VIEW)
   listRevisions(@Param('id', ParseUUIDPipe) id: string) {
     return this.newsService.listRevisions(id);
   }
 
   @Post()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   create(
     @Body() dto: CreateNewsArticleDto,
-    @CurrentWebsiteUser() user: WebsiteRequestUser,
+    @CurrentAdmin() user: CmsRequestUser,
   ) {
-    return this.newsService.create(dto, user.externalUserId);
+    return this.newsService.create(dto, user.id);
   }
 
   @Patch(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateNewsArticleDto,
-    @CurrentWebsiteUser() user: WebsiteRequestUser,
+    @CurrentAdmin() user: CmsRequestUser,
   ) {
-    return this.newsService.update(id, dto, user.externalUserId);
+    return this.newsService.update(id, dto, user.id);
   }
 
   @Patch(':id/status')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_PUBLISH)
+  @RequireCmsPermission(WebsitePermission.CONTENT_PUBLISH)
   updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateNewsArticleStatusDto,
@@ -81,7 +82,7 @@ export class NewsController {
   // the same permission as status changes — deciding *when* something
   // goes live is a publishing decision, not a content-editing one.
   @Patch(':id/schedule')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_PUBLISH)
+  @RequireCmsPermission(WebsitePermission.CONTENT_PUBLISH)
   schedule(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: ScheduleNewsArticleDto,
@@ -90,17 +91,17 @@ export class NewsController {
   }
 
   @Post(':id/revisions/:versionNumber/restore')
-  @RequireWebsitePermission(WebsitePermission.REVISIONS_RESTORE)
+  @RequireCmsPermission(WebsitePermission.REVISIONS_RESTORE)
   restoreRevision(
     @Param('id', ParseUUIDPipe) id: string,
     @Param('versionNumber', ParseIntPipe) versionNumber: number,
-    @CurrentWebsiteUser() user: WebsiteRequestUser,
+    @CurrentAdmin() user: CmsRequestUser,
   ) {
-    return this.newsService.restoreRevision(id, versionNumber, user.externalUserId);
+    return this.newsService.restoreRevision(id, versionNumber, user.id);
   }
 
   @Delete(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.newsService.remove(id);
   }

@@ -3,6 +3,7 @@ import {
   Badge,
   Card,
   CardContent,
+  Link,
   Stack,
   Text,
 } from "@/shared/design-system/components";
@@ -37,6 +38,11 @@ export interface TeacherCardProps {
  * hover lift as `GalleryCard`/`NewsCard`/`CampusCard`. Once
  * `teacher.image.src` is populated by real data, passing it as the
  * `Avatar`'s `src` is a change contained entirely to this file.
+ *
+ * The "جزئیات بیشتر" link navigates to `TeacherDetailPage`
+ * (`/teachers/:slug`, via `teacher.slug`) — the same "card links to
+ * its own detail route" convention `CampusCard`/`EventCard`/`NewsCard`
+ * now use.
  */
 export function TeacherCard({ teacher }: TeacherCardProps) {
   return (
@@ -82,6 +88,20 @@ export function TeacherCard({ teacher }: TeacherCardProps) {
               </Badge>
             ))}
           </Stack>
+
+          <Link
+            href={`/teachers/${teacher.slug}`}
+            variant="subtle"
+            className="group/link inline-flex w-fit items-center gap-1 self-center text-brand-navy"
+          >
+            جزئیات بیشتر
+            <span
+              aria-hidden="true"
+              className="transition-transform duration-200 group-hover/link:-translate-x-0.5 rtl:group-hover/link:translate-x-0.5"
+            >
+              ‹
+            </span>
+          </Link>
         </Stack>
       </CardContent>
     </Card>

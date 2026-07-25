@@ -10,7 +10,7 @@ import { MediaModule } from '../../core/media/media.module';
 import { SeoModule } from '../../core/seo/seo.module';
 import { RedisModule } from '../../core/redis/redis.module';
 import { RevisionsModule } from '../../core/revisions/revisions.module';
-import { WebsiteAuthModule } from '../../auth/auth.module';
+import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
 
 /**
  * Kernel pieces used: site scoping, ordering (drag-and-drop `position`
@@ -32,7 +32,7 @@ import { WebsiteAuthModule } from '../../auth/auth.module';
     SeoModule,
     RevisionsModule,
     RedisModule,
-    WebsiteAuthModule,
+    CmsAuthModule,
   ],
   providers: [CampusesService],
   controllers: [CampusesController],

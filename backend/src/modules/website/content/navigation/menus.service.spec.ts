@@ -6,6 +6,7 @@ describe('MenusService', () => {
   let menuRepo: any;
   let menuItemRepo: any;
   let siteService: any;
+  let redis: any;
   let service: MenusService;
 
   beforeEach(() => {
@@ -21,7 +22,8 @@ describe('MenusService', () => {
     };
     menuItemRepo = {};
     siteService = { getDefaultSiteId: jest.fn().mockReturnValue(siteId) };
-    service = new MenusService(menuRepo, menuItemRepo, siteService);
+    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
+    service = new MenusService(menuRepo, menuItemRepo, siteService, redis);
   });
 
   describe('create', () => {

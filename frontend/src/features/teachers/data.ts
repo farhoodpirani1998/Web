@@ -14,6 +14,7 @@ import type { Teacher } from "./types";
 export const teachers: readonly Teacher[] = [
   {
     id: "hosseini",
+    slug: "hosseini",
     name: "دکتر حسینی",
     subject: "دبیر ریاضی",
     bio: "متن نمونه معرفی کوتاه برای دبیر ریاضی و سابقه تدریس ایشان.",
@@ -22,6 +23,7 @@ export const teachers: readonly Teacher[] = [
   },
   {
     id: "ahmadi",
+    slug: "ahmadi",
     name: "خانم احمدی",
     subject: "دبیر ادبیات فارسی",
     bio: "متن نمونه معرفی کوتاه برای دبیر ادبیات فارسی و سابقه تدریس ایشان.",
@@ -30,6 +32,7 @@ export const teachers: readonly Teacher[] = [
   },
   {
     id: "karimi",
+    slug: "karimi",
     name: "آقای کریمی",
     subject: "دبیر فیزیک",
     bio: "متن نمونه معرفی کوتاه برای دبیر فیزیک و سابقه تدریس ایشان.",
@@ -38,6 +41,7 @@ export const teachers: readonly Teacher[] = [
   },
   {
     id: "rezaei",
+    slug: "rezaei",
     name: "خانم رضایی",
     subject: "دبیر زبان انگلیسی",
     bio: "متن نمونه معرفی کوتاه برای دبیر زبان انگلیسی و سابقه تدریس ایشان.",

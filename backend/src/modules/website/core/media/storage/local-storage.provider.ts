@@ -36,4 +36,17 @@ export class LocalStorageProvider implements StorageProvider {
   getUrl(storageKey: string): string {
     return `/uploads/${storageKey}`;
   }
+
+  /**
+   * Writes and immediately removes a small marker file in the base
+   * directory. `fs.access(..., W_OK)` alone can pass on some filesystems
+   * even when writes actually fail (e.g. read-only mounts misreporting
+   * permissions), so a real write is the more reliable check here.
+   */
+  async checkHealth(): Promise<void> {
+    await fs.mkdir(this.basePath, { recursive: true });
+    const marker = join(this.basePath, `.health-check-${randomUUID()}`);
+    await fs.writeFile(marker, '');
+    await fs.unlink(marker);
+  }
 }

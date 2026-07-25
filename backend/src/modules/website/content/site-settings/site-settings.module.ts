@@ -11,7 +11,7 @@ import { MediaModule } from '../../core/media/media.module';
 import { OrderingModule } from '../../core/ordering/ordering.module';
 import { RedisModule } from '../../core/redis/redis.module';
 import { EventsModule } from '../../core/events/events.module';
-import { WebsiteAuthModule } from '../../auth/auth.module';
+import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
 
 /**
  * Bundles Site Settings (General/Contact/Social/SEO/Feature Flags) and
@@ -39,7 +39,7 @@ import { WebsiteAuthModule } from '../../auth/auth.module';
     OrderingModule,
     EventsModule,
     RedisModule,
-    WebsiteAuthModule,
+    CmsAuthModule,
   ],
   providers: [SiteSettingsService, PortalLinksService],
   controllers: [SiteSettingsController, PortalLinksController],

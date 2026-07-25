@@ -1,5 +1,21 @@
 import { PageLayout, Stack } from "@/shared/design-system/components";
+import { Seo } from "@/shared/seo";
 import { Hero, CampusList, CampusDetails, FAQ } from "@/features/campuses";
+
+/**
+ * Static (frontend-hardcoded, not backend-resolved) SEO for this list
+ * page — no `useCampuses()`-style query exists yet (see below), so
+ * unlike `AboutPage`/`HomePage`'s `seo`/`structuredData` from their
+ * own public-api response, this page builds its own
+ * `PublicSeoDto`-shaped object and passes it to the same shared
+ * `<Seo />` (`@/shared/seo`, §21) directly.
+ */
+const CAMPUSES_SEO = {
+  title: "پردیس‌های آموزشی",
+  description: "پردیس‌های آموزشی مجموعه و امکانات هر یک را ببینید.",
+  canonicalUrl: `${window.location.origin}/campuses`,
+  robots: "index, follow",
+};
 
 /**
  * Static "Campuses" page.
@@ -43,6 +59,7 @@ import { Hero, CampusList, CampusDetails, FAQ } from "@/features/campuses";
 export function CampusesPage() {
   return (
     <PageLayout>
+      <Seo seo={CAMPUSES_SEO} />
       <Stack gap="none">
         <Hero />
         <CampusList />

@@ -3,13 +3,11 @@ import { EmptyState, Section } from "@/shared/design-system/components";
 /**
  * Pre-registration "Success" state.
  *
- * Standalone presentation only — this is the visual the page will show
- * in place of `RegistrationForm` *after* real submission logic exists
- * (a future `usePreRegistration()`-style mutation), not something
- * `PreRegistrationPage` conditionally renders today. Per this Sprint's
- * scope (no API, no submission logic, no form state), there is no
- * success/error state to switch on yet, so this component is exported
- * for future wiring but intentionally not composed into the page.
+ * Rendered by `RegistrationForm` in place of the form itself once a
+ * submission to `POST /public/pre-registration` succeeds (see that
+ * file's `isSuccess` state) — no props needed since this component's
+ * copy is static and there is nothing per-submission to surface here
+ * (no confirmation number, no echoed fields).
  *
  * Reuses the existing `EmptyState` composite (§12, §13, §19) rather
  * than introducing a new "result state" primitive — `EmptyState`'s

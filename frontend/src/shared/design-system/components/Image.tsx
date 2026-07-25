@@ -48,11 +48,22 @@ const Image = React.forwardRef<HTMLImageElement, ImageProps>(
       decoding = "async",
       onLoad,
       onError,
+      src,
       ...props
     },
     ref,
   ) => {
     const [status, setStatus] = React.useState<"loading" | "loaded" | "error">("loading");
+
+    // Reset on `src` change: without this, a component instance that
+    // already resolved to "loaded"/"error" for one `src` (e.g. a
+    // fallback image, or a since-corrected CMS URL) would keep that
+    // stale status forever once the prop changes to a new URL — in
+    // the "error" case, the <img> below is never even re-rendered, so
+    // the new src is never attempted at all.
+    React.useEffect(() => {
+      setStatus("loading");
+    }, [src]);
 
     const content = (
       <>
@@ -68,6 +79,7 @@ const Image = React.forwardRef<HTMLImageElement, ImageProps>(
         ) : (
           <img
             ref={ref}
+            src={src}
             loading={loading}
             decoding={decoding}
             className={cn(

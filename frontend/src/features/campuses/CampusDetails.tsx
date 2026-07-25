@@ -60,9 +60,11 @@ export function CampusDetails() {
                     <Text as="span" variant="body" weight="semibold">
                       {campus.name}
                     </Text>
-                    <Text as="span" variant="caption" color="muted">
-                      {campus.area}
-                    </Text>
+                    {campus.area && (
+                      <Text as="span" variant="caption" color="muted">
+                        {campus.area}
+                      </Text>
+                    )}
                   </Stack>
                   <span
                     aria-hidden="true"
@@ -77,27 +79,33 @@ export function CampusDetails() {
                     {campus.detailedDescription}
                   </Text>
 
-                  <Stack direction="row" gap="xs" wrap>
-                    {campus.features.map((feature) => (
-                      <Badge key={feature} variant="outline">
-                        {feature}
-                      </Badge>
-                    ))}
-                  </Stack>
-
-                  <Stack gap="xs">
-                    <Text variant="bodySm">{campus.address}</Text>
-                    <Stack direction="row" gap="sm" wrap>
-                      <Link href={campus.contact.phoneHref} variant="subtle">
-                        {campus.contact.phone}
-                      </Link>
-                      {campus.contact.email && (
-                        <Link href={`mailto:${campus.contact.email}`} variant="subtle">
-                          {campus.contact.email}
-                        </Link>
-                      )}
+                  {campus.features && campus.features.length > 0 && (
+                    <Stack direction="row" gap="xs" wrap>
+                      {campus.features.map((feature) => (
+                        <Badge key={feature} variant="outline">
+                          {feature}
+                        </Badge>
+                      ))}
                     </Stack>
-                  </Stack>
+                  )}
+
+                  {(campus.address || campus.contact.phone || campus.contact.email) && (
+                    <Stack gap="xs">
+                      {campus.address && <Text variant="bodySm">{campus.address}</Text>}
+                      <Stack direction="row" gap="sm" wrap>
+                        {campus.contact.phone && campus.contact.phoneHref && (
+                          <Link href={campus.contact.phoneHref} variant="subtle">
+                            {campus.contact.phone}
+                          </Link>
+                        )}
+                        {campus.contact.email && (
+                          <Link href={`mailto:${campus.contact.email}`} variant="subtle">
+                            {campus.contact.email}
+                          </Link>
+                        )}
+                      </Stack>
+                    </Stack>
+                  )}
                 </Stack>
               </details>
             </Card>

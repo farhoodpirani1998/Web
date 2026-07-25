@@ -7,7 +7,7 @@ import { SiteModule } from '../../core/site/site.module';
 import { OrderingModule } from '../../core/ordering/ordering.module';
 import { PublishingModule } from '../../core/publishing/publishing.module';
 import { MediaModule } from '../../core/media/media.module';
-import { WebsiteAuthModule } from '../../auth/auth.module';
+import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
 
 /**
  * Kernel pieces used: site scoping, ordering, publishing, media
@@ -21,7 +21,7 @@ import { WebsiteAuthModule } from '../../auth/auth.module';
     OrderingModule,
     PublishingModule,
     MediaModule,
-    WebsiteAuthModule,
+    CmsAuthModule,
   ],
   providers: [TestimonialsService],
   controllers: [TestimonialsController],

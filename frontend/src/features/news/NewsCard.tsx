@@ -35,12 +35,10 @@ export interface NewsCardProps {
  * it can also be reused elsewhere later (e.g. a homepage "latest
  * news" section) without duplicating this markup.
  *
- * There is deliberately no per-article route/link here previously
- * (§7 — no generic catch-all "render whatever this slug points to"
- * route); the "ادامه مطلب" link below points at `NewsDetails`'s
- * matching `#news-{id}` anchor on this same page — not a separate
- * per-article route — the same "card links to its own details panel"
- * convention as `CampusCard`'s "جزئیات بیشتر" link.
+ * `NewsDetailPage` now backs a real per-article route (`/news/:slug`,
+ * `@/pages/NewsDetailPage`) — the "ادامه مطلب" link below navigates
+ * there via `item.slug`, replacing the previous in-page
+ * `NewsDetails`-anchor link (`#news-{id}`).
  *
  * Visual refresh: each card now carries a small navy/gold category
  * medallion (an `aria-hidden` glyph picked from `item.category`, the
@@ -103,7 +101,7 @@ export function NewsCard({ item, featured = false }: NewsCardProps) {
               {item.excerpt}
             </Text>
             <Link
-              href={`#news-${item.id}`}
+              href={`/news/${item.slug}`}
               variant="subtle"
               className="group/link inline-flex w-fit items-center gap-1 text-brand-navy"
             >

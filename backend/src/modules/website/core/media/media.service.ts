@@ -22,6 +22,13 @@ import {
   matchesAllowedMimeType,
 } from './media.constants';
 
+/**
+ * `Media` plus how many places currently reference it (see
+ * `MediaService.getUsage`/`usageCounts`) — computed on read, not a
+ * column, so it's always current and never needs a migration to add.
+ */
+export type MediaWithUsageCount = Media & { usageCount: number };
+
 @Injectable()
 export class MediaService {
   constructor(
@@ -88,16 +95,51 @@ export class MediaService {
     return media;
   }
 
-  async findAll(status?: MediaStatus): Promise<Media[]> {
+  async findAll(status?: MediaStatus): Promise<MediaWithUsageCount[]> {
     const siteId = this.siteService.getDefaultSiteId();
-    return this.mediaRepo.find({
+    const media = await this.mediaRepo.find({
       where: { siteId, ...(status ? { status } : {}) },
       order: { createdAt: 'DESC' },
     });
+    if (media.length === 0) return [];
+
+    const counts = await this.usageCounts(media.map((item) => item.id));
+    return media.map((item) => ({ ...item, usageCount: counts.get(item.id) ?? 0 }));
   }
 
   async findOne(id: string): Promise<Media> {
     return this.mediaRepo.findOneByOrFail({ id });
+  }
+
+  /**
+   * Every place a media asset is currently referenced (one row per
+   * `attach`/`detach` pair still standing) — same rows `purge` already
+   * counts to decide whether a delete is allowed, just returned instead
+   * of counted. Ordered newest-first so the most recently attached
+   * usage surfaces first in the admin's usage-details view.
+   */
+  async getUsage(mediaId: string): Promise<MediaUsage[]> {
+    // Confirms the id is a real media row before answering "used
+    // nowhere" — otherwise a typo'd/deleted id would silently return an
+    // empty list instead of a 404.
+    await this.mediaRepo.findOneByOrFail({ id: mediaId });
+    return this.usageRepo.find({
+      where: { mediaId },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  /** `mediaId -> usage row count`, one query for the whole given id list. */
+  private async usageCounts(mediaIds: string[]): Promise<Map<string, number>> {
+    if (mediaIds.length === 0) return new Map();
+    const rows = await this.usageRepo
+      .createQueryBuilder('usage')
+      .select('usage.mediaId', 'mediaId')
+      .addSelect('COUNT(*)', 'count')
+      .where('usage.mediaId IN (:...mediaIds)', { mediaIds })
+      .groupBy('usage.mediaId')
+      .getRawMany<{ mediaId: string; count: string }>();
+    return new Map(rows.map((row) => [row.mediaId, parseInt(row.count, 10)]));
   }
 
   async attach(mediaId: string, entityType: string, entityId: string) {
@@ -125,5 +167,10 @@ export class MediaService {
 
   async archive(mediaId: string): Promise<void> {
     await this.mediaRepo.update({ id: mediaId }, { status: MediaStatus.ARCHIVED });
+  }
+
+  /** Delegates to whichever StorageProvider is configured. Used by /health. */
+  async checkStorageHealth(): Promise<void> {
+    await this.storage.checkHealth();
   }
 }

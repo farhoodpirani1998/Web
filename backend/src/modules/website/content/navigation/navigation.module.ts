@@ -9,7 +9,7 @@ import { MenuItemsController } from './menu-items.controller';
 import { SiteModule } from '../../core/site/site.module';
 import { OrderingModule } from '../../core/ordering/ordering.module';
 import { RedisModule } from '../../core/redis/redis.module';
-import { WebsiteAuthModule } from '../../auth/auth.module';
+import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
 import { PagesModule } from '../pages/pages.module';
 
 /**
@@ -31,7 +31,7 @@ import { PagesModule } from '../pages/pages.module';
     SiteModule,
     OrderingModule,
     RedisModule,
-    WebsiteAuthModule,
+    CmsAuthModule,
     PagesModule,
   ],
   providers: [MenusService, MenuItemsService],

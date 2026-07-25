@@ -26,10 +26,10 @@ const ErrorState = React.forwardRef<HTMLDivElement, ErrorStateProps>(
   (
     {
       icon,
-      title = "Something went wrong",
-      description = "We couldn't load this content. Please try again.",
+      title = "مشکلی پیش آمد",
+      description = "بارگذاری این محتوا با مشکل مواجه شد. لطفاً دوباره تلاش کنید.",
       onRetry,
-      retryLabel = "Try again",
+      retryLabel = "تلاش مجدد",
       className,
       ...props
     },

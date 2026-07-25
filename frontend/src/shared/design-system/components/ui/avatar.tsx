@@ -40,6 +40,16 @@ export interface AvatarProps
 const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>(
   ({ className, size, src, alt, fallback, ...props }, ref) => {
     const [imageFailed, setImageFailed] = React.useState(false);
+
+    // Reset on `src` change — otherwise once one `src` fails (e.g. the
+    // brand logo while data is still loading), a later, valid `src`
+    // (e.g. the real CMS-provided logo once the query resolves) would
+    // never be attempted; the component would be stuck showing the
+    // initials fallback forever.
+    React.useEffect(() => {
+      setImageFailed(false);
+    }, [src]);
+
     const showImage = Boolean(src) && !imageFailed;
 
     return (

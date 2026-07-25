@@ -6,7 +6,7 @@ import { CtaController } from './cta.controller';
 import { SiteModule } from '../../core/site/site.module';
 import { PublishingModule } from '../../core/publishing/publishing.module';
 import { MediaModule } from '../../core/media/media.module';
-import { WebsiteAuthModule } from '../../auth/auth.module';
+import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
 
 /**
  * Kernel pieces used: site scoping, publishing (draft/published/
@@ -20,7 +20,7 @@ import { WebsiteAuthModule } from '../../auth/auth.module';
     SiteModule,
     PublishingModule,
     MediaModule,
-    WebsiteAuthModule,
+    CmsAuthModule,
   ],
   providers: [CtaService],
   controllers: [CtaController],

@@ -21,6 +21,7 @@ import { SiteModule } from '../core/site/site.module';
 import { SeoModule } from '../core/seo/seo.module';
 import { RedisModule } from '../core/redis/redis.module';
 import { SiteSettingsModule } from '../content/site-settings/site-settings.module';
+import { PreRegistrationsModule } from '../content/pre-registrations/pre-registrations.module';
 import { PublicVisibilityService } from './common/public-visibility.service';
 import { PublicMediaService } from './common/public-media.service';
 import { PublicSitemapController } from './sitemap/public-sitemap.controller';
@@ -42,6 +43,7 @@ import {
   PublicSiteSettingsController,
   PublicPortalLinksController,
 } from './site-settings/public-site-settings.controller';
+import { PublicPreRegistrationController } from './pre-registration/public-pre-registration.controller';
 
 /**
  * Phase 6 — the public, unauthenticated read layer (see app.module.ts's
@@ -67,6 +69,17 @@ import {
  * common/public-cache.constants.ts and core/redis/redis.service.ts) is
  * likewise handled per-controller, not here — RedisModule is imported
  * so every controller in this module can inject RedisService.
+ *
+ * `PublicPreRegistrationController` (Pre-Registration sprint) is this
+ * layer's first write: a `POST`, not a cached read, so it carries
+ * neither `Cache-Control` nor Redis read-through, and uses
+ * `PUBLIC_FORM_THROTTLE` instead of `PUBLIC_THROTTLE`. It's also the
+ * only controller here that delegates to a content module's own
+ * service (`PreRegistrationsService`, imported via
+ * `PreRegistrationsModule`) rather than reading through a local
+ * repository — a plain insert has none of the public-shape mismatch
+ * (status/publishAt gating, slug lookups) that keeps every read
+ * endpoint above on its own repository instead.
  */
 @Module({
   imports: [
@@ -93,6 +106,7 @@ import {
     SeoModule,
     RedisModule,
     SiteSettingsModule,
+    PreRegistrationsModule,
   ],
   providers: [PublicVisibilityService, PublicMediaService],
   controllers: [
@@ -113,6 +127,7 @@ import {
     PublicNavigationController,
     PublicSiteSettingsController,
     PublicPortalLinksController,
+    PublicPreRegistrationController,
   ],
 })
 export class PublicApiModule {}

@@ -5,7 +5,10 @@ import {
   HttpException,
   HttpStatus,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
+import { EntityNotFoundError } from 'typeorm';
 import type { Request, Response } from 'express';
 
 /**
@@ -23,6 +26,19 @@ import type { Request, Response } from 'express';
  * happens to *unexpected* errors (a bug, a TypeORM/driver failure, an
  * uncaught library error): those are always logged in full server-side,
  * and the client only ever gets a fixed, information-free 500 body.
+ *
+ * One specific "unexpected" error is deliberately special-cased before
+ * that generic 500 handling: TypeORM's `EntityNotFoundError`, thrown by
+ * every module's `findOneByOrFail`/`findOneOrFail` "get by id" call
+ * (see the Sprint 3.3 audit, §4 — untested at the unit level, since
+ * every `.spec.ts` mocks the repository instead of exercising the real
+ * TypeORM error path). Left alone it falls through to the generic
+ * branch below and becomes a 500 — the wrong result for what is, from
+ * the client's point of view, an ordinary 404 (bad id, stale link, a
+ * row deleted in another tab). It's translated here, once, rather than
+ * having every service catch it individually, so the fix is identical
+ * for all current and future modules without relying on each one
+ * remembering to do it.
  */
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -34,8 +50,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    const isHttpException = exception instanceof HttpException;
-    const status = isHttpException
+    // Translate before anything else inspects `exception`'s type: once
+    // translated this behaves exactly like any other HttpException for
+    // the rest of this method (logging threshold, response shape), no
+    // separate branch needed below.
+    if (exception instanceof EntityNotFoundError) {
+      exception = new NotFoundException('The requested resource was not found');
+    }
+
+    const status = exception instanceof HttpException
       ? exception.getStatus()
       : HttpStatus.INTERNAL_SERVER_ERROR;
     const error = exception instanceof Error ? exception : new Error(String(exception));
@@ -47,9 +70,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         `${request.method} ${request.url} -> ${status}: ${error.message}`,
         error.stack,
       );
+      // Sentry.captureException is always safe to call even when
+      // Sentry.init() was never run (SENTRY_DSN unset) — it's a no-op
+      // in that case rather than throwing.
+      Sentry.captureException(error);
     }
 
-    if (isHttpException) {
+    if (exception instanceof HttpException) {
       const body = exception.getResponse();
       response
         .status(status)

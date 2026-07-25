@@ -10,6 +10,7 @@ describe('MenuItemsService', () => {
   let ordering: any;
   let menusService: any;
   let pagesService: any;
+  let redis: any;
   let service: MenuItemsService;
 
   beforeEach(() => {
@@ -34,12 +35,14 @@ describe('MenuItemsService', () => {
     ordering = { reorder: jest.fn() };
     menusService = { findOne: jest.fn().mockResolvedValue({ id: menuId, siteId }) };
     pagesService = { findOne: jest.fn().mockResolvedValue({ id: 'page-1', siteId }) };
+    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
     service = new MenuItemsService(
       menuItemRepo,
       siteService,
       ordering,
       menusService,
       pagesService,
+      redis,
     );
   });
 

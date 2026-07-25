@@ -20,10 +20,19 @@ function requireEnv(name: keyof ImportMetaEnv, fallback?: string): string {
 }
 
 export const env = {
-  /** Base URL of the Website Public API (never the admin API — §14, §30). */
+  /**
+   * Base URL of the Website Public API (never the admin API — §14, §30).
+   *
+   * No `/api` segment: the backend sets no global route prefix, so every
+   * public-api controller is mounted directly at `/public/...` (see
+   * `backend/src/modules/website/public-api/**`, e.g. `@Controller('public/statistics')`).
+   * The port matches the backend's own default (`PORT=3100` in its
+   * `.env.example`/dev `.env`) — keep this fallback in sync with that if
+   * the backend's default port ever changes.
+   */
   publicApiBaseUrl: requireEnv(
     "VITE_PUBLIC_API_BASE_URL",
-    "http://localhost:3000/api/public",
+    "http://localhost:3100/public",
   ),
 
   /**

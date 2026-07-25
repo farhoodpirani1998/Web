@@ -7,7 +7,7 @@ import { MediaService } from './media.service';
 import { MediaController } from './media.controller';
 import { SiteModule } from '../site/site.module';
 import { EventsModule } from '../events/events.module';
-import { WebsiteAuthModule } from '../../auth/auth.module';
+import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
 import { STORAGE_PROVIDER } from './storage/storage.interface';
 import { LocalStorageProvider } from './storage/local-storage.provider';
 import { S3CompatibleStorageProvider } from './storage/s3-compatible-storage.provider';
@@ -30,7 +30,7 @@ const storageProviderFactory = {
     TypeOrmModule.forFeature([Media, MediaUsage]),
     SiteModule,
     EventsModule,
-    WebsiteAuthModule,
+    CmsAuthModule,
   ],
   controllers: [MediaController],
   providers: [MediaService, storageProviderFactory],

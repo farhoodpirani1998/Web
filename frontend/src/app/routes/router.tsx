@@ -21,6 +21,9 @@ const SchoolsPage = lazy(() =>
 const NewsPage = lazy(() =>
   import("@/pages/NewsPage").then((m) => ({ default: m.NewsPage })),
 );
+const NewsDetailPage = lazy(() =>
+  import("@/pages/NewsDetailPage").then((m) => ({ default: m.NewsDetailPage })),
+);
 const GalleryPage = lazy(() =>
   import("@/pages/GalleryPage").then((m) => ({ default: m.GalleryPage })),
 );
@@ -36,11 +39,20 @@ const PreRegistrationPage = lazy(() =>
 const CampusesPage = lazy(() =>
   import("@/pages/CampusesPage").then((m) => ({ default: m.CampusesPage })),
 );
+const CampusDetailPage = lazy(() =>
+  import("@/pages/CampusDetailPage").then((m) => ({ default: m.CampusDetailPage })),
+);
 const TeachersPage = lazy(() =>
   import("@/pages/TeachersPage").then((m) => ({ default: m.TeachersPage })),
 );
+const TeacherDetailPage = lazy(() =>
+  import("@/pages/TeacherDetailPage").then((m) => ({ default: m.TeacherDetailPage })),
+);
 const EventsPage = lazy(() =>
   import("@/pages/EventsPage").then((m) => ({ default: m.EventsPage })),
+);
+const EventDetailPage = lazy(() =>
+  import("@/pages/EventDetailPage").then((m) => ({ default: m.EventDetailPage })),
 );
 const AdmissionsPage = lazy(() =>
   import("@/pages/AdmissionsPage").then((m) => ({ default: m.AdmissionsPage })),
@@ -52,6 +64,9 @@ const AcademicCalendarPage = lazy(() =>
 );
 const NotFoundPage = lazy(() =>
   import("@/pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage })),
+);
+const StaticPageDetailPage = lazy(() =>
+  import("@/pages/StaticPageDetailPage").then((m) => ({ default: m.StaticPageDetailPage })),
 );
 
 function withSuspense(element: ReactNode) {
@@ -92,6 +107,10 @@ export const router = createBrowserRouter([
         element: withSuspense(<NewsPage />),
       },
       {
+        path: "news/:slug",
+        element: withSuspense(<NewsDetailPage />),
+      },
+      {
         path: "gallery",
         element: withSuspense(<GalleryPage />),
       },
@@ -116,12 +135,24 @@ export const router = createBrowserRouter([
         element: withSuspense(<CampusesPage />),
       },
       {
+        path: "campuses/:slug",
+        element: withSuspense(<CampusDetailPage />),
+      },
+      {
         path: "teachers",
         element: withSuspense(<TeachersPage />),
       },
       {
+        path: "teachers/:slug",
+        element: withSuspense(<TeacherDetailPage />),
+      },
+      {
         path: "events",
         element: withSuspense(<EventsPage />),
+      },
+      {
+        path: "events/:slug",
+        element: withSuspense(<EventDetailPage />),
       },
       {
         path: "admissions",
@@ -130,6 +161,10 @@ export const router = createBrowserRouter([
       {
         path: "academic-calendar",
         element: withSuspense(<AcademicCalendarPage />),
+      },
+      {
+        path: "pages/:slug",
+        element: withSuspense(<StaticPageDetailPage />),
       },
       {
         path: "*",

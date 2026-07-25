@@ -14,7 +14,7 @@ import { CreateStatisticDto } from './dto/create-statistic.dto';
 import { UpdateStatisticDto } from './dto/update-statistic.dto';
 import { UpdateStatisticStatusDto } from './dto/update-statistic-status.dto';
 import { ReorderStatisticsDto } from './dto/reorder-statistics.dto';
-import { RequireWebsitePermission } from '../../auth/website-permission.decorator';
+import { RequireCmsPermission } from '../../identity/auth/cms-permission.decorator';
 import { WebsitePermission } from '../../auth/website-role.enum';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 
@@ -32,37 +32,37 @@ export class StatisticsController {
   constructor(private readonly statisticsService: StatisticsService) {}
 
   @Get()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_READ)
+  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
   findAll(@Query('status') status?: PublishStatus) {
     return this.statisticsService.findAll(status);
   }
 
   @Get(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_READ)
+  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.statisticsService.findOne(id);
   }
 
   @Post()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   create(@Body() dto: CreateStatisticDto) {
     return this.statisticsService.create(dto);
   }
 
   @Patch('reorder')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   reorder(@Body() dto: ReorderStatisticsDto) {
     return this.statisticsService.reorder(dto.orderedIds);
   }
 
   @Patch(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateStatisticDto) {
     return this.statisticsService.update(id, dto);
   }
 
   @Patch(':id/status')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_PUBLISH)
+  @RequireCmsPermission(WebsitePermission.CONTENT_PUBLISH)
   updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateStatisticStatusDto,
@@ -71,7 +71,7 @@ export class StatisticsController {
   }
 
   @Delete(':id')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.statisticsService.remove(id);
   }

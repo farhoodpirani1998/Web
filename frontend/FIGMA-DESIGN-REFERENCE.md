@@ -5,7 +5,7 @@
 
 > **پروژه:** Website Management System (ماژول NestJS جدا از TuitionSchool، معماری مستقل).
 > **دامنه‌ی این سند:** فقط فرانت — Homepage تک‌صفحه‌ای که در فیگما export شده (`src/app/App.tsx`، ۱۰۶۶ خط، یک فایل).
-> **مسیر معادل در پروژه‌ی واقعی:** `frontend/frontend/` (React + Vite + TS + Tailwind + Clean-ish architecture، feature modules).
+> **مسیر معادل در پروژه‌ی واقعی:** `frontend/` (React + Vite + TS + Tailwind + Clean-ish architecture، feature modules).
 
 ---
 

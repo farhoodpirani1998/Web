@@ -4,6 +4,7 @@ import {
   S3Client,
   PutObjectCommand,
   DeleteObjectCommand,
+  HeadBucketCommand,
 } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 import { StorageProvider, UploadResult } from './storage.interface';
@@ -59,5 +60,14 @@ export class S3CompatibleStorageProvider implements StorageProvider {
 
   getUrl(storageKey: string): string {
     return `${this.publicBaseUrl}/${storageKey}`;
+  }
+
+  /**
+   * HeadBucket confirms the bucket exists and the configured credentials
+   * can reach it, without reading or writing any object — cheap enough
+   * to call on every /health request.
+   */
+  async checkHealth(): Promise<void> {
+    await this.client.send(new HeadBucketCommand({ Bucket: this.bucket }));
   }
 }

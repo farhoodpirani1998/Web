@@ -2,7 +2,7 @@ import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { CtaService } from './cta.service';
 import { UpdateCtaDto } from './dto/update-cta.dto';
 import { UpdateCtaStatusDto } from './dto/update-cta-status.dto';
-import { RequireWebsitePermission } from '../../auth/website-permission.decorator';
+import { RequireCmsPermission } from '../../identity/auth/cms-permission.decorator';
 import { WebsitePermission } from '../../auth/website-role.enum';
 
 /**
@@ -19,19 +19,19 @@ export class CtaController {
   constructor(private readonly ctaService: CtaService) {}
 
   @Get()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_READ)
+  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
   get() {
     return this.ctaService.get();
   }
 
   @Patch()
-  @RequireWebsitePermission(WebsitePermission.CONTENT_WRITE)
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   update(@Body() dto: UpdateCtaDto) {
     return this.ctaService.update(dto);
   }
 
   @Patch('status')
-  @RequireWebsitePermission(WebsitePermission.CONTENT_PUBLISH)
+  @RequireCmsPermission(WebsitePermission.CONTENT_PUBLISH)
   updateStatus(@Body() dto: UpdateCtaStatusDto) {
     return this.ctaService.updateStatus(dto.status);
   }

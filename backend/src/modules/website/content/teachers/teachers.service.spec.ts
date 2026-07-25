@@ -11,6 +11,7 @@ describe('TeachersService', () => {
   let media: any;
   let sitemap: any;
   let revisions: any;
+  let redis: any;
   let service: TeachersService;
 
   beforeEach(() => {
@@ -40,6 +41,7 @@ describe('TeachersService', () => {
       list: jest.fn(),
       getVersion: jest.fn(),
     };
+    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
     service = new TeachersService(
       repo,
       siteService,
@@ -48,6 +50,7 @@ describe('TeachersService', () => {
       media,
       sitemap,
       revisions,
+      redis,
     );
   });
 

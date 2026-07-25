@@ -1,5 +1,21 @@
 import { PageLayout, Stack } from "@/shared/design-system/components";
+import { Seo } from "@/shared/seo";
 import { NewsHero, NewsList, NewsDetails, FAQ } from "@/features/news";
+
+/**
+ * Static (frontend-hardcoded, not backend-resolved) SEO for this list
+ * page — no `useNews()`-style query exists yet (see below), so unlike
+ * `AboutPage`/`HomePage`'s `seo`/`structuredData` from their own
+ * public-api response, this page builds its own `PublicSeoDto`-shaped
+ * object and passes it to the same shared `<Seo />` (`@/shared/seo`,
+ * §21) directly.
+ */
+const NEWS_SEO = {
+  title: "اخبار و اطلاعیه‌ها",
+  description: "آخرین اخبار، اطلاعیه‌ها و دستاوردهای مجموعه را دنبال کنید.",
+  canonicalUrl: `${window.location.origin}/news`,
+  robots: "index, follow",
+};
 
 /**
  * Static "News" page.
@@ -47,6 +63,7 @@ import { NewsHero, NewsList, NewsDetails, FAQ } from "@/features/news";
 export function NewsPage() {
   return (
     <PageLayout>
+      <Seo seo={NEWS_SEO} />
       <Stack gap="none">
         <NewsHero />
         <NewsList />

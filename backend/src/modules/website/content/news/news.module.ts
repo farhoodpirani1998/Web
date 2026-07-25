@@ -10,7 +10,7 @@ import { SeoModule } from '../../core/seo/seo.module';
 import { RedisModule } from '../../core/redis/redis.module';
 import { RevisionsModule } from '../../core/revisions/revisions.module';
 import { SiteSettingsModule } from '../site-settings/site-settings.module';
-import { WebsiteAuthModule } from '../../auth/auth.module';
+import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
 
 /**
  * Kernel pieces used: site scoping, publishing, media (featured image
@@ -32,7 +32,7 @@ import { WebsiteAuthModule } from '../../auth/auth.module';
     RevisionsModule,
     SiteSettingsModule,
     RedisModule,
-    WebsiteAuthModule,
+    CmsAuthModule,
   ],
   providers: [NewsService],
   controllers: [NewsController],

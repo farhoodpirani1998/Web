@@ -7,6 +7,7 @@ describe('PortalLinksService', () => {
   let siteService: any;
   let ordering: any;
   let events: any;
+  let redis: any;
   let service: PortalLinksService;
 
   beforeEach(() => {
@@ -26,7 +27,8 @@ describe('PortalLinksService', () => {
     siteService = { getDefaultSiteId: jest.fn().mockReturnValue(siteId) };
     ordering = { reorder: jest.fn() };
     events = { emit: jest.fn() };
-    service = new PortalLinksService(repo, siteService, ordering, events);
+    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
+    service = new PortalLinksService(repo, siteService, ordering, events, redis);
   });
 
   describe('create', () => {

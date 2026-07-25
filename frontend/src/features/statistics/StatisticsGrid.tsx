@@ -1,4 +1,5 @@
 import { Card, Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { toPersianDigits } from "@/shared/utils/toPersianDigits";
 import { useStatistics } from "./useStatistics";
 import type { StatisticItem } from "./types";
 
@@ -14,7 +15,16 @@ import type { StatisticItem } from "./types";
  * module, §4, §8): lays out `data` when the query has resolved with
  * at least one item, and falls back to the local `fallbackStats`
  * literal while the query is loading, has errored, or the CMS has
- * nothing published yet.
+ * nothing published yet — never both at once, so a published CMS
+ * dataset fully replaces the placeholder rather than merging with it.
+ *
+ * `StatisticItem` (real API shape: translatable `label`, numeric
+ * `value` + optional `suffix`) and `fallbackStats` (a pre-formatted
+ * Persian-digit literal) are normalized into the same `DisplayStat`
+ * shape before rendering, so the JSX below — and the visual design it
+ * produces — stays identical regardless of which source is active.
+ * `label.fa` is read directly (not `.en`) since the site ships
+ * Persian-only for now (`@/i18n/locale.ts`'s Phase 1 scope).
  *
  * Accessible by construction: each tile's figure and label are both
  * rendered as plain visible text (no information conveyed by color or
@@ -30,7 +40,13 @@ import type { StatisticItem } from "./types";
  * still the same `Card` composition, just restyled.
  */
 
-const fallbackStats: readonly StatisticItem[] = [
+interface DisplayStat {
+  id: string;
+  value: string;
+  label: string;
+}
+
+const fallbackStats: readonly DisplayStat[] = [
   { id: "founded", value: "۱۳۷۸", label: "سال تأسیس" },
   { id: "students", value: "+۱۲٬۰۰۰", label: "دانش‌آموز و دانشجو" },
   { id: "campuses", value: "۶", label: "شعبه فعال" },
@@ -41,9 +57,18 @@ const fallbackStats: readonly StatisticItem[] = [
   { id: "top-rank", value: "+۲۰۰", label: "رتبه برتر کنکور" },
 ];
 
+function toDisplayStat(stat: StatisticItem): DisplayStat {
+  return {
+    id: stat.id,
+    value: `${toPersianDigits(stat.value)}${stat.suffix ?? ""}`,
+    label: stat.label.fa,
+  };
+}
+
 export function StatisticsGrid() {
   const { data } = useStatistics();
-  const stats = data && data.length > 0 ? data : fallbackStats;
+  const stats: readonly DisplayStat[] =
+    data && data.length > 0 ? data.map(toDisplayStat) : fallbackStats;
 
   return (
     <Section spacing="lg" tone="muted" aria-labelledby="statistics-grid-heading">

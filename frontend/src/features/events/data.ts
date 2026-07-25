@@ -14,6 +14,7 @@ import type { Event } from "./types";
 export const events: readonly Event[] = [
   {
     id: "family-day",
+    slug: "family-day",
     title: "روز خانواده",
     description: "متن نمونه معرفی کوتاه برای رویداد روز خانواده.",
     detailedDescription:
@@ -27,6 +28,7 @@ export const events: readonly Event[] = [
   },
   {
     id: "graduation-ceremony",
+    slug: "graduation-ceremony",
     title: "جشن فارغ‌التحصیلی",
     description: "متن نمونه معرفی کوتاه برای جشن فارغ‌التحصیلی دانش‌آموزان.",
     detailedDescription:
@@ -40,6 +42,7 @@ export const events: readonly Event[] = [
   },
   {
     id: "parent-workshop",
+    slug: "parent-workshop",
     title: "کارگاه آموزشی والدین",
     description: "متن نمونه معرفی کوتاه برای کارگاه آموزشی ویژه والدین.",
     detailedDescription:
@@ -53,6 +56,7 @@ export const events: readonly Event[] = [
   },
   {
     id: "science-museum-visit",
+    slug: "science-museum-visit",
     title: "بازدید علمی از موزه ملی",
     description: "متن نمونه معرفی کوتاه برای بازدید علمی دانش‌آموزان از موزه ملی.",
     detailedDescription:

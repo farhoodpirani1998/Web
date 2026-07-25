@@ -1,4 +1,5 @@
 import { PageLayout, Separator, Stack } from "@/shared/design-system/components";
+import { Seo } from "@/shared/seo";
 import {
   AboutHero,
   AboutStats,
@@ -7,6 +8,7 @@ import {
   AboutTimeline,
   AboutTeam,
   AboutFAQ,
+  useAboutPage,
 } from "@/features/about";
 
 /**
@@ -15,10 +17,12 @@ import {
  * This is a fixed singular page (Website Frontend Architecture §20
  * "Routing Strategy"), not a slug-addressed static page — its route is
  * `/about`, not `/pages/:slug`. A backend-owned Static Pages / About
- * content module is a documented future data source (Product Rules
- * §content modules), but no such endpoint exists on the Public API yet,
- * so per the architecture's working rules this page renders
- * frontend-owned placeholder copy only and fetches nothing.
+ * content module now backs `GET /public/about` (`@/features/about`'s
+ * `useAboutPage`); most sections still render frontend-owned
+ * placeholder copy per-field (see `@/features/about/api.ts`'s
+ * `toAboutPageContent`), but the page itself renders the shared
+ * `<Seo />` component (`@/shared/seo`, §21) off that same query's
+ * `seo`/`structuredData` fields.
  *
  * Each section (Hero, Stats, Story, Values, Timeline, Team, FAQ) is
  * now an extracted feature module (`@/features/about`), following the
@@ -42,8 +46,11 @@ import {
  * (`index.html`) as well as a future `ltr` locale.
  */
 export function AboutPage() {
+  const { data } = useAboutPage();
+
   return (
     <PageLayout>
+      <Seo seo={data?.seo} structuredData={data?.structuredData} />
       <Stack gap="none">
         <AboutHero />
         <AboutStats />

@@ -35,7 +35,10 @@ const CTA_SECONDARY_PLACEHOLDER = { label: "پذیرش و ثبت‌نام", href
 export function CTA() {
   const { data } = useCTA();
 
-  const eyebrow = data?.eyebrow ?? CTA_EYEBROW_PLACEHOLDER;
+  // The backend's CTA module has no eyebrow field (see ./types.ts) —
+  // that copy is this component's own static placeholder, not CMS
+  // content, so it's never read from `data`.
+  const eyebrow = CTA_EYEBROW_PLACEHOLDER;
   const title = data?.title ?? CTA_TITLE_PLACEHOLDER;
   const description = data?.description ?? CTA_DESCRIPTION_PLACEHOLDER;
   const primaryCta = data?.primaryCta ?? CTA_PRIMARY_PLACEHOLDER;

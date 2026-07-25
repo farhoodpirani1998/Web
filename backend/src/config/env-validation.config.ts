@@ -6,8 +6,10 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  Matches,
   Max,
   Min,
+  MinLength,
   ValidateIf,
   validateSync,
 } from 'class-validator';
@@ -81,6 +83,105 @@ class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   SMS_JWT_ISSUER!: string;
+
+  // --- CMS Admin local identity (see modules/website/identity/auth/) ---
+  // Symmetric (HS256) secret used only to sign/verify CMS Admin access
+  // tokens. Entirely independent from SMS_JWT_PUBLIC_KEY_PATH above:
+  // this backend is the *issuer* here, not a verifier of someone
+  // else's asymmetric keypair, so a shared secret is sufficient and
+  // simpler — there's no second party that needs to verify these
+  // tokens without also being able to mint them. Required, with no
+  // default: unlike DATABASE_SYNCHRONIZE-style "safe to default"
+  // values, a fallback secret here would be a real vulnerability if
+  // ever shipped unchanged.
+  //
+  // @MinLength(32) (Sprint 2.3B hardening): a short secret is brute-
+  // forceable against a captured token's HMAC, defeating the point of
+  // signing at all. 32 chars is a floor, not a target — the .env.example
+  // guidance generates a much longer random value in practice.
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(32)
+  CMS_JWT_SECRET!: string;
+
+  // Embedded as the `iss` claim and checked by CmsAuthGuard. Optional;
+  // falls back to "nhg-cms" when unset — mainly useful to distinguish
+  // environments (e.g. "nhg-cms-staging") if tokens from one should
+  // never be accepted by another.
+  @IsOptional()
+  @IsString()
+  CMS_JWT_ISSUER?: string;
+
+  // Any string accepted by the `jsonwebtoken`/`@nestjs/jwt` `expiresIn`
+  // option — either a plain number of seconds or a number with a unit
+  // suffix (e.g. "15m", "1h", "2d"). Optional; falls back to "15m" —
+  // kept short because CmsAuthGuard never re-checks `isActive` per
+  // request (see its doc comment), so a short expiry is the main
+  // mitigation, alongside `CmsRefreshTokenService`'s reuse detection
+  // (Sprint — Persistent Login), for what would otherwise be a
+  // long-lived stateless credential.
+  //
+  // @Matches (Sprint 2.3B hardening): constrains the *shape* only, so a
+  // typo'd value (e.g. a stray word) fails loudly at startup instead of
+  // reaching `jsonwebtoken` and failing per-request at sign time; it
+  // does not second-guess whether the resulting duration is itself a
+  // good idea.
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d+(ms|s|m|h|d|w|y)?$/, {
+    message:
+      'CMS_JWT_EXPIRES_IN must be a plain number of seconds or a number with a unit suffix (ms/s/m/h/d/w/y), e.g. "15m"',
+  })
+  CMS_JWT_EXPIRES_IN?: string;
+
+  // --- CMS Admin persistent login (see identity/auth/cms-refresh-cookie.util.ts) ---
+  @IsOptional()
+  @IsString()
+  CMS_REFRESH_COOKIE_NAME?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  CMS_REFRESH_TOKEN_EXPIRES_IN_DAYS?: number;
+
+  @IsOptional()
+  @IsIn(['true', 'false'])
+  CMS_REFRESH_COOKIE_SECURE?: string;
+
+  @IsOptional()
+  @IsIn(['lax', 'strict', 'none'])
+  CMS_REFRESH_COOKIE_SAMESITE?: string;
+
+  // --- CMS Admin login throttle (see identity/auth/cms-auth-rate-limit.constants.ts) ---
+  // Sprint 2.3B hardening: a dedicated, tighter override of the global
+  // 'default' throttler applied only to POST /admin/auth/login, on top
+  // of argon2id's own per-attempt cost. Both optional; each falls back
+  // to the hardcoded value documented in that file (5 attempts per
+  // 300s) when unset. Does not affect any other route, including
+  // GET /admin/auth/me, which keeps using THROTTLE_DEFAULT_* above.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_CMS_LOGIN_TTL_MS?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_CMS_LOGIN_LIMIT?: number;
+
+  // --- CMS Admin refresh throttle (see identity/auth/cms-auth-rate-limit.constants.ts) ---
+  // Sprint — Persistent Login: same pattern as THROTTLE_CMS_LOGIN_*
+  // above, applied only to POST /admin/auth/refresh. Both optional;
+  // falls back to 30 attempts per 300s when unset.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_CMS_REFRESH_TTL_MS?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_CMS_REFRESH_LIMIT?: number;
 
   // --- Object storage (see media/media.module.ts + storage providers) ---
   @IsOptional()
@@ -171,9 +272,18 @@ class EnvironmentVariables {
 
   // --- CORS (see main.ts) ---
   // Comma-separated allow-list, e.g. "https://nhg.example,https://admin.nhg.example".
-  // Left unset, main.ts falls back to "*" (today's default, unchanged).
-  @IsOptional()
+  // Left unset outside production, main.ts falls back to reflecting the
+  // caller's Origin header (permissive, fine for local/dev). In
+  // production that fallback would let any origin read authenticated
+  // admin responses, so it's required there — see the @ValidateIf below,
+  // same pattern as DATABASE_SYNCHRONIZE's production-only enforcement
+  // in database-synchronize.config.ts.
+  @ValidateIf((env: EnvironmentVariables) => env.NODE_ENV === NodeEnvironment.Production)
   @IsString()
+  @IsNotEmpty({
+    message:
+      'CORS_ALLOWED_ORIGINS is required when NODE_ENV=production (comma-separated allow-list, e.g. "https://nhg.example,https://admin.nhg.example"). Refusing to start with CORS open to any origin in production.',
+  })
   CORS_ALLOWED_ORIGINS?: string;
 
   // --- Request payload limits (see main.ts) ---
@@ -201,6 +311,24 @@ class EnvironmentVariables {
   @IsOptional()
   @IsString()
   PUBLIC_SITE_URL?: string;
+
+  // --- Error reporting (see main.ts) ---
+  // DSN for the Sentry project to report unexpected (5xx) server errors
+  // to — see GlobalExceptionFilter, which is the only place that calls
+  // Sentry.captureException. Left unset, Sentry.init() in main.ts is
+  // never called: no DSN means no reporting, not a crash, so this stays
+  // fully optional for local/dev environments without a Sentry project.
+  @IsOptional()
+  @IsString()
+  SENTRY_DSN?: string;
+
+  // Tags events with which deployment they came from (e.g.
+  // "production", "staging"). Optional; falls back to NODE_ENV in
+  // main.ts when unset, so it only needs setting explicitly if an
+  // environment wants a label different from its NODE_ENV.
+  @IsOptional()
+  @IsString()
+  SENTRY_ENVIRONMENT?: string;
 
   // --- Redis (see core/redis/redis.module.ts) ---
   // Connection for RedisService's single shared client. All optional

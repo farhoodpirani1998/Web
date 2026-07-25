@@ -11,6 +11,7 @@ describe('NewsService', () => {
   let sitemap: any;
   let siteSettings: any;
   let revisions: any;
+  let redis: any;
   let service: NewsService;
 
   beforeEach(() => {
@@ -39,7 +40,8 @@ describe('NewsService', () => {
       list: jest.fn(),
       getVersion: jest.fn(),
     };
-    service = new NewsService(repo, siteService, publishing, media, sitemap, siteSettings, revisions);
+    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
+    service = new NewsService(repo, siteService, publishing, media, sitemap, siteSettings, revisions, redis);
   });
 
   describe('onModuleInit', () => {

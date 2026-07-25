@@ -10,6 +10,7 @@ describe('HeroService', () => {
   let publishing: any;
   let media: any;
   let revisions: any;
+  let redis: any;
   let service: HeroService;
 
   beforeEach(() => {
@@ -31,7 +32,8 @@ describe('HeroService', () => {
     publishing = { transition: jest.fn() };
     media = { attach: jest.fn(), detach: jest.fn() };
     revisions = { record: jest.fn(), list: jest.fn(), getVersion: jest.fn() };
-    service = new HeroService(repo, siteService, ordering, publishing, media, revisions);
+    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
+    service = new HeroService(repo, siteService, ordering, publishing, media, revisions, redis);
   });
 
   describe('create', () => {

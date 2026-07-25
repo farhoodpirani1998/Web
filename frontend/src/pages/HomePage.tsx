@@ -1,4 +1,5 @@
 import { PageLayout } from "@/shared/design-system/components";
+import { Seo } from "@/shared/seo";
 import { Hero } from "@/features/hero";
 import { HomeStatsBand } from "@/features/statistics";
 import { HomeAbout } from "@/features/about";
@@ -8,6 +9,7 @@ import { HomeAchievements } from "@/features/achievements";
 import { HomeNews } from "@/features/news";
 import { HomeGallery } from "@/features/gallery";
 import { CTA } from "@/features/cta";
+import { useHomepage } from "@/features/static-pages";
 
 /**
  * Root-route page.
@@ -39,10 +41,22 @@ import { CTA } from "@/features/cta";
  * `HomeAchievements` band splits them — matching Figma's canonical
  * render order (Figma Design Reference §3): Hero → Stats → About →
  * Campuses → WhyChoose → Achievements → News → Gallery → CTA.
+ *
+ * `useHomepage()` (`@/features/static-pages`, backed by
+ * `GET /pages/homepage`) supplies this page's `seo`/`structuredData`
+ * only — rendered via the shared `<Seo />` component (`@/shared/seo`,
+ * §21), same convention as `AboutPage`/`NewsDetailPage`/etc. It does
+ * not replace any section's own content; every section below still
+ * renders its own feature-owned data/placeholder copy exactly as
+ * before.
  */
 export function HomePage() {
+  const { data } = useHomepage();
+
   return (
     <>
+      <Seo seo={data?.seo} structuredData={data?.structuredData} />
+
       <Hero />
       <HomeStatsBand />
 

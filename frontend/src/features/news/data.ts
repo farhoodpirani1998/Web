@@ -21,6 +21,7 @@ import type { NewsItem } from "./types";
 export const newsItems: readonly NewsItem[] = [
   {
     id: "n1",
+    slug: "n1",
     date: "۱۴۰۴/۰۴/۰۱",
     category: "اطلاعیه",
     title: "آغاز ثبت‌نام دوره‌های نیم‌سال جدید",
@@ -31,6 +32,7 @@ export const newsItems: readonly NewsItem[] = [
   },
   {
     id: "n2",
+    slug: "n2",
     date: "۱۴۰۴/۰۳/۲۰",
     category: "رویداد",
     title: "برگزاری نشست معرفی مسیرهای تحصیلی",
@@ -41,6 +43,7 @@ export const newsItems: readonly NewsItem[] = [
   },
   {
     id: "n3",
+    slug: "n3",
     date: "۱۴۰۴/۰۳/۰۵",
     category: "دستاورد",
     title: "کسب رتبه‌های برتر توسط دانش‌آموزان مجموعه",
@@ -51,6 +54,7 @@ export const newsItems: readonly NewsItem[] = [
   },
   {
     id: "n4",
+    slug: "n4",
     date: "۱۴۰۴/۰۲/۱۸",
     category: "اطلاعیه",
     title: "تغییر ساعت کاری شعب در ایام تعطیل",
@@ -61,6 +65,7 @@ export const newsItems: readonly NewsItem[] = [
   },
   {
     id: "n5",
+    slug: "n5",
     date: "۱۴۰۴/۰۲/۰۲",
     category: "رویداد",
     title: "کارگاه آموزشی ویژه اولیا",
@@ -71,6 +76,7 @@ export const newsItems: readonly NewsItem[] = [
   },
   {
     id: "n6",
+    slug: "n6",
     date: "۱۴۰۴/۰۱/۱۵",
     category: "دستاورد",
     title: "افتتاح شعبه جدید در کرج",

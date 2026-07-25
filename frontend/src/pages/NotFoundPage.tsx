@@ -17,13 +17,13 @@ export function NotFoundPage() {
         <Text variant="overline" color="primary">
           404
         </Text>
-        <Heading level={1}>Page not found</Heading>
+        <Heading level={1}>صفحه مورد نظر یافت نشد</Heading>
         <Text color="muted" className="max-w-md">
-          The page you&apos;re looking for doesn&apos;t exist or is currently
-          unavailable.
+          صفحه‌ای که به دنبال آن هستید وجود ندارد یا در حال حاضر در دسترس
+          نیست.
         </Text>
         <Button asChild>
-          <RouterLink to="/">Back to homepage</RouterLink>
+          <RouterLink to="/">بازگشت به صفحه اصلی</RouterLink>
         </Button>
       </Stack>
     </PageLayout>

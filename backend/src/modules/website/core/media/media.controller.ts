@@ -18,7 +18,7 @@ import { MediaService } from './media.service';
 import { UploadMediaDto } from './dto/upload-media.dto';
 import { MediaStatus } from './entities/media.entity';
 import { ALLOWED_EXTENSIONS, ALLOWED_MIME_TYPES, MAX_SIZE_BYTES } from './media.constants';
-import { RequireWebsitePermission } from '../../auth/website-permission.decorator';
+import { RequireCmsPermission } from '../../identity/auth/cms-permission.decorator';
 import { WebsitePermission } from '../../auth/website-role.enum';
 
 /**
@@ -32,19 +32,30 @@ export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   @Get()
-  @RequireWebsitePermission(WebsitePermission.MEDIA_MANAGE)
+  @RequireCmsPermission(WebsitePermission.MEDIA_MANAGE)
   findAll(@Query('status') status?: MediaStatus) {
     return this.mediaService.findAll(status);
   }
 
   @Get(':id')
-  @RequireWebsitePermission(WebsitePermission.MEDIA_MANAGE)
+  @RequireCmsPermission(WebsitePermission.MEDIA_MANAGE)
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.mediaService.findOne(id);
   }
 
+  /**
+   * Backs the admin's usage-details view ("where is this image used?").
+   * 404s via the global exception filter if `id` isn't a real media row
+   * (see `MediaService.getUsage`) rather than silently returning `[]`.
+   */
+  @Get(':id/usage')
+  @RequireCmsPermission(WebsitePermission.MEDIA_MANAGE)
+  getUsage(@Param('id', ParseUUIDPipe) id: string) {
+    return this.mediaService.getUsage(id);
+  }
+
   @Post()
-  @RequireWebsitePermission(WebsitePermission.MEDIA_MANAGE)
+  @RequireCmsPermission(WebsitePermission.MEDIA_MANAGE)
   @UseInterceptors(
     FileInterceptor('file', {
       // Defense in depth: rejects an oversized file before it's fully
@@ -79,13 +90,13 @@ export class MediaController {
   }
 
   @Patch(':id/archive')
-  @RequireWebsitePermission(WebsitePermission.MEDIA_MANAGE)
+  @RequireCmsPermission(WebsitePermission.MEDIA_MANAGE)
   archive(@Param('id', ParseUUIDPipe) id: string) {
     return this.mediaService.archive(id);
   }
 
   @Delete(':id')
-  @RequireWebsitePermission(WebsitePermission.MEDIA_MANAGE)
+  @RequireCmsPermission(WebsitePermission.MEDIA_MANAGE)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.mediaService.purge(id);
   }
