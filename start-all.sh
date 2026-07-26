@@ -52,60 +52,92 @@ if command -v docker &>/dev/null; then
                                                                                         if [ -n "${CODESPACE_NAME:-}" ] && [ -n "${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-}" ]; then
                                                                                           BACKEND_URL="https://${CODESPACE_NAME}-3100.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
                                                                                             ADMIN_URL="https://${CODESPACE_NAME}-5174.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
+                                                                                              FRONTEND_URL="https://${CODESPACE_NAME}-5173.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}"
 
-                                                                                              if [ -f backend/.env ]; then
-                                                                                                  if grep -q '^CORS_ALLOWED_ORIGINS=' backend/.env; then
-                                                                                                        sed -i "s|^CORS_ALLOWED_ORIGINS=.*|CORS_ALLOWED_ORIGINS=${ADMIN_URL}|" backend/.env
-                                                                                                            else
-                                                                                                                  echo "CORS_ALLOWED_ORIGINS=${ADMIN_URL}" >> backend/.env
-                                                                                                                      fi
-                                                                                                                        fi
-                                                                                                                          for f in admin/.env admin/.env.development; do
-                                                                                                                              [ -f "$f" ] || continue
-                                                                                                                                  if grep -q '^VITE_ADMIN_API_BASE_URL=' "$f"; then
-                                                                                                                                        sed -i "s|^VITE_ADMIN_API_BASE_URL=.*|VITE_ADMIN_API_BASE_URL=${BACKEND_URL}/admin|" "$f"
-                                                                                                                                            else
-                                                                                                                                                  echo "VITE_ADMIN_API_BASE_URL=${BACKEND_URL}/admin" >> "$f"
-                                                                                                                                                      fi
-                                                                                                                                                        done
-                                                                                                                                                          ok "Synced env URLs to this Codespace's current domain."
-                                                                                                                                                          else
-                                                                                                                                                            warn "Not detected as a Codespace — env URLs left as-is."
+                                                                                                # Backend: allow BOTH the admin panel and the public site to call it.
+                                                                                                  if [ -f backend/.env ]; then
+                                                                                                      if grep -q '^CORS_ALLOWED_ORIGINS=' backend/.env; then
+                                                                                                            sed -i "s|^CORS_ALLOWED_ORIGINS=.*|CORS_ALLOWED_ORIGINS=${ADMIN_URL},${FRONTEND_URL}|" backend/.env
+                                                                                                                else
+                                                                                                                      echo "CORS_ALLOWED_ORIGINS=${ADMIN_URL},${FRONTEND_URL}" >> backend/.env
+                                                                                                                          fi
+                                                                                                                            fi
+
+                                                                                                                              # Admin panel: point at the backend's admin API.
+                                                                                                                                for f in admin/.env admin/.env.development; do
+                                                                                                                                    [ -f "$f" ] || continue
+                                                                                                                                        if grep -q '^VITE_ADMIN_API_BASE_URL=' "$f"; then
+                                                                                                                                              sed -i "s|^VITE_ADMIN_API_BASE_URL=.*|VITE_ADMIN_API_BASE_URL=${BACKEND_URL}/admin|" "$f"
+                                                                                                                                                  else
+                                                                                                                                                        echo "VITE_ADMIN_API_BASE_URL=${BACKEND_URL}/admin" >> "$f"
                                                                                                                                                             fi
+                                                                                                                                                              done
 
-                                                                                                                                                            # ---------------------------------------------------------------------------
-                                                                                                                                                            # 4. Start backend + admin in the background
-                                                                                                                                                            # ---------------------------------------------------------------------------
-                                                                                                                                                            info "Starting backend..."
-                                                                                                                                                            (cd backend && nohup npm run start:dev > "$LOG_DIR/backend.log" 2>&1 &)
+                                                                                                                                                                # Public site: point at the backend's public API.
+                                                                                                                                                                  for f in frontend/.env frontend/.env.development; do
+                                                                                                                                                                      [ -f "$f" ] || continue
+                                                                                                                                                                          if grep -q '^VITE_PUBLIC_API_BASE_URL=' "$f"; then
+                                                                                                                                                                                sed -i "s|^VITE_PUBLIC_API_BASE_URL=.*|VITE_PUBLIC_API_BASE_URL=${BACKEND_URL}/public|" "$f"
+                                                                                                                                                                                    else
+                                                                                                                                                                                          echo "VITE_PUBLIC_API_BASE_URL=${BACKEND_URL}/public" >> "$f"
+                                                                                                                                                                                              fi
+                                                                                                                                                                                                done
 
-                                                                                                                                                            info "Starting admin..."
-                                                                                                                                                            (cd admin && nohup npm run dev > "$LOG_DIR/admin.log" 2>&1 &)
+                                                                                                                                                                                                  ok "Synced env URLs to this Codespace's current domain."
+                                                                                                                                                                                                  else
+                                                                                                                                                                                                    warn "Not detected as a Codespace — env URLs left as-is."
+                                                                                                                                                                                                    fi
 
-                                                                                                                                                            info "Waiting a few seconds for both to come up..."
-                                                                                                                                                            sleep 8
+                                                                                                                                                                                                    # ---------------------------------------------------------------------------
+                                                                                                                                                                                                    # 4. Start backend + admin in the background
+                                                                                                                                                                                                    # ---------------------------------------------------------------------------
+                                                                                                                                                                                                    info "Starting backend..."
+                                                                                                                                                                                                    (cd backend && nohup npm run start:dev > "$LOG_DIR/backend.log" 2>&1 &)
 
-                                                                                                                                                            # ---------------------------------------------------------------------------
-                                                                                                                                                            # 5. Report status + links
-                                                                                                                                                            # ---------------------------------------------------------------------------
-                                                                                                                                                            echo
-                                                                                                                                                            if grep -qi "error" "$LOG_DIR/backend.log" 2>/dev/null; then
-                                                                                                                                                              warn "Backend log has errors — check: tail -50 logs/backend.log"
-                                                                                                                                                              else
-                                                                                                                                                                ok "Backend looks OK (log: logs/backend.log)"
-                                                                                                                                                                fi
+                                                                                                                                                                                                    info "Starting admin..."
+                                                                                                                                                                                                    (cd admin && nohup npm run dev > "$LOG_DIR/admin.log" 2>&1 &)
 
-                                                                                                                                                                if grep -qi "error" "$LOG_DIR/admin.log" 2>/dev/null; then
-                                                                                                                                                                  warn "Admin log has errors — check: tail -50 logs/admin.log"
-                                                                                                                                                                  else
-                                                                                                                                                                    ok "Admin looks OK (log: logs/admin.log)"
-                                                                                                                                                                    fi
+                                                                                                                                                                                                    if [ -d frontend ]; then
+                                                                                                                                                                                                      info "Starting frontend..."
+                                                                                                                                                                                                        (cd frontend && nohup npm run dev > "$LOG_DIR/frontend.log" 2>&1 &)
+                                                                                                                                                                                                        fi
 
-                                                                                                                                                                    if [ -n "${CODESPACE_NAME:-}" ]; then
-                                                                                                                                                                      echo
-                                                                                                                                                                        ok "Open this to log in:"
-                                                                                                                                                                          echo "  https://${CODESPACE_NAME}-5174.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}/login"
-                                                                                                                                                                          fi
+                                                                                                                                                                                                        info "Waiting a few seconds for everything to come up..."
+                                                                                                                                                                                                        sleep 8
 
-                                                                                                                                                                          echo
-                                                                                                                                                                          info "Live logs: tail -f logs/backend.log logs/admin.log"
+                                                                                                                                                                                                        # ---------------------------------------------------------------------------
+                                                                                                                                                                                                        # 5. Report status + links
+                                                                                                                                                                                                        # ---------------------------------------------------------------------------
+                                                                                                                                                                                                        echo
+                                                                                                                                                                                                        if grep -qi "error" "$LOG_DIR/backend.log" 2>/dev/null; then
+                                                                                                                                                                                                          warn "Backend log has errors — check: tail -50 logs/backend.log"
+                                                                                                                                                                                                          else
+                                                                                                                                                                                                            ok "Backend looks OK (log: logs/backend.log)"
+                                                                                                                                                                                                            fi
+
+                                                                                                                                                                                                            if grep -qi "error" "$LOG_DIR/admin.log" 2>/dev/null; then
+                                                                                                                                                                                                              warn "Admin log has errors — check: tail -50 logs/admin.log"
+                                                                                                                                                                                                              else
+                                                                                                                                                                                                                ok "Admin looks OK (log: logs/admin.log)"
+                                                                                                                                                                                                                fi
+
+                                                                                                                                                                                                                if [ -f "$LOG_DIR/frontend.log" ]; then
+                                                                                                                                                                                                                  if grep -qi "error" "$LOG_DIR/frontend.log" 2>/dev/null; then
+                                                                                                                                                                                                                      warn "Frontend log has errors — check: tail -50 logs/frontend.log"
+                                                                                                                                                                                                                        else
+                                                                                                                                                                                                                            ok "Frontend looks OK (log: logs/frontend.log)"
+                                                                                                                                                                                                                              fi
+                                                                                                                                                                                                                              fi
+
+                                                                                                                                                                                                                              if [ -n "${CODESPACE_NAME:-}" ]; then
+                                                                                                                                                                                                                                echo
+                                                                                                                                                                                                                                  ok "Admin panel (log in here):"
+                                                                                                                                                                                                                                    echo "  https://${CODESPACE_NAME}-5174.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}/login"
+                                                                                                                                                                                                                                      if [ -d frontend ]; then
+                                                                                                                                                                                                                                          ok "Public site:"
+                                                                                                                                                                                                                                              echo "  https://${CODESPACE_NAME}-5173.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}/"
+                                                                                                                                                                                                                                                fi
+                                                                                                                                                                                                                                                fi
+
+                                                                                                                                                                                                                                                echo
+                                                                                                                                                                                                                                                info "Live logs: tail -f logs/backend.log logs/admin.log logs/frontend.log"

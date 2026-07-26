@@ -1,0 +1,25 @@
+
+> nhg-website-backend@0.1.0 start:dev
+> nest start --watch
+
+[2J[3J[H[[90m7:28:07 AM[0m] Starting compilation in watch mode...
+
+[[90m7:28:21 AM[0m] Found 0 errors. Watching for file changes.
+
+(node:10419) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[32m[Nest] 10667  - [39m07/26/2026, 7:28:28 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[31m[Nest] 10667  - [39m07/26/2026, 7:28:28 AM [31m  ERROR[39m [38;5;3m[ExceptionHandler] [39m[31mInvalid environment configuration:
+  - CMS_REFRESH_COOKIE_SECURE must be one of the following values: true, false[39m
+Error: Invalid environment configuration:
+  - CMS_REFRESH_COOKIE_SECURE must be one of the following values: true, false
+    at Object.validateEnvironment (/workspaces/Web/backend/src/config/env-validation.config.ts:428:11)
+    at ConfigModule.forRoot (/workspaces/Web/backend/node_modules/@nestjs/config/dist/config.module.js:78:45)
+    at Object.<anonymous> (/workspaces/Web/backend/src/app.module.ts:12:18)
+    at Module._compile (node:internal/modules/cjs/loader:1812:14)
+    at Object..js (node:internal/modules/cjs/loader:1943:10)
+    at Module.load (node:internal/modules/cjs/loader:1533:32)
+    at Module._load (node:internal/modules/cjs/loader:1335:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1556:12)
+    at require (node:internal/modules/helpers:152:16)
