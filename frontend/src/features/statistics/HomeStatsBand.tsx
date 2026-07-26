@@ -1,62 +1,104 @@
+import { Building2, GraduationCap, Smile, Users } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
 import { Container } from "@/shared/design-system/components";
 import { useCountUp } from "@/shared/hooks/useCountUp";
 import { toPersianDigits } from "@/shared/utils/toPersianDigits";
 
 /**
  * Homepage "Stats" band (Website Frontend Architecture §4, §10
- * "Section Architecture", §11 "Component Hierarchy") — the approved
- * Figma design's full-bleed `bg-primary` stats strip with count-up
- * numbers, shown directly under `Hero` on the homepage only.
+ * "Section Architecture", §11 "Component Hierarchy") — shown directly
+ * under `Hero` on the homepage only.
  *
  * Distinct from `StatisticsGrid`/`StatisticsHero` (the dedicated
  * `/statistics` page's feature components, same `statistics` feature
  * folder): this is a compact 4-figure promotional band, not the full
- * figures directory, and uses a different visual treatment (full-bleed
- * navy strip vs. the `/statistics` page's card grid). Both live in
- * `statistics` because they're the same content domain (§30/§32 —
- * other features/pages still only ever import from this feature's
- * `index.ts`, never reach into `HomeStatsBand` internals directly).
+ * figures directory. Both live in `statistics` because they're the
+ * same content domain (§30/§32 — other features/pages still only ever
+ * import from this feature's `index.ts`, never reach into
+ * `HomeStatsBand` internals directly).
  *
- * Presentation only, built from the existing `Container` primitive
- * plus the shared `useCountUp` hook (ported from Figma's inline hook
- * into `shared/hooks`, since more than one place could reasonably use
- * a count-up number). Real figures are ultimately Statistics
- * content-module data (§4, §8); this renders frontend-owned Persian
- * placeholder figures in the meantime, the same convention already
- * used by `StatisticsGrid`.
+ * Visual-refresh pass (matching the approved mockup): a light card —
+ * `bg-card`, rounded, ringed, gently overlapping `Hero`'s bottom edge —
+ * replacing the earlier full-bleed dark `bg-primary` strip. Each
+ * figure now pairs an icon (in a soft gold-tinted circle, no new
+ * colors beyond the existing brand tokens) with its number/label,
+ * echoing the icon-badge language `Header`/`Hero`/`Features` already
+ * use, rather than bare centered numbers on a dark band. Still built
+ * only from the existing `Container` primitive plus the shared
+ * `useCountUp` hook — no new dependency, no new shared component.
  *
- * Rendered full-bleed *outside* `HomePage`'s `PageLayout`, the same
- * reasoning as `Hero` (see `HomePage.tsx`).
+ * Real figures are ultimately Statistics content-module data (§4,
+ * §8); this renders frontend-owned Persian placeholder figures in the
+ * meantime, the same convention already used by `StatisticsGrid`.
+ *
+ * Rendered full-bleed *outside* `HomePage`'s `PageLayout` so the
+ * overlap margin can reach up into `Hero`, the same reasoning as
+ * `Hero` itself (see `HomePage.tsx`).
  */
-const stats = [
-  { id: "campuses", value: 4, suffix: "+", label: "شعبه فعال" },
-  { id: "students", value: 3500, suffix: "+", label: "دانش‌آموز" },
-  { id: "staff", value: 220, suffix: "+", label: "عضو کادر آموزشی" },
-  { id: "years", value: 20, suffix: "+", label: "سال سابقه" },
-] as const;
+const stats: ReadonlyArray<{
+  id: string;
+  value: number;
+  suffix: string;
+  label: string;
+  icon: LucideIcon;
+}> = [
+  { id: "satisfaction", value: 98, suffix: "٪", label: "رضایت دانش‌آموزان", icon: Smile },
+  { id: "students", value: 3200, suffix: "+", label: "دانش‌آموز فعال", icon: Users },
+  { id: "courses", value: 120, suffix: "+", label: "دوره آموزشی", icon: GraduationCap },
+  { id: "staff", value: 45, suffix: "+", label: "استاد مجرب", icon: Building2 },
+];
 
 export function HomeStatsBand() {
   return (
-    <section aria-label="آمار مجموعه" className="bg-primary">
-      <Container size="xl" className="grid grid-cols-2 gap-px bg-white/8 md:grid-cols-4">
-        {stats.map((stat) => (
-          <StatItem key={stat.id} value={stat.value} suffix={stat.suffix} label={stat.label} />
-        ))}
+    <section aria-label="آمار مجموعه" className="relative z-10 bg-transparent">
+      <Container size="xl" className="-mt-10 sm:-mt-14">
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-border/70 shadow-lg ring-1 ring-border/60 md:grid-cols-4">
+          {stats.map((stat) => (
+            <StatItem
+              key={stat.id}
+              icon={stat.icon}
+              value={stat.value}
+              suffix={stat.suffix}
+              label={stat.label}
+            />
+          ))}
+        </div>
       </Container>
     </section>
   );
 }
 
-function StatItem({ value, suffix, label }: { value: number; suffix: string; label: string }) {
+function StatItem({
+  icon: Icon,
+  value,
+  suffix,
+  label,
+}: {
+  icon: LucideIcon;
+  value: number;
+  suffix: string;
+  label: string;
+}) {
   const { count, ref } = useCountUp(value);
 
   return (
-    <div ref={ref} className="bg-primary px-6 py-10 text-center">
-      <div className="mb-2 text-4xl font-bold tracking-tight text-accent md:text-5xl">
-        {toPersianDigits(count)}
-        {suffix}
+    <div ref={ref} className="flex items-center gap-3 bg-card px-5 py-6 sm:gap-4 sm:px-7">
+      <span
+        aria-hidden="true"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-gold/15 text-brand-gold sm:h-12 sm:w-12"
+      >
+        <Icon className="h-5 w-5" strokeWidth={1.75} />
+      </span>
+      <div className="min-w-0">
+        <div className="text-xl font-bold tracking-tight text-brand-navy sm:text-2xl">
+          {toPersianDigits(count)}
+          {suffix}
+        </div>
+        <div className="truncate text-[11px] font-semibold text-muted-foreground sm:text-xs">
+          {label}
+        </div>
       </div>
-      <div className="text-[11px] font-semibold text-white/40">{label}</div>
     </div>
   );
 }

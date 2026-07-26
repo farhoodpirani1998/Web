@@ -26,12 +26,21 @@ import { useFeatures } from "./useFeatures";
  * names so an unrecognized CMS value never breaks the grid.
  *
  * Matches Figma structurally: centered eyebrow → two-line heading →
- * `grid-cols-2 md:grid-cols-3` grid of icon items, each an icon
- * box (`Monitor`, `FlaskConical`, `BookOpen`, `Dumbbell`, `Globe`,
- * `Music` from `lucide-react`, per §4.8) that flips from a soft
- * navy tint to a solid `bg-primary`/`text-accent` treatment on hover —
- * echoing the navy↔gold language `Hero`/`HomeStatsBand`/`CTA` already
- * established — followed by a title and short description.
+ * grid of icon items, each an icon box (`Monitor`, `FlaskConical`,
+ * `BookOpen`, `Dumbbell`, `Globe`, `Music` from `lucide-react`, per
+ * §4.8) that flips from a soft navy tint to a solid `bg-primary`/
+ * `text-accent` treatment on hover — echoing the navy↔gold language
+ * `Hero`/`HomeStatsBand`/`CTA` already established — followed by a
+ * title and short description.
+ *
+ * Visual-refresh pass (matching the approved mockup): each item now
+ * sits in its own white, bordered, shadowed card (`rounded-2xl border
+ * border-border bg-background shadow-sm`, `hover:shadow-lg`) at a
+ * `sm:grid-cols-2 lg:grid-cols-4` width, the same card container
+ * `HomeCampuses`/`HomeNews` already use — rather than bare icon+text
+ * floating on the section's background — so the four "why choose"
+ * cards read as distinct tiles like the mockup's, instead of an
+ * unbounded icon grid.
  */
 
 interface WhyChooseItem {
@@ -136,23 +145,29 @@ export function Features() {
           </Text>
         </Stack>
 
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-3 md:gap-8">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
           {items.map((item) => (
-            <div key={item.id} className="group flex flex-col items-center gap-4 text-center">
+            <div
+              key={item.id}
+              className={cn(
+                "group flex flex-col items-center gap-4 rounded-2xl border border-border bg-background p-6 text-center",
+                "shadow-sm transition-shadow duration-300 hover:shadow-lg",
+              )}
+            >
               <span
                 aria-hidden="true"
                 className={cn(
-                  "flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/8 text-primary",
+                  "flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/8 text-primary",
                   "transition-colors duration-300 group-hover:bg-primary group-hover:text-accent",
                 )}
               >
-                <item.icon className="h-7 w-7" strokeWidth={1.75} />
+                <item.icon className="h-6 w-6" strokeWidth={1.75} />
               </span>
 
               <Heading level={3} className="text-base">
                 {item.title}
               </Heading>
-              <Text variant="bodySm" color="muted" className="max-w-[16rem]">
+              <Text variant="bodySm" color="muted">
                 {item.description}
               </Text>
             </div>

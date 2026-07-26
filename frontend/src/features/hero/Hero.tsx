@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, BookOpen, Calendar, Users } from "lucide-react";
 
 import { Container, Image, Link, buttonVariants } from "@/shared/design-system/components";
 import { APP_NAME } from "@/shared/config/app";
@@ -14,14 +14,14 @@ import type { Hero as HeroContent } from "./types";
  * established.
  */
 const fallbackHero: HeroContent = {
-  eyebrow: APP_NAME,
-  title: "آینده‌ای روشن با آموزشی معنادار",
+  eyebrow: "به آینده‌ی فرزندانتان سرمایه‌گذاری کنید",
+  title: `آینده‌ای روشن با ${APP_NAME}`,
   description:
-    "متن معرفی نمونه برای بخش هیرو. این متن جایگزین محتوایی است که در نهایت پس از پیاده‌سازی ماژول " +
-    "محتوایی هیرو، از طریق Public API بک‌اند تأمین خواهد شد.",
+    "ما با بهره‌گیری از اساتید مجرب و متدهای روز دنیا، مسیر موفقیت تحصیلی و فردی " +
+    "دانش‌آموزان را هموار می‌کنیم.",
   image: {
     src: "/images/placeholders/hero.svg",
-    alt: "نمای ساختمان و محوطه‌ی آموزشی مجتمع",
+    alt: "دانش‌آموزان در حال مطالعه",
   },
   primaryCta: { label: "پیش‌ثبت‌نام", href: "/pre-registration" },
   secondaryCta: { label: "تماس با ما", href: "/contact" },
@@ -31,110 +31,119 @@ const fallbackHero: HeroContent = {
  * Homepage "Hero" section (Website Frontend Architecture §4, §10
  * "Section Architecture", §11 "Component Hierarchy").
  *
- * Full-bleed, image-backed hero matching the approved Figma design:
- * a `min-h-[600px] h-[90vh]` section with a cover photo, a `--primary`
- * (navy) scrim/gradient over it, and the headline/CTAs sitting on top.
- * Deliberately rendered *outside* `HomePage`'s `PageLayout`/`Container`
- * (see `HomePage.tsx`) so it can span the full viewport width; it opens
- * its own `Container` only for the text column, matching Figma's
- * `max-w-7xl` inner wrapper.
+ * Visual-refresh pass: a light, two-column layout (text column +
+ * image column) replacing the earlier full-bleed dark-image hero —
+ * matching the approved mockup's structure. The floating "active
+ * students" badge and the small "استاندارد" icon card are frontend-
+ * owned decorative chrome (same convention `TopBar`/`Header` already
+ * use for non-CMS UI furniture), not CMS content — only `eyebrow`,
+ * `title`, `description`, `image`, and the two CTAs come from
+ * `useHero()`/`fallbackHero`.
  *
- * Backed by `useHero()` (the Public API's Hero content module, §4,
- * §8): renders `data` once the query has resolved, and falls back to
- * `fallbackHero` while the query is loading, has errored, or the CMS
- * has nothing published yet — the same convention `AboutHero`/`Brand`
- * already use. `title` now renders as a single plain string rather
- * than the previous two-tone "headline + accent-colored second half"
- * split, since a CMS-sourced title has no markup to split on — the
- * same "lose the inline highlight, keep the layout" trade-off
- * `AboutStory`'s pull-paragraph treatment already made for its own
- * CMS-sourced copy. `primaryCta`/`secondaryCta` are optional per the
- * response type, so each button only renders when its CTA is present.
- *
- * Entrance motion uses `tailwindcss-animate`'s `animate-in` utilities
- * (already a dependency) instead of adding a runtime animation
- * library — CSS-only, no new dependency.
+ * Rendered *outside* `HomePage`'s `PageLayout` (see `HomePage.tsx`)
+ * so it can control its own full-bleed background; it opens its own
+ * `Container` internally.
  */
 export function Hero() {
   const { data } = useHero();
   const hero = data ?? fallbackHero;
 
   return (
-    <section
-      aria-labelledby="home-hero-heading"
-      className="relative flex h-[90vh] min-h-[600px] items-center overflow-hidden bg-primary"
-    >
-      <Image
-        src={hero.image.src}
-        alt={hero.image.alt}
-        loading="eager"
-        fit="cover"
-        containerClassName="absolute inset-0 h-full w-full"
-      />
-      <div aria-hidden="true" className="absolute inset-0 bg-primary/78" />
+    <section aria-labelledby="home-hero-heading" className="relative overflow-hidden bg-background">
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-r from-primary/60 via-primary/30 to-transparent"
+        className="pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-brand-navy/5 blur-3xl"
       />
 
-      <Container size="xl" className="relative z-10 w-full pt-8">
-        <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <Container size="xl" className="relative z-10 grid gap-12 py-16 md:py-24 lg:grid-cols-2 lg:items-center">
+        {/* Text column — first in DOM/reading order, sits on the right in RTL */}
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
           {hero.eyebrow && (
-            <div className="mb-7 inline-flex items-center gap-3 animate-in fade-in slide-in-from-start-4 duration-700 delay-150 fill-mode-both">
-              <span aria-hidden="true" className="h-px w-10 bg-accent" />
-              <span className="text-xs font-bold text-accent">{hero.eyebrow}</span>
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-brand-navy/5 px-3 py-1.5">
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-gold" />
+              <span className="text-xs font-bold text-brand-navy">{hero.eyebrow}</span>
             </div>
           )}
 
           <h1
             id="home-hero-heading"
-            className="mb-6 text-4xl font-bold leading-[1.3] tracking-tight text-white md:text-5xl lg:text-[3.4rem]"
+            className="mb-5 text-4xl font-bold leading-[1.35] tracking-tight text-foreground md:text-5xl"
           >
             {hero.title}
           </h1>
 
-          <p className="mb-10 max-w-xl text-base font-light leading-relaxed text-white/65 md:text-lg">
+          <p className="mb-8 max-w-lg text-base leading-relaxed text-muted-foreground md:text-lg">
             {hero.description}
           </p>
 
           {(hero.primaryCta || hero.secondaryCta) && (
             <div className="flex flex-wrap gap-3">
-              {hero.primaryCta && (
-                <Link
-                  href={hero.primaryCta.href}
-                  className={cn(
-                    buttonVariants({ size: "lg" }),
-                    "gap-2 rounded-full bg-accent text-primary shadow-lg shadow-accent/20 hover:bg-accent/90",
-                  )}
-                >
-                  {hero.primaryCta.label}
-                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              )}
               {hero.secondaryCta && (
                 <Link
                   href={hero.secondaryCta.href}
                   className={cn(
                     buttonVariants({ variant: "outline", size: "lg" }),
-                    "gap-2 rounded-full border-white/30 text-white backdrop-blur-sm hover:border-accent hover:bg-transparent hover:text-accent",
+                    "gap-2 rounded-full border-brand-navy/20 text-brand-navy hover:border-brand-navy hover:bg-transparent",
                   )}
                 >
+                  <Calendar className="h-4 w-4" aria-hidden="true" />
                   {hero.secondaryCta.label}
+                </Link>
+              )}
+              {hero.primaryCta && (
+                <Link
+                  href={hero.primaryCta.href}
+                  className={cn(
+                    buttonVariants({ size: "lg" }),
+                    "gap-2 rounded-full bg-brand-navy text-white shadow-lg shadow-brand-navy/20 hover:bg-brand-navy/90",
+                  )}
+                >
                   <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                  {hero.primaryCta.label}
                 </Link>
               )}
             </div>
           )}
         </div>
-      </Container>
 
-      <div
-        aria-hidden="true"
-        className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 animate-in fade-in duration-700 delay-500 fill-mode-both"
-      >
-        <span className="text-[10px] font-medium text-white/30">اسکرول کنید</span>
-        <span className="h-10 w-px bg-gradient-to-b from-white/30 to-transparent" />
-      </div>
+        {/* Image column */}
+        <div className="relative animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150 fill-mode-both">
+          <div
+            aria-hidden="true"
+            className="absolute -right-4 -top-4 flex items-center gap-3 rounded-2xl bg-card p-4 shadow-lg ring-1 ring-border/60 md:-right-8 md:-top-8"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-gold/15 text-brand-gold">
+              <BookOpen className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <span className="text-xs font-bold leading-tight text-foreground">
+              آموزش استاندارد
+              <span className="block font-normal text-muted-foreground">بر اساس متدهای روز</span>
+            </span>
+          </div>
+
+          <Image
+            src={hero.image.src}
+            alt={hero.image.alt}
+            loading="eager"
+            fit="cover"
+            ratio={4 / 3}
+            containerClassName="overflow-hidden rounded-3xl"
+          />
+
+          <div
+            aria-hidden="true"
+            className="absolute -bottom-6 -left-4 flex items-center gap-3 rounded-2xl bg-brand-navy p-4 text-white shadow-lg md:-left-8"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10">
+              <Users className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <span className="text-sm leading-tight">
+              <span className="block text-lg font-bold">+۳۲۰۰</span>
+              <span className="text-xs text-white/70">دانش‌آموز فعال</span>
+            </span>
+          </div>
+        </div>
+      </Container>
     </section>
   );
 }
