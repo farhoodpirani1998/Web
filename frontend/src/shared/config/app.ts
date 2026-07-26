@@ -8,7 +8,16 @@
  * generic app config.
  */
 
-export const APP_NAME = "Nedaye Haghighat Educational Group";
+export const APP_NAME = "گروه آموزشی ندای حقیقت";
+
+/**
+ * English legal/brand name — used only where an English name is
+ * actually required (Footer, English-locale SEO metadata). Never
+ * rendered in primary chrome (Header, etc.) — see APP_NAME above,
+ * which is the Persian-first brand identity per the Jul 2026 brand
+ * review.
+ */
+export const APP_NAME_EN = "Nedaye Haghighat Educational Group";
 
 /**
  * Default TanStack Query cache/stale-time settings (§15).

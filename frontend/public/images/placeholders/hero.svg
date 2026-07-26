@@ -1,18 +1,57 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" role="img" aria-label="تصویر جایگزین">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="ایلوستریشن آموزشی — دانش‌آموز و کتاب">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#0F2D52"/>
       <stop offset="1" stop-color="#173B68"/>
     </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="42%" r="55%">
+      <stop offset="0" stop-color="#C9A227" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#C9A227" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <rect width="1920" height="1080" fill="url(#g)"/>
-  <g opacity="0.15" stroke="#C9A227" stroke-width="2">
-    <circle cx="1600" cy="220" r="260"/>
-    <circle cx="260" cy="900" r="180"/>
+
+  <rect width="1200" height="900" fill="url(#bg)"/>
+  <rect width="1200" height="900" fill="url(#glow)"/>
+
+  <!-- soft depth circles -->
+  <circle cx="1020" cy="150" r="170" fill="#C9A227" opacity="0.08"/>
+  <circle cx="140" cy="760" r="130" fill="#C9A227" opacity="0.08"/>
+  <circle cx="150" cy="140" r="70" fill="#FFFFFF" opacity="0.05"/>
+
+  <!-- ground shadow under the book stack -->
+  <ellipse cx="600" cy="700" rx="260" ry="26" fill="#02132B" opacity="0.35"/>
+
+  <!-- book stack -->
+  <g>
+    <rect x="380" y="640" width="440" height="50" rx="10" fill="#C9A227"/>
+    <rect x="410" y="590" width="380" height="50" rx="10" fill="#FFFFFF" opacity="0.92"/>
+    <rect x="440" y="540" width="320" height="50" rx="10" fill="#C9A227" opacity="0.85"/>
   </g>
-  <g transform="translate(960,540)" fill="none" stroke="#C9A227" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.9">
-    <path d="M-90 40V-58L0 -108L90 -58V40"/>
-    <path d="M0 -108V60"/>
-    <circle cx="0" cy="92" r="9" fill="#C9A227" stroke="none"/>
+
+  <!-- open book -->
+  <g transform="translate(600,470)">
+    <path d="M0 -18 C -90 -46 -190 -46 -230 -18 L -230 30 C -190 4 -90 4 0 30 Z" fill="#FFFFFF"/>
+    <path d="M0 -18 C 90 -46 190 -46 230 -18 L 230 30 C 190 4 90 4 0 30 Z" fill="#F3EFE4"/>
+    <path d="M0 -18 L 0 30" stroke="#0F2D52" stroke-width="4" opacity="0.25"/>
+    <path d="M-190 -18 C -150 -30 -90 -30 -40 -14" stroke="#0F2D52" stroke-width="4" opacity="0.18" fill="none" stroke-linecap="round"/>
+    <path d="M-190 4 C -150 -8 -90 -8 -40 8" stroke="#0F2D52" stroke-width="4" opacity="0.18" fill="none" stroke-linecap="round"/>
+    <path d="M40 -14 C 90 -30 150 -30 190 -18" stroke="#0F2D52" stroke-width="4" opacity="0.14" fill="none" stroke-linecap="round"/>
+    <path d="M40 8 C 90 -8 150 -8 190 4" stroke="#0F2D52" stroke-width="4" opacity="0.14" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- graduation cap, centered focal element -->
+  <g transform="translate(600,330)">
+    <path d="M0 -70 L165 -14 L0 42 L-165 -14 Z" fill="#0F2D52" stroke="#C9A227" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M-90 22 L-90 78 C-90 100 -30 116 0 116 C30 116 90 100 90 78 L90 22 L0 60 Z" fill="#0F2D52" stroke="#C9A227" stroke-width="6" stroke-linejoin="round"/>
+    <line x1="150" y1="-20" x2="150" y2="70" stroke="#C9A227" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="150" cy="86" r="12" fill="#C9A227"/>
+  </g>
+
+  <!-- rising sparkle / achievement marks -->
+  <g fill="#C9A227">
+    <circle cx="880" cy="260" r="7"/>
+    <circle cx="930" cy="310" r="4"/>
+    <circle cx="320" cy="300" r="6"/>
+    <circle cx="270" cy="360" r="4"/>
   </g>
 </svg>

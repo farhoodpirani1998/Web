@@ -55,9 +55,12 @@
 
   --radius: 1rem;
 
-  /* Typography — Vazirmatn per approved Figma design (Persian RTL identity) */
+  /* Typography — Vazirmatn per approved Figma design (Persian RTL identity).
+     Body stays Vazirmatn; headings use Estedad ExtraBold (brand review,
+     Jul 2026) for a more distinct brand voice — falls back to Vazirmatn,
+     then system-ui, if the Estedad file isn't present (see fonts.css). */
   --font-sans: "Vazirmatn", system-ui, sans-serif;
-  --font-heading: "Vazirmatn", system-ui, sans-serif;
+  --font-heading: "Estedad", "Vazirmatn", system-ui, sans-serif;
 }
 
 /*

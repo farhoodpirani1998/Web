@@ -43,3 +43,21 @@
   font-style: normal;
   font-display: swap;
 }
+
+/**
+ * Heading typeface — Estedad ExtraBold only (per brand review, Jul
+ * 2026). Deliberately a single weight: headings never need a lighter
+ * cut of Estedad, and loading only ExtraBold keeps this addition to
+ * one extra font file rather than a full family.
+ *
+ * File: src/assets/fonts/estedad-extrabold.woff2 — official Estedad
+ * release (rastikerdar/estedad-font), SIL OFL 1.1 licensed; license
+ * text kept alongside it at src/assets/fonts/OFL-Estedad.txt.
+ */
+@font-face {
+  font-family: "Estedad";
+  src: url("/src/assets/fonts/estedad-extrabold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}

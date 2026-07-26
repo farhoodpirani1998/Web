@@ -85,13 +85,13 @@ export function Header() {
           variant="subtle"
           className={cn("group flex items-center gap-3 no-underline", FOCUS_RING_CLASSNAME)}
         >
-          <BrandMark className="h-10 w-10 shrink-0 transition-transform duration-300 group-hover:scale-105" />
+          <BrandMark className="h-12 w-12 shrink-0 transition-transform duration-300 group-hover:scale-105 sm:h-14 sm:w-14" />
           <span className="flex min-w-0 flex-col leading-tight">
-            <span className="max-w-[10rem] truncate font-heading text-base font-bold tracking-tight text-foreground sm:max-w-none">
+            <span className="max-w-[12rem] truncate font-heading text-lg font-bold tracking-tight text-foreground sm:max-w-none sm:text-xl">
               {APP_NAME}
             </span>
             <span className="text-xs font-medium tracking-wide text-brand-gold">
-              گروه آموزشی
+              آموزش | پژوهش | رشد
             </span>
           </span>
         </Link>

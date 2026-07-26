@@ -9,7 +9,7 @@ import {
 } from "@/shared/design-system/components";
 import { FOCUS_RING_CLASSNAME } from "@/shared/design-system/a11y";
 import { cn } from "@/shared/utils/cn";
-import { APP_NAME } from "@/shared/config/app";
+import { APP_NAME, APP_NAME_EN } from "@/shared/config/app";
 import {
   CONTACT_ADDRESS,
   CONTACT_EMAIL,
@@ -103,7 +103,10 @@ export function Footer() {
                     {APP_NAME}
                   </Heading>
                   <Text variant="caption" className="text-brand-gold">
-                    گروه آموزشی
+                    آموزش | پژوهش | رشد
+                  </Text>
+                  <Text variant="caption" className="text-white/50" dir="ltr">
+                    {APP_NAME_EN}
                   </Text>
                 </Stack>
               </Stack>
