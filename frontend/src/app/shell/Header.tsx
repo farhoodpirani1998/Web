@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LogIn } from "lucide-react";
+import { Search, User } from "lucide-react";
 
 import { Container } from "@/shared/design-system/components/Container";
 import { FOCUS_RING_CLASSNAME } from "@/shared/design-system/a11y";
@@ -98,27 +98,28 @@ export function Header() {
 
         <DesktopNavigation items={navItems} isLoading={isLoading} />
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5">
+          <button
+            type="button"
+            aria-label="جست‌وجو"
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              "hidden rounded-full text-foreground/70 hover:bg-secondary hover:text-brand-navy sm:inline-flex",
+            )}
+          >
+            <Search className="h-4 w-4" aria-hidden="true" />
+          </button>
           <button
             type="button"
             onClick={() => setIsPortalOpen(true)}
             className={cn(
               buttonVariants({ variant: "outline", size: "sm" }),
-              "hidden gap-1.5 border-brand-navy text-brand-navy hover:border-brand-gold hover:bg-transparent hover:text-brand-gold sm:inline-flex",
+              "hidden gap-1.5 rounded-full border-brand-navy/25 text-brand-navy hover:border-brand-navy hover:bg-brand-navy hover:text-white sm:inline-flex",
             )}
           >
-            <LogIn className="h-3.5 w-3.5" aria-hidden="true" />
-            ورود به پورتال
+            <User className="h-3.5 w-3.5" aria-hidden="true" />
+            ورود / ثبت‌نام
           </button>
-          <Link
-            href="/pre-registration"
-            className={cn(
-              buttonVariants({ variant: "default", size: "sm" }),
-              "hidden bg-brand-gold text-brand-navy hover:bg-brand-gold/90 sm:inline-flex",
-            )}
-          >
-            پیش‌ثبت‌نام
-          </Link>
           <MobileNavigation
             items={navItems}
             isLoading={isLoading}

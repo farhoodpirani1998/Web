@@ -24,19 +24,21 @@ export interface NavItem {
   href: string;
 }
 
+/**
+ * Curated primary nav (visual-refresh pass, matching the approved
+ * Figma navbar: five top-level items, not the full sitemap). The full
+ * page list previously dumped every route — including an
+ * internal-looking "تنظیمات سایت" entry and a "پیش‌ثبت‌نام" item that
+ * duplicates the header's own CTA button — straight into the header,
+ * which is the main reason the navbar read as cluttered rather than
+ * intentional. Secondary pages (گالری، رویدادها، تقویم آموزشی، ...)
+ * still exist and are reachable from the footer — they're just not
+ * primary-nav-level anymore.
+ */
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: "خانه", href: "/" },
-  { label: "درباره ما", href: "/about" },
-  { label: "شعب ما", href: "/schools" },
-  { label: "اخبار", href: "/news" },
-  { label: "گالری", href: "/gallery" },
-  { label: "آمار و ارقام", href: "/statistics" },
-  { label: "تماس با ما", href: "/contact" },
-  { label: "تنظیمات سایت", href: "/site" },
-  { label: "پذیرش و ثبت‌نام", href: "/admissions" },
-  { label: "پیش‌ثبت‌نام", href: "/pre-registration" },
   { label: "پردیس‌های آموزشی", href: "/campuses" },
   { label: "کادر آموزشی", href: "/teachers" },
-  { label: "رویدادها", href: "/events" },
-  { label: "تقویم آموزشی", href: "/academic-calendar" },
+  { label: "درباره ما", href: "/about" },
+  { label: "تماس با ما", href: "/contact" },
 ];

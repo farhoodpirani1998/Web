@@ -20,7 +20,7 @@ const fallbackHero: HeroContent = {
     "متن معرفی نمونه برای بخش هیرو. این متن جایگزین محتوایی است که در نهایت پس از پیاده‌سازی ماژول " +
     "محتوایی هیرو، از طریق Public API بک‌اند تأمین خواهد شد.",
   image: {
-    src: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920&h=1080&fit=crop&auto=format",
+    src: "/images/placeholders/hero.svg",
     alt: "نمای ساختمان و محوطه‌ی آموزشی مجتمع",
   },
   primaryCta: { label: "پیش‌ثبت‌نام", href: "/pre-registration" },

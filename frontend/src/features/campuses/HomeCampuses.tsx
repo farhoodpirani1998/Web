@@ -51,7 +51,7 @@ const HOME_CAMPUSES: HomeCampus[] = [
     grades: "پایه‌ی ۱ تا ۹",
     badge: "مختلط",
     image:
-      "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&h=450&fit=crop&auto=format",
+      "/images/placeholders/card.svg",
   },
   {
     id: "west",
@@ -60,7 +60,7 @@ const HOME_CAMPUSES: HomeCampus[] = [
     grades: "پایه‌ی ۱ تا ۶",
     badge: "پسرانه",
     image:
-      "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=600&h=450&fit=crop&auto=format",
+      "/images/placeholders/card.svg",
   },
   {
     id: "isfahan",
@@ -69,7 +69,7 @@ const HOME_CAMPUSES: HomeCampus[] = [
     grades: "پایه‌ی ۷ تا ۱۲",
     badge: "دخترانه",
     image:
-      "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&h=450&fit=crop&auto=format",
+      "/images/placeholders/card.svg",
   },
 ] as const;
 

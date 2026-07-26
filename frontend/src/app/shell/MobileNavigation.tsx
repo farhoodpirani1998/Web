@@ -1,7 +1,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { NavLink, useLocation } from "react-router-dom";
-import { LogIn } from "lucide-react";
+import { User } from "lucide-react";
 
 import { FOCUS_RING_CLASSNAME } from "@/shared/design-system/a11y";
 import { VisuallyHidden } from "@/shared/design-system/components/VisuallyHidden";
@@ -197,8 +197,8 @@ export function MobileNavigation({ items, isLoading = false, onOpenPortal }: Mob
                     "mb-2 w-full gap-1.5 border-brand-navy text-brand-navy hover:border-brand-gold hover:bg-transparent hover:text-brand-gold",
                   )}
                 >
-                  <LogIn className="h-4 w-4" aria-hidden="true" />
-                  ورود به پورتال
+                  <User className="h-4 w-4" aria-hidden="true" />
+                  ورود / ثبت‌نام
                 </button>
                 <Link
                   href="/pre-registration"

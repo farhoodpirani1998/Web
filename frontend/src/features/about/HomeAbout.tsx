@@ -71,7 +71,7 @@ export function HomeAbout() {
         />
 
         <Image
-          src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1000&h=1250&fit=crop&auto=format"
+          src="/images/placeholders/portrait.svg"
           alt="دانش‌آموزان در حال یادگیری در کلاس درس"
           ratio={4 / 5}
           fit="cover"

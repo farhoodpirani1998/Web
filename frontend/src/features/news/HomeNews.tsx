@@ -38,12 +38,12 @@ import { useNews } from "./useNews";
  */
 
 const NEWS_IMAGES: Record<string, string> = {
-  n1: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&h=450&fit=crop&auto=format",
-  n2: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=600&h=450&fit=crop&auto=format",
-  n3: "https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=600&h=450&fit=crop&auto=format",
+  n1: "/images/placeholders/card.svg",
+  n2: "/images/placeholders/card.svg",
+  n3: "/images/placeholders/card.svg",
 };
 const NEWS_IMAGE_FALLBACK =
-  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&h=450&fit=crop&auto=format";
+  "/images/placeholders/card.svg";
 
 export function HomeNews() {
   const { data } = useNews();
