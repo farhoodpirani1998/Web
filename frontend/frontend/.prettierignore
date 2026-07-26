@@ -1,7 +1,0 @@
-dist
-build
-node_modules
-coverage
-pnpm-lock.yaml
-package-lock.json
-yarn.lock
