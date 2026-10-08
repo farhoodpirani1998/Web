@@ -376,50 +376,6 @@ Fix this before any deployment attempt. Should take 1-2 hours.
 - The Redis module is explicitly imported by the HealthModule.
 
 **Verification**: With PostgreSQL and storage available but no Redis listener in the current environment, `GET /health` returned HTTP 503 and reported `redis: down`, while reporting `database: up` and `storage: up`. This confirms Redis failures now affect readiness.
-## 15. REDIS NOT VALIDATED IN HEALTH CHECK
-
-**Current State**:
-- Health check endpoint exists at `/health`
-- Checks: Database (`db.pingCheck()`), Storage (`media.checkStorageHealth()`)
-- **Missing**: Redis health check
-
-**Risk**:
-- Redis failure goes unnoticed
-- Admin login (refresh token cache) silently fails
-- Cache layer breaks without alerting
-
-**Current Response** (from audit):
-```json
-{
-  "status": "ok",
-  "info": { "database": { "status": "up" }, "storage": { "status": "up" } },
-  "error": {}
-}
-```
-
-**Required Action**:
-1. Inject Redis health indicator into health check:
-   ```typescript
-   // backend/src/modules/website/core/health/health.controller.ts
-   return this.health.check([
-     () => this.db.pingCheck('database'),
-     () => this.redis.pingCheck('cache'),  // ADD THIS
-     async () => { /* storage check */ }
-   ]);
-   ```
-2. Return response like:
-   ```json
-   {
-     "status": "ok",
-     "info": {
-       "database": { "status": "up" },
-       "cache": { "status": "up" },
-       "storage": { "status": "up" }
-     }
-   }
-   ```
-
----
 
 ## ðŸŸ¢ PRODUCTION-READY ELEMENTS
 
