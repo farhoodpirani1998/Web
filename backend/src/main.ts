@@ -1,0 +1,253 @@
+// Loaded first, before any other import — module-level code elsewhere
+// (e.g. public-api/common/public-rate-limit.constants.ts, evaluated at
+// decorator-definition time, before Nest's DI/ConfigService exists)
+// reads process.env directly and needs .env-file values already in
+// place by then. Same reason data-source.ts calls dotenv's config()
+// directly instead of relying on ConfigModule.
+import 'dotenv/config';
+import * as Sentry from '@sentry/node';
+import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { resolve } from 'path';
+import helmet from 'helmet';
+import hpp from 'hpp';
+import { json, urlencoded } from 'express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppModule } from './app.module';
+
+/**
+ * Translates TRUST_PROXY (see .env.example) into whatever shape express's
+ * `trust proxy` setting expects: `true`/`false`, a hop count (number of
+ * proxies between the client and this app), or a comma-separated list of
+ * specific IPs/CIDR ranges/keywords (e.g. "loopback,linklocal,uniquelocal").
+ * Left unset, returns `false` — express's own default, unchanged.
+ */
+function parseTrustProxy(raw: string | undefined): boolean | number | string[] {
+  if (!raw) return false;
+  const value = raw.trim();
+  if (value.toLowerCase() === 'true') return true;
+  if (value.toLowerCase() === 'false') return false;
+  if (/^\d+$/.test(value)) return parseInt(value, 10);
+  return value
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+/** "true"/"false" (case-insensitive) from an env-sourced string, or `fallback` when unset/unrecognized. */
+function parseBool(raw: string | undefined, fallback: boolean): boolean {
+  if (raw === undefined) return fallback;
+  const value = raw.trim().toLowerCase();
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  return fallback;
+}
+
+async function bootstrap() {
+  // Error reporting (see GlobalExceptionFilter, the only caller of
+  // Sentry.captureException). Initialized here, before the Nest app is
+  // built, so it's ready to catch anything thrown during bootstrap
+  // itself, not just later request handling. No tracing/performance
+  // integrations enabled — capture-only, to keep this a small,
+  // dependency-light addition rather than a full APM setup. Skipped
+  // entirely when SENTRY_DSN is unset (local/dev without a Sentry
+  // project) — Sentry.captureException calls elsewhere are always
+  // safe no-ops in that case.
+  if (process.env.SENTRY_DSN) {
+    Sentry.init({
+      dsn: process.env.SENTRY_DSN,
+      environment: process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV,
+      tracesSampleRate: 0,
+    });
+  }
+
+  // bodyParser: false — the default body-parser Nest would otherwise
+  // register has a fixed limit that isn't configurable per deployment.
+  // Replaced below with our own json()/urlencoded() using env-driven
+  // limits (see BODY_LIMIT_JSON_BYTES / BODY_LIMIT_URLENCODED_BYTES).
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bodyParser: false,
+  });
+
+  const config = app.get(ConfigService);
+
+  // Security headers (X-Content-Type-Options, X-Frame-Options, HSTS,
+  // a default Content-Security-Policy, etc). crossOriginResourcePolicy is
+  // relaxed to "cross-origin": helmet's default ("same-origin") would
+  // otherwise block browsers from loading media served from /uploads
+  // (see LocalStorageProvider) when embedded on a different origin —
+  // which is the whole point of this backend's public media/content.
+  //
+  // HSTS is spelled out explicitly (rather than left to helmet's
+  // built-in default) so each part is independently configurable via
+  // HSTS_MAX_AGE_SECONDS / HSTS_INCLUDE_SUBDOMAINS / HSTS_PRELOAD (see
+  // .env.example) — left unset, the values match helmet's own defaults
+  // (180 days, sub-domains included, no preload), so behavior is
+  // unchanged. Harmless to send over plain HTTP in local development:
+  // browsers only ever act on this header when it arrives over HTTPS.
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      hsts: {
+        maxAge: config.get<number>('HSTS_MAX_AGE_SECONDS', 15_552_000),
+        includeSubDomains: parseBool(config.get<string>('HSTS_INCLUDE_SUBDOMAINS'), true),
+        preload: parseBool(config.get<string>('HSTS_PRELOAD'), false),
+      },
+    }),
+  );
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  // Trust proxy: when this app sits behind a reverse proxy/load balancer
+  // (nginx, ALB, etc), express otherwise sees the proxy's IP as the
+  // client on every request — throttling (see ThrottlerModule in
+  // app.module.ts) and any IP-based logic would then key off that one
+  // address instead of the real client. Configurable via TRUST_PROXY
+  // (see .env.example: "true", a hop count like "1", or a comma-separated
+  // list of specific IPs/CIDRs/keywords); left unset, falls back to
+  // `false` — express's own default, unchanged.
+  app.set('trust proxy', parseTrustProxy(config.get<string>('TRUST_PROXY')));
+
+  // Request payload limits: protects against oversized-body abuse
+  // (memory/CPU exhaustion) independent of auth — enforced by express's
+  // parsers before a request body ever reaches a controller or
+  // ValidationPipe. Configurable via BODY_LIMIT_JSON_BYTES /
+  // BODY_LIMIT_URLENCODED_BYTES (see .env.example); falls back to 1 MiB
+  // for each when unset (more generous than express's own built-in
+  // 100kb default, but still bounded).
+  app.use(json({ limit: config.get<number>('BODY_LIMIT_JSON_BYTES', 1_048_576) }));
+  app.use(
+    urlencoded({
+      extended: true,
+      limit: config.get<number>('BODY_LIMIT_URLENCODED_BYTES', 1_048_576),
+    }),
+  );
+
+  // HTTP Parameter Pollution: without this, a repeated query key
+  // (?role=user&role=admin) or repeated body field arrives as an array
+  // to route handlers/DTOs, which can silently change validation and
+  // business-logic behavior (e.g. filters, sort fields, comparisons
+  // written for a single value). hpp collapses repeated keys down to
+  // the last occurrence, matching what most handlers already assume.
+  // Must run after the body parsers above (it reads req.body too), and
+  // before route handling. No allowlist configured — none of this API's
+  // params are meant to be legitimately repeated in the query string.
+  app.use(hpp());
+
+  // CORS: public content routes are open by design (cacheable,
+  // unauthenticated) and admin routes are protected by the SMS-JWT/CMS
+  // guards regardless of origin — CORS here only controls which origins
+  // a browser will let read the response, not authorization. In
+  // production, CORS_ALLOWED_ORIGINS is required (validateEnvironment
+  // in env-validation.config.ts refuses to start otherwise), so the
+  // `origin: true` fallback below only ever applies in
+  // development/test. There it reflects the caller's own Origin header
+  // rather than a literal `"*"` — permissive in the same spirit as a
+  // wildcard for any route that ignores credentials, but also the form
+  // browsers require for one that doesn't (see `credentials: true`
+  // below).
+  //
+  // credentials: true (Sprint — Persistent Login) — the CMS Admin
+  // refresh-token cookie (`identity/auth/cms-refresh-cookie.util.ts`) is
+  // httpOnly and must round-trip on cross-origin XHR/fetch calls from
+  // the admin SPA. Browsers only send/accept credentialed cross-origin
+  // requests when this is enabled *and* the reflected
+  // `Access-Control-Allow-Origin` is a specific origin, never `*` —
+  // which is exactly what the `origin: true` fallback above provides in
+  // development, and what the real allow-list provides in production.
+  const corsOrigins = config
+    .get<string>('CORS_ALLOWED_ORIGINS', '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  app.enableCors({
+    origin: corsOrigins.length ? corsOrigins : true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    credentials: true,
+  });
+
+  // Serve locally-stored media (see LocalStorageProvider) at the same
+  // "/uploads/<key>" path each Media row's `url` points to. Only mounted
+  // when STORAGE_DRIVER isn't "s3" — with the S3-compatible driver, files
+  // are served directly from the S3 endpoint/CDN instead, and this
+  // directory may not even exist.
+  if (config.get<string>('STORAGE_DRIVER', 'local') !== 's3') {
+    const localStoragePath = config.get<string>('LOCAL_STORAGE_PATH', './uploads');
+    app.useStaticAssets(resolve(localStoragePath), {
+      prefix: '/uploads',
+      index: false,
+      redirect: false,
+    });
+  }
+
+  // API documentation (Swagger/OpenAPI). Reads request/response shapes
+  // from the existing controller and DTO decorators already used for
+  // validation (@Body, @Param, class-validator decorators, etc) — no
+  // business logic touched. Left off in production by default so the
+  // schema/UI isn't publicly exposed unless explicitly opted into via
+  // SWAGGER_ENABLED=true.
+  const swaggerEnabled =
+    config.get<string>('NODE_ENV') !== 'production' ||
+    config.get<string>('SWAGGER_ENABLED') === 'true';
+  if (swaggerEnabled) {
+    // Swagger UI's HTML bootstraps itself with an inline <script> and
+    // injects inline <style> tags — the strict default CSP set by the
+    // global helmet() call above (script-src/style-src 'self' only,
+    // no 'unsafe-inline') silently blocks both, so the page loads with
+    // no styling and no UI. Scoped to just this path via app.use's path
+    // filter, registered after the global helmet middleware so it runs
+    // second and overwrites the header only for requests under
+    // /api/docs; every other route keeps the strict default untouched.
+    // Still same-origin only — no external script/style domains are
+    // allowed, so this doesn't open the page up to arbitrary third-party
+    // content, just to Swagger's own inline bootstrap code.
+    app.use(
+      '/api/docs',
+      helmet({
+        contentSecurityPolicy: {
+          directives: {
+            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+            'script-src': ["'self'", "'unsafe-inline'"],
+            'style-src': ["'self'", "'unsafe-inline'"],
+            'img-src': ["'self'", 'data:'],
+          },
+        },
+        crossOriginResourcePolicy: { policy: 'cross-origin' },
+      }),
+    );
+
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('NHG Website Backend API')
+      .setDescription(
+        'Admin CMS + public content API for the Nedaye Haghighat Educational Group website.',
+      )
+      .setVersion(process.env.npm_package_version ?? '0.1.0')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'SMS-issued JWT (RS256), verified against SMS_JWT_PUBLIC_KEY_PATH',
+        },
+        'sms-jwt',
+      )
+      .build();
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('api/docs', app, document);
+  }
+
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3100;
+  await app.listen(port);
+  // eslint-disable-next-line no-console
+  console.log(`nhg-website-backend listening on :${port}`);
+}
+bootstrap();

@@ -1,0 +1,451 @@
+import { plainToInstance } from 'class-transformer';
+import {
+  IsEnum,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+  Max,
+  Min,
+  MinLength,
+  ValidateIf,
+  validateSync,
+} from 'class-validator';
+import { existsSync, readFileSync } from 'fs';
+
+enum NodeEnvironment {
+  Development = 'development',
+  Production = 'production',
+  Test = 'test',
+}
+
+enum StorageDriver {
+  Local = 'local',
+  S3 = 's3',
+}
+
+/**
+ * Shape of every environment variable this backend reads anywhere in the
+ * app (see app.module.ts, data-source.ts, website-auth.guard.ts, and the
+ * media module's storage providers). This class only describes and
+ * validates that shape — it doesn't change how any of those places
+ * consume the values once ConfigModule/`process.env` hands them out.
+ */
+class EnvironmentVariables {
+  @IsOptional()
+  @IsEnum(NodeEnvironment)
+  NODE_ENV: NodeEnvironment = NodeEnvironment.Development;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  PORT: number = 3100;
+
+  // --- Database (see app.module.ts / data-source.ts) ---
+  @IsString()
+  @IsNotEmpty()
+  DATABASE_HOST!: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  DATABASE_PORT: number = 5432;
+
+  @IsString()
+  @IsNotEmpty()
+  DATABASE_NAME!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  DATABASE_USER!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  DATABASE_PASSWORD!: string;
+
+  // Shape only ("true" / "false" / unset). Whether synchronize is
+  // actually *safe* to enable (e.g. never in production) is
+  // resolveDatabaseSynchronize()'s job, not this validator's — that
+  // business rule is left untouched.
+  @IsOptional()
+  @IsIn(['true', 'false'])
+  DATABASE_SYNCHRONIZE?: string;
+
+  // --- SMS identity trust (see website-auth.guard.ts) ---
+  @IsString()
+  @IsNotEmpty()
+  SMS_JWT_PUBLIC_KEY_PATH!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  SMS_JWT_ISSUER!: string;
+
+  // --- CMS Admin local identity (see modules/website/identity/auth/) ---
+  // Symmetric (HS256) secret used only to sign/verify CMS Admin access
+  // tokens. Entirely independent from SMS_JWT_PUBLIC_KEY_PATH above:
+  // this backend is the *issuer* here, not a verifier of someone
+  // else's asymmetric keypair, so a shared secret is sufficient and
+  // simpler — there's no second party that needs to verify these
+  // tokens without also being able to mint them. Required, with no
+  // default: unlike DATABASE_SYNCHRONIZE-style "safe to default"
+  // values, a fallback secret here would be a real vulnerability if
+  // ever shipped unchanged.
+  //
+  // @MinLength(32) (Sprint 2.3B hardening): a short secret is brute-
+  // forceable against a captured token's HMAC, defeating the point of
+  // signing at all. 32 chars is a floor, not a target — the .env.example
+  // guidance generates a much longer random value in practice.
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(32)
+  CMS_JWT_SECRET!: string;
+
+  // Embedded as the `iss` claim and checked by CmsAuthGuard. Optional;
+  // falls back to "nhg-cms" when unset — mainly useful to distinguish
+  // environments (e.g. "nhg-cms-staging") if tokens from one should
+  // never be accepted by another.
+  @IsOptional()
+  @IsString()
+  CMS_JWT_ISSUER?: string;
+
+  // Any string accepted by the `jsonwebtoken`/`@nestjs/jwt` `expiresIn`
+  // option — either a plain number of seconds or a number with a unit
+  // suffix (e.g. "15m", "1h", "2d"). Optional; falls back to "15m" —
+  // kept short because CmsAuthGuard never re-checks `isActive` per
+  // request (see its doc comment), so a short expiry is the main
+  // mitigation, alongside `CmsRefreshTokenService`'s reuse detection
+  // (Sprint — Persistent Login), for what would otherwise be a
+  // long-lived stateless credential.
+  //
+  // @Matches (Sprint 2.3B hardening): constrains the *shape* only, so a
+  // typo'd value (e.g. a stray word) fails loudly at startup instead of
+  // reaching `jsonwebtoken` and failing per-request at sign time; it
+  // does not second-guess whether the resulting duration is itself a
+  // good idea.
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d+(ms|s|m|h|d|w|y)?$/, {
+    message:
+      'CMS_JWT_EXPIRES_IN must be a plain number of seconds or a number with a unit suffix (ms/s/m/h/d/w/y), e.g. "15m"',
+  })
+  CMS_JWT_EXPIRES_IN?: string;
+
+  // --- CMS Admin persistent login (see identity/auth/cms-refresh-cookie.util.ts) ---
+  @IsOptional()
+  @IsString()
+  CMS_REFRESH_COOKIE_NAME?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  CMS_REFRESH_TOKEN_EXPIRES_IN_DAYS?: number;
+
+  @IsOptional()
+  @IsIn(['true', 'false'])
+  CMS_REFRESH_COOKIE_SECURE?: string;
+
+  @IsOptional()
+  @IsIn(['lax', 'strict', 'none'])
+  CMS_REFRESH_COOKIE_SAMESITE?: string;
+
+  // --- CMS Admin login throttle (see identity/auth/cms-auth-rate-limit.constants.ts) ---
+  // Sprint 2.3B hardening: a dedicated, tighter override of the global
+  // 'default' throttler applied only to POST /admin/auth/login, on top
+  // of argon2id's own per-attempt cost. Both optional; each falls back
+  // to the hardcoded value documented in that file (5 attempts per
+  // 300s) when unset. Does not affect any other route, including
+  // GET /admin/auth/me, which keeps using THROTTLE_DEFAULT_* above.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_CMS_LOGIN_TTL_MS?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_CMS_LOGIN_LIMIT?: number;
+
+  // --- CMS Admin refresh throttle (see identity/auth/cms-auth-rate-limit.constants.ts) ---
+  // Sprint — Persistent Login: same pattern as THROTTLE_CMS_LOGIN_*
+  // above, applied only to POST /admin/auth/refresh. Both optional;
+  // falls back to 30 attempts per 300s when unset.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_CMS_REFRESH_TTL_MS?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_CMS_REFRESH_LIMIT?: number;
+
+  // --- Object storage (see media/media.module.ts + storage providers) ---
+  @IsOptional()
+  @IsEnum(StorageDriver)
+  STORAGE_DRIVER: StorageDriver = StorageDriver.Local;
+
+  @ValidateIf((env: EnvironmentVariables) => env.STORAGE_DRIVER === StorageDriver.S3)
+  @IsString()
+  @IsNotEmpty()
+  S3_BUCKET?: string;
+
+  @ValidateIf((env: EnvironmentVariables) => env.STORAGE_DRIVER === StorageDriver.S3)
+  @IsString()
+  @IsNotEmpty()
+  S3_ACCESS_KEY_ID?: string;
+
+  @ValidateIf((env: EnvironmentVariables) => env.STORAGE_DRIVER === StorageDriver.S3)
+  @IsString()
+  @IsNotEmpty()
+  S3_SECRET_ACCESS_KEY?: string;
+
+  // Optional even under the S3 driver: S3CompatibleStorageProvider falls
+  // back to the AWS virtual-hosted URL when unset and defaults region to
+  // "auto" — this validator doesn't second-guess that.
+  @IsOptional()
+  @IsString()
+  S3_ENDPOINT?: string;
+
+  @IsOptional()
+  @IsString()
+  S3_REGION?: string;
+
+  @IsOptional()
+  @IsString()
+  LOCAL_STORAGE_PATH?: string;
+
+  // --- Media upload limits (see media.constants.ts) ---
+  // Byte ceiling for a single media upload. Optional; falls back to the
+  // previous hardcoded 10MB (10485760 bytes) when unset.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  MEDIA_MAX_SIZE_BYTES?: number;
+
+  // Comma-separated subset of "image/jpeg,image/png,image/webp" — the
+  // only formats media.constants.ts can verify by content (magic bytes)
+  // today. Optional; can only narrow the default set, never add a
+  // format outside it (an unrecognized entry is ignored and the
+  // default list is used instead). Left unset, all 3 are allowed.
+  @IsOptional()
+  @IsString()
+  MEDIA_ALLOWED_MIME_TYPES?: string;
+
+  // Comma-separated subset of ".jpg,.jpeg,.png,.webp" — same narrowing
+  // rule as MEDIA_ALLOWED_MIME_TYPES above (and the two should stay in
+  // sync: e.g. removing "image/webp" without also removing ".webp"
+  // still blocks .webp uploads, since the content-type check runs
+  // first). Left unset, all 4 are allowed.
+  @IsOptional()
+  @IsString()
+  MEDIA_ALLOWED_EXTENSIONS?: string;
+
+  // --- Trust proxy (see main.ts) ---
+  // "true"/"false", a hop count (e.g. "1"), or a comma-separated list of
+  // specific IPs/CIDR ranges/keywords (e.g. "loopback,linklocal"). Left
+  // unset, main.ts falls back to `false` (express's own default,
+  // unchanged).
+  @IsOptional()
+  @IsString()
+  TRUST_PROXY?: string;
+
+  // --- HSTS (see main.ts) ---
+  // Explicit override of helmet's built-in Strict-Transport-Security
+  // defaults. All optional; left unset, each matches helmet's own
+  // default (180 days, sub-domains included, no preload) — unchanged.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  HSTS_MAX_AGE_SECONDS?: number;
+
+  @IsOptional()
+  @IsIn(['true', 'false'])
+  HSTS_INCLUDE_SUBDOMAINS?: string;
+
+  @IsOptional()
+  @IsIn(['true', 'false'])
+  HSTS_PRELOAD?: string;
+
+  // --- CORS (see main.ts) ---
+  // Comma-separated allow-list, e.g. "https://nhg.example,https://admin.nhg.example".
+  // Left unset outside production, main.ts falls back to reflecting the
+  // caller's Origin header (permissive, fine for local/dev). In
+  // production that fallback would let any origin read authenticated
+  // admin responses, so it's required there — see the @ValidateIf below,
+  // same pattern as DATABASE_SYNCHRONIZE's production-only enforcement
+  // in database-synchronize.config.ts.
+  @ValidateIf((env: EnvironmentVariables) => env.NODE_ENV === NodeEnvironment.Production)
+  @IsString()
+  @IsNotEmpty({
+    message:
+      'CORS_ALLOWED_ORIGINS is required when NODE_ENV=production (comma-separated allow-list, e.g. "https://nhg.example,https://admin.nhg.example"). Refusing to start with CORS open to any origin in production.',
+  })
+  CORS_ALLOWED_ORIGINS?: string;
+
+  // --- Request payload limits (see main.ts) ---
+  // Byte ceiling for a single JSON/urlencoded request body, enforced by
+  // express's body parsers before any controller or ValidationPipe runs.
+  // Optional; each falls back to a 1 MiB default (1_048_576 bytes) when
+  // unset, so behavior is unchanged until a deployment opts in.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  BODY_LIMIT_JSON_BYTES?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  BODY_LIMIT_URLENCODED_BYTES?: number;
+
+  // --- Public site (see public-api/sitemap/public-sitemap.controller.ts) ---
+  // Absolute origin (no trailing slash) the public site is served at,
+  // e.g. "https://nedayehaghighat.example". Used only to turn each
+  // SitemapService entry's relative `loc` (e.g. "/news/some-article")
+  // into the absolute URL /sitemap.xml requires. Left unset, it falls
+  // back to "http://localhost:{PORT}" — fine for local development,
+  // but should always be set explicitly in any real deployment.
+  @IsOptional()
+  @IsString()
+  PUBLIC_SITE_URL?: string;
+
+  // --- Error reporting (see main.ts) ---
+  // DSN for the Sentry project to report unexpected (5xx) server errors
+  // to — see GlobalExceptionFilter, which is the only place that calls
+  // Sentry.captureException. Left unset, Sentry.init() in main.ts is
+  // never called: no DSN means no reporting, not a crash, so this stays
+  // fully optional for local/dev environments without a Sentry project.
+  @IsOptional()
+  @IsString()
+  SENTRY_DSN?: string;
+
+  // Tags events with which deployment they came from (e.g.
+  // "production", "staging"). Optional; falls back to NODE_ENV in
+  // main.ts when unset, so it only needs setting explicitly if an
+  // environment wants a label different from its NODE_ENV.
+  @IsOptional()
+  @IsString()
+  SENTRY_ENVIRONMENT?: string;
+
+  // --- Redis (see core/redis/redis.module.ts) ---
+  // Connection for RedisService's single shared client. All optional
+  // with dev-friendly defaults (a local Redis on its standard port,
+  // no auth, db 0) — same reasoning STORAGE_DRIVER/local defaults to
+  // "just works" without configuration, unlike DATABASE_* which has no
+  // safe default and is required.
+  @IsOptional()
+  @IsString()
+  REDIS_HOST?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  REDIS_PORT?: number;
+
+  @IsOptional()
+  @IsString()
+  REDIS_PASSWORD?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  REDIS_DB?: number;
+
+  @IsOptional()
+  @IsIn(['true', 'false'])
+  REDIS_TLS?: string;
+
+  // --- Rate limiting (see app.module.ts / public-api/common/public-rate-limit.constants.ts) ---
+  // All optional; each falls back to today's hardcoded value when unset,
+  // so behavior is unchanged until a deployment opts in by setting one.
+  // TTL is the throttling window in milliseconds; LIMIT is the max
+  // requests allowed within that window.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_DEFAULT_TTL_MS?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_DEFAULT_LIMIT?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_PUBLIC_TTL_MS?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_PUBLIC_LIMIT?: number;
+
+  // Stricter profile for any public endpoint that accepts user input
+  // (see PUBLIC_FORM_THROTTLE) rather than only serving cached reads.
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_PUBLIC_FORM_TTL_MS?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  THROTTLE_PUBLIC_FORM_LIMIT?: number;
+}
+
+/**
+ * Passed as `ConfigModule.forRoot({ validate })` in app.module.ts. Runs
+ * once, synchronously, as part of evaluating that `forRoot()` call —
+ * before any other provider (the TypeORM connection, the SMS JWT guard,
+ * the storage providers) gets a chance to read `process.env` or
+ * ConfigService itself. A missing or malformed variable fails startup
+ * immediately with one readable list, instead of surfacing later as a
+ * raw ENOENT, a TypeORM connection error, or a `getOrThrow` "not found"
+ * deep inside some provider's constructor.
+ */
+export function validateEnvironment(
+  config: Record<string, unknown>,
+): EnvironmentVariables {
+  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
+    enableImplicitConversion: true,
+  });
+
+  const errors = validateSync(validatedConfig, { skipMissingProperties: false });
+  const messages = errors.flatMap((error) => Object.values(error.constraints ?? {}));
+
+  // Shape is valid at this point; confirming the JWT public key actually
+  // exists and looks like a PEM key needs the filesystem, not a
+  // class-validator decorator, so it runs as a separate step.
+  if (messages.length === 0) {
+    messages.push(...validateSmsPublicKey(validatedConfig.SMS_JWT_PUBLIC_KEY_PATH));
+  }
+
+  if (messages.length > 0) {
+    throw new Error(
+      `Invalid environment configuration:\n${messages.map((m) => `  - ${m}`).join('\n')}`,
+    );
+  }
+
+  return validatedConfig;
+}
+
+function validateSmsPublicKey(keyPath: string): string[] {
+  if (!existsSync(keyPath)) {
+    return [`SMS_JWT_PUBLIC_KEY_PATH does not point to an existing file: "${keyPath}"`];
+  }
+  try {
+    const contents = readFileSync(keyPath, 'utf8');
+    if (!contents.includes('BEGIN PUBLIC KEY') && !contents.includes('BEGIN RSA PUBLIC KEY')) {
+      return [`SMS_JWT_PUBLIC_KEY_PATH ("${keyPath}") does not look like a PEM public key`];
+    }
+  } catch (err) {
+    return [
+      `SMS_JWT_PUBLIC_KEY_PATH ("${keyPath}") could not be read: ${(err as Error).message}`,
+    ];
+  }
+  return [];
+}

@@ -1,0 +1,173 @@
+import * as React from "react";
+import { Search, User } from "lucide-react";
+
+import { Container } from "@/shared/design-system/components/Container";
+import { FOCUS_RING_CLASSNAME } from "@/shared/design-system/a11y";
+import { cn } from "@/shared/utils/cn";
+import { APP_NAME } from "@/shared/config/app";
+import { Link } from "@/shared/design-system/components/ui/link";
+import { buttonVariants } from "@/shared/design-system/components/ui/button";
+import { Avatar } from "@/shared/design-system/components/ui/avatar";
+import { useNavigation, type NavigationItem } from "@/features/navigation";
+import { useSiteSettings } from "@/features/site";
+import { DesktopNavigation, type NavLinkItem } from "@/app/shell/DesktopNavigation";
+import { MobileNavigation } from "@/app/shell/MobileNavigation";
+import { PortalModal } from "@/app/shell/PortalModal";
+import { NAV_ITEMS } from "@/app/shell/nav-data";
+
+/**
+ * Frontend-owned fallback used only when the CMS Navigation endpoint
+ * (`useNavigation`) has no usable data — a failed request, or (once
+ * the backend genuinely has zero items) an empty response. A header
+ * with no navigation at all is a worse failure mode than a brief,
+ * stale-but-correct list of the routes this build actually ships
+ * (`nav-data.ts`, still route-verified per that file's doc comment),
+ * so this is the same array reshaped to `NavLinkItem` rather than a
+ * second hand-maintained list.
+ */
+const FALLBACK_NAV_ITEMS: readonly NavLinkItem[] = NAV_ITEMS.map((item) => ({
+  id: item.href,
+  label: item.label,
+  url: item.href,
+}));
+
+function sortByOrder(items: readonly NavigationItem[]): NavLinkItem[] {
+  return [...items]
+    .sort((a, b) => a.order - b.order)
+    .map(({ id, label, url, target }) => ({ id, label, url, target }));
+}
+
+/**
+ * Persistent header chrome (§8 "Layout Architecture"), part of the
+ * `AppShell` and rendered once, never re-mounted on route changes.
+ *
+ * Sprint 3A scope: structural nav only. The logo/brand mark and contact
+ * info are Site Settings–derived content (§4, §8) and are wired in once
+ * that feature exists — the app name is used as a text placeholder here
+ * so the brand link has *something* accessible in the meantime, not as
+ * a stand-in for real Site Settings content.
+ *
+ * Visual refresh (brand pass): sticky/backdrop-blurred chrome, a small
+ * presentational crest mark (`BrandMark`, decorative-only via
+ * `aria-hidden`) paired with the existing `APP_NAME` text, and a
+ * secondary CTA link. Purely a presentation change — still composed
+ * only from existing design-system primitives (`Container`,
+ * `buttonVariants`, `Link`) plus the same "local inline SVG" pattern
+ * `MobileNavigation`'s `MenuIcon` already uses; no new shared
+ * component, no new dependency, no change to nav data/behavior.
+ *
+ * Portal Login (Figma Design Reference §4.2/§4.3): `isPortalOpen` is
+ * ordinary component-local UI state (§16) — it has no reason to live
+ * anywhere else. `Header` owns it (rather than `PortalModal` owning its
+ * own open state) because both the desktop trigger below *and*
+ * `MobileNavigation`'s own trigger need to open the same single modal
+ * instance — matching Figma's `App.tsx`, where one `<PortalModal />`
+ * sits at the shell level rather than one per trigger.
+ */
+export function Header() {
+  const [isPortalOpen, setIsPortalOpen] = React.useState(false);
+  const { data, isLoading, isError } = useNavigation();
+  const { data: siteSettings } = useSiteSettings();
+  const siteName = siteSettings?.siteName.fa ?? APP_NAME;
+  const tagline = siteSettings?.tagline?.fa ?? "آموزش | پژوهش | رشد";
+
+  // Header is the single fetch site for nav data (§16-style "owns the
+  // state both consumers need"): DesktopNavigation and MobileNavigation
+  // stay presentational and receive the already-resolved list, so the
+  // loading/error/empty → fallback decision lives in exactly one place
+  // instead of being re-derived by each consumer.
+  const navItems = React.useMemo<readonly NavLinkItem[]>(() => {
+    if (isLoading) return [];
+    if (isError || !data || data.items.length === 0) return FALLBACK_NAV_ITEMS;
+    return sortByOrder(data.items);
+  }, [data, isLoading, isError]);
+
+  return (
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+      <Container className="flex h-20 items-center justify-between gap-4">
+        <Link
+          href="/"
+          variant="subtle"
+          className={cn("group flex items-center gap-3 no-underline", FOCUS_RING_CLASSNAME)}
+        >
+          {siteSettings?.logo?.url ? (
+            <Avatar
+              src={siteSettings.logo.url}
+              alt={siteSettings.logo.altText || siteName}
+              fallback={siteName.slice(0, 1)}
+              className="h-12 w-12 rounded-md bg-transparent text-foreground transition-transform duration-300 group-hover:scale-105 sm:h-14 sm:w-14"
+            />
+          ) : (
+            <BrandMark className="h-12 w-12 shrink-0 transition-transform duration-300 group-hover:scale-105 sm:h-14 sm:w-14" />
+          )}
+          <span className="flex min-w-0 flex-col leading-tight">
+            <span className="max-w-[12rem] truncate font-heading text-lg font-bold tracking-tight text-foreground sm:max-w-none sm:text-xl">
+              {siteName}
+            </span>
+            <span className="text-xs font-medium tracking-wide text-brand-gold">
+              {tagline}
+            </span>
+          </span>
+        </Link>
+
+        <DesktopNavigation items={navItems} isLoading={isLoading} />
+
+        <div className="flex shrink-0 items-center gap-1.5">
+          <button
+            type="button"
+            aria-label="جست‌وجو"
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              "hidden rounded-full text-foreground/70 hover:bg-secondary hover:text-brand-navy sm:inline-flex",
+            )}
+          >
+            <Search className="h-4 w-4" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsPortalOpen(true)}
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "hidden gap-1.5 rounded-full border-brand-navy/25 text-brand-navy hover:border-brand-navy hover:bg-brand-navy hover:text-white sm:inline-flex",
+            )}
+          >
+            <User className="h-3.5 w-3.5" aria-hidden="true" />
+            ورود / ثبت‌نام
+          </button>
+          <MobileNavigation
+            items={navItems}
+            isLoading={isLoading}
+            brandName={siteName}
+            onOpenPortal={() => setIsPortalOpen(true)}
+          />
+        </div>
+      </Container>
+
+      <PortalModal open={isPortalOpen} onClose={() => setIsPortalOpen(false)} />
+    </header>
+  );
+}
+
+/**
+ * Decorative brand crest (a stylized "open book" mark inside a ring),
+ * echoing the navy-and-gold identity in `tokens.css`. Purely
+ * presentational — `aria-hidden`, no independent meaning — so it stays
+ * a local helper here rather than a new design-system export.
+ */
+function BrandMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 40 40" className={className} aria-hidden="true" focusable="false">
+      <circle cx="20" cy="20" r="19" className="fill-brand-navy" />
+      <circle cx="20" cy="20" r="19" className="fill-none stroke-brand-gold" strokeWidth="1.25" />
+      <path
+        d="M12 25.5V15.8L20 11l8 4.8v9.7"
+        className="fill-none stroke-brand-gold"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M20 11v14.5" className="stroke-brand-gold" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="20" cy="27.5" r="1.4" className="fill-brand-gold" />
+    </svg>
+  );
+}

@@ -1,0 +1,9 @@
+﻿# Local deployment configuration and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Local certificates and generated runtime data
+certs/
+caddy-data/
