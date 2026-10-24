@@ -1,55 +1,57 @@
+import { ClipboardList } from "lucide-react";
+
 import {
-  Badge,
-  buttonVariants,
-  Heading,
   Link,
-  Section,
-  Stack,
-  Text,
+  MediaFrame,
+  PageHero,
+  buttonVariants,
 } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
 
 /**
- * Pre-registration page "Hero" section.
+ * Pre-registration page hero — thin feature wrapper around the shared
+ * `PageHero`.
  *
- * Follows the same pattern as the homepage's `hero` feature and the
- * other static pages' `*Hero` sections (`AboutHero`, `SchoolsHero`,
- * `NewsHero`, `GalleryHero`): presentation only, composed entirely
- * from existing design-system primitives (`Section`, `Stack`,
- * `Badge`, `Heading`, `Text`, `Link`/`buttonVariants`) — no new
- * components, no data fetching, no business logic.
- *
- * Real headline/intro copy is ultimately Pre-registration content
- * (a CMS-ready section, same category as Hero/Features/CTA content
- * modules, §4, §8); this renders frontend-owned Persian placeholder
- * copy in the meantime. The in-page CTA is a plain anchor link to the
- * `RegistrationForm` section's landmark id — no scroll logic, no
- * client-side state.
+ * The in-page CTA stays a plain anchor to the `RegistrationForm`
+ * section's landmark id — no scroll logic, no client-side state.
  */
 export function Hero() {
   return (
-    <Section spacing="lg" aria-labelledby="pre-registration-hero-heading">
-      <Stack gap="lg" align="center" className="text-center">
-        <Stack gap="sm" align="center">
-          <Badge variant="secondary" className="w-fit">
-            پیش‌ثبت‌نام سال تحصیلی جدید
-          </Badge>
-          <Heading id="pre-registration-hero-heading" level={1}>
-            پیش‌ثبت‌نام دانش‌آموزان جدید
-          </Heading>
-          <Text variant="lead" className="max-w-2xl">
-            متنی نمونه برای معرفی فرآیند پیش‌ثبت‌نام. این پاراگراف جایگزین خلاصه‌ای است که
-            در آینده از طریق سامانه مدیریت محتوا و از سرویس عمومی بک‌اند دریافت خواهد شد.
-          </Text>
-        </Stack>
-
-        <Link
-          href="#registration-form"
-          className={cn(buttonVariants({ variant: "default", size: "lg" }))}
-        >
-          شروع پیش‌ثبت‌نام
-        </Link>
-      </Stack>
-    </Section>
+    <PageHero
+      headingId="pre-registration-hero-heading"
+      eyebrow="پیش‌ثبت‌نام سال تحصیلی جدید"
+      title="ثبت‌نام اولیه دانش‌آموزان"
+      description="فرم زیر را تکمیل کنید تا کارشناسان پذیرش برای بررسی ظرفیت شعبه و هماهنگی مراحل بعدی با شما تماس بگیرند."
+      media={
+        <MediaFrame
+          ratio={4 / 3}
+          label="تصویر راهنمای ثبت‌نام به‌زودی"
+          icon={ClipboardList}
+          className="rounded-3xl shadow-xl shadow-brand-navy/5 ring-1 ring-border/60"
+        />
+      }
+      actions={
+        <>
+          <Link
+            href="#registration-form"
+            className={cn(
+              buttonVariants({ variant: "default", size: "lg", shape: "pill" }),
+              "bg-brand-navy text-white shadow-lg shadow-brand-navy/20 hover:bg-brand-navy/90",
+            )}
+          >
+            شروع پیش‌ثبت‌نام
+          </Link>
+          <Link
+            href="#pre-registration-faq-heading"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "lg", shape: "pill" }),
+              "border-brand-navy/20 hover:bg-transparent",
+            )}
+          >
+            پرسش‌های متداول
+          </Link>
+        </>
+      }
+    />
   );
 }

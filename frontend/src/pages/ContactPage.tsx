@@ -32,11 +32,15 @@ import { ContactIntro, ContactInfo } from "@/features/contact";
  */
 export function ContactPage() {
   return (
-    <PageLayout>
-      <Stack gap="none">
-        <ContactIntro />
-        <ContactInfo />
-      </Stack>
-    </PageLayout>
+    <>
+      {/* Full-bleed hero band, outside PageLayout (which is a Container). */}
+      <ContactIntro />
+
+      <PageLayout>
+        <Stack gap="none">
+          <ContactInfo />
+        </Stack>
+      </PageLayout>
+    </>
   );
 }

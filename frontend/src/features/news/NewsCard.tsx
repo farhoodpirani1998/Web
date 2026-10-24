@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
   Link,
+  MediaFrame,
   Stack,
   Text,
 } from "@/shared/design-system/components";
@@ -51,71 +52,61 @@ export interface NewsCardProps {
  * any data fetching.
  */
 export function NewsCard({ item, featured = false }: NewsCardProps) {
-  const { Icon, tone } = getCategoryVisual(item.category);
+  const { Icon } = getCategoryVisual(item.category);
 
   return (
     <Card
       variant="elevated"
       padding="none"
-      className={cn(
-        "group overflow-hidden bg-background transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
-        featured && "sm:grid sm:grid-cols-[minmax(0,14rem)_1fr]",
-      )}
+      className="group overflow-hidden bg-background transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
     >
-      <div
-        className={cn(
-          "flex items-center justify-center bg-gradient-to-br from-brand-navy/10 via-muted to-brand-gold/15 p-6",
-          featured ? "sm:h-full" : "h-24",
-        )}
-      >
-        <span
-          aria-hidden="true"
-          className={cn(
-            "flex items-center justify-center rounded-full",
-            tone,
-            featured ? "h-16 w-16" : "h-11 w-11",
-          )}
-        >
-          <Icon className={featured ? "h-7 w-7" : "h-5 w-5"} />
-        </span>
-      </div>
+      <MediaFrame
+        src={item.imageUrl}
+        alt={item.title}
+        icon={Icon}
+        label="تصویر خبر به‌زودی"
+        ratio={featured ? 16 / 7 : 16 / 9}
+      />
 
-      <div>
-        <CardHeader className={featured ? "p-6 pb-0 sm:p-8 sm:pb-0" : "p-4 pb-0"}>
-          <Stack gap="xs">
-            <Stack direction="row" gap="xs" align="center" wrap>
-              <Badge variant="secondary">{item.category}</Badge>
-              <Text variant="bodySm" color="muted">
-                {item.date}
-              </Text>
-            </Stack>
-            <CardTitle className={cn("font-heading", featured && "text-2xl")}>
-              {item.title}
-            </CardTitle>
-          </Stack>
-        </CardHeader>
+      <CardHeader className={cn("gap-2 pb-0", featured ? "p-6" : "p-5")}>
+        <Stack direction="row" gap="sm" align="center" wrap>
+          <Badge
+            variant="secondary"
+            className="rounded-full bg-brand-gold/15 text-brand-navy"
+          >
+            {item.category}
+          </Badge>
+          <Text variant="bodySm" color="muted">
+            {item.date}
+          </Text>
+        </Stack>
+        <CardTitle className={featured ? "text-2xl" : "text-lg"}>{item.title}</CardTitle>
+      </CardHeader>
 
-        <CardContent className={featured ? "p-6 pt-3 sm:p-8 sm:pt-3" : "p-4 pt-2"}>
-          <Stack gap="sm">
-            <Text variant="bodySm" color="muted">
-              {item.excerpt}
-            </Text>
-            <Link
-              href={`/news/${item.slug}`}
-              variant="subtle"
-              className="group/link inline-flex w-fit items-center gap-1 text-brand-navy"
+      <CardContent className={cn("p-5 pt-3", featured && "p-6 pt-3")}>
+        <Stack gap="sm">
+          <Text
+            variant="bodySm"
+            color="muted"
+            className={featured ? "line-clamp-3" : "line-clamp-2"}
+          >
+            {item.excerpt}
+          </Text>
+          <Link
+            href={`/news/${item.slug}`}
+            variant="subtle"
+            className="group/link inline-flex w-fit items-center gap-1 text-brand-navy"
+          >
+            ادامه مطلب
+            <span
+              aria-hidden="true"
+              className="transition-transform duration-200 group-hover/link:-translate-x-0.5 rtl:group-hover/link:translate-x-0.5"
             >
-              ادامه مطلب
-              <span
-                aria-hidden="true"
-                className="transition-transform duration-200 group-hover/link:-translate-x-0.5 rtl:group-hover/link:translate-x-0.5"
-              >
-                ‹
-              </span>
-            </Link>
-          </Stack>
-        </CardContent>
-      </div>
+              ‹
+            </span>
+          </Link>
+        </Stack>
+      </CardContent>
     </Card>
   );
 }
@@ -127,21 +118,35 @@ export function NewsCard({ item, featured = false }: NewsCardProps) {
  * rather than throwing, so this never depends on the exact set of
  * category strings `./data` happens to use today.
  */
-function getCategoryVisual(category: string): { Icon: typeof BellIcon; tone: string } {
+function getCategoryVisual(category: string): { Icon: typeof BellIcon } {
   if (category.includes("رویداد")) {
-    return { Icon: CalendarIcon, tone: "bg-brand-navy text-brand-gold" };
+    return { Icon: CalendarIcon };
   }
   if (category.includes("دستاورد")) {
-    return { Icon: TrophyIcon, tone: "bg-brand-gold/20 text-brand-navy" };
+    return { Icon: TrophyIcon };
   }
-  return { Icon: BellIcon, tone: "bg-brand-navy text-brand-gold" };
+  return { Icon: BellIcon };
 }
 
 function CalendarIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true" focusable="false">
-      <rect x="3.5" y="5" width="17" height="15" rx="2" fill="none" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M3.5 9.5h17M8 3v3.5M16 3v3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <rect
+        x="3.5"
+        y="5"
+        width="17"
+        height="15"
+        rx="2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M3.5 9.5h17M8 3v3.5M16 3v3.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -156,8 +161,18 @@ function TrophyIcon({ className }: { className?: string }) {
         strokeWidth="1.5"
         strokeLinejoin="round"
       />
-      <path d="M7 6H4.5a2 2 0 0 0 0 4H7M17 6h2.5a2 2 0 0 1 0 4H17" fill="none" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M12 13v4M9 20h6M10 20v-3h4v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path
+        d="M7 6H4.5a2 2 0 0 0 0 4H7M17 6h2.5a2 2 0 0 1 0 4H17"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M12 13v4M9 20h6M10 20v-3h4v3"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -172,7 +187,12 @@ function BellIcon({ className }: { className?: string }) {
         strokeWidth="1.5"
         strokeLinejoin="round"
       />
-      <path d="M10 18.5a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path
+        d="M10 18.5a2 2 0 0 0 4 0"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }

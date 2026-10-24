@@ -1,4 +1,12 @@
-import { Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { BookOpenText } from "lucide-react";
+
+import {
+  MediaFrame,
+  Section,
+  SectionHeader,
+  Stack,
+  Text,
+} from "@/shared/design-system/components";
 import { useAboutPage } from "./useAboutPage";
 import type { AboutStoryContent } from "./types";
 
@@ -49,30 +57,36 @@ export function AboutStory() {
 
   return (
     <Section spacing="lg" aria-labelledby="about-story-heading">
-      <Stack gap="lg" className="max-w-3xl">
-        <Stack gap="sm" align="start">
-          <Stack gap="xs" align="start">
-            <Heading id="about-story-heading" level={2}>
-              {story.title}
-            </Heading>
-            <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
-          </Stack>
+      <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-14">
+        <Stack gap="lg">
+          <SectionHeader
+            headingId="about-story-heading"
+            eyebrow="روایت مجموعه"
+            title={story.title}
+          />
+
+          {leadParagraph && (
+            <div className="border-s-2 border-brand-gold/40 ps-5">
+              <Text variant="lead" className="text-foreground/80">
+                {leadParagraph}
+              </Text>
+            </div>
+          )}
+
+          {restParagraphs.map((paragraph, index) => (
+            <Text key={index} color="muted">
+              {paragraph}
+            </Text>
+          ))}
         </Stack>
 
-        {leadParagraph && (
-          <div className="border-s-2 border-brand-gold/40 ps-5">
-            <Text variant="lead" className="text-foreground/80">
-              {leadParagraph}
-            </Text>
-          </div>
-        )}
-
-        {restParagraphs.map((paragraph, index) => (
-          <Text key={index} color="muted">
-            {paragraph}
-          </Text>
-        ))}
-      </Stack>
+        <MediaFrame
+          ratio={4 / 5}
+          label="تصویر روایت مجموعه به‌زودی"
+          icon={BookOpenText}
+          className="rounded-3xl shadow-xl shadow-brand-navy/5 ring-1 ring-border/60"
+        />
+      </div>
     </Section>
   );
 }

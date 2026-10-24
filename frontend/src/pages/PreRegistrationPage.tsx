@@ -37,13 +37,17 @@ import { Hero, Information, RegistrationForm, FAQ } from "@/features/pre-registr
  */
 export function PreRegistrationPage() {
   return (
-    <PageLayout>
-      <Stack gap="none">
-        <Hero />
-        <Information />
-        <RegistrationForm />
-        <FAQ />
-      </Stack>
-    </PageLayout>
+    <>
+      {/* Full-bleed hero band, outside PageLayout (which is a Container). */}
+      <Hero />
+
+      <PageLayout>
+        <Stack gap="none">
+          <Information />
+          <RegistrationForm />
+          <FAQ />
+        </Stack>
+      </PageLayout>
+    </>
   );
 }

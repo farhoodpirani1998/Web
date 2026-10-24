@@ -1,4 +1,4 @@
-import { Badge, Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { Grid, Section, SectionHeader, Stack } from "@/shared/design-system/components";
 import { NewsCard } from "./NewsCard";
 import { newsItems } from "./data";
 import { useNews } from "./useNews";
@@ -38,21 +38,13 @@ export function NewsList() {
   return (
     <Section spacing="lg" aria-labelledby="news-list-heading">
       <Stack gap="xl">
-        <Stack gap="sm" align="center" className="text-center">
-          <Badge
-            variant="outline"
-            className="w-fit rounded-full border-brand-gold/40 bg-brand-gold/10 text-brand-navy"
-          >
-            آخرین مطالب
-          </Badge>
-          <Heading id="news-list-heading" level={2}>
-            فهرست اخبار
-          </Heading>
-          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
-          <Text variant="lead" className="max-w-2xl">
-            تازه‌ترین اطلاعیه‌ها، رویدادها و دستاوردهای مجموعه را اینجا دنبال کنید.
-          </Text>
-        </Stack>
+        <SectionHeader
+          headingId="news-list-heading"
+          align="center"
+          eyebrow="آخرین مطالب"
+          title="فهرست اخبار"
+          description="تازه‌ترین اطلاعیه‌ها، رویدادها و دستاوردهای مجموعه را اینجا دنبال کنید."
+        />
 
         <Stack gap="lg">
           {leadStory && <NewsCard item={leadStory} featured />}

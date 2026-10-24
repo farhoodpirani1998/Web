@@ -10,11 +10,17 @@
  * `useSiteSettings()`-style hook later only touches this one file.
  */
 
+export const PLACEHOLDER_CONTACT = {
+  address: "خیابان نمونه، پلاک ۱۲، تهران",
+  phone: "۰۲۱-۱۲۳۴۵۶۷۸",
+  email: "info@example.com",
+} as const;
+
 export function toTelephoneHref(phone: string): string {
-	const localizedDigits = "۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩";
-	const asciiDigits = "01234567890123456789";
-	const normalized = phone
-		.replace(/[۰-۹٠-٩]/g, (digit) => asciiDigits[localizedDigits.indexOf(digit)])
-		.replace(/[^\d+]/g, "");
-	return `tel:${normalized}`;
+  const localizedDigits = "۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩";
+  const asciiDigits = "01234567890123456789";
+  const normalized = phone
+    .replace(/[۰-۹٠-٩]/g, (digit) => asciiDigits[localizedDigits.indexOf(digit)])
+    .replace(/[^\d+]/g, "");
+  return `tel:${normalized}`;
 }

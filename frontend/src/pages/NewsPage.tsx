@@ -62,14 +62,19 @@ const NEWS_SEO = {
  */
 export function NewsPage() {
   return (
-    <PageLayout>
+    <>
       <Seo seo={NEWS_SEO} />
-      <Stack gap="none">
-        <NewsHero />
-        <NewsList />
-        <NewsDetails />
-        <FAQ />
-      </Stack>
-    </PageLayout>
+
+      {/* Full-bleed hero band, outside PageLayout (which is a Container). */}
+      <NewsHero />
+
+      <PageLayout>
+        <Stack gap="none">
+          <NewsList />
+          <NewsDetails />
+          <FAQ />
+        </Stack>
+      </PageLayout>
+    </>
   );
 }

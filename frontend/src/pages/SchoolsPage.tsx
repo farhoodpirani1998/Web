@@ -1,4 +1,4 @@
-import { PageLayout, Stack } from "@/shared/design-system/components";
+import { PageLayout } from "@/shared/design-system/components";
 import { SchoolsHero, SchoolsList } from "@/features/schools";
 
 /**
@@ -29,11 +29,13 @@ import { SchoolsHero, SchoolsList } from "@/features/schools";
  */
 export function SchoolsPage() {
   return (
-    <PageLayout>
-      <Stack gap="none">
-        <SchoolsHero />
+    <>
+      {/* Full-bleed hero band, outside PageLayout (which is a Container). */}
+      <SchoolsHero />
+
+      <PageLayout>
         <SchoolsList />
-      </Stack>
-    </PageLayout>
+      </PageLayout>
+    </>
   );
 }

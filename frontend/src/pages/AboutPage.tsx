@@ -49,20 +49,25 @@ export function AboutPage() {
   const { data } = useAboutPage();
 
   return (
-    <PageLayout>
+    <>
       <Seo seo={data?.seo} structuredData={data?.structuredData} />
-      <Stack gap="none">
-        <AboutHero />
-        <AboutStats />
-        <AboutStory />
-        <AboutValues />
-        <AboutTimeline />
 
-        <Separator className="my-2" />
+      {/* Full-bleed hero band, outside PageLayout (which is a Container). */}
+      <AboutHero />
 
-        <AboutTeam />
-        <AboutFAQ />
-      </Stack>
-    </PageLayout>
+      <PageLayout>
+        <Stack gap="none">
+          <AboutStats />
+          <AboutStory />
+          <AboutValues />
+          <AboutTimeline />
+
+          <Separator className="my-2" />
+
+          <AboutTeam />
+          <AboutFAQ />
+        </Stack>
+      </PageLayout>
+    </>
   );
 }

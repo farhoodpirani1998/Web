@@ -1,59 +1,47 @@
-import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { Rss } from "lucide-react";
+
+import { Link, PageHero, buttonVariants } from "@/shared/design-system/components";
+import { cn } from "@/shared/utils/cn";
 
 /**
- * News page "Hero" section — first section of the `news` feature
- * (Website Frontend Architecture §4, §10 "Section Architecture"),
- * following the same pattern as `hero`/`features`/`cta`/`about`/
- * `contact`/`schools`.
+ * News page hero — thin feature wrapper around the shared `PageHero`.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Badge`, `Heading`, `Text`) — no data
- * fetching, no business logic. Real copy is ultimately the backend's
- * News/Announcements content module (§4, §8); no such endpoint exists
- * on the Public API yet, so this renders frontend-owned Persian
- * placeholder copy in the meantime. Swapping this for a
- * `useNews()`-style data hook later is additive — `NewsPage` only ever
- * composes `<NewsHero />`, never its internals.
- *
- * Visual refresh: adopts the same gold-badge/underline eyebrow
- * treatment and soft gradient backdrop already established by the
- * homepage `Hero`/`Features` sections (and now `GalleryHero`), so this
- * page reads as part of the same premium navy/gold system instead of a
- * plain text block.
+ * No media slot: an article index reads better with a wider text block
+ * than with a decorative image. Real copy is ultimately the backend's
+ * News/Announcements content module (§4, §8); `NewsPage` only ever
+ * composes `<NewsHero />`, so wiring a data hook in later stays inside
+ * this file.
  */
 export function NewsHero() {
   return (
-    <Section
-      spacing="lg"
-      aria-labelledby="news-hero-heading"
-      className="relative isolate overflow-hidden"
-    >
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-10 rounded-[2.5rem] bg-gradient-to-b from-muted/70 via-muted/15 to-transparent"
-      />
-
-      <Stack gap="sm" align="start" className="max-w-2xl">
-        <Badge
-          variant="outline"
-          className="w-fit gap-1.5 rounded-full border-brand-gold/40 bg-brand-gold/10 px-3 py-1 text-brand-navy"
-        >
-          اخبار
-        </Badge>
-
-        <Stack gap="xs" align="start">
-          <Heading id="news-hero-heading" level={1}>
-            آخرین اخبار و اطلاعیه‌ها
-          </Heading>
-          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
-        </Stack>
-
-        <Text variant="lead" className="max-w-2xl text-foreground/70">
-          متنی نمونه درباره تازه‌ترین رویدادها، اطلاعیه‌ها و دستاوردهای
-          مجموعه. عناوین، تاریخ انتشار و متن کامل هر خبر در نهایت از طریق
-          سامانه مدیریت محتوا و سرویس عمومی بک‌اند دریافت خواهد شد.
-        </Text>
-      </Stack>
-    </Section>
+    <PageHero
+      headingId="news-hero-heading"
+      eyebrow="اخبار و اطلاعیه‌ها"
+      title="تازه‌ترین اخبار مجموعه"
+      description="اطلاعیه‌های آموزشی، رویدادها و دستاوردهای گروه آموزشی ندای حقیقت در این بخش منتشر می‌شود."
+      actions={
+        <>
+          <Link
+            href="/events"
+            className={cn(
+              buttonVariants({ variant: "default", size: "lg", shape: "pill" }),
+              "bg-brand-navy text-white shadow-lg shadow-brand-navy/20 hover:bg-brand-navy/90",
+            )}
+          >
+            تقویم رویدادها
+          </Link>
+          <Link
+            href="/contact"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "lg", shape: "pill" }),
+              "gap-2 border-brand-navy/20 hover:bg-transparent",
+            )}
+          >
+            <Rss className="h-4 w-4" aria-hidden="true" />
+            پیگیری اطلاعیه‌ها
+          </Link>
+        </>
+      }
+    />
   );
 }

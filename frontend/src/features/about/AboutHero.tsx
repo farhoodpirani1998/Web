@@ -1,4 +1,12 @@
-import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { Sparkles } from "lucide-react";
+
+import {
+  Link,
+  MediaFrame,
+  PageHero,
+  buttonVariants,
+} from "@/shared/design-system/components";
+import { cn } from "@/shared/utils/cn";
 import { useAboutPage } from "./useAboutPage";
 import type { AboutHeroContent } from "./types";
 
@@ -12,65 +20,56 @@ const fallbackHero: AboutHeroContent = {
   eyebrow: "درباره ما",
   title: "با گروه آموزشی ما بیشتر آشنا شوید",
   description:
-    "متنی نمونه برای معرفی کلی مجموعه. این پاراگراف جایگزین خلاصه‌ای " +
-    "است که در آینده از طریق سامانه مدیریت محتوا و از سرویس عمومی " +
-    "بک‌اند دریافت خواهد شد.",
+    "مسیر آموزشی مجموعه، از نخستین سال تأسیس تا امروز، بر پایه سه اصل " +
+    "کیفیت تدریس، پیگیری فردی دانش‌آموز و ارتباط مستمر با خانواده بنا شده است.",
 };
 
 /**
- * About page "Hero" section, following the same pattern as the
- * homepage's `hero`/`features`/`cta` features and now (as of this
- * extension) also `@/features/news`'s `NewsList`.
+ * About page hero — thin feature wrapper around the shared `PageHero`.
  *
- * Backed by `useAboutPage()` (the Public API's Static Pages/About
- * content module, §4, §8): renders `data.hero` once the query has
- * resolved, and falls back to `fallbackHero` while the query is
- * loading, has errored, or the CMS has nothing published yet.
- *
- * Visual refresh: adopts the same gold-badge/underline eyebrow
- * treatment and soft gradient backdrop already established by the
- * homepage `Hero`/`Features` sections (and now `GalleryHero`/
- * `NewsHero`), so this page reads as part of the same premium
- * navy/gold system instead of a plain text block. Still zero new
- * dependencies — the backdrop is a plain `aria-hidden` `div` built
- * from existing tokens, the same technique `Hero` already uses.
+ * Rendered outside `AboutPage`'s `PageLayout` so the band can span the
+ * full viewport width (see `FIGMA-DESIGN-REFERENCE.md` §3).
  */
 export function AboutHero() {
   const { data } = useAboutPage();
   const hero = data?.hero ?? fallbackHero;
 
   return (
-    <Section
-      spacing="lg"
-      aria-labelledby="about-hero-heading"
-      className="relative isolate overflow-hidden"
-    >
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-10 rounded-[2.5rem] bg-gradient-to-b from-muted/70 via-muted/15 to-transparent"
-      />
-
-      <Stack gap="sm" align="start" className="max-w-2xl">
-        {hero.eyebrow && (
-          <Badge
-            variant="outline"
-            className="w-fit gap-1.5 rounded-full border-brand-gold/40 bg-brand-gold/10 px-3 py-1 text-brand-navy"
+    <PageHero
+      headingId="about-hero-heading"
+      eyebrow={hero.eyebrow}
+      title={hero.title}
+      description={hero.description}
+      media={
+        <MediaFrame
+          ratio={4 / 3}
+          label="تصویر مجموعه به‌زودی"
+          icon={Sparkles}
+          className="rounded-3xl shadow-xl shadow-brand-navy/5 ring-1 ring-border/60"
+        />
+      }
+      actions={
+        <>
+          <Link
+            href="/admissions"
+            className={cn(
+              buttonVariants({ variant: "default", size: "lg", shape: "pill" }),
+              "bg-brand-navy text-white shadow-lg shadow-brand-navy/20 hover:bg-brand-navy/90",
+            )}
           >
-            {hero.eyebrow}
-          </Badge>
-        )}
-
-        <Stack gap="xs" align="start">
-          <Heading id="about-hero-heading" level={1}>
-            {hero.title}
-          </Heading>
-          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
-        </Stack>
-
-        <Text variant="lead" className="max-w-2xl text-foreground/70">
-          {hero.description}
-        </Text>
-      </Stack>
-    </Section>
+            شرایط و مراحل پذیرش
+          </Link>
+          <Link
+            href="/contact"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "lg", shape: "pill" }),
+              "border-brand-navy/20 hover:bg-transparent",
+            )}
+          >
+            گفت‌وگو با ما
+          </Link>
+        </>
+      }
+    />
   );
 }

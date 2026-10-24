@@ -10,7 +10,7 @@ import { cn } from "@/shared/utils/cn";
  * references a specific content module — accepts everything as props.
  */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium " +
+  "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium " +
     "ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 " +
     "focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
@@ -26,14 +26,20 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
+        sm: "h-9 px-3",
+        lg: "h-11 px-8",
         icon: "h-10 w-10",
+      },
+      /** Pill shape — the brand's hero/CTA call-to-action silhouette. */
+      shape: {
+        rounded: "rounded-md",
+        pill: "rounded-full",
       },
     },
     defaultVariants: {
       variant: "default",
       size: "default",
+      shape: "rounded",
     },
   },
 );
@@ -45,11 +51,11 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, shape, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(buttonVariants({ variant, size, shape, className }))}
         ref={ref}
         {...props}
       />

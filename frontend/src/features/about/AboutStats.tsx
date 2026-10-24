@@ -1,4 +1,11 @@
-import { Card, Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import {
+  Card,
+  Grid,
+  Section,
+  SectionHeader,
+  Stack,
+  Text,
+} from "@/shared/design-system/components";
 import { useAboutPage } from "./useAboutPage";
 import type { AboutStatItem } from "./types";
 
@@ -34,11 +41,19 @@ export function AboutStats() {
   const stats = data && data.stats.length > 0 ? data.stats : fallbackStats;
 
   return (
-    <Section spacing="md" tone="muted" className="rounded-lg" aria-labelledby="about-stats-heading">
+    <Section
+      spacing="md"
+      tone="muted"
+      className="rounded-3xl"
+      aria-labelledby="about-stats-heading"
+    >
       <Stack gap="md">
-        <Heading id="about-stats-heading" level={2} as="h3">
-          مجموعه در یک نگاه
-        </Heading>
+        <SectionHeader
+          headingId="about-stats-heading"
+          headingLevel={3}
+          eyebrow="آمار مجموعه"
+          title="مجموعه در یک نگاه"
+        />
         <Grid cols="4" gap="md">
           {stats.map((stat) => (
             <Card
@@ -47,7 +62,10 @@ export function AboutStats() {
               padding="md"
               className="group relative overflow-hidden bg-background text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
-              <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-brand-gold" />
+              <span
+                aria-hidden="true"
+                className="absolute inset-x-0 top-0 h-1 bg-brand-gold"
+              />
               <Stack gap="xs" align="center">
                 <Text
                   as="span"

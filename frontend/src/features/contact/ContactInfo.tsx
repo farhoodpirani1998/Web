@@ -6,11 +6,13 @@ import {
   Grid,
   Link,
   Section,
+  SectionHeader,
+  Stack,
   Text,
 } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
 import { useSiteSettings } from "@/features/site";
-import { toTelephoneHref } from "@/shared/config/contact";
+import { PLACEHOLDER_CONTACT, toTelephoneHref } from "@/shared/config/contact";
 
 type ContactItem =
   | { id: string; label: string; type: "text"; value: string }
@@ -46,74 +48,73 @@ type ContactItem =
 
 export function ContactInfo() {
   const { data } = useSiteSettings();
-  const contactItems: ContactItem[] = [];
-  if (data?.address?.fa) {
-    contactItems.push(
-      data.mapUrl
-        ? { id: "address", label: "آدرس", type: "link", value: data.address.fa, href: data.mapUrl }
-        : { id: "address", label: "آدرس", type: "text", value: data.address.fa },
-    );
-  }
-  if (data?.contactPhone) {
-    contactItems.push({
+
+  // Per-field fallback, same "local literal while the CMS has nothing"
+  // convention `SchoolsList`/`NewsList` use — without it this section
+  // rendered nothing at all whenever Site Settings was unreachable,
+  // leaving `/contact` a hero band over an empty page.
+  const address = data?.address?.fa ?? PLACEHOLDER_CONTACT.address;
+  const phone = data?.contactPhone ?? PLACEHOLDER_CONTACT.phone;
+  const email = data?.contactEmail ?? PLACEHOLDER_CONTACT.email;
+
+  const contactItems: ContactItem[] = [
+    data?.mapUrl
+      ? { id: "address", label: "آدرس", type: "link", value: address, href: data.mapUrl }
+      : { id: "address", label: "آدرس", type: "text", value: address },
+    {
       id: "phone",
       label: "تلفن",
       type: "link",
-      value: data.contactPhone,
-      href: toTelephoneHref(data.contactPhone),
-    });
-  }
-  if (data?.contactEmail) {
-    contactItems.push({
-      id: "email",
-      label: "ایمیل",
-      type: "link",
-      value: data.contactEmail,
-      href: `mailto:${data.contactEmail}`,
-    });
-  }
-
-  if (contactItems.length === 0) return null;
+      value: phone,
+      href: toTelephoneHref(phone),
+    },
+    { id: "email", label: "ایمیل", type: "link", value: email, href: `mailto:${email}` },
+  ];
 
   return (
     <Section spacing="lg" aria-labelledby="contact-info-heading">
-      <h2 id="contact-info-heading" className="sr-only">
-        اطلاعات تماس
-      </h2>
-      <Grid cols="3" gap="lg">
-        {contactItems.map((item) => {
-          const Icon = getContactIcon(item.id);
-          return (
-            <Card
-              key={item.id}
-              variant="elevated"
-              padding="lg"
-              className="group bg-background transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-            >
-              <CardHeader className="flex-row items-center gap-3 p-0">
-                <span
-                  aria-hidden="true"
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-navy text-brand-gold"
-                >
-                  <Icon className="h-5 w-5" />
-                </span>
-                <CardTitle className="font-heading">{item.label}</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0 pt-3">
-                {item.type === "link" ? (
-                  <Link href={item.href} variant="subtle" className="text-brand-navy">
-                    {item.value}
-                  </Link>
-                ) : (
-                  <Text variant="bodySm" color="muted">
-                    {item.value}
-                  </Text>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-      </Grid>
+      <Stack gap="xl">
+        <SectionHeader
+          headingId="contact-info-heading"
+          eyebrow="راه‌های ارتباطی"
+          title="اطلاعات تماس"
+          description="نشانی، تلفن و ایمیل مجموعه پس از انتشار در تنظیمات سایت به‌روزرسانی می‌شود."
+        />
+        <Grid cols="3" gap="lg">
+          {contactItems.map((item) => {
+            const Icon = getContactIcon(item.id);
+            return (
+              <Card
+                key={item.id}
+                variant="elevated"
+                padding="lg"
+                className="group bg-background transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+              >
+                <CardHeader className="flex-row items-center gap-3 p-0">
+                  <span
+                    aria-hidden="true"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-navy text-brand-gold"
+                  >
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <CardTitle className="font-heading">{item.label}</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0 pt-3">
+                  {item.type === "link" ? (
+                    <Link href={item.href} variant="subtle" className="text-brand-navy">
+                      {item.value}
+                    </Link>
+                  ) : (
+                    <Text variant="bodySm" color="muted">
+                      {item.value}
+                    </Text>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </Grid>
+      </Stack>
     </Section>
   );
 }
@@ -131,7 +132,12 @@ function getContactIcon(id: string) {
 
 function PinIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={cn(className)} aria-hidden="true" focusable="false">
+    <svg
+      viewBox="0 0 24 24"
+      className={cn(className)}
+      aria-hidden="true"
+      focusable="false"
+    >
       <path
         d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21Z"
         fill="none"
@@ -139,14 +145,26 @@ function PinIcon({ className }: { className?: string }) {
         strokeWidth="1.5"
         strokeLinejoin="round"
       />
-      <circle cx="12" cy="9.5" r="2.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <circle
+        cx="12"
+        cy="9.5"
+        r="2.25"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
     </svg>
   );
 }
 
 function PhoneIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={cn(className)} aria-hidden="true" focusable="false">
+    <svg
+      viewBox="0 0 24 24"
+      className={cn(className)}
+      aria-hidden="true"
+      focusable="false"
+    >
       <path
         d="M6 3.5h3l1.5 4-2 1.5a10 10 0 0 0 6.5 6.5l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4 5.7 2 2 0 0 1 6 3.5Z"
         fill="none"
@@ -160,8 +178,22 @@ function PhoneIcon({ className }: { className?: string }) {
 
 function MailIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={cn(className)} aria-hidden="true" focusable="false">
-      <rect x="3" y="5.5" width="18" height="13" rx="2" fill="none" stroke="currentColor" strokeWidth="1.5" />
+    <svg
+      viewBox="0 0 24 24"
+      className={cn(className)}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <rect
+        x="3"
+        y="5.5"
+        width="18"
+        height="13"
+        rx="2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
       <path
         d="M4 7l8 6 8-6"
         fill="none"
