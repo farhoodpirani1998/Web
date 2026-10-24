@@ -19,7 +19,8 @@ const imageVariants = cva("h-full w-full", {
 });
 
 export interface ImageProps
-  extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "alt">,
+  extends
+    Omit<React.ImgHTMLAttributes<HTMLImageElement>, "alt">,
     VariantProps<typeof imageVariants> {
   alt: string;
   /** Constrains the image to a ratio via `AspectRatio`. Omit to size naturally. */
@@ -39,6 +40,7 @@ export interface ImageProps
 const Image = React.forwardRef<HTMLImageElement, ImageProps>(
   (
     {
+      alt,
       ratio,
       fit,
       fallback,
@@ -71,15 +73,16 @@ const Image = React.forwardRef<HTMLImageElement, ImageProps>(
           <Skeleton className="absolute inset-0 h-full w-full" shape="rect" />
         )}
         {status === "error" ? (
-          fallback ?? (
+          (fallback ?? (
             <div className="flex h-full w-full items-center justify-center bg-muted text-sm text-muted-foreground">
               Image unavailable
             </div>
-          )
+          ))
         ) : (
           <img
             ref={ref}
             src={src}
+            alt={alt}
             loading={loading}
             decoding={decoding}
             className={cn(
@@ -108,9 +111,7 @@ const Image = React.forwardRef<HTMLImageElement, ImageProps>(
       );
     }
 
-    return (
-      <div className={cn("relative", containerClassName)}>{content}</div>
-    );
+    return <div className={cn("relative", containerClassName)}>{content}</div>;
   },
 );
 Image.displayName = "Image";

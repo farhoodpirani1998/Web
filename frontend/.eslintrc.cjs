@@ -14,13 +14,7 @@ module.exports = {
     "plugin:jsx-a11y/recommended",
     "prettier",
   ],
-  ignorePatterns: [
-    "dist",
-    "build",
-    "node_modules",
-    "*.config.js",
-    "*.config.ts",
-  ],
+  ignorePatterns: ["dist", "build", "node_modules", "*.config.js", "*.config.ts"],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: "latest",
@@ -37,16 +31,34 @@ module.exports = {
     "react/prop-types": "off",
     "react-refresh/only-export-components": [
       "warn",
-      { allowConstantExport: true },
+      {
+        allowConstantExport: true,
+        // Every CVA-based primitive exports its `*Variants` helper next to the
+        // component (shadcn convention) so callers can style a non-button
+        // element as a button. Fast refresh degrades to a full reload for
+        // these files only; splitting them would fight that convention.
+        allowExportNames: [
+          "avatarVariants",
+          "badgeVariants",
+          "buttonVariants",
+          "cardVariants",
+          "containerVariants",
+          "gridVariants",
+          "imageVariants",
+          "linkVariants",
+          "sectionVariants",
+          "separatorVariants",
+          "skeletonVariants",
+          "stackVariants",
+          "typographyVariants",
+        ],
+      },
     ],
     "@typescript-eslint/no-unused-vars": [
       "warn",
       { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
     ],
-    "@typescript-eslint/consistent-type-imports": [
-      "warn",
-      { prefer: "type-imports" },
-    ],
+    "@typescript-eslint/consistent-type-imports": ["warn", { prefer: "type-imports" }],
     "no-console": ["warn", { allow: ["warn", "error"] }],
   },
 };

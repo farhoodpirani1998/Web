@@ -20,7 +20,10 @@ interface ErrorBoundaryState {
  * their source via TanStack Query's error states; this boundary exists
  * for genuine render-time exceptions.
  */
-export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   state: ErrorBoundaryState = { error: null };
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
@@ -28,7 +31,6 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo): void {
-    // eslint-disable-next-line no-console
     console.error("Unhandled application error:", error, info.componentStack);
   }
 

@@ -27,8 +27,7 @@ const avatarVariants = cva(
 );
 
 export interface AvatarProps
-  extends React.HTMLAttributes<HTMLSpanElement>,
-    VariantProps<typeof avatarVariants> {
+  extends React.HTMLAttributes<HTMLSpanElement>, VariantProps<typeof avatarVariants> {
   /** Image source. Omit (or let it fail to load) to show `fallback`. */
   src?: string;
   /** Required even when `src` is present, for the failed-load case. */
@@ -55,7 +54,6 @@ const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>(
     return (
       <span ref={ref} className={cn(avatarVariants({ size, className }))} {...props}>
         {showImage ? (
-          // eslint-disable-next-line jsx-a11y/alt-text -- alt is a required prop, always provided
           <img
             src={src}
             alt={alt}
@@ -63,7 +61,10 @@ const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>(
             onError={() => setImageFailed(true)}
           />
         ) : (
-          <span className="font-medium uppercase text-muted-foreground" aria-hidden="true">
+          <span
+            className="font-medium uppercase text-muted-foreground"
+            aria-hidden="true"
+          >
             {fallback}
           </span>
         )}
