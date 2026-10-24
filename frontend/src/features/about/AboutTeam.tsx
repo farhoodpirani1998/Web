@@ -1,4 +1,12 @@
-import { Avatar, Card, Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import {
+  Avatar,
+  Card,
+  Grid,
+  Heading,
+  Section,
+  Stack,
+  Text,
+} from "@/shared/design-system/components";
 import { useAboutPage } from "./useAboutPage";
 import type { AboutTeamMember } from "./types";
 
@@ -41,9 +49,8 @@ export function AboutTeam() {
             اعضای تیم
           </Heading>
           <Text variant="lead" className="max-w-2xl">
-            متن نمونه برای معرفی گروهی از افرادی که مسئولیت اداره مجموعه
-            را بر عهده دارند. اسامی و تصاویر واقعی از طریق سامانه مدیریت
-            محتوا تکمیل خواهد شد.
+            متن نمونه برای معرفی گروهی از افرادی که مسئولیت اداره مجموعه را بر عهده دارند.
+            اسامی و تصاویر واقعی از طریق سامانه مدیریت محتوا تکمیل خواهد شد.
           </Text>
         </Stack>
 

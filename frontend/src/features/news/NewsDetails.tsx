@@ -1,4 +1,11 @@
-import { Badge, Card, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import {
+  Badge,
+  Card,
+  Heading,
+  Section,
+  Stack,
+  Text,
+} from "@/shared/design-system/components";
 import { newsItems } from "./data";
 import { useNews } from "./useNews";
 
@@ -52,7 +59,12 @@ export function NewsDetails() {
               <details id={`news-${item.id}`} className="group px-6 py-4">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                   <Stack gap="xs">
-                    <Text as="span" variant="body" weight="semibold" className="font-heading">
+                    <Text
+                      as="span"
+                      variant="body"
+                      weight="semibold"
+                      className="font-heading"
+                    >
                       {item.title}
                     </Text>
                     <Stack direction="row" gap="xs" align="center">

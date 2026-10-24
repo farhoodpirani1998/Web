@@ -65,7 +65,10 @@ export function FAQ() {
           <Heading id="news-faq-heading" level={2}>
             سوالات متداول
           </Heading>
-          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
+          <span
+            aria-hidden="true"
+            className="block h-1 w-16 rounded-full bg-brand-gold"
+          />
           <Text variant="lead" className="max-w-2xl">
             متن معرفی نمونه برای بخش سوالات متداول اخبار و اطلاعیه‌ها.
           </Text>

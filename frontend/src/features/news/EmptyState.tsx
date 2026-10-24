@@ -1,4 +1,7 @@
-import { EmptyState as SharedEmptyState, Section } from "@/shared/design-system/components";
+import {
+  EmptyState as SharedEmptyState,
+  Section,
+} from "@/shared/design-system/components";
 
 /**
  * News "no results" state.

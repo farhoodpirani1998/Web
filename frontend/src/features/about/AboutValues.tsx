@@ -67,15 +67,19 @@ export function AboutValues() {
   const values = data && data.values.length > 0 ? data.values : fallbackValues;
 
   return (
-    <Section spacing="lg" tone="muted" className="rounded-lg" aria-labelledby="about-values-heading">
+    <Section
+      spacing="lg"
+      tone="muted"
+      className="rounded-lg"
+      aria-labelledby="about-values-heading"
+    >
       <Stack gap="md">
         <Stack gap="sm">
           <Heading id="about-values-heading" level={2}>
             ارزش‌های ما
           </Heading>
           <Text variant="lead" className="max-w-2xl">
-            متن نمونه برای معرفی اصولی که مبنای تصمیم‌گیری و فعالیت روزانه
-            مجموعه هستند.
+            متن نمونه برای معرفی اصولی که مبنای تصمیم‌گیری و فعالیت روزانه مجموعه هستند.
           </Text>
         </Stack>
 

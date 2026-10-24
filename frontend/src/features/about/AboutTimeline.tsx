@@ -61,7 +61,10 @@ export function AboutTimeline() {
           <Heading id="about-timeline-heading" level={2}>
             مسیر رشد
           </Heading>
-          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
+          <span
+            aria-hidden="true"
+            className="block h-1 w-16 rounded-full bg-brand-gold"
+          />
         </Stack>
 
         <Stack gap="none" as="ol" className="border-s-2 border-brand-gold/30 ps-6">

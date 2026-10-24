@@ -29,17 +29,41 @@ export function SparkIcon({ className }: IconProps) {
 
 export function CalendarIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" className={cn(className)} aria-hidden="true" focusable="false">
-      <rect x="3.5" y="5" width="17" height="15" rx="2" fill="none" stroke="currentColor" strokeWidth="1.5" />
+    <svg
+      viewBox="0 0 24 24"
+      className={cn(className)}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <rect
+        x="3.5"
+        y="5"
+        width="17"
+        height="15"
+        rx="2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
       <path d="M3.5 9.5h17" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M8 3v4M16 3v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path
+        d="M8 3v4M16 3v4"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
 export function BookIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" className={cn(className)} aria-hidden="true" focusable="false">
+    <svg
+      viewBox="0 0 24 24"
+      className={cn(className)}
+      aria-hidden="true"
+      focusable="false"
+    >
       <path
         d="M4 5.5A2 2 0 0 1 6 4h6v16H6a2 2 0 0 0-2 2v-16.5Z"
         fill="none"
@@ -60,7 +84,12 @@ export function BookIcon({ className }: IconProps) {
 
 export function UsersIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" className={cn(className)} aria-hidden="true" focusable="false">
+    <svg
+      viewBox="0 0 24 24"
+      className={cn(className)}
+      aria-hidden="true"
+      focusable="false"
+    >
       <circle cx="9" cy="8" r="3" fill="none" stroke="currentColor" strokeWidth="1.5" />
       <path
         d="M3.5 19.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5"
@@ -82,7 +111,12 @@ export function UsersIcon({ className }: IconProps) {
 
 export function CheckIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" className={cn(className)} aria-hidden="true" focusable="false">
+    <svg
+      viewBox="0 0 24 24"
+      className={cn(className)}
+      aria-hidden="true"
+      focusable="false"
+    >
       <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.5" />
       <path
         d="m8 12.5 2.5 2.5 5.5-6"
@@ -98,7 +132,12 @@ export function CheckIcon({ className }: IconProps) {
 
 export function ChevronDownIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" className={cn(className)} aria-hidden="true" focusable="false">
+    <svg
+      viewBox="0 0 24 24"
+      className={cn(className)}
+      aria-hidden="true"
+      focusable="false"
+    >
       <path
         d="m6 9 6 6 6-6"
         fill="none"

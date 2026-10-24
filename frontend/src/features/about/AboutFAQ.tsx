@@ -49,7 +49,8 @@ const fallbackFaqItems: readonly AboutFAQItem[] = [
 
 export function AboutFAQ() {
   const { data } = useFaq();
-  const faqItems: readonly AboutFAQItem[] = data && data.length > 0 ? data : fallbackFaqItems;
+  const faqItems: readonly AboutFAQItem[] =
+    data && data.length > 0 ? data : fallbackFaqItems;
 
   return (
     <Section spacing="lg" aria-labelledby="about-faq-heading">
@@ -58,7 +59,10 @@ export function AboutFAQ() {
           <Heading id="about-faq-heading" level={2}>
             سوالات متداول
           </Heading>
-          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
+          <span
+            aria-hidden="true"
+            className="block h-1 w-16 rounded-full bg-brand-gold"
+          />
           <Text variant="lead" className="max-w-2xl">
             متن معرفی نمونه برای بخش سوالات متداول درباره ما.
           </Text>

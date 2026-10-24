@@ -122,7 +122,8 @@ function Field({
 }
 
 export function RegistrationForm() {
-  const [formValues, setFormValues] = React.useState<PreRegistrationPayload>(EMPTY_FORM_VALUES);
+  const [formValues, setFormValues] =
+    React.useState<PreRegistrationPayload>(EMPTY_FORM_VALUES);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isSuccess, setIsSuccess] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -156,9 +157,7 @@ export function RegistrationForm() {
       setIsSuccess(true);
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "خطایی رخ داد. لطفاً دوباره تلاش کنید.",
+        err instanceof ApiError ? err.message : "خطایی رخ داد. لطفاً دوباره تلاش کنید.",
       );
       setIsSubmitting(false);
     }
@@ -189,11 +188,7 @@ export function RegistrationForm() {
         </Stack>
 
         <Card variant="outline" padding="lg" className="mx-auto w-full max-w-3xl">
-          <form
-            noValidate
-            aria-label="فرم پیش‌ثبت‌نام دانش‌آموز"
-            onSubmit={handleSubmit}
-          >
+          <form noValidate aria-label="فرم پیش‌ثبت‌نام دانش‌آموز" onSubmit={handleSubmit}>
             <Stack gap="lg">
               <Stack as="fieldset" gap="md" className="m-0 border-0 p-0">
                 <Typography as="legend" variant="overline" className="px-0">

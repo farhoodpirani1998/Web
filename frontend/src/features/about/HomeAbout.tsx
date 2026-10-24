@@ -60,7 +60,7 @@ export function HomeAbout() {
       size="xl"
       className="grid gap-12 py-16 sm:py-24 lg:grid-cols-2 lg:items-center lg:gap-16"
     >
-      <div className="relative animate-in fade-in slide-in-from-start-8 duration-700">
+      <div className="slide-in-from-start-8 relative duration-700 animate-in fade-in">
         <span
           aria-hidden="true"
           className="absolute -end-4 -top-4 h-24 w-24 rounded-2xl border-2 border-accent/30 sm:-end-6 sm:-top-6 sm:h-32 sm:w-32"
@@ -89,7 +89,7 @@ export function HomeAbout() {
       <Stack
         gap="lg"
         align="start"
-        className="animate-in fade-in slide-in-from-end-8 duration-700"
+        className="slide-in-from-end-8 duration-700 animate-in fade-in"
       >
         <Stack gap="xs" align="start">
           <div className="inline-flex items-center gap-3">
@@ -102,11 +102,13 @@ export function HomeAbout() {
         </Stack>
 
         <Text color="muted">
-          متن معرفی نمونه برای بخش درباره‌ی ما. این متن جایگزین محتوایی است که در نهایت پس از
-          پیاده‌سازی ماژول محتوایی درباره‌ی ما، از طریق Public API بک‌اند تأمین خواهد شد.
+          متن معرفی نمونه برای بخش درباره‌ی ما. این متن جایگزین محتوایی است که در نهایت پس
+          از پیاده‌سازی ماژول محتوایی درباره‌ی ما، از طریق Public API بک‌اند تأمین خواهد
+          شد.
         </Text>
         <Text color="muted">
-          پاراگراف نمونه‌ی دوم، برای بررسی فاصله‌گذاری و طول خطوط متن در کنار عکس و کارت شناور.
+          پاراگراف نمونه‌ی دوم، برای بررسی فاصله‌گذاری و طول خطوط متن در کنار عکس و کارت
+          شناور.
         </Text>
 
         <ul className="flex flex-col gap-3">
@@ -127,7 +129,10 @@ export function HomeAbout() {
 
         <Link
           href="/about"
-          className={cn(buttonVariants({ size: "lg" }), "rounded-full bg-primary text-primary-foreground hover:bg-primary/90")}
+          className={cn(
+            buttonVariants({ size: "lg" }),
+            "rounded-full bg-primary text-primary-foreground hover:bg-primary/90",
+          )}
         >
           مأموریت و چشم‌انداز ما
         </Link>

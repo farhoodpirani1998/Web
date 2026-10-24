@@ -1,6 +1,15 @@
 import { ArrowLeft, Calendar } from "lucide-react";
 
-import { Badge, Heading, Image, Link, Section, Stack, Text, buttonVariants } from "@/shared/design-system/components";
+import {
+  Badge,
+  Heading,
+  Image,
+  Link,
+  Section,
+  Stack,
+  Text,
+  buttonVariants,
+} from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
 import { newsItems } from "./data";
 import { useNews } from "./useNews";
@@ -42,8 +51,7 @@ const NEWS_IMAGES: Record<string, string> = {
   n2: "/images/placeholders/card.svg",
   n3: "/images/placeholders/card.svg",
 };
-const NEWS_IMAGE_FALLBACK =
-  "/images/placeholders/card.svg";
+const NEWS_IMAGE_FALLBACK = "/images/placeholders/card.svg";
 
 export function HomeNews() {
   const { data } = useNews();
