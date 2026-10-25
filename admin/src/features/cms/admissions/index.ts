@@ -1,23 +1,8 @@
-/**
- * Public surface of the `cms/admissions` feature.
- */
-export type {
-  AdmissionEntryKind,
-  CmsAdmissionEntry,
-  CmsAdmissionStatus,
-  CreateAdmissionEntryPayload,
-  UpdateAdmissionEntryPayload,
-} from "./types";
-export { ADMISSION_KIND_LABELS } from "./types";
-export {
-  fetchAdmissionEntryList,
-  fetchAdmissionEntryById,
-  createAdmissionEntry,
-  updateAdmissionEntry,
-  deleteAdmissionEntry,
-  updateAdmissionEntryStatus,
-  reorderAdmissionEntries,
-} from "./api";
-export { useAdmissions, type UseAdmissionsResult } from "./hooks/useAdmissions";
-
+export type { CmsAdmissionEntry, CmsAdmissionStatus, AdmissionEntryKind, CreateAdmissionEntryPayload, UpdateAdmissionEntryPayload } from "./types";
+export type { CreateAdmissionPayloadInput, UpdateAdmissionPayloadInput } from "./schema";
+export { createAdmissionPayloadSchema, updateAdmissionPayloadSchema } from "./schema";
+export { fetchAdmissionList, fetchAdmissionById, createAdmission, updateAdmission, deleteAdmission, updateAdmissionStatus, reorderAdmissions } from "./api";
+export { useAdmissionList, useAdmission, useAdmissionMutations, admissionKeys } from "./hooks/useAdmissions";
 export { AdmissionsPage } from "./AdmissionsPage";
+export { AdmissionForm } from "./AdmissionForm";
+export { AdmissionList } from "./AdmissionList";

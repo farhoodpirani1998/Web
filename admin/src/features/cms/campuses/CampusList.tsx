@@ -1,123 +1,43 @@
+/** TanStack Table v8 campus list — no innerHTML, RTL preserved. */
+import { useState, useMemo } from "react";
+import { useReactTable, getCoreRowModel, getSortedRowModel, flexRender, type ColumnDef, type SortingState } from "@tanstack/react-table";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { ApiError } from "@/lib/apiError";
-
-import { CampusRow } from "./CampusRow";
 import type { CmsCampus, CmsCampusStatus } from "./types";
 
-/**
- * Renders `useCampuses`'s result — `CampusesPage` owns the hook (and
- * the status filter driving it); this component only knows how to
- * display whatever list/loading/error state it's handed, same split as
- * `features/cms/teachers/TeacherList.tsx`/`features/cms/faq/FaqList.tsx`.
- *
- * Reordering is only enabled when `status` is `undefined` ("همه"):
- * `PATCH /campuses/reorder` (`OrderingService.reorder`) writes
- * `position` for exactly the ids it's given, in that order — it does
- * not shift the ids left out. Sending a filtered subset would silently
- * corrupt the position of every campus not currently shown, so the
- * drag handle and move buttons only appear over the complete,
- * unfiltered list, same reasoning as `TeacherList`/`FaqList`.
- */
 export interface CampusListProps {
-  campuses: CmsCampus[];
-  isLoading: boolean;
-  error: ApiError | null;
-  status: CmsCampusStatus | undefined;
-  updatingStatusId: string | null;
-  updatingScheduleId: string | null;
-  isReordering: boolean;
-  onEdit: (campus: CmsCampus) => void;
-  onDeleteRequest: (campus: CmsCampus) => void;
-  onChangeStatus: (campus: CmsCampus, status: CmsCampusStatus) => void;
-  onSchedule: (campus: CmsCampus, publishAt: string | null) => void;
-  onViewHistory: (campus: CmsCampus) => void;
-  onReorder: (fromIndex: number, toIndex: number) => void;
+  campuses: CmsCampus[]; isLoading: boolean; error: ApiError | null; status: CmsCampusStatus | undefined;
+  updatingStatusId: string | null; updatingScheduleId: string | null; isReordering: boolean;
+  onEdit: (c: CmsCampus) => void; onDeleteRequest: (c: CmsCampus) => void; onChangeStatus: (c: CmsCampus, s: CmsCampusStatus) => void;
+  onSchedule: (c: CmsCampus, p: string | null) => void; onViewHistory: (c: CmsCampus) => void; onReorder: (from: number, to: number) => void;
 }
 
-export function CampusList({
-  campuses,
-  isLoading,
-  error,
-  status,
-  updatingStatusId,
-  updatingScheduleId,
-  isReordering,
-  onEdit,
-  onDeleteRequest,
-  onChangeStatus,
-  onSchedule,
-  onViewHistory,
-  onReorder,
-}: CampusListProps) {
-  if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری پردیس‌ها…</p>;
-  }
-
-  if (error) {
-    return <p className="py-8 text-center text-sm text-red-600">{error.message}</p>;
-  }
-
-  if (campuses.length === 0) {
-    return (
-      <EmptyState
-        title="هنوز پردیسی نیست"
-        description="برای شروع یک پردیس اضافه کنید."
-      />
-    );
-  }
-
+export function CampusList({ campuses, isLoading, error, status, updatingStatusId, updatingScheduleId, isReordering, onEdit, onDeleteRequest, onChangeStatus, onSchedule, onViewHistory, onReorder }: CampusListProps) {
+  const [sorting, setSorting] = useState<SortingState>([{ id: "position", desc: false }]);
   const canReorder = status === undefined;
-
+  const columns = useMemo<ColumnDef<CmsCampus>[]>(() => [
+    ...(canReorder ? [{ id: "reorder", header: () => <span className="sr-only">مرتب‌سازی</span>, cell: () => null }] : []),
+    { accessorKey: "title", header: () => "نام", cell: ({ row }) => <span className="font-medium">{row.original.title.fa}</span> },
+    { accessorKey: "slug", header: () => "نامک", cell: ({ row }) => <span className="text-xs text-slate-500">{row.original.slug}</span> },
+    { accessorKey: "address", header: () => "نشانی", cell: ({ row }) => <span className="text-xs">{row.original.address?.fa ?? "—"}</span> },
+    { accessorKey: "status", header: () => "وضعیت", cell: ({ row }) => <span className="text-xs">{row.original.status}</span> },
+    { accessorKey: "publishAt", header: () => "زمان انتشار", cell: ({ row }) => <span className="text-xs">{row.original.publishAt ?? "—"}</span> },
+    { id: "actions", header: () => <span className="sr-only">اقدامات</span>, cell: ({ row }) => (
+      <div className="flex gap-2 justify-end">
+        <button onClick={() => onEdit(row.original)} className="text-indigo-600 text-xs">ویرایش</button>
+        <button onClick={() => onDeleteRequest(row.original)} className="text-red-600 text-xs">حذف</button>
+      </div>
+    )},
+  ], [canReorder, onEdit, onDeleteRequest]);
+  const table = useReactTable({ data: campuses, columns, state: { sorting }, onSortingChange: setSorting, getCoreRowModel: getCoreRowModel(), getSortedRowModel: getSortedRowModel() });
+  if (isLoading) return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری پردیس‌ها…</p>;
+  if (error) return <p className="py-8 text-center text-sm text-red-600">{error.message}</p>;
+  if (campuses.length === 0) return <EmptyState title="هنوز پردیسی نیست" description="برای شروع یک پردیس اضافه کنید." />;
   return (
-    <div className="overflow-x-auto rounded-md border border-slate-200">
+    <div dir="rtl" className="overflow-x-auto rounded-md border border-slate-200">
       <table className="min-w-full divide-y divide-slate-200 text-sm">
-        <thead className="bg-slate-50">
-          <tr>
-            {canReorder ? (
-              <th scope="col" className="w-10 px-3 py-2 text-left font-medium text-slate-500">
-                <span className="sr-only">مرتب‌سازی</span>
-              </th>
-            ) : null}
-            <th scope="col" className="w-16 px-3 py-2 text-left font-medium text-slate-500">
-              <span className="sr-only">تصویر</span>
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              نام
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              نشانی
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              وضعیت
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              زمان انتشار
-            </th>
-            <th scope="col" className="px-3 py-2 text-right font-medium text-slate-500">
-              <span className="sr-only">اقدامات</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-200 bg-white">
-          {campuses.map((campus, index) => (
-            <CampusRow
-              key={campus.id}
-              campus={campus}
-              index={index}
-              rowCount={campuses.length}
-              canReorder={canReorder}
-              isReordering={isReordering}
-              isUpdatingStatus={updatingStatusId === campus.id}
-              isUpdatingSchedule={updatingScheduleId === campus.id}
-              onEdit={onEdit}
-              onDeleteRequest={onDeleteRequest}
-              onChangeStatus={onChangeStatus}
-              onSchedule={onSchedule}
-              onViewHistory={onViewHistory}
-              onReorder={onReorder}
-            />
-          ))}
-        </tbody>
+        <thead className="bg-slate-50"><tr>{table.getHeaderGroups().map(g => g.headers.map(h => <th key={h.id} className="px-3 py-2 text-right font-medium text-slate-500" onClick={h.column.getToggleSortingHandler()}>{flexRender(h.column.columnDef.header, h.getContext())}</th>))}</tr></thead>
+        <tbody className="divide-y divide-slate-200 bg-white">{table.getRowModel().rows.map(row => <tr key={row.id}>{row.getVisibleCells().map(cell => <td key={cell.id} className="px-3 py-2">{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>)}</tr>)}</tbody>
       </table>
     </div>
   );

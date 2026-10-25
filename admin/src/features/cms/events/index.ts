@@ -1,32 +1,18 @@
-/**
- * Public surface of the `cms/events` feature.
- *
- * Other layers (pages, other CMS modules) should import from here
- * rather than reaching into `./api`, `./hooks/useEvents`, etc.
- * directly — same convention as `features/cms/news/index.ts`.
- */
 export type {
-  CmsCalendarEvent,
-  CmsEventRevision,
-  CmsEventStatus,
-  CmsEventSeoMetadata,
-  CmsEventSeoMetadataInput,
-  CreateCalendarEventPayload,
-  ScheduleCalendarEventPayload,
-  UpdateCalendarEventPayload,
+  CmsCalendarEvent, CmsEventRevision, CmsEventStatus, CmsEventSeoMetadata, CmsEventSeoMetadataInput,
+  CreateCalendarEventPayload, ScheduleCalendarEventPayload, UpdateCalendarEventPayload,
 } from "./types";
 export {
-  fetchEventsList,
-  fetchCalendarEventById,
-  createCalendarEvent,
-  updateCalendarEvent,
-  deleteCalendarEvent,
-  updateCalendarEventStatus,
-  scheduleCalendarEvent,
-  fetchEventRevisions,
-  restoreEventRevision,
+  fetchEventsList, fetchCalendarEventById, createCalendarEvent, updateCalendarEvent,
+  deleteCalendarEvent, updateCalendarEventStatus, scheduleCalendarEvent, fetchEventRevisions, restoreEventRevision,
 } from "./api";
-export { useEvents, type UseEventsResult } from "./hooks/useEvents";
+export { useEventList, useEvent, useEventMutations, eventKeys, type UseEventListResult } from "./hooks/useEvents";
+
+export {
+  eventFormSchema, createEventPayloadSchema, updateEventPayloadSchema, scheduleEventPayloadSchema,
+  formDataToCreatePayload, formDataToUpdatePayload, eventToFormData, SLUG_PATTERN,
+  type EventFormData, type CreateEventPayload, type UpdateEventPayload, type ScheduleEventPayload, type SeoMetadataInput,
+} from "./schema";
 
 export { EventsPage } from "./EventsPage";
 export { EventList, type EventListProps } from "./EventList";

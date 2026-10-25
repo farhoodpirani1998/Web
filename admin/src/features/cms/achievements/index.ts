@@ -1,9 +1,5 @@
 /**
  * Public surface of the `cms/achievements` feature.
- *
- * Other layers (pages) should import from here rather than reaching into
- * `./api`, `./hooks/useAchievements`, etc. directly — same convention as
- * `features/cms/faq/index.ts`.
  */
 export type {
   CmsAchievement,
@@ -11,6 +7,11 @@ export type {
   CreateAchievementPayload,
   UpdateAchievementPayload,
 } from "./types";
+export type { CreateAchievementPayloadInput, UpdateAchievementPayloadInput } from "./schema";
+export {
+  createAchievementPayloadSchema,
+  updateAchievementPayloadSchema,
+} from "./schema";
 export {
   fetchAchievementList,
   fetchAchievementById,
@@ -20,6 +21,7 @@ export {
   updateAchievementStatus,
   reorderAchievements,
 } from "./api";
-export { useAchievements, type UseAchievementsResult } from "./hooks/useAchievements";
-
+export { useAchievementList, useAchievement, useAchievementMutations, achievementKeys } from "./hooks/useAchievements";
 export { AchievementsPage } from "./AchievementsPage";
+export { AchievementForm } from "./AchievementForm";
+export { AchievementList } from "./AchievementList";

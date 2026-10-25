@@ -1,61 +1,43 @@
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
-
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiError } from "@/lib/apiError";
+import {
+  fetchAcademicCalendarEntryList,
+  fetchAcademicCalendarEntryById,
+  createAcademicCalendarEntry,
+  updateAcademicCalendarEntry,
+  deleteAcademicCalendarEntry,
+  updateAcademicCalendarEntryStatus,
+  reorderAcademicCalendarEntries,
+} from "../api";
+import type { CmsAcademicCalendarEntry, CmsAcademicCalendarStatus, AcademicCalendarEntryKind } from "../types";
 
-import { fetchAcademicCalendarEntryList } from "../api";
-import type {
-  AcademicCalendarEntryKind,
-  CmsAcademicCalendarEntry,
-  CmsAcademicCalendarStatus,
-} from "../types";
+export const academicCalendarKeys = {
+  all: ["academic-calendar"] as const,
+  list: (status?: CmsAcademicCalendarStatus, kind?: AcademicCalendarEntryKind) => [...academicCalendarKeys.all, "list", status ?? "all", kind ?? "all"] as const,
+  detail: (id: string) => [...academicCalendarKeys.all, "detail", id] as const,
+};
 
-/**
- * Fetches the academic-calendar entry list, optionally filtered by
- * status and/or kind. Same shape as `features/cms/faq/hooks/useFaqs`.
- * `setEntries` is exposed for optimistic drag-reorder.
- */
-export interface UseAcademicCalendarResult {
-  entries: CmsAcademicCalendarEntry[];
-  isLoading: boolean;
-  error: ApiError | null;
-  refetch: () => void;
-  setEntries: Dispatch<SetStateAction<CmsAcademicCalendarEntry[]>>;
+export function useAcademicCalendarEntryList(params?: { status?: CmsAcademicCalendarStatus; kind?: AcademicCalendarEntryKind }) {
+  return useQuery<CmsAcademicCalendarEntry[], ApiError>({
+    queryKey: academicCalendarKeys.list(params?.status, params?.kind),
+    queryFn: () => fetchAcademicCalendarEntryList(params),
+  });
 }
 
-export function useAcademicCalendar(params?: {
-  status?: CmsAcademicCalendarStatus;
-  kind?: AcademicCalendarEntryKind;
-}): UseAcademicCalendarResult {
-  const [entries, setEntries] = useState<CmsAcademicCalendarEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<ApiError | null>(null);
-  const [refetchToken, setRefetchToken] = useState(0);
+export function useAcademicCalendarEntry(id: string | null) {
+  return useQuery<CmsAcademicCalendarEntry, ApiError>({
+    queryKey: id ? academicCalendarKeys.detail(id) : ["academic-calendar", "detail", "null"],
+    queryFn: () => (id ? fetchAcademicCalendarEntryById(id) : Promise.reject(new Error("no id"))),
+    enabled: !!id,
+  });
+}
 
-  const status = params?.status;
-  const kind = params?.kind;
-
-  useEffect(() => {
-    let cancelled = false;
-    setIsLoading(true);
-    setError(null);
-
-    fetchAcademicCalendarEntryList({ status, kind })
-      .then((list) => {
-        if (!cancelled) setEntries(list);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err as ApiError);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [status, kind, refetchToken]);
-
-  const refetch = useCallback(() => setRefetchToken((token) => token + 1), []);
-
-  return { entries, isLoading, error, refetch, setEntries };
+export function useAcademicCalendarMutations() {
+  const qc = useQueryClient();
+  const create = useMutation({ mutationFn: createAcademicCalendarEntry, onSuccess: () => qc.invalidateQueries({ queryKey: academicCalendarKeys.all }) });
+  const update = useMutation({ mutationFn: ({ id, payload }: { id: string; payload: any }) => updateAcademicCalendarEntry(id, payload), onSuccess: () => qc.invalidateQueries({ queryKey: academicCalendarKeys.all }) });
+  const del = useMutation({ mutationFn: deleteAcademicCalendarEntry, onSuccess: () => qc.invalidateQueries({ queryKey: academicCalendarKeys.all }) });
+  const statusMut = useMutation({ mutationFn: ({ id, status }: { id: string; status: CmsAcademicCalendarStatus }) => updateAcademicCalendarEntryStatus(id, status), onSuccess: () => qc.invalidateQueries({ queryKey: academicCalendarKeys.all }) });
+  const reorder = useMutation({ mutationFn: reorderAcademicCalendarEntries, onSuccess: () => qc.invalidateQueries({ queryKey: academicCalendarKeys.all }) });
+  return { create, update, del, statusMut, reorder };
 }

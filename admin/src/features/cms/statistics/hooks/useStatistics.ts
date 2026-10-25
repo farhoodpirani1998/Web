@@ -1,57 +1,8 @@
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
-
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiError } from "@/lib/apiError";
-
-import { fetchStatisticList } from "../api";
+import { fetchStatisticList, fetchStatisticById, createStatistic, updateStatistic, deleteStatistic, updateStatisticStatus, reorderStatistics } from "../api";
 import type { CmsStatistic, CmsStatisticStatus } from "../types";
-
-/**
- * Fetches the Statistics list (optionally filtered by status), for
- * `StatisticsPage`. Same shape as `features/cms/features/hooks/useFeatures`.
- *
- * `setStatistics` is exposed (unlike a plain `refetch`-only hook)
- * because `StatisticsPage` needs to update the visible order
- * optimistically during drag-reorder — `PATCH /statistics/reorder`
- * returns void, so there's no response body to reconcile the list
- * against, and a full `refetch()` on every drag would be a visible
- * flash for no benefit.
- */
-export interface UseStatisticsResult {
-  statistics: CmsStatistic[];
-  isLoading: boolean;
-  error: ApiError | null;
-  refetch: () => void;
-  setStatistics: Dispatch<SetStateAction<CmsStatistic[]>>;
-}
-
-export function useStatistics(status?: CmsStatisticStatus): UseStatisticsResult {
-  const [statistics, setStatistics] = useState<CmsStatistic[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<ApiError | null>(null);
-  const [refetchToken, setRefetchToken] = useState(0);
-
-  useEffect(() => {
-    let cancelled = false;
-    setIsLoading(true);
-    setError(null);
-
-    fetchStatisticList(status)
-      .then((list) => {
-        if (!cancelled) setStatistics(list);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err as ApiError);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [status, refetchToken]);
-
-  const refetch = useCallback(() => setRefetchToken((token) => token + 1), []);
-
-  return { statistics, isLoading, error, refetch, setStatistics };
-}
+export const statisticKeys = { all:["statistics"] as const, list:(status?:CmsStatisticStatus)=>[...statisticKeys.all,"list",status??"all"] as const, detail:(id:string)=>[...statisticKeys.all,"detail",id] as const };
+export function useStatisticList(status?:CmsStatisticStatus){ return useQuery<CmsStatistic[],ApiError>({ queryKey: statisticKeys.list(status), queryFn:()=>fetchStatisticList(status) }); }
+export function useStatistic(id:string|null){ return useQuery<CmsStatistic,ApiError>({ queryKey:id?statisticKeys.detail(id):["statistics","detail","null"], queryFn:()=>id?fetchStatisticById(id):Promise.reject(new Error("no id")), enabled:!!id }); }
+export function useStatisticMutations(){ const qc=useQueryClient(); const create=useMutation({mutationFn:createStatistic,onSuccess:()=>qc.invalidateQueries({queryKey:statisticKeys.all})}); const update=useMutation({mutationFn:({id,payload}:{id:string;payload:any})=>updateStatistic(id,payload),onSuccess:()=>qc.invalidateQueries({queryKey:statisticKeys.all})}); const del=useMutation({mutationFn:deleteStatistic,onSuccess:()=>qc.invalidateQueries({queryKey:statisticKeys.all})}); const statusMut=useMutation({mutationFn:({id,status}:{id:string;status:CmsStatisticStatus})=>updateStatisticStatus(id,status),onSuccess:()=>qc.invalidateQueries({queryKey:statisticKeys.all})}); const reorder=useMutation({mutationFn:reorderStatistics,onSuccess:()=>qc.invalidateQueries({queryKey:statisticKeys.all})}); return {create,update,del,statusMut,reorder}; }

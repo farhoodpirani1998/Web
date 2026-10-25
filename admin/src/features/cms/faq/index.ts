@@ -1,9 +1,5 @@
 /**
  * Public surface of the `cms/faq` feature.
- *
- * Other layers (pages, other CMS modules) should import from here
- * rather than reaching into `./api`, `./hooks/useFaqs`, etc. directly —
- * same convention as `features/cms/media/index.ts`.
  */
 export type { CmsFaq, CmsFaqStatus, CreateFaqPayload, UpdateFaqPayload } from "./types";
 export {
@@ -15,7 +11,19 @@ export {
   updateFaqStatus,
   reorderFaqs,
 } from "./api";
-export { useFaqs, type UseFaqsResult } from "./hooks/useFaqs";
+export { useFaqs, type UseFaqsResult, useFaq, useFaqMutations, type UseFaqMutations } from "./hooks/useFaqs";
+
+export {
+  faqFormSchema,
+  createFaqPayloadSchema,
+  updateFaqPayloadSchema,
+  formDataToCreatePayload,
+  formDataToUpdatePayload,
+  faqToFormData,
+  type FaqFormData,
+  type CreateFaqPayload as CreateFaqPayloadSchema,
+  type UpdateFaqPayload as UpdateFaqPayloadSchema,
+} from "./schema";
 
 export { FaqPage } from "./FaqPage";
 export { FaqList, type FaqListProps } from "./FaqList";
