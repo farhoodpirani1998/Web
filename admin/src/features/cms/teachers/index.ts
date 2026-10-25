@@ -29,6 +29,23 @@ export {
 } from "./api";
 export { useTeachers, type UseTeachersResult } from "./hooks/useTeachers";
 
+/* Modern stack exports *//
+export {
+  teacherFormSchema,
+  createTeacherPayloadSchema,
+  updateTeacherPayloadSchema,
+  scheduleTeacherPayloadSchema,
+  formDataToCreatePayload,
+  formDataToUpdatePayload,
+  teacherToFormData,
+  SLUG_PATTERN,
+  type TeacherFormData,
+  type SeoMetadataInput,
+  type CreateTeacherPayload as CreateTeacherPayloadSchema,
+  type UpdateTeacherPayload as UpdateTeacherPayloadSchema,
+  type ScheduleTeacherPayload as ScheduleTeacherPayloadSchema,
+} from "./schema";
+
 export { TeachersPage } from "./TeachersPage";
 export { TeacherList, type TeacherListProps } from "./TeacherList";
 export { TeacherRow, type TeacherRowProps } from "./TeacherRow";
