@@ -1,112 +1,64 @@
-import { EmptyState } from "@/components/ui/EmptyState";
-import type { ApiError } from "@/lib/apiError";
-
-import { FeatureRow } from "./FeatureRow";
-import type { CmsFeature, CmsFeatureStatus } from "./types";
-
 /**
- * Renders `useFeatures`'s result — `FeaturesPage` owns the hook (and
- * the status filter driving it); this component only knows how to
- * display whatever list/loading/error state it's handed, same split as
- * `features/cms/faq/FaqList.tsx`.
- *
- * Reordering is only enabled when `status` is `undefined` ("همه"):
- * `PATCH /features/reorder` (`OrderingService.reorder`) writes
- * `position` for exactly the ids it's given, in that order — it does
- * not shift the ids left out. Sending a filtered subset would silently
- * corrupt the position of every Feature not currently shown, so the
- * drag handle and move buttons only appear over the complete,
- * unfiltered list.
+ * Modern CMS Features list using TanStack Table v8.
  */
+import { useReactTable, getCoreRowModel, getSortedRowModel, flexRender } from "@tanstack/react-table";
+import { useMemo } from "react";
+import type { CmsFeature } from "./types";
+
 export interface FeatureListProps {
   features: CmsFeature[];
-  isLoading: boolean;
-  error: ApiError | null;
-  status: CmsFeatureStatus | undefined;
-  updatingStatusId: string | null;
-  isReordering: boolean;
-  onEdit: (feature: CmsFeature) => void;
-  onDeleteRequest: (feature: CmsFeature) => void;
-  onChangeStatus: (feature: CmsFeature, status: CmsFeatureStatus) => void;
-  onReorder: (fromIndex: number, toIndex: number) => void;
+  onEdit: (f: CmsFeature) => void;
+  onDelete: (id: string) => void;
 }
 
-export function FeatureList({
-  features,
-  isLoading,
-  error,
-  status,
-  updatingStatusId,
-  isReordering,
-  onEdit,
-  onDeleteRequest,
-  onChangeStatus,
-  onReorder,
-}: FeatureListProps) {
-  if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری ویژگی‌ها…</p>;
-  }
+export function FeatureList({ features, onEdit, onDelete }: FeatureListProps) {
+  const columns = useMemo(
+    () => [
+      { header: "عنوان فارسی", accessorKey: "title.fa" },
+      { header: "توضیح", accessorKey: "description.fa" },
+      { header: "آیکون", accessorKey: "icon" },
+      { header: "وضعیت", accessorKey: "status" },
+      { header: "ترتیب", accessorKey: "position" },
+      {
+        header: "عملیات",
+        cell: ({ row }: any) => (
+          <div className="flex gap-2">
+            <button onClick={() => onEdit(row.original)} className="text-blue-600">ویرایش</button>
+            <button onClick={() => onDelete(row.original.id)} className="text-red-600">حذف</button>
+          </div>
+        ),
+      },
+    ],
+    [onEdit, onDelete]
+  );
 
-  if (error) {
-    return <p className="py-8 text-center text-sm text-red-600">{error.message}</p>;
-  }
-
-  if (features.length === 0) {
-    return (
-      <EmptyState
-        title="هنوز ویژگی‌ای نیست"
-        description="برای شروع یک کارت ویژگی اضافه کنید."
-      />
-    );
-  }
-
-  const canReorder = status === undefined;
+  const table = useReactTable({
+    data: features,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
 
   return (
-    <div className="overflow-x-auto rounded-md border border-slate-200">
-      <table className="min-w-full divide-y divide-slate-200 text-sm">
-        <thead className="bg-slate-50">
-          <tr>
-            {canReorder ? (
-              <th scope="col" className="w-10 px-3 py-2 text-left font-medium text-slate-500">
-                <span className="sr-only">مرتب‌سازی</span>
-              </th>
-            ) : null}
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              عنوان
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              توضیحات
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              آیکون
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              وضعیت
-            </th>
-            <th scope="col" className="px-3 py-2 text-right font-medium text-slate-500">
-              <span className="sr-only">اقدامات</span>
-            </th>
+    <table dir="rtl" className="w-full border-collapse border">
+      <thead>
+        {table.getHeaderGroups().map((hg) => (
+          <tr key={hg.id}>
+            {hg.headers.map((h) => (
+              <th key={h.id} className="border p-2 text-right bg-gray-100">{flexRender(h.column.columnDef.header, h.getContext())}</th>
+            ))}
           </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-200 bg-white">
-          {features.map((feature, index) => (
-            <FeatureRow
-              key={feature.id}
-              feature={feature}
-              index={index}
-              rowCount={features.length}
-              canReorder={canReorder}
-              isReordering={isReordering}
-              isUpdatingStatus={updatingStatusId === feature.id}
-              onEdit={onEdit}
-              onDeleteRequest={onDeleteRequest}
-              onChangeStatus={onChangeStatus}
-              onReorder={onReorder}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </thead>
+      <tbody>
+        {table.getRowModel().rows.map((row) => (
+          <tr key={row.id}>
+            {row.getVisibleCells().map((cell) => (
+              <td key={cell.id} className="border p-2">{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
