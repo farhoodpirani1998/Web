@@ -240,7 +240,7 @@ export function TeacherList({
   }
 
   return (
-    <div className="overflow-x-auto rounded-md border border-slate-200">
+    <div className="overflow-x-auto rounded-xl border border-brand-navy/10 shadow-[0_4px_24px_rgba(15,45,82,0.06)] bg-[#F5F7FA]" dir="rtl">
       <table className="min-w-full divide-y divide-slate-200 text-sm">
         <thead className="bg-slate-50">
           {table.getHeaderGroups().map((hg) => (

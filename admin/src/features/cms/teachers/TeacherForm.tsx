@@ -109,8 +109,8 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-2xl rounded-lg border border-slate-200 bg-white p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-brand-navy/60 backdrop-blur-sm px-4" dir="rtl">
+      <div className="w-full max-w-2xl rounded-xl border border-brand-navy/10 bg-[#F5F7FA] shadow-[0_24px_60px_-12px_rgba(15,45,82,0.25)] p-6">
         <h2 className="text-lg font-semibold text-slate-900">
           {isEdit ? "ویرایش استاد" : "استاد جدید"}
         </h2>
