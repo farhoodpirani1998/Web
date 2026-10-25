@@ -1,61 +1,64 @@
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+/**
+ * TanStack Query hooks for Testimonials.
+ */
+import { useMutation, useQuery, useQueryClient, type UseMutateFunction, type UseQueryResult } from "@tanstack/react-query";
 
 import type { ApiError } from "@/lib/apiError";
 
-import { fetchTestimonialList } from "../api";
+import {
+  createTestimonial,
+  deleteTestimonial,
+  fetchTestimonialById,
+  fetchTestimonialList,
+  reorderTestimonials,
+  updateTestimonial,
+  updateTestimonialStatus,
+  type UpdateTestimonialPayload,
+} from "../api";
 import type { CmsTestimonial, CmsTestimonialStatus } from "../types";
 
-/**
- * Fetches the testimonial list (optionally filtered by status), for
- * `TestimonialsPage`. Same shape as `features/cms/faq/hooks/useFaqs`/
- * `features/cms/teachers/hooks/useTeachers` — no cache is needed here
- * the way `media/useMediaById` needs one, since nothing else in this
- * admin resolves a testimonial by id independently of this list.
- *
- * `setTestimonials` is exposed (unlike `useMediaList`, which only
- * exposes `refetch`) because `TestimonialsPage` needs to update the
- * visible order optimistically during drag-reorder, and to splice a
- * single updated testimonial back into the visible list after a
- * status change without a full refetch flash — `PATCH
- * /testimonials/reorder` returns void, so there's no response body to
- * reconcile the list against, same reasoning as `useFaqs`.
- */
-export interface UseTestimonialsResult {
-  testimonials: CmsTestimonial[];
+export const testimonialKeys = {
+  all: ["testimonials"] as const,
+  list: (status?: CmsTestimonialStatus) => [...testimonialKeys.all, "list", status ?? "all"] as const,
+  detail: (id: string) => [...testimonialKeys.all, "detail", id] as const,
+};
+
+export interface UseTestimonialListResult {
+  data: CmsTestimonial[] | undefined;
   isLoading: boolean;
+  isError: boolean;
   error: ApiError | null;
-  refetch: () => void;
-  setTestimonials: Dispatch<SetStateAction<CmsTestimonial[]>>;
+  refetch: UseQueryResult<CmsTestimonial[], ApiError>["refetch"];
+  setData: (updater: CmsTestimonial[] | ((old: CmsTestimonial[] | undefined) => CmsTestimonial[])) => void;
 }
 
-export function useTestimonials(status?: CmsTestimonialStatus): UseTestimonialsResult {
-  const [testimonials, setTestimonials] = useState<CmsTestimonial[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<ApiError | null>(null);
-  const [refetchToken, setRefetchToken] = useState(0);
+export function useTestimonialList(status?: CmsTestimonialStatus): UseTestimonialListResult {
+  const queryClient = useQueryClient();
+  const query = useQuery({ queryKey: testimonialKeys.list(status), queryFn: () => fetchTestimonialList(status), staleTime: 30_000 });
+  const setData = (updater: CmsTestimonial[] | ((old: CmsTestimonial[] | undefined) => CmsTestimonial[])) => {
+    queryClient.setQueryData<CmsTestimonial[]>(testimonialKeys.list(status), updater);
+  };
+  return { data: query.data, isLoading: query.isLoading, isError: query.isError, error: query.error as ApiError | null, refetch: query.refetch, setData };
+}
 
-  useEffect(() => {
-    let cancelled = false;
-    setIsLoading(true);
-    setError(null);
+export function useTestimonialById(id: string | null) {
+  return useQuery({ queryKey: id ? testimonialKeys.detail(id) : ["testimonials", "detail", "null"], queryFn: () => fetchTestimonialById(id!), enabled: !!id, staleTime: 30_000 });
+}
 
-    fetchTestimonialList(status)
-      .then((list) => {
-        if (!cancelled) setTestimonials(list);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err as ApiError);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
+export interface UseTestimonialMutations {
+  create: UseMutateFunction<CmsTestimonial, ApiError, Parameters<typeof createTestimonial>[0]>;
+  update: UseMutateFunction<CmsTestimonial, ApiError, { id: string; payload: UpdateTestimonialPayload }>;
+  delete: UseMutateFunction<void, ApiError, string>;
+  updateStatus: UseMutateFunction<CmsTestimonial, ApiError, { id: string; status: CmsTestimonialStatus }>;
+  reorder: UseMutateFunction<void, ApiError, string[]>;
+}
 
-    return () => {
-      cancelled = true;
-    };
-  }, [status, refetchToken]);
-
-  const refetch = useCallback(() => setRefetchToken((token) => token + 1), []);
-
-  return { testimonials, isLoading, error, refetch, setTestimonials };
+export function useTestimonialMutations(): UseTestimonialMutations {
+  const queryClient = useQueryClient();
+  const create = useMutation({ mutationFn: createTestimonial, onSuccess: (newT) => { queryClient.setQueryData<CmsTestimonial[]>(testimonialKeys.list(undefined), (old) => old ? [newT, ...old] : [newT]); queryClient.invalidateQueries({ queryKey: testimonialKeys.all, exact: false }); } });
+  const update = useMutation({ mutationFn: ({ id, payload }: { id: string; payload: UpdateTestimonialPayload }) => updateTestimonial(id, payload), onSuccess: (updated) => { queryClient.setQueryData<CmsTestimonial[]>(testimonialKeys.list(undefined), (old) => old?.map((t) => (t.id === updated.id ? updated : t)) ?? []); queryClient.invalidateQueries({ queryKey: testimonialKeys.all, exact: false }); queryClient.setQueryData(testimonialKeys.detail(updated.id), updated); } });
+  const deleteMutation = useMutation({ mutationFn: deleteTestimonial, onSuccess: (_data, deletedId) => { queryClient.setQueryData<CmsTestimonial[]>(testimonialKeys.list(undefined), (old) => old?.filter((t) => t.id !== deletedId) ?? []); queryClient.invalidateQueries({ queryKey: testimonialKeys.all, exact: false }); queryClient.removeQueries({ queryKey: testimonialKeys.detail(deletedId) }); } });
+  const updateStatus = useMutation({ mutationFn: ({ id, status }: { id: string; status: CmsTestimonialStatus }) => updateTestimonialStatus(id, status), onMutate: async ({ id, status }) => { await queryClient.cancelQueries({ queryKey: testimonialKeys.all }); const previousLists = queryClient.getQueryCache().findAll({ queryKey: testimonialKeys.all }); const snapshots = previousLists.map((q) => [q.queryKey, queryClient.getQueryData(q.queryKey)] as const); queryClient.setQueryData<CmsTestimonial[]>(testimonialKeys.list(undefined), (old) => old?.map((t) => (t.id === id ? { ...t, status } : t)) ?? []); queryClient.setQueryData<CmsTestimonial[]>(testimonialKeys.list(status), (old) => old?.map((t) => (t.id === id ? { ...t, status } : t)) ?? []); queryClient.setQueryData(testimonialKeys.detail(id), (old: CmsTestimonial | undefined) => old ? { ...old, status } : old); return { snapshots }; }, onError: (_err, _vars, context) => { context?.snapshots?.forEach(([key, data]) => queryClient.setQueryData(key, data)); }, onSettled: () => { queryClient.invalidateQueries({ queryKey: testimonialKeys.all, exact: false }); } });
+  const reorder = useMutation({ mutationFn: reorderTestimonials, onMutate: async (orderedIds) => { await queryClient.cancelQueries({ queryKey: testimonialKeys.all }); const previousLists = queryClient.getQueryCache().findAll({ queryKey: testimonialKeys.all }); const snapshots = previousLists.map((q) => [q.queryKey, queryClient.getQueryData(q.queryKey)] as const); queryClient.setQueryData<CmsTestimonial[]>(testimonialKeys.list(undefined), (old) => { if (!old) return old; const byId = new Map(old.map((t) => [t.id, t])); return orderedIds.map((id) => byId.get(id)!).filter(Boolean); }); return { snapshots }; }, onError: (_err, _vars, context) => { context?.snapshots?.forEach(([key, data]) => queryClient.setQueryData(key, data)); }, onSettled: () => { queryClient.invalidateQueries({ queryKey: testimonialKeys.all, exact: false }); } });
+  return { create: create.mutate, update: update.mutate, delete: deleteMutation.mutate, updateStatus: updateStatus.mutate, reorder: reorder.mutate };
 }
