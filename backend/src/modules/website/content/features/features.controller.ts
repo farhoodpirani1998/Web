@@ -53,7 +53,10 @@ export class FeaturesController {
 
   @Patch(':id')
   @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateFeatureDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateFeatureDto,
+  ) {
     return this.featuresService.update(id, dto);
   }
 

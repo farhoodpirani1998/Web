@@ -73,27 +73,27 @@ export function PreRegistrationDetail({
         </div>
 
         <dl className="mt-4 grid grid-cols-2 gap-4">
-          <DetailField label="Student national ID" value={preRegistration.studentNationalId} />
+          <DetailField label="کد ملی دانش‌آموز" value={preRegistration.studentNationalId} />
           <DetailField
-            label="Birth date"
+            label="تاریخ تولد"
             value={formatBirthDate(preRegistration.studentBirthDate)}
           />
-          <DetailField label="Grade" value={preRegistration.studentGrade} />
-          <DetailField label="Submitted" value={formatSubmittedAt(preRegistration.createdAt)} />
+          <DetailField label="پایه" value={preRegistration.studentGrade} />
+          <DetailField label="زمان ارسال" value={formatSubmittedAt(preRegistration.createdAt)} />
           <DetailField
-            label="Guardian"
+            label="سرپرست"
             value={preRegistration.guardianFullName}
             dir="rtl"
           />
-          <DetailField label="Guardian phone" value={preRegistration.guardianPhone} dir="ltr" />
+          <DetailField label="تلفن سرپرست" value={preRegistration.guardianPhone} dir="ltr" />
           {preRegistration.guardianEmail ? (
-            <DetailField label="Guardian email" value={preRegistration.guardianEmail} dir="ltr" />
+            <DetailField label="ایمیل سرپرست" value={preRegistration.guardianEmail} dir="ltr" />
           ) : null}
         </dl>
 
         {preRegistration.notes ? (
           <div className="mt-4">
-            <dt className="text-xs font-medium text-slate-500">Notes</dt>
+            <dt className="text-xs font-medium text-slate-500">یادداشت‌ها</dt>
             <dd className="mt-0.5 whitespace-pre-wrap text-sm text-slate-900" dir="rtl">
               {preRegistration.notes}
             </dd>
@@ -106,7 +106,7 @@ export function PreRegistrationDetail({
             onClick={onClose}
             className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
-            Close
+            بستن
           </button>
         </div>
       </div>

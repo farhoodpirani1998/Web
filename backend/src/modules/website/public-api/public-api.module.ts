@@ -12,6 +12,9 @@ import { CalendarEvent } from '../content/events/entities/calendar-event.entity'
 import { Campus } from '../content/campuses/entities/campus.entity';
 import { Teacher } from '../content/teachers/entities/teacher.entity';
 import { Faq } from '../content/faq/entities/faq.entity';
+import { Achievement } from '../content/achievements/entities/achievement.entity';
+import { AcademicCalendarEntry } from '../content/academic-calendar/entities/academic-calendar-entry.entity';
+import { AdmissionEntry } from '../content/admissions/entities/admission-entry.entity';
 import { Testimonial } from '../content/testimonials/entities/testimonial.entity';
 import { Menu } from '../content/navigation/entities/menu.entity';
 import { MenuItem } from '../content/navigation/entities/menu-item.entity';
@@ -37,6 +40,9 @@ import { PublicEventsController } from './events/public-events.controller';
 import { PublicCampusesController } from './campuses/public-campuses.controller';
 import { PublicTeachersController } from './teachers/public-teachers.controller';
 import { PublicFaqController } from './faq/public-faq.controller';
+import { PublicAchievementsController } from './achievements/public-achievements.controller';
+import { PublicAcademicCalendarController } from './academic-calendar/public-academic-calendar.controller';
+import { PublicAdmissionsController } from './admissions/public-admissions.controller';
 import { PublicTestimonialsController } from './testimonials/public-testimonials.controller';
 import { PublicNavigationController } from './navigation/public-navigation.controller';
 import {
@@ -96,6 +102,9 @@ import { PublicPreRegistrationController } from './pre-registration/public-pre-r
       Campus,
       Teacher,
       Faq,
+      Achievement,
+      AcademicCalendarEntry,
+      AdmissionEntry,
       Testimonial,
       Menu,
       MenuItem,
@@ -123,6 +132,9 @@ import { PublicPreRegistrationController } from './pre-registration/public-pre-r
     PublicCampusesController,
     PublicTeachersController,
     PublicFaqController,
+    PublicAchievementsController,
+    PublicAcademicCalendarController,
+    PublicAdmissionsController,
     PublicTestimonialsController,
     PublicNavigationController,
     PublicSiteSettingsController,

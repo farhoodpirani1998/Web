@@ -12,6 +12,30 @@
  * comes from — none of the section components need to change shape.
  */
 
+/** Local mirror of the backend kernel's `Translatable<T>`. */
+export interface Translatable<T = string> {
+  fa: T;
+  en?: T;
+}
+
+/**
+ * Wire shape of one entry in `GET /public/academic-calendar`. The
+ * backend stores every section's rows in one table with a `kind`
+ * discriminator, so this flat list is grouped client-side (see
+ * `./api.ts`'s `fetchAcademicCalendar`) into the five list shapes the
+ * section components render.
+ */
+export interface PublicAcademicCalendarEntryDto {
+  id: string;
+  kind: "year_stat" | "term" | "holiday" | "exam_period" | "important_date";
+  title: Translatable<string>;
+  value?: string;
+  dateRange?: string;
+  date?: string;
+  description?: Translatable<string>;
+  position: number;
+}
+
 export interface AcademicYearStat {
   /** Stable identifier, also used as the React list key. */
   id: string;

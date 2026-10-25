@@ -11,7 +11,8 @@ import {
   Text,
 } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
-import { examPeriods } from "./data";
+import { examPeriods as fallbackExamPeriods } from "./data";
+import { useAcademicCalendar } from "./useAcademicCalendar";
 
 /**
  * Academic Calendar page "Exams" section — the scheduled midterm and
@@ -40,6 +41,9 @@ import { examPeriods } from "./data";
  * other sections.
  */
 export function Exams() {
+  const { data } = useAcademicCalendar();
+  const examPeriods = data && data.examPeriods.length > 0 ? data.examPeriods : fallbackExamPeriods;
+
   return (
     <Section spacing="lg" aria-labelledby="academic-calendar-exams-heading">
       <Stack gap="md">

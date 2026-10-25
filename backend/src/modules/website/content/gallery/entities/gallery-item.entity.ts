@@ -24,6 +24,11 @@ export class GalleryItem extends BaseSiteScopedEntity {
   @Column({ type: 'jsonb', nullable: true })
   caption?: Translatable<string>;
 
+  // Optional longer description shown in the gallery's expanded/detail
+  // view — separate from `caption` (the short title shown on the card).
+  @Column({ type: 'jsonb', nullable: true })
+  description?: Translatable<string>;
+
   // Plain slug-like grouping (e.g. "campus", "events", "sports") for
   // client-side filtering — deliberately not its own entity/table,
   // same reasoning as Faq.category.

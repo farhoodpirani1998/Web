@@ -13,6 +13,7 @@ import { GalleryItem } from '../../content/gallery/entities/gallery-item.entity'
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
 import { SiteSettingsService } from '../../content/site-settings/site-settings.service';
+import { RedisService } from '../../core/redis/redis.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
   PublicMediaService,
@@ -22,12 +23,21 @@ import {
   PUBLIC_THROTTLE,
   PUBLIC_CACHE_CONTROL,
 } from '../common/public-rate-limit.constants';
-import { clampPagination, paginate, PaginatedResult } from '../common/pagination';
+import {
+  buildPublicCacheKey,
+  PUBLIC_CACHE_TTL_SECONDS,
+} from '../common/public-cache.constants';
+import {
+  clampPagination,
+  paginate,
+  PaginatedResult,
+} from '../common/pagination';
 
 interface PublicGalleryItemDto {
   id: string;
   image: PublicMediaRef | null;
   caption?: GalleryItem['caption'];
+  description?: GalleryItem['description'];
   category?: string;
   position: number;
 }
@@ -49,6 +59,7 @@ export class PublicGalleryController {
     private readonly visibility: PublicVisibilityService,
     private readonly media: PublicMediaService,
     private readonly siteSettings: SiteSettingsService,
+    private readonly redis: RedisService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -64,6 +75,17 @@ export class PublicGalleryController {
     if (!settings.featureFlags.galleryEnabled) {
       return paginate([], 0, page, limit);
     }
+
+    const cacheKey = buildPublicCacheKey(
+      'gallery',
+      'list',
+      category,
+      page,
+      limit,
+    );
+    const cached =
+      await this.redis.get<PaginatedResult<PublicGalleryItemDto>>(cacheKey);
+    if (cached) return cached;
 
     const siteId = this.siteService.getDefaultSiteId();
     const qb = this.galleryRepo
@@ -87,11 +109,12 @@ export class PublicGalleryController {
       visible.map((item) => item.imageMediaId),
     );
 
-    return paginate(
+    const result = paginate(
       visible.map((item) => ({
         id: item.id,
         image: mediaMap.get(item.imageMediaId) ?? null,
         caption: item.caption,
+        description: item.description,
         category: item.category,
         position: item.position,
       })),
@@ -99,5 +122,7 @@ export class PublicGalleryController {
       page,
       limit,
     );
+    await this.redis.set(cacheKey, result, PUBLIC_CACHE_TTL_SECONDS);
+    return result;
   }
 }

@@ -7,6 +7,8 @@ import { SiteService } from '../../core/site/site.service';
 import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 
 const ENTITY_TYPE = 'cta';
 
@@ -29,6 +31,7 @@ export class CtaService implements OnModuleInit {
     private readonly siteService: SiteService,
     private readonly publishing: PublishingService,
     private readonly media: MediaService,
+    private readonly redis: RedisService,
   ) {}
 
   async onModuleInit() {
@@ -57,9 +60,12 @@ export class CtaService implements OnModuleInit {
     const previousBackgroundImageMediaId = cta.backgroundImageMediaId;
 
     if (dto.title !== undefined) cta.title = dto.title;
-    if (dto.description !== undefined) cta.description = dto.description ?? undefined;
-    if (dto.primaryButtonLabel !== undefined) cta.primaryButtonLabel = dto.primaryButtonLabel;
-    if (dto.primaryButtonUrl !== undefined) cta.primaryButtonUrl = dto.primaryButtonUrl;
+    if (dto.description !== undefined)
+      cta.description = dto.description ?? undefined;
+    if (dto.primaryButtonLabel !== undefined)
+      cta.primaryButtonLabel = dto.primaryButtonLabel;
+    if (dto.primaryButtonUrl !== undefined)
+      cta.primaryButtonUrl = dto.primaryButtonUrl;
     if (dto.secondaryButtonLabel !== undefined) {
       cta.secondaryButtonLabel = dto.secondaryButtonLabel ?? undefined;
     }
@@ -77,13 +83,22 @@ export class CtaService implements OnModuleInit {
       dto.backgroundImageMediaId !== previousBackgroundImageMediaId
     ) {
       if (previousBackgroundImageMediaId) {
-        await this.media.detach(previousBackgroundImageMediaId, ENTITY_TYPE, saved.id);
+        await this.media.detach(
+          previousBackgroundImageMediaId,
+          ENTITY_TYPE,
+          saved.id,
+        );
       }
       if (saved.backgroundImageMediaId) {
-        await this.media.attach(saved.backgroundImageMediaId, ENTITY_TYPE, saved.id);
+        await this.media.attach(
+          saved.backgroundImageMediaId,
+          ENTITY_TYPE,
+          saved.id,
+        );
       }
     }
 
+    await this.invalidatePublicCache();
     return saved;
   }
 
@@ -97,6 +112,13 @@ export class CtaService implements OnModuleInit {
       siteId: cta.siteId,
     });
     cta.status = to;
-    return this.ctaRepo.save(cta);
+    const saved = await this.ctaRepo.save(cta);
+    await this.invalidatePublicCache();
+    return saved;
+  }
+
+  /** Clears the cached public CTA singleton after a write. */
+  private async invalidatePublicCache(): Promise<void> {
+    await this.redis.delete(buildPublicCacheKey('cta', 'singleton'));
   }
 }

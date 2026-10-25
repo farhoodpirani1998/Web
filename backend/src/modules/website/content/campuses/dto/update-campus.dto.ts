@@ -1,5 +1,7 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayUnique,
+  IsArray,
   IsEmail,
   IsOptional,
   IsString,
@@ -57,6 +59,19 @@ export class UpdateCampusDto {
   @IsOptional()
   @IsEmail()
   email?: string | null;
+
+  // Explicit null clears the area; undefined leaves it unchanged.
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TranslatableTextDto)
+  area?: TranslatableTextDto | null;
+
+  // Explicit null clears the features list; undefined leaves it unchanged.
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsString({ each: true })
+  features?: string[] | null;
 
   // Explicit null clears the featured image; undefined leaves it unchanged.
   @IsOptional()

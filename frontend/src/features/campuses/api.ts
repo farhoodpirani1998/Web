@@ -67,7 +67,9 @@ function toCampus(dto: PublicCampusListItemDto): Campus {
     name,
     description,
     detailedDescription: description,
+    area: dto.area?.fa,
     address: dto.address?.fa,
+    features: dto.features,
     contact: {
       phone,
       phoneHref: phone ? `tel:${phone}` : undefined,

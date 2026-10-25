@@ -21,7 +21,9 @@ export function sanitizeFilename(originalName: string): string {
   // Windows-style, before anything else.
   const base = originalName.split(/[/\\]/).pop() || 'file';
 
-  const ext = extname(base).slice(0, MAX_EXTENSION_LENGTH).replace(UNSAFE_CHARS, '');
+  const ext = extname(base)
+    .slice(0, MAX_EXTENSION_LENGTH)
+    .replace(UNSAFE_CHARS, '');
   const stem = base
     .slice(0, base.length - extname(base).length)
     .replace(UNSAFE_CHARS, '')

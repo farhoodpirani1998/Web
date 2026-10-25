@@ -75,7 +75,7 @@ export function FeaturesPage() {
       );
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingStatusId(null);
@@ -103,7 +103,7 @@ export function FeaturesPage() {
     } catch (err) {
       setFeatures(previous);
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setIsReordering(false);
@@ -112,25 +112,25 @@ export function FeaturesPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Features" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "ویژگی‌ها" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="Features" />
+            <PageHeader title="ویژگی‌ها" />
             <Section>
               <EmptyState
-                title="You don't have access to Features"
-                description="Viewing Features requires the Content permission. Contact an admin if you need access."
+                title="به ویژگی‌ها دسترسی ندارید"
+                description="مشاهده ویژگی‌ها نیازمند دسترسی محتوا است. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="Features"
-          description="Manage the highlight cards shown on the public site's features section."
+          title="ویژگی‌ها"
+          description="مدیریت کارت‌های ویژگی نمایش‌داده‌شده در بخش ویژگی‌های سایت."
         >
           <PermissionGate permission="website.content:write">
             <button
@@ -138,7 +138,7 @@ export function FeaturesPage() {
               onClick={handleCreate}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
-              New Feature
+              ویژگی جدید
             </button>
           </PermissionGate>
         </PageHeader>

@@ -35,7 +35,7 @@ export function PreRegistrationList({
   onChangeStatus,
 }: PreRegistrationListProps) {
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">Loading submissions…</p>;
+    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری درخواست‌ها…</p>;
   }
 
   if (error) {
@@ -45,8 +45,8 @@ export function PreRegistrationList({
   if (preRegistrations.length === 0) {
     return (
       <EmptyState
-        title={statusFilter ? `No ${statusFilter} submissions` : "No submissions yet"}
-        description="Pre-registration submissions from the public site will show up here."
+        title={statusFilter ? `No ${statusFilter} submissions` : "هنوز درخواستی نیست"}
+        description="درخواست‌های پیش‌ثبت‌نام از سایت اینجا نمایش داده می‌شوند."
       />
     );
   }
@@ -57,22 +57,22 @@ export function PreRegistrationList({
         <thead className="bg-slate-50">
           <tr>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Student
+              دانش‌آموز
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Guardian contact
+              اطلاعات تماس سرپرست
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Grade
+              پایه
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Status
+              وضعیت
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Submitted
+              زمان ارسال
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium text-slate-500">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">اقدامات</span>
             </th>
           </tr>
         </thead>

@@ -15,6 +15,10 @@
  * circular import; see `api.ts`'s doc comment) and `logout` (revokes
  * the refresh-token cookie server-side, used by `AdminHeader`'s logout
  * button).
+ *
+ * Sprint — Route permissions: adds `RequireRouteAccess`, the pathless
+ * layout route that blocks `/admin/*` pages the current admin's role
+ * cannot open (see `routes/route-permissions.ts`).
  */
 export {
   getAccessToken,
@@ -29,4 +33,5 @@ export { login, fetchCurrentAdmin, refreshAccessToken, logout } from "./api";
 export { AuthProvider } from "./AuthProvider";
 export { useAuth, type AuthStatus } from "./authContext";
 export { RequireAuth } from "./RequireAuth";
+export { RequireRouteAccess } from "./RequireRouteAccess";
 export { RedirectIfAuthenticated } from "./RedirectIfAuthenticated";

@@ -223,25 +223,25 @@ export function PagesPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Pages" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "صفحات" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="Pages" />
+            <PageHeader title="صفحات" />
             <Section>
               <EmptyState
-                title="You don't have access to Pages"
-                description="Viewing pages requires the Content permission. Contact an admin if you need access."
+                title="به صفحات دسترسی ندارید"
+                description="مشاهده صفحات نیازمند دسترسی محتوا است. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="Pages"
-          description="Manage the site's generic content pages, hierarchy, and homepage."
+          title="صفحات"
+          description="مدیریت صفحات محتوایی عمومی سایت، ساختار سلسله‌مراتبی و صفحه اصلی."
         >
           <PermissionGate permission="website.content:write">
             <button
@@ -249,7 +249,7 @@ export function PagesPage() {
               onClick={handleCreate}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
-              New page
+              صفحه جدید
             </button>
           </PermissionGate>
         </PageHeader>

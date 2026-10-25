@@ -27,7 +27,10 @@ describe('GlobalExceptionFilter', () => {
   it('translates a TypeORM EntityNotFoundError into a 404, not a 500', () => {
     const { host, response } = hostFor('GET', '/admin/news/does-not-exist');
 
-    filter.catch(new EntityNotFoundError('News', { id: 'does-not-exist' }), host);
+    filter.catch(
+      new EntityNotFoundError('News', { id: 'does-not-exist' }),
+      host,
+    );
 
     expect(response.status).toHaveBeenCalledWith(404);
     const body = response.json.mock.calls[0][0];
@@ -44,7 +47,10 @@ describe('GlobalExceptionFilter', () => {
 
     expect(response.status).toHaveBeenCalledWith(400);
     expect(response.json).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: 400, message: 'title is required' }),
+      expect.objectContaining({
+        statusCode: 400,
+        message: 'title is required',
+      }),
     );
   });
 

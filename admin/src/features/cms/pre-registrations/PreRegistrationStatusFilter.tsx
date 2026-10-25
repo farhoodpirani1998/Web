@@ -2,7 +2,7 @@ import type { CmsPreRegistrationStatus } from "./types";
 
 /**
  * All/New/Contacted/Archived filter for the Pre-Registrations list.
- * `undefined` means "All" — that's also exactly what
+ * `undefined` means "همه" — that's also exactly what
  * `fetchPreRegistrationList`/`usePreRegistrations` expect for "no
  * status filter" (omitting the query param entirely, per
  * `PreRegistrationsController.findAll`), same convention as
@@ -18,10 +18,10 @@ export interface PreRegistrationStatusFilterProps {
 }
 
 const OPTIONS: { label: string; value: CmsPreRegistrationStatus | undefined }[] = [
-  { label: "All", value: undefined },
-  { label: "New", value: "new" },
-  { label: "Contacted", value: "contacted" },
-  { label: "Archived", value: "archived" },
+  { label: "همه", value: undefined },
+  { label: "جدید", value: "new" },
+  { label: "پیگیری‌شده", value: "contacted" },
+  { label: "بایگانی", value: "archived" },
 ];
 
 export function PreRegistrationStatusFilter({
@@ -31,7 +31,7 @@ export function PreRegistrationStatusFilter({
   return (
     <div
       role="tablist"
-      aria-label="Filter pre-registrations by status"
+      aria-label="فیلتر پیش‌ثبت‌نام‌ها بر اساس وضعیت"
       className="inline-flex w-fit rounded-md border border-slate-200 bg-slate-50 p-0.5"
     >
       {OPTIONS.map((option) => {

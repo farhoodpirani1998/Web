@@ -12,7 +12,7 @@ import { useRowSelection } from "@/hooks/useRowSelection";
 import { ApiError } from "@/lib/apiError";
 
 import { archiveMedia, deleteMedia } from "./api";
-import { evictCachedMedia } from "./mediaCache";
+import { evictCachedMedia, setCachedMedia } from "./mediaCache";
 import { MediaDeleteConfirm } from "./MediaDeleteConfirm";
 import { MediaGrid } from "./MediaGrid";
 import { MediaStatusFilter } from "./MediaStatusFilter";
@@ -39,31 +39,20 @@ import { useMediaList } from "./useMediaList";
  * to a child component (`MediaUploadDialog`'s form state,
  * `MediaDeleteConfirm`'s confirm state) or delegated to `useMediaList`.
  *
- * Media Library UX v2, Part 2A scope: also owns selection state via
- * `useRowSelection`, same hook `NewsPage`/`PageList`/`TestimonialsPage`
- * already use for their bulk-selection UI.
+ * Owns selection state via `useRowSelection`, the same hook
+ * `NewsPage`/`PageList`/`TestimonialsPage` use for bulk actions.
  *
- * Part 2B adds the one bulk action Media has: delete. There's no bulk
- * publish/archive here (unlike `NewsPage`/`TestimonialsPage`'s
- * `BulkPublishArchiveDeleteActions`) — Media has no `CmsPublishStatus`
- * lifecycle, just `active`/`archived`, and archiving is already a
- * per-item action. So `BulkActionToolbar`'s `children` slot just gets a
- * plain Delete button instead of that shared component.
+ * Media has no `CmsPublishStatus` lifecycle, only `active`/`archived`,
+ * so its toolbar offers bulk archive for selected active assets and
+ * bulk delete for the full selection.
  *
- * `handleConfirmBulkDelete` mirrors `NewsPage`/`TestimonialsPage`'s own
- * bulk-delete handler: fire `deleteMedia` for every selected item in
- * parallel via `Promise.allSettled` (there's no bulk-delete endpoint,
- * just N calls to the existing single-item one), evict each success
- * from `mediaCache` (same as `MediaDeleteConfirm`), drop succeeded ids
- * from the selection (`deselectIds` — this is "clear selection after
- * success"; for a full success that empties the selection entirely),
- * and `refetch()` so the grid reflects the deletions. A partial
- * failure (e.g. some assets are still referenced elsewhere and 409 —
- * see `MediaDeleteConfirm`'s `isConflict` for the single-item version
- * of that) leaves the failed items checked and reports the count via
- * `bulkDeleteError`, same as the other modules; unlike the single-item
- * dialog this doesn't distinguish a 409 from any other failure, since
- * `BulkDeleteConfirm` only has one error slot.
+ * `handleBulkArchive` and `handleConfirmBulkDelete` fire the existing
+ * per-item endpoints in parallel via `Promise.allSettled` (there are no
+ * bulk endpoints). Successful items are removed from selection; archive
+ * successes update the shared media cache, while delete successes evict
+ * from it. Partial failures keep failed items selected for retry and
+ * report the number of failures.
+ *
  */
 export function MediaPage() {
   const [status, setStatus] = useState<CmsMediaStatus | undefined>(undefined);
@@ -76,9 +65,15 @@ export function MediaPage() {
   const [usageTarget, setUsageTarget] = useState<CmsMedia | null>(null);
   const [archivingId, setArchivingId] = useState<string | null>(null);
   const [archiveError, setArchiveError] = useState<string | null>(null);
+  const [isBulkArchiving, setIsBulkArchiving] = useState(false);
+  const [bulkArchiveError, setBulkArchiveError] = useState<string | null>(null);
   const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [bulkDeleteError, setBulkDeleteError] = useState<string | null>(null);
+  const activeSelectedCount = selectedMedia.filter(
+    (item) => item.status === "active",
+  ).length;
+  const isBulkActionPending = isBulkArchiving || isBulkDeleting;
 
   async function handleArchive(item: CmsMedia) {
     setArchiveError(null);
@@ -88,7 +83,7 @@ export function MediaPage() {
       refetch();
     } catch (err) {
       setArchiveError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setArchivingId(null);
@@ -103,6 +98,41 @@ export function MediaPage() {
   function handleDeleted() {
     setPendingDelete(null);
     refetch();
+  }
+
+  async function handleBulkArchive() {
+    const targets = selectedMedia.filter((item) => item.status === "active");
+    if (targets.length === 0) return;
+
+    setBulkArchiveError(null);
+    setIsBulkArchiving(true);
+
+    const results = await Promise.allSettled(
+      targets.map((item) => archiveMedia(item.id)),
+    );
+    const succeededIds: string[] = [];
+
+    results.forEach((result, index) => {
+      if (result.status === "fulfilled") {
+        const item = targets[index];
+        succeededIds.push(item.id);
+        setCachedMedia({ ...item, status: "archived" });
+      }
+    });
+
+    if (succeededIds.length > 0) {
+      selection.deselectIds(succeededIds);
+      refetch();
+    }
+
+    const failedCount = targets.length - succeededIds.length;
+    if (failedCount > 0) {
+      setBulkArchiveError(
+        `Archived ${succeededIds.length} of ${targets.length} selected media assets. ${failedCount} failed — please try again.`,
+      );
+    }
+
+    setIsBulkArchiving(false);
   }
 
   async function handleConfirmBulkDelete() {
@@ -139,29 +169,32 @@ export function MediaPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Media" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "رسانه" }]} />
 
       <PermissionGate
         permission="website.media:manage"
         fallback={
           <>
-            <PageHeader title="Media" />
+            <PageHeader title="رسانه" />
             <Section>
               <EmptyState
-                title="You don't have access to Media"
-                description="Managing media requires the Media permission. Contact an admin if you need access."
+                title="به رسانه دسترسی ندارید"
+                description="مدیریت رسانه نیازمند دسترسی رسانه است. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
-        <PageHeader title="Media" description="Upload and manage images used across the site.">
+        <PageHeader
+          title="رسانه"
+          description="بارگذاری و مدیریت تصاویر استفاده‌شده در سایت."
+        >
           <button
             type="button"
             onClick={() => setIsUploadOpen(true)}
             className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
           >
-            Upload media
+            بارگذاری رسانه
           </button>
         </PageHeader>
 
@@ -174,16 +207,36 @@ export function MediaPage() {
                 {archiveError}
               </p>
             ) : null}
+            {bulkArchiveError ? (
+              <p role="alert" className="text-sm text-red-600">
+                {bulkArchiveError}
+              </p>
+            ) : null}
 
-            <BulkActionToolbar selectedCount={selection.selectedCount} onClear={selection.clear}>
+            <BulkActionToolbar
+              selectedCount={selection.selectedCount}
+              onClear={selection.clear}
+            >
               <PermissionGate permission="website.media:manage">
+                {activeSelectedCount > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => void handleBulkArchive()}
+                    disabled={isBulkActionPending}
+                    className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isBulkArchiving
+                      ? "در حال بایگانی…"
+                      : `Archive${activeSelectedCount < selection.selectedCount ? ` (${activeSelectedCount})` : ""}`}
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   onClick={() => setIsBulkDeleteConfirmOpen(true)}
-                  disabled={isBulkDeleting}
+                  disabled={isBulkActionPending}
                   className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Delete
+                  حذف
                 </button>
               </PermissionGate>
             </BulkActionToolbar>
@@ -206,7 +259,10 @@ export function MediaPage() {
         </Section>
 
         {isUploadOpen ? (
-          <MediaUploadDialog onCancel={() => setIsUploadOpen(false)} onUploaded={handleUploaded} />
+          <MediaUploadDialog
+            onCancel={() => setIsUploadOpen(false)}
+            onUploaded={handleUploaded}
+          />
         ) : null}
 
         {pendingDelete ? (
@@ -225,7 +281,7 @@ export function MediaPage() {
           <BulkDeleteConfirm
             count={selection.selectedCount}
             itemLabel="media asset"
-            isDeleting={isBulkDeleting}
+            isDeleting={isBulkActionPending}
             error={bulkDeleteError}
             onCancel={() => {
               setIsBulkDeleteConfirmOpen(false);

@@ -32,8 +32,21 @@ describe('HeroService', () => {
     publishing = { transition: jest.fn() };
     media = { attach: jest.fn(), detach: jest.fn() };
     revisions = { record: jest.fn(), list: jest.fn(), getVersion: jest.fn() };
-    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
-    service = new HeroService(repo, siteService, ordering, publishing, media, revisions, redis);
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
+    service = new HeroService(
+      repo,
+      siteService,
+      ordering,
+      publishing,
+      media,
+      revisions,
+      redis,
+    );
   });
 
   describe('create', () => {
@@ -47,7 +60,10 @@ describe('HeroService', () => {
       expect(revisions.record).toHaveBeenCalledWith(
         'hero',
         'hero-1',
-        expect.objectContaining({ heading: { fa: 'خوش آمدید' }, backgroundMediaId: 'media-1' }),
+        expect.objectContaining({
+          heading: { fa: 'خوش آمدید' },
+          backgroundMediaId: 'media-1',
+        }),
         authorId,
       );
       expect(slide.status).toBe(PublishStatus.DRAFT);
@@ -64,7 +80,11 @@ describe('HeroService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      await service.update('hero-1', { backgroundMediaId: 'media-new' }, authorId);
+      await service.update(
+        'hero-1',
+        { backgroundMediaId: 'media-new' },
+        authorId,
+      );
 
       expect(media.detach).toHaveBeenCalledWith('media-old', 'hero', 'hero-1');
       expect(media.attach).toHaveBeenCalledWith('media-new', 'hero', 'hero-1');
@@ -112,7 +132,10 @@ describe('HeroService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      const result = await service.updateStatus('hero-1', PublishStatus.PUBLISHED);
+      const result = await service.updateStatus(
+        'hero-1',
+        PublishStatus.PUBLISHED,
+      );
 
       expect(publishing.transition).toHaveBeenCalledWith({
         from: PublishStatus.DRAFT,
@@ -128,7 +151,11 @@ describe('HeroService', () => {
   describe('reorder', () => {
     it('delegates to OrderingService against the hero_slides table', async () => {
       await service.reorder(['a', 'b']);
-      expect(ordering.reorder).toHaveBeenCalledWith(repo.manager, 'hero_slides', ['a', 'b']);
+      expect(ordering.reorder).toHaveBeenCalledWith(
+        repo.manager,
+        'hero_slides',
+        ['a', 'b'],
+      );
     });
   });
 });

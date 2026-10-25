@@ -1,4 +1,14 @@
-import { AspectRatio, Badge, Card, Heading, Image, Section, Stack, Text } from "@/shared/design-system/components";
+import { ChevronDown } from "lucide-react";
+
+import {
+  Badge,
+  Card,
+  MediaFrame,
+  Section,
+  SectionHeader,
+  Stack,
+  Text,
+} from "@/shared/design-system/components";
 import { galleryItems } from "./data";
 import { useGallery } from "./useGallery";
 
@@ -37,11 +47,14 @@ export function GalleryDetails() {
   const items = data && data.length > 0 ? data : galleryItems;
 
   return (
-    <Section spacing="lg" tone="muted" aria-labelledby="gallery-details-heading">
+    <Section
+      spacing="lg"
+      tone="muted"
+      className="rounded-3xl"
+      aria-labelledby="gallery-details-heading"
+    >
       <Stack gap="md">
-        <Heading id="gallery-details-heading" level={2}>
-          جزئیات تصاویر
-        </Heading>
+        <SectionHeader headingId="gallery-details-heading" title="جزئیات تصاویر" />
 
         <Stack gap="sm">
           {items.map((item) => (
@@ -61,45 +74,19 @@ export function GalleryDetails() {
                       {item.category}
                     </Badge>
                   </Stack>
-                  <Text
-                    as="span"
+                  <ChevronDown
                     aria-hidden="true"
-                    className="shrink-0 text-brand-gold transition-transform group-open:rotate-180"
-                  >
-                    ⌄
-                  </Text>
+                    className="h-5 w-5 shrink-0 text-brand-gold transition-transform group-open:rotate-180"
+                  />
                 </summary>
 
                 <Stack gap="sm" className="pt-4">
-                  {item.image.src ? (
-                    <Image
-                      src={item.image.src}
-                      alt={item.image.alt}
-                      ratio={16 / 9}
-                      fit="cover"
-                      containerClassName="max-w-md"
-                      fallback={
-                        <div className="flex h-full w-full items-center justify-center bg-muted text-sm text-muted-foreground">
-                          تصویر نمونه
-                        </div>
-                      }
-                    />
-                  ) : (
-                    <AspectRatio
-                      ratio={16 / 9}
-                      className="max-w-md bg-gradient-to-br from-brand-navy/10 via-muted to-brand-gold/15"
-                    >
-                      <Stack
-                        align="center"
-                        justify="center"
-                        className="absolute inset-0 h-full w-full px-2 text-center"
-                      >
-                        <Text variant="bodySm" color="muted">
-                          تصویر نمونه
-                        </Text>
-                      </Stack>
-                    </AspectRatio>
-                  )}
+                  <MediaFrame
+                    src={item.image.src}
+                    alt={item.image.alt}
+                    label="تصویر گالری به‌زودی"
+                    className="max-w-md rounded-xl"
+                  />
                   <Text variant="bodySm" color="muted">
                     {item.description}
                   </Text>

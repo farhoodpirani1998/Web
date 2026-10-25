@@ -50,7 +50,11 @@ export class CmsAdminUser extends BaseEntity {
   @Column()
   passwordHash!: string;
 
-  @Column({ type: 'enum', enum: WebsiteRole, enumName: 'admin_users_role_enum' })
+  @Column({
+    type: 'enum',
+    enum: WebsiteRole,
+    enumName: 'admin_users_role_enum',
+  })
   role!: WebsiteRole;
 
   /**

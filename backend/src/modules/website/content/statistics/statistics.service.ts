@@ -8,6 +8,8 @@ import { SiteService } from '../../core/site/site.service';
 import { OrderingService } from '../../core/ordering/ordering.service';
 import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 
 const ENTITY_TYPE = 'statistic';
 const TABLE_NAME = 'statistics';
@@ -20,6 +22,7 @@ export class StatisticsService {
     private readonly siteService: SiteService,
     private readonly ordering: OrderingService,
     private readonly publishing: PublishingService,
+    private readonly redis: RedisService,
   ) {}
 
   async create(dto: CreateStatisticDto): Promise<Statistic> {
@@ -33,7 +36,7 @@ export class StatisticsService {
       .where('statistic.siteId = :siteId', { siteId })
       .getRawOne<{ max: number | null }>();
 
-    return this.statisticsRepo.save(
+    const created = await this.statisticsRepo.save(
       this.statisticsRepo.create({
         siteId,
         label: dto.label,
@@ -44,6 +47,8 @@ export class StatisticsService {
         status: PublishStatus.DRAFT,
       }),
     );
+    await this.invalidatePublicCache();
+    return created;
   }
 
   async findAll(status?: PublishStatus): Promise<Statistic[]> {
@@ -64,11 +69,14 @@ export class StatisticsService {
     if (dto.value !== undefined) statistic.value = dto.value;
     if (dto.suffix !== undefined) statistic.suffix = dto.suffix ?? undefined;
     if (dto.icon !== undefined) statistic.icon = dto.icon ?? undefined;
-    return this.statisticsRepo.save(statistic);
+    const saved = await this.statisticsRepo.save(statistic);
+    await this.invalidatePublicCache();
+    return saved;
   }
 
   async remove(id: string): Promise<void> {
     await this.statisticsRepo.delete({ id });
+    await this.invalidatePublicCache();
   }
 
   async updateStatus(id: string, to: PublishStatus): Promise<Statistic> {
@@ -81,11 +89,25 @@ export class StatisticsService {
       siteId: statistic.siteId,
     });
     statistic.status = to;
-    return this.statisticsRepo.save(statistic);
+    const saved = await this.statisticsRepo.save(statistic);
+    await this.invalidatePublicCache();
+    return saved;
   }
 
   /** Same drag-and-drop reorder idiom as FeaturesService.reorder. */
   async reorder(orderedIds: string[]): Promise<void> {
-    await this.ordering.reorder(this.statisticsRepo.manager, TABLE_NAME, orderedIds);
+    await this.ordering.reorder(
+      this.statisticsRepo.manager,
+      TABLE_NAME,
+      orderedIds,
+    );
+    await this.invalidatePublicCache();
+  }
+
+  /** Clears every cached variant of this module's public list after a write. */
+  private async invalidatePublicCache(): Promise<void> {
+    await this.redis.deleteByPrefix(
+      `${buildPublicCacheKey('statistics', 'list')}:`,
+    );
   }
 }

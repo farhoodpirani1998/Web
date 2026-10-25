@@ -1,3 +1,5 @@
+import { ChevronDown } from "lucide-react";
+
 import { useFaq } from "@/features/faq/useFaq";
 import { Card, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
@@ -89,13 +91,10 @@ export function FAQ() {
                   <Text as="span" variant="body" weight="medium">
                     {item.question}
                   </Text>
-                  <Text
-                    as="span"
+                  <ChevronDown
                     aria-hidden="true"
-                    className="shrink-0 text-brand-gold transition-transform group-open:rotate-180"
-                  >
-                    ⌄
-                  </Text>
+                    className="h-5 w-5 shrink-0 text-brand-gold transition-transform group-open:rotate-180"
+                  />
                 </summary>
                 <Text variant="bodySm" color="muted" className="pt-3">
                   {item.answer}

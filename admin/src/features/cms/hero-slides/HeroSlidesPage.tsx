@@ -83,7 +83,7 @@ export function HeroSlidesPage() {
       setSlides((current) => current.map((row) => (row.id === updated.id ? updated : row)));
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingStatusId(null);
@@ -111,7 +111,7 @@ export function HeroSlidesPage() {
     } catch (err) {
       setSlides(previous);
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setIsReordering(false);
@@ -120,25 +120,25 @@ export function HeroSlidesPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Hero Slides" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "اسلایدهای هدر" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="Hero Slides" />
+            <PageHeader title="اسلایدهای هدر" />
             <Section>
               <EmptyState
-                title="You don't have access to hero slides"
-                description="Viewing hero slides requires the Content permission. Contact an admin if you need access."
+                title="به اسلایدهای هدر دسترسی ندارید"
+                description="مشاهده اسلایدهای هدر نیازمند دسترسی محتوا است. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="Hero Slides"
-          description="Manage the slides shown in the homepage hero carousel."
+          title="اسلایدهای هدر"
+          description="مدیریت اسلایدهای نمایش‌داده‌شده در اسلایدر هدر صفحه اصلی."
         >
           <PermissionGate permission="website.content:write">
             <button
@@ -146,7 +146,7 @@ export function HeroSlidesPage() {
               onClick={handleCreate}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
-              New hero slide
+              اسلاید هدر جدید
             </button>
           </PermissionGate>
         </PageHeader>

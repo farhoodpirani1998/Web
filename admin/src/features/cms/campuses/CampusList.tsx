@@ -10,7 +10,7 @@ import type { CmsCampus, CmsCampusStatus } from "./types";
  * display whatever list/loading/error state it's handed, same split as
  * `features/cms/teachers/TeacherList.tsx`/`features/cms/faq/FaqList.tsx`.
  *
- * Reordering is only enabled when `status` is `undefined` ("All"):
+ * Reordering is only enabled when `status` is `undefined` ("همه"):
  * `PATCH /campuses/reorder` (`OrderingService.reorder`) writes
  * `position` for exactly the ids it's given, in that order — it does
  * not shift the ids left out. Sending a filtered subset would silently
@@ -50,7 +50,7 @@ export function CampusList({
   onReorder,
 }: CampusListProps) {
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">Loading campuses…</p>;
+    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری پردیس‌ها…</p>;
   }
 
   if (error) {
@@ -60,8 +60,8 @@ export function CampusList({
   if (campuses.length === 0) {
     return (
       <EmptyState
-        title="No campuses yet"
-        description="Add a campus to get started."
+        title="هنوز پردیسی نیست"
+        description="برای شروع یک پردیس اضافه کنید."
       />
     );
   }
@@ -75,26 +75,26 @@ export function CampusList({
           <tr>
             {canReorder ? (
               <th scope="col" className="w-10 px-3 py-2 text-left font-medium text-slate-500">
-                <span className="sr-only">Reorder</span>
+                <span className="sr-only">مرتب‌سازی</span>
               </th>
             ) : null}
             <th scope="col" className="w-16 px-3 py-2 text-left font-medium text-slate-500">
-              <span className="sr-only">Image</span>
+              <span className="sr-only">تصویر</span>
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Name
+              نام
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Address
+              نشانی
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Status
+              وضعیت
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Publish at
+              زمان انتشار
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium text-slate-500">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">اقدامات</span>
             </th>
           </tr>
         </thead>

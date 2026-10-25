@@ -25,7 +25,9 @@ export function refreshCookieName(config: ConfigService): string {
 }
 
 export function refreshTokenTtlMs(config: ConfigService): number {
-  const days = Number(config.get<string>('CMS_REFRESH_TOKEN_EXPIRES_IN_DAYS') ?? '30');
+  const days = Number(
+    config.get<string>('CMS_REFRESH_TOKEN_EXPIRES_IN_DAYS') ?? '30',
+  );
   const safeDays = Number.isFinite(days) && days > 0 ? days : 30;
   return safeDays * 24 * 60 * 60 * 1000;
 }
@@ -49,14 +51,22 @@ export function refreshTokenTtlMs(config: ConfigService): number {
  * sites needs `"none"` — which browsers additionally require `secure`
  * for — set via `CMS_REFRESH_COOKIE_SAMESITE`.
  */
-export function refreshCookieOptions(config: ConfigService, maxAgeMs: number): CookieOptions {
+export function refreshCookieOptions(
+  config: ConfigService,
+  maxAgeMs: number,
+): CookieOptions {
   const isProduction = config.get<string>('NODE_ENV') === 'production';
   const sameSite =
-    (config.get<string>('CMS_REFRESH_COOKIE_SAMESITE') as CookieOptions['sameSite']) ?? 'lax';
+    (config.get<string>(
+      'CMS_REFRESH_COOKIE_SAMESITE',
+    ) as CookieOptions['sameSite']) ?? 'lax';
 
   return {
     httpOnly: true,
-    secure: parseBool(config.get<string>('CMS_REFRESH_COOKIE_SECURE'), isProduction),
+    secure: parseBool(
+      config.get<string>('CMS_REFRESH_COOKIE_SECURE'),
+      isProduction,
+    ),
     sameSite,
     path: REFRESH_COOKIE_PATH,
     maxAge: maxAgeMs,
@@ -87,7 +97,10 @@ function parseCookieHeader(header: string | undefined): Record<string, string> {
 }
 
 /** Reads the refresh-token cookie's raw value off a request, or `undefined` if absent. */
-export function readRefreshCookie(request: Request, config: ConfigService): string | undefined {
+export function readRefreshCookie(
+  request: Request,
+  config: ConfigService,
+): string | undefined {
   const cookies = parseCookieHeader(request.headers['cookie']);
   return cookies[refreshCookieName(config)];
 }

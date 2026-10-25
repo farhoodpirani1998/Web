@@ -87,6 +87,12 @@ export class Teacher extends BaseSiteScopedEntity {
   @Column({ nullable: true })
   email?: string;
 
+  // Credentials/areas of expertise ("دکترای ریاضی محض", "مدرس کنکور").
+  // A native Postgres text array, matching Campus.features/News.tags —
+  // short labels, not translatable prose.
+  @Column({ type: 'text', array: true, nullable: true })
+  specialties?: string[];
+
   // Manual admin ordering — see class comment. Indexed since it's the
   // primary sort key for both admin and public listings.
   @Index()

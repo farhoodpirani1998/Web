@@ -30,7 +30,7 @@ export function FaqDeleteConfirm({ faq, onCancel, onDeleted }: FaqDeleteConfirmP
       await deleteFaq(faq.id);
       onDeleted(faq.id);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "خطایی رخ داد. دوباره تلاش کنید.");
       setIsDeleting(false);
     }
   }
@@ -38,9 +38,9 @@ export function FaqDeleteConfirm({ faq, onCancel, onDeleted }: FaqDeleteConfirmP
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Delete FAQ</h2>
+        <h2 className="text-lg font-semibold text-slate-900">حذف پرسش متداول</h2>
         <p className="mt-1 text-sm text-slate-600" dir="rtl">
-          This permanently deletes “{faq.question.fa}”. This can&apos;t be undone.
+          این عمل «{faq.question.fa}» را برای همیشه حذف می‌کند. قابل بازگشت نیست.
         </p>
 
         {error ? (
@@ -56,7 +56,7 @@ export function FaqDeleteConfirm({ faq, onCancel, onDeleted }: FaqDeleteConfirmP
             disabled={isDeleting}
             className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Cancel
+            انصراف
           </button>
           <button
             type="button"
@@ -64,7 +64,7 @@ export function FaqDeleteConfirm({ faq, onCancel, onDeleted }: FaqDeleteConfirmP
             disabled={isDeleting}
             className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500 disabled:cursor-not-allowed disabled:bg-red-300"
           >
-            {isDeleting ? "Deleting…" : "Delete"}
+            {isDeleting ? "در حال حذف…" : "حذف"}
           </button>
         </div>
       </div>

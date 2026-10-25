@@ -80,7 +80,9 @@ export class SeoService {
       description: seo?.metaDescription?.trim() || undefined,
       canonicalUrl: seo?.canonicalUrl?.trim() || `${baseUrl}${canonicalPath}`,
       ogImageUrl: seo?.ogImageUrl,
-      robots: SeoService.isIndexable(seo) ? 'index, follow' : 'noindex, nofollow',
+      robots: SeoService.isIndexable(seo)
+        ? 'index, follow'
+        : 'noindex, nofollow',
     };
   }
 
@@ -90,7 +92,9 @@ export class SeoService {
    * concept of per-locale values. Static (no DI needed) — a pure
    * lookup, same reasoning as isIndexable.
    */
-  static resolveTranslatable(value: Translatable<string> | undefined): string | undefined {
+  static resolveTranslatable(
+    value: Translatable<string> | undefined,
+  ): string | undefined {
     return value?.[DEFAULT_LOCALE];
   }
 

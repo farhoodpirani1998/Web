@@ -63,7 +63,7 @@ export function PageList({
   onViewHistory,
 }: PageListProps) {
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">Loading pages…</p>;
+    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری صفحات…</p>;
   }
 
   if (error) {
@@ -73,8 +73,8 @@ export function PageList({
   if (pages.length === 0) {
     return (
       <EmptyState
-        title={status ? `No ${status} pages` : "No pages yet"}
-        description="Add a page to get started."
+        title={status ? "صفحه‌ای با این وضعیت یافت نشد" : "صفحه‌ای یافت نشد"}
+        description="برای شروع یک صفحه اضافه کنید."
       />
     );
   }
@@ -92,30 +92,30 @@ export function PageList({
                   checked={isAllSelected}
                   indeterminate={isSelectionIndeterminate}
                   onChange={onToggleSelectAll}
-                  aria-label="Select all pages"
+                  aria-label="انتخاب همه صفحات"
                 />
               </PermissionGate>
             </th>
             <th scope="col" className="w-16 px-3 py-2 text-left font-medium text-slate-500">
-              <span className="sr-only">Image</span>
+              <span className="sr-only">تصویر</span>
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Title
+              عنوان
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Template
+              قالب
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Status
+              وضعیت
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Publish at
+              زمان انتشار
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Homepage
+              صفحه اصلی
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium text-slate-500">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">اقدامات</span>
             </th>
           </tr>
         </thead>

@@ -23,8 +23,9 @@ export class LocalStorageProvider implements StorageProvider {
 
     const port = this.config.get<number>('PORT', 3100);
     const configuredBaseUrl = this.config.get<string>('PUBLIC_SITE_URL');
-    this.publicBaseUrl = (configuredBaseUrl ?? `http://localhost:${port}`)
-      .replace(/\/+$/, '');
+    this.publicBaseUrl = (
+      configuredBaseUrl ?? `http://localhost:${port}`
+    ).replace(/\/+$/, '');
   }
 
   async upload(file: Express.Multer.File, path: string): Promise<UploadResult> {

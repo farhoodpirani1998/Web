@@ -13,7 +13,9 @@ describe('LocalStorageProvider', () => {
   });
 
   it('falls back to localhost when no public site URL is configured', () => {
-    const provider = new LocalStorageProvider(new ConfigService({ PORT: '3100' }));
+    const provider = new LocalStorageProvider(
+      new ConfigService({ PORT: '3100' }),
+    );
 
     expect(provider.getUrl('media/sample-image.png')).toBe(
       'http://localhost:3100/uploads/media/sample-image.png',

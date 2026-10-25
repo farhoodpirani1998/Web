@@ -31,7 +31,7 @@ import type { CmsTestimonial } from "./types";
  * payload entirely, never sent as `0` or `null`.
  *
  * `avatarMediaId` is identical in shape and behavior to `TeacherForm`'s
- * `avatarMediaId` — optional, clearable via explicit `null` in edit
+ * `avatarMediaId` — اختیاری, clearable via explicit `null` in edit
  * mode.
  *
  * No `position` field here — a new testimonial is appended to the end
@@ -128,7 +128,7 @@ export function TestimonialForm({ testimonial, onCancel, onSaved }: TestimonialF
           });
       onSaved(saved);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
       setIsSaving(false);
     }
     // No `finally` resetting isSaving on success: the dialog is about
@@ -140,7 +140,7 @@ export function TestimonialForm({ testimonial, onCancel, onSaved }: TestimonialF
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-6">
         <h2 className="text-lg font-semibold text-slate-900">
-          {isEdit ? "Edit testimonial" : "New testimonial"}
+          {isEdit ? "ویرایش نظر" : "نظر جدید"}
         </h2>
 
         <form
@@ -150,7 +150,7 @@ export function TestimonialForm({ testimonial, onCancel, onSaved }: TestimonialF
         >
           <div className="flex flex-col gap-1.5">
             <label htmlFor={authorNameId} className="text-sm font-medium text-slate-900">
-              Author name
+              نام نویسنده
             </label>
             <input
               id={authorNameId}
@@ -166,7 +166,7 @@ export function TestimonialForm({ testimonial, onCancel, onSaved }: TestimonialF
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={authorRoleFaId} className="text-sm font-medium text-slate-900">
-                Role (Farsi) <span className="font-normal text-slate-400">— optional</span>
+                نقش (Farsi) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={authorRoleFaId}
@@ -182,7 +182,7 @@ export function TestimonialForm({ testimonial, onCancel, onSaved }: TestimonialF
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={authorRoleEnId} className="text-sm font-medium text-slate-900">
-                Role (English) <span className="font-normal text-slate-400">— optional</span>
+                نقش (English) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={authorRoleEnId}
@@ -190,7 +190,7 @@ export function TestimonialForm({ testimonial, onCancel, onSaved }: TestimonialF
                 value={authorRoleEn}
                 onChange={(event) => setAuthorRoleEn(event.target.value)}
                 disabled={isSaving}
-                placeholder="e.g. Parent of a Grade 4 student"
+                placeholder="مثلاً والد دانش‌آموز پایه چهارم"
                 className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
               />
             </div>
@@ -198,7 +198,7 @@ export function TestimonialForm({ testimonial, onCancel, onSaved }: TestimonialF
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={contentFaId} className="text-sm font-medium text-slate-900">
-              Quote (Farsi)
+              متن نظر (فارسی)
             </label>
             <textarea
               id={contentFaId}
@@ -214,7 +214,7 @@ export function TestimonialForm({ testimonial, onCancel, onSaved }: TestimonialF
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={contentEnId} className="text-sm font-medium text-slate-900">
-              Quote (English) <span className="font-normal text-slate-400">— optional</span>
+              متن نظر (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <textarea
               id={contentEnId}
@@ -228,7 +228,7 @@ export function TestimonialForm({ testimonial, onCancel, onSaved }: TestimonialF
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={ratingId} className="text-sm font-medium text-slate-900">
-              Rating <span className="font-normal text-slate-400">— optional, 1–5</span>
+              امتیاز <span className="font-normal text-slate-400">— اختیاری, 1–5</span>
             </label>
             <input
               id={ratingId}
@@ -243,7 +243,7 @@ export function TestimonialForm({ testimonial, onCancel, onSaved }: TestimonialF
               className="w-24 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
             />
             {!ratingIsValid ? (
-              <p className="text-xs text-red-600">Rating must be a whole number from 1 to 5.</p>
+              <p className="text-xs text-red-600">امتیاز باید عددی صحیح بین ۱ تا ۵ باشد.</p>
             ) : null}
           </div>
 
@@ -267,14 +267,14 @@ export function TestimonialForm({ testimonial, onCancel, onSaved }: TestimonialF
               disabled={isSaving}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Cancel
+              انصراف
             </button>
             <button
               type="submit"
               disabled={!canSubmit}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              {isSaving ? "Saving…" : isEdit ? "Save changes" : "Create testimonial"}
+              {isSaving ? "در حال ذخیره…" : isEdit ? "ذخیره تغییرات" : "ایجاد نظر"}
             </button>
           </div>
         </form>
@@ -300,7 +300,7 @@ export function TestimonialForm({ testimonial, onCancel, onSaved }: TestimonialF
 
 /**
  * Optional, clearable avatar field row — thumbnail preview plus
- * "Choose…"/"Remove" buttons. Same layout as Teachers'
+ * "انتخاب…"/"حذف" buttons. Same layout as Teachers'
  * `TeacherAvatarField`, but this is its own copy, not an import, since
  * nothing shared between those modules and Testimonials yet justifies
  * promoting it (see `features/cms/components/README.md`).
@@ -321,7 +321,7 @@ function TestimonialAvatarField({
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-sm font-medium text-slate-900">
-        Avatar <span className="font-normal text-slate-400">— optional</span>
+        Avatar <span className="font-normal text-slate-400">— اختیاری</span>
       </span>
       <div className="flex items-center gap-3">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-50">
@@ -334,7 +334,7 @@ function TestimonialAvatarField({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="text-xs text-slate-400">None</span>
+            <span className="text-xs text-slate-400">هیچ‌کدام</span>
           )}
         </div>
         <div className="flex flex-col gap-1.5">
@@ -344,7 +344,7 @@ function TestimonialAvatarField({
             disabled={disabled}
             className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {mediaId ? "Change…" : "Choose…"}
+            {mediaId ? "Change…" : "انتخاب…"}
           </button>
           {mediaId ? (
             <button
@@ -353,7 +353,7 @@ function TestimonialAvatarField({
               disabled={disabled}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Remove
+              حذف
             </button>
           ) : null}
         </div>
@@ -381,13 +381,13 @@ function TestimonialMediaPickerDialog({
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
       <div className="flex max-h-[80vh] w-full max-w-2xl flex-col gap-4 overflow-y-auto rounded-lg border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Choose media</h2>
+          <h2 className="text-lg font-semibold text-slate-900">انتخاب رسانه</h2>
           <button
             type="button"
             onClick={onCancel}
             className="text-sm font-medium text-slate-500 hover:text-slate-900"
           >
-            Close
+            بستن
           </button>
         </div>
 

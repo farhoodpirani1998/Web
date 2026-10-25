@@ -12,11 +12,10 @@ import type { AdminPermission, AdminRole, AdminUser } from "@/types/auth";
  * Deliberately NOT reimplementing `ROLE_PERMISSIONS` (the backend's
  * role -> permission map, see `website-role.enum.ts`): these helpers
  * only ever check the `permissions` array the backend already computed
- * and sent back on `/admin/auth/me`. The frontend has no business
- * deciding what a role is allowed to do — that's backend-owned. If
- * `user.permissions` is missing (e.g. the `LoginResponse` shape, which
- * doesn't include it), permission checks simply fail closed rather than
- * guessing from `role`.
+ * and sent back with the session (`/admin/auth/login`, `/auth/refresh`,
+ * `/auth/me`). The frontend has no business deciding what a role is
+ * allowed to do — that's backend-owned. If `user.permissions` is missing,
+ * permission checks simply fail closed rather than guessing from `role`.
  */
 
 /** True if `user` is present and has exactly the given role. */
@@ -37,9 +36,9 @@ export function hasAnyRole(
 }
 
 /**
- * True if `user` is present, has a `permissions` list (only guaranteed
- * on the `/admin/auth/me` response, see `CurrentAdminResponse`), and
- * that list includes `permission`.
+ * True if `user` is present and its `permissions` list — the one the
+ * backend sent with the session — includes `permission`. A missing list
+ * denies.
  */
 export function hasPermission(
   user: Pick<AdminUser, "permissions"> | null | undefined,

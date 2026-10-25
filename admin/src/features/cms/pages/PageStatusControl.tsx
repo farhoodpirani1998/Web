@@ -16,9 +16,9 @@ const VALID_TRANSITIONS: Record<CmsPageStatus, CmsPageStatus[]> = {
 };
 
 const STATUS_LABEL: Record<CmsPageStatus, string> = {
-  draft: "Draft",
-  published: "Published",
-  archived: "Archived",
+  draft: "پیش‌نویس",
+  published: "منتشرشده",
+  archived: "بایگانی",
 };
 
 const STATUS_BADGE_CLASS: Record<CmsPageStatus, string> = {

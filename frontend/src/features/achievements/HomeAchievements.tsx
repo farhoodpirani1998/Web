@@ -3,6 +3,8 @@ import { Trophy } from "lucide-react";
 import { Container, Heading, Stack, Text } from "@/shared/design-system/components";
 import { toPersianDigits } from "@/shared/utils/toPersianDigits";
 
+import { useAchievements } from "./useAchievements";
+
 /**
  * Homepage "Achievements" section (Website Frontend Architecture §4,
  * §10 "Section Architecture", §11 "Component Hierarchy") — new
@@ -37,7 +39,7 @@ interface Achievement {
   label: string;
 }
 
-const ACHIEVEMENTS: Achievement[] = [
+const FALLBACK_ACHIEVEMENTS: Achievement[] = [
   { value: "۱۵+", label: "رتبه‌ی برتر کشوری در المپیادهای علمی دانش‌آموزی" },
   { value: "۹۵٪", label: "قبولی فارغ‌التحصیلان در دانشگاه‌های برتر کشور" },
   { value: "۳۰+", label: "مدال و رتبه در مسابقات علمی و ورزشی استانی و کشوری" },
@@ -45,6 +47,13 @@ const ACHIEVEMENTS: Achievement[] = [
 ];
 
 export function HomeAchievements() {
+  const { data } = useAchievements();
+
+  const achievements: Achievement[] =
+    data && data.length > 0
+      ? data.map((item) => ({ value: item.value, label: item.label.fa }))
+      : FALLBACK_ACHIEVEMENTS;
+
   return (
     <section aria-labelledby="home-achievements-heading" className="relative overflow-hidden bg-primary py-20 sm:py-28">
       <div
@@ -88,7 +97,7 @@ export function HomeAchievements() {
         </Stack>
 
         <div className="flex flex-col divide-y divide-white/10">
-          {ACHIEVEMENTS.map((item) => (
+          {achievements.map((item) => (
             <div key={item.label} className="flex items-center gap-5 py-5 first:pt-0 last:pb-0">
               <span aria-hidden="true" className="shrink-0 text-4xl font-bold text-accent sm:text-5xl">
                 {item.value}

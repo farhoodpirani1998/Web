@@ -37,6 +37,7 @@ function snapshotOf(teacher: Teacher): Record<string, unknown> {
     campusId: teacher.campusId,
     phone: teacher.phone,
     email: teacher.email,
+    specialties: teacher.specialties,
     avatarMediaId: teacher.avatarMediaId,
     seo: teacher.seo,
   };
@@ -62,11 +63,18 @@ export class TeachersService implements OnModuleInit {
    * keyed by an optional `?campusId=`, same as News' category/tag
    * variants, so a prefix delete is needed rather than a single key).
    */
-  private async invalidatePublicCache(...slugs: Array<string | undefined>): Promise<void> {
+  private async invalidatePublicCache(
+    ...slugs: Array<string | undefined>
+  ): Promise<void> {
     for (const slug of slugs) {
-      if (slug) await this.redis.delete(buildPublicCacheKey('teachers', 'detail', slug));
+      if (slug)
+        await this.redis.delete(
+          buildPublicCacheKey('teachers', 'detail', slug),
+        );
     }
-    await this.redis.deleteByPrefix(`${buildPublicCacheKey('teachers', 'list')}:`);
+    await this.redis.deleteByPrefix(
+      `${buildPublicCacheKey('teachers', 'list')}:`,
+    );
   }
 
   onModuleInit() {
@@ -94,7 +102,9 @@ export class TeachersService implements OnModuleInit {
     slug: string,
     excludingId?: string,
   ): Promise<void> {
-    const existing = await this.teachersRepo.findOne({ where: { siteId, slug } });
+    const existing = await this.teachersRepo.findOne({
+      where: { siteId, slug },
+    });
     if (existing && existing.id !== excludingId) {
       throw new ConflictException(`Slug "${slug}" is already in use`);
     }
@@ -124,6 +134,7 @@ export class TeachersService implements OnModuleInit {
         campusId: dto.campusId,
         phone: dto.phone,
         email: dto.email,
+        specialties: dto.specialties,
         position: (maxPosition?.max ?? -1) + 1,
         avatarMediaId: dto.avatarMediaId,
         seo: dto.seo ?? {},
@@ -134,7 +145,12 @@ export class TeachersService implements OnModuleInit {
     if (teacher.avatarMediaId) {
       await this.media.attach(teacher.avatarMediaId, ENTITY_TYPE, teacher.id);
     }
-    await this.revisions.record(ENTITY_TYPE, teacher.id, snapshotOf(teacher), authorId);
+    await this.revisions.record(
+      ENTITY_TYPE,
+      teacher.id,
+      snapshotOf(teacher),
+      authorId,
+    );
     await this.invalidatePublicCache(teacher.slug);
     return teacher;
   }
@@ -171,11 +187,15 @@ export class TeachersService implements OnModuleInit {
     if (dto.fullName !== undefined) teacher.fullName = dto.fullName;
     if (dto.jobTitle !== undefined) teacher.jobTitle = dto.jobTitle;
     if (dto.excerpt !== undefined) teacher.excerpt = dto.excerpt;
-    if (dto.bio !== undefined) teacher.bio = sanitizeTranslatableRichText(dto.bio);
+    if (dto.bio !== undefined)
+      teacher.bio = sanitizeTranslatableRichText(dto.bio);
     if (dto.department !== undefined) teacher.department = dto.department;
-    if (dto.campusId !== undefined) teacher.campusId = dto.campusId ?? undefined;
+    if (dto.campusId !== undefined)
+      teacher.campusId = dto.campusId ?? undefined;
     if (dto.phone !== undefined) teacher.phone = dto.phone ?? undefined;
     if (dto.email !== undefined) teacher.email = dto.email ?? undefined;
+    if (dto.specialties !== undefined)
+      teacher.specialties = dto.specialties ?? undefined;
 
     if (dto.avatarMediaId !== undefined) {
       teacher.avatarMediaId = dto.avatarMediaId ?? undefined;
@@ -196,7 +216,12 @@ export class TeachersService implements OnModuleInit {
       }
     }
 
-    await this.revisions.record(ENTITY_TYPE, saved.id, snapshotOf(saved), authorId);
+    await this.revisions.record(
+      ENTITY_TYPE,
+      saved.id,
+      snapshotOf(saved),
+      authorId,
+    );
     await this.invalidatePublicCache(previousSlug, saved.slug);
     return saved;
   }
@@ -235,7 +260,11 @@ export class TeachersService implements OnModuleInit {
 
   /** Same drag-and-drop reorder idiom as CampusesService.reorder. */
   async reorder(orderedIds: string[]): Promise<void> {
-    await this.ordering.reorder(this.teachersRepo.manager, TABLE_NAME, orderedIds);
+    await this.ordering.reorder(
+      this.teachersRepo.manager,
+      TABLE_NAME,
+      orderedIds,
+    );
     // Reordering changes the list route's response (position order)
     // without touching any individual teacher's updatedAt/slug, so only
     // the list-cache variants — not any detail cache — need clearing.
@@ -251,7 +280,11 @@ export class TeachersService implements OnModuleInit {
     versionNumber: number,
     authorId: string,
   ): Promise<Teacher> {
-    const revision = await this.revisions.getVersion(ENTITY_TYPE, id, versionNumber);
+    const revision = await this.revisions.getVersion(
+      ENTITY_TYPE,
+      id,
+      versionNumber,
+    );
     const snapshot = revision.snapshot as {
       fullName: Teacher['fullName'];
       slug: Teacher['slug'];
@@ -262,6 +295,7 @@ export class TeachersService implements OnModuleInit {
       campusId?: Teacher['campusId'];
       phone?: Teacher['phone'];
       email?: Teacher['email'];
+      specialties?: Teacher['specialties'];
       avatarMediaId?: Teacher['avatarMediaId'];
       seo?: Teacher['seo'];
     };
@@ -280,6 +314,7 @@ export class TeachersService implements OnModuleInit {
         campusId: snapshot.campusId ?? null,
         phone: snapshot.phone ?? null,
         email: snapshot.email ?? null,
+        specialties: snapshot.specialties ?? null,
         avatarMediaId: snapshot.avatarMediaId ?? null,
         seo: snapshot.seo,
       },

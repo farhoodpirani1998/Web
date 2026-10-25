@@ -10,6 +10,7 @@ describe('AboutService', () => {
   let media: any;
   let sitemap: any;
   let revisions: any;
+  let redis: any;
   let service: AboutService;
 
   beforeEach(() => {
@@ -24,7 +25,21 @@ describe('AboutService', () => {
     media = { attach: jest.fn(), detach: jest.fn() };
     sitemap = { register: jest.fn() };
     revisions = { record: jest.fn(), list: jest.fn(), getVersion: jest.fn() };
-    service = new AboutService(repo, siteService, publishing, media, sitemap, revisions);
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
+    service = new AboutService(
+      repo,
+      siteService,
+      publishing,
+      media,
+      sitemap,
+      revisions,
+      redis,
+    );
   });
 
   describe('onModuleInit', () => {
@@ -62,8 +77,16 @@ describe('AboutService', () => {
 
       await service.update({ imageMediaId: 'media-new' }, authorId);
 
-      expect(media.detach).toHaveBeenCalledWith('media-old', 'about', 'about-1');
-      expect(media.attach).toHaveBeenCalledWith('media-new', 'about', 'about-1');
+      expect(media.detach).toHaveBeenCalledWith(
+        'media-old',
+        'about',
+        'about-1',
+      );
+      expect(media.attach).toHaveBeenCalledWith(
+        'media-new',
+        'about',
+        'about-1',
+      );
       expect(revisions.record).toHaveBeenCalledWith(
         'about',
         'about-1',
@@ -82,7 +105,10 @@ describe('AboutService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      const result = await service.update({ seo: { metaTitle: 'New Title' } }, authorId);
+      const result = await service.update(
+        { seo: { metaTitle: 'New Title' } },
+        authorId,
+      );
 
       expect(result.seo).toEqual({ metaTitle: 'New Title', noindex: false });
     });

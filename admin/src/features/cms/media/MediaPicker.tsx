@@ -53,7 +53,7 @@ function MediaPickerGrid({
   const { media, isLoading, error } = useMediaList("active");
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Loading media…</p>;
+    return <p className="text-sm text-slate-500">در حال بارگذاری رسانه…</p>;
   }
 
   if (error) {
@@ -63,8 +63,8 @@ function MediaPickerGrid({
   if (media.length === 0) {
     return (
       <EmptyState
-        title="No media yet"
-        description="Uploaded images will appear here to select from."
+        title="هنوز رسانه‌ای نیست"
+        description="تصاویر بارگذاری‌شده برای انتخاب اینجا نمایش داده می‌شوند."
       />
     );
   }

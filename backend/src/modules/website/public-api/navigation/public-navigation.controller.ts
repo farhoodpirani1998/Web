@@ -92,18 +92,22 @@ export class PublicNavigationController {
       return !!page && this.visibility.isVisible(page);
     });
 
-    const dto = this.buildTree(resolvable, undefined, pageMap);
+    const dto = this.buildTree(resolvable, null, pageMap);
     await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
     return dto;
   }
 
   private buildTree(
     items: MenuItem[],
-    parentId: string | undefined,
+    parentId: string | null,
     pageMap: Map<string, StaticPage>,
   ): PublicMenuItemNode[] {
+    // Top-level items persist `parentId` as SQL NULL, which TypeORM loads
+    // as `null` — the tree is rooted by comparing against `null` (not
+    // `undefined`), otherwise every root item is filtered out and the
+    // public menu comes back empty.
     return items
-      .filter((item) => item.parentId === parentId)
+      .filter((item) => (item.parentId ?? null) === parentId)
       .map((item) => ({
         id: item.id,
         label: item.label,

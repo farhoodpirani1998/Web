@@ -41,7 +41,12 @@ describe('CampusesService', () => {
       list: jest.fn(),
       getVersion: jest.fn(),
     };
-    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
     service = new CampusesService(
       repo,
       siteService,
@@ -81,14 +86,21 @@ describe('CampusesService', () => {
     it('includes a published campus once publishAt has passed', async () => {
       const past = new Date(Date.now() - 86_400_000);
       jest.spyOn(service, 'findAll').mockResolvedValue([
-        { id: 'c1', slug: 'past-campus', publishAt: past, updatedAt: past } as any,
+        {
+          id: 'c1',
+          slug: 'past-campus',
+          publishAt: past,
+          updatedAt: past,
+        } as any,
       ]);
 
       service.onModuleInit();
       const provider = sitemap.register.mock.calls[0][0];
       const entries = await provider();
 
-      expect(entries).toEqual([{ loc: '/campuses/past-campus', lastmod: past }]);
+      expect(entries).toEqual([
+        { loc: '/campuses/past-campus', lastmod: past },
+      ]);
     });
   });
 
@@ -113,7 +125,11 @@ describe('CampusesService', () => {
       expect(campus.status).toBe(PublishStatus.DRAFT);
       expect(campus.siteId).toBe(siteId);
       expect(campus.position).toBe(3);
-      expect(media.attach).toHaveBeenCalledWith('media-1', 'campus', 'campus-1');
+      expect(media.attach).toHaveBeenCalledWith(
+        'media-1',
+        'campus',
+        'campus-1',
+      );
       expect(revisions.record).toHaveBeenCalledWith(
         'campus',
         'campus-1',
@@ -188,10 +204,22 @@ describe('CampusesService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      await service.update('campus-1', { featuredImageMediaId: 'media-new' }, 'author-1');
+      await service.update(
+        'campus-1',
+        { featuredImageMediaId: 'media-new' },
+        'author-1',
+      );
 
-      expect(media.detach).toHaveBeenCalledWith('media-old', 'campus', 'campus-1');
-      expect(media.attach).toHaveBeenCalledWith('media-new', 'campus', 'campus-1');
+      expect(media.detach).toHaveBeenCalledWith(
+        'media-old',
+        'campus',
+        'campus-1',
+      );
+      expect(media.attach).toHaveBeenCalledWith(
+        'media-new',
+        'campus',
+        'campus-1',
+      );
     });
 
     it('clears mapUrl/phone/email when explicitly set to null', async () => {
@@ -247,7 +275,11 @@ describe('CampusesService', () => {
 
       await service.remove('campus-1');
 
-      expect(media.detach).toHaveBeenCalledWith('media-1', 'campus', 'campus-1');
+      expect(media.detach).toHaveBeenCalledWith(
+        'media-1',
+        'campus',
+        'campus-1',
+      );
       expect(repo.delete).toHaveBeenCalledWith({ id: 'campus-1' });
     });
   });
@@ -260,7 +292,10 @@ describe('CampusesService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      const result = await service.updateStatus('campus-1', PublishStatus.PUBLISHED);
+      const result = await service.updateStatus(
+        'campus-1',
+        PublishStatus.PUBLISHED,
+      );
 
       expect(publishing.transition).toHaveBeenCalledWith({
         from: PublishStatus.DRAFT,
@@ -300,11 +335,11 @@ describe('CampusesService', () => {
     it('delegates to OrderingService against the campuses table', async () => {
       await service.reorder(['c1', 'c2', 'c3']);
 
-      expect(ordering.reorder).toHaveBeenCalledWith(
-        repo.manager,
-        'campuses',
-        ['c1', 'c2', 'c3'],
-      );
+      expect(ordering.reorder).toHaveBeenCalledWith(repo.manager, 'campuses', [
+        'c1',
+        'c2',
+        'c3',
+      ]);
     });
   });
 });

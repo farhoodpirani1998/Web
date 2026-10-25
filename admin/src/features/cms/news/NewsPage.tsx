@@ -97,7 +97,7 @@ export function NewsPage() {
       setArticles((current) => current.map((item) => (item.id === updated.id ? updated : item)));
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingStatusId(null);
@@ -113,7 +113,7 @@ export function NewsPage() {
       setArticles((current) => current.map((item) => (item.id === updated.id ? updated : item)));
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingScheduleId(null);
@@ -153,9 +153,7 @@ export function NewsPage() {
     const failedCount = targets.length - succeededIds.length;
     if (failedCount > 0) {
       setActionError(
-        `Updated ${succeededIds.length} of ${targets.length} selected article${
-          targets.length === 1 ? "" : "s"
-        }. ${failedCount} failed — please try again.`,
+        `از ${targets.length} خبر انتخاب‌شده، ${succeededIds.length} مورد به‌روزرسانی شد. ${failedCount} مورد ناموفق بود — لطفاً دوباره تلاش کنید.`,
       );
     }
 
@@ -201,7 +199,7 @@ export function NewsPage() {
 
     if (failedCount > 0) {
       setBulkDeleteError(
-        `Deleted ${succeededIds.length} of ${targets.length}. ${failedCount} failed — please try again.`,
+        `از ${targets.length} مورد، ${succeededIds.length} مورد حذف شد. ${failedCount} مورد ناموفق بود — لطفاً دوباره تلاش کنید.`,
       );
     } else {
       setIsBulkDeleteConfirmOpen(false);
@@ -210,25 +208,25 @@ export function NewsPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "News" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "اخبار" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="News" />
+            <PageHeader title="اخبار" />
             <Section>
               <EmptyState
-                title="You don't have access to News"
-                description="Viewing news articles requires the Content permission. Contact an admin if you need access."
+                title="شما به «اخبار» دسترسی ندارید"
+                description="مشاهده اخبار نیازمند دسترسی «محتوا» است. در صورت نیاز به دسترسی با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="News"
-          description="Manage the announcements and articles shown on the public site."
+          title="اخبار"
+          description="مدیریت اطلاعیه‌ها و مقالات نمایش‌داده‌شده در سایت عمومی."
         >
           <PermissionGate permission="website.content:write">
             <button
@@ -236,7 +234,7 @@ export function NewsPage() {
               onClick={handleCreate}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
-              New article
+              خبر جدید
             </button>
           </PermissionGate>
         </PageHeader>
@@ -314,7 +312,7 @@ export function NewsPage() {
         {isBulkDeleteConfirmOpen ? (
           <BulkDeleteConfirm
             count={selection.selectedCount}
-            itemLabel="news article"
+            itemLabel="خبر"
             isDeleting={isBulkDeleting}
             error={bulkDeleteError}
             onCancel={() => {

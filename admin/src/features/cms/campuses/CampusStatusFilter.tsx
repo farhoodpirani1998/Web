@@ -2,14 +2,14 @@ import type { CmsCampusStatus } from "./types";
 
 /**
  * All/Draft/Published/Archived filter for the campus list.
- * `undefined` means "All" — that's also exactly what
+ * `undefined` means "همه" — that's also exactly what
  * `fetchCampusesList`/`useCampuses` expect for "no status filter"
  * (omitting the query param entirely, per `CampusesController.findAll`),
  * so this component's value type doubles as the hook's param type with
  * no translation step in `CampusesPage`, same convention as
  * `features/cms/teachers/TeacherStatusFilter.tsx`.
  *
- * "All" is also the only mode `CampusList` allows drag/move
+ * "همه" is also the only mode `CampusList` allows drag/move
  * reordering in — see that file's comment for why.
  *
  * No category filter alongside this (unlike Events): `GET
@@ -23,17 +23,17 @@ export interface CampusStatusFilterProps {
 }
 
 const OPTIONS: { label: string; value: CmsCampusStatus | undefined }[] = [
-  { label: "All", value: undefined },
-  { label: "Draft", value: "draft" },
-  { label: "Published", value: "published" },
-  { label: "Archived", value: "archived" },
+  { label: "همه", value: undefined },
+  { label: "پیش‌نویس", value: "draft" },
+  { label: "منتشرشده", value: "published" },
+  { label: "بایگانی", value: "archived" },
 ];
 
 export function CampusStatusFilter({ value, onChange }: CampusStatusFilterProps) {
   return (
     <div
       role="tablist"
-      aria-label="Filter campuses by status"
+      aria-label="فیلتر پردیس‌ها بر اساس وضعیت"
       className="inline-flex w-fit rounded-md border border-slate-200 bg-slate-50 p-0.5"
     >
       {OPTIONS.map((option) => {

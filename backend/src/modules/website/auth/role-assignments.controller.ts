@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Put,
+} from '@nestjs/common';
 import { RoleAssignmentsService } from './role-assignments.service';
 import { AssignWebsiteRoleDto } from './dto/assign-website-role.dto';
 import { RequireWebsiteSuperAdmin } from './require-website-super-admin.decorator';
@@ -33,7 +41,10 @@ export class RoleAssignmentsController {
   // on the (unique) externalUserId — same "assign" verb whether this is
   // the user's first role or a change of an existing one.
   @Put(':externalUserId')
-  assign(@Param('externalUserId') externalUserId: string, @Body() dto: AssignWebsiteRoleDto) {
+  assign(
+    @Param('externalUserId') externalUserId: string,
+    @Body() dto: AssignWebsiteRoleDto,
+  ) {
     return this.roleAssignments.assign(externalUserId, dto.role);
   }
 

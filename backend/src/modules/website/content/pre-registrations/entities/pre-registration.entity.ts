@@ -67,6 +67,10 @@ export class PreRegistration extends BaseSiteScopedEntity {
   notes?: string;
 
   @Index()
-  @Column({ type: 'enum', enum: PreRegistrationStatus, default: PreRegistrationStatus.NEW })
+  @Column({
+    type: 'enum',
+    enum: PreRegistrationStatus,
+    default: PreRegistrationStatus.NEW,
+  })
   status!: PreRegistrationStatus;
 }

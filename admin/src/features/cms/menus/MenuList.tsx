@@ -31,7 +31,7 @@ export function MenuList({
   onDeleteRequest,
 }: MenuListProps) {
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">Loading menus…</p>;
+    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری منوها…</p>;
   }
 
   if (error) {
@@ -41,8 +41,8 @@ export function MenuList({
   if (menus.length === 0) {
     return (
       <EmptyState
-        title="No menus yet"
-        description="Create a menu (e.g. “header” or “footer”) to start adding navigation entries."
+        title="هنوز منویی نیست"
+        description="برای افزودن آیتم‌های ناوبری، یک منو بسازید (مثلاً “header” یا “footer”)."
       />
     );
   }

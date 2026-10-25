@@ -16,14 +16,14 @@ interface SectionProps {
 
 export function Section({ title, description, children }: SectionProps) {
   return (
-    <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4 sm:p-6">
+    <section className="flex flex-col gap-4 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-card sm:p-6">
       {title || description ? (
         <div>
           {title ? (
-            <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+            <h2 className="font-heading text-base font-bold text-foreground">{title}</h2>
           ) : null}
           {description ? (
-            <p className="mt-1 text-sm text-slate-600">{description}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{description}</p>
           ) : null}
         </div>
       ) : null}

@@ -7,3 +7,7 @@
  * directly.
  */
 export { HomeAchievements } from "./HomeAchievements";
+
+export { fetchAchievements } from "./api";
+export { useAchievements, achievementsQueryKey } from "./useAchievements";
+export type { Achievements, AchievementItem } from "./types";

@@ -105,7 +105,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       this.markUnavailable();
       return null;
     }
+
     if (raw === null) return null;
+
     try {
       return JSON.parse(raw) as T;
     } catch {
@@ -169,7 +171,8 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
    * being a single atomic operation (acceptable here: this only ever
    * clears a read cache that's already tolerant of a miss).
    *
-   * Same swallow-and-log posture as `delete` above, for the same
+   *  ÷
+   *  Same swallow-and-log posture as `delete` above, for the same
    * reason: this always runs after a DB write has already committed.
    */
   async deleteByPrefix(prefix: string): Promise<void> {

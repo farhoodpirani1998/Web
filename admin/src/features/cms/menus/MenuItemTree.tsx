@@ -52,8 +52,8 @@ export function MenuItemTree({
     if (depth === 0) {
       return (
         <EmptyState
-          title="No items in this menu yet"
-          description="Add a top-level item to start building this menu's navigation."
+          title="هنوز آیتمی در این منو نیست"
+          description="برای ساخت ناوبری این منو، یک آیتم سطح بالا اضافه کنید."
         />
       );
     }

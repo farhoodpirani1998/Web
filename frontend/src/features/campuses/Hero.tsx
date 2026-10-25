@@ -1,61 +1,60 @@
-import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { LandPlot } from "lucide-react";
+
+import {
+  Link,
+  MediaFrame,
+  PageHero,
+  buttonVariants,
+} from "@/shared/design-system/components";
+import { cn } from "@/shared/utils/cn";
 
 /**
- * Campuses page "Hero" section — first section of the `campuses`
- * feature, following the same pattern as `hero`/`about`/`schools`/
- * `pre-registration`'s `Hero` sections.
+ * Campuses page hero — thin wrapper around the shared `PageHero`.
+ * Full-bleed, so `CampusesPage` renders it outside `PageLayout`.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Badge`, `Heading`, `Text`) — no data
- * fetching, no business logic. Real copy is ultimately the backend's
- * Campuses content-module data (§4, §8); this renders frontend-owned
- * Persian placeholder copy in the meantime.
+ * Presentation only: the campus data itself belongs to `CampusList`.
  *
- * This feature is deliberately separate from `@/features/schools`
- * (route `/schools`) per this Sprint's explicit scope — it is not a
- * replacement, rename, or data source for that page.
- *
- * Visual refresh: adopts the same gold-badge/underline eyebrow
- * treatment and soft gradient backdrop already established by the
- * homepage `Hero`/`Features` sections (and now `AboutHero`/
- * `GalleryHero`/`NewsHero`), so this page reads as part of the same
- * premium navy/gold system instead of a plain text block. Still zero
- * new dependencies — the backdrop is a plain `aria-hidden` `div` built
- * from existing tokens, the same technique those sections already use.
+ * Note this page and `/schools` both surface `useCampuses()`. They are
+ * kept separate deliberately (see the scope note on `CampusList`), but
+ * the two heroes are differentiated so the pages do not read as copies.
  */
 export function Hero() {
   return (
-    <Section
-      spacing="lg"
-      aria-labelledby="campuses-hero-heading"
-      className="relative isolate overflow-hidden"
-    >
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-10 rounded-[2.5rem] bg-gradient-to-b from-muted/70 via-muted/15 to-transparent"
-      />
-
-      <Stack gap="sm" align="start" className="max-w-2xl">
-        <Badge
-          variant="outline"
-          className="w-fit gap-1.5 rounded-full border-brand-gold/40 bg-brand-gold/10 px-3 py-1 text-brand-navy"
-        >
-          پردیس‌های آموزشی
-        </Badge>
-
-        <Stack gap="xs" align="start">
-          <Heading id="campuses-hero-heading" level={1}>
-            پردیس‌ها و امکانات آموزشی ما
-          </Heading>
-          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
-        </Stack>
-
-        <Text variant="lead" className="max-w-2xl text-foreground/70">
-          متنی نمونه درباره پردیس‌های آموزشی مجموعه و امکانات هر یک. آدرس، راه‌های تماس و
-          امکانات هر پردیس در نهایت از طریق سامانه مدیریت محتوا و سرویس عمومی بک‌اند
-          دریافت خواهد شد.
-        </Text>
-      </Stack>
-    </Section>
+    <PageHero
+      headingId="campuses-hero-heading"
+      eyebrow="پردیس‌های آموزشی"
+      title="پردیس‌ها و امکانات آموزشی ما"
+      description="آدرس، راه‌های تماس و امکانات هر پردیس از طریق سامانه مدیریت محتوا در همین صفحه نمایش داده می‌شود."
+      media={
+        <MediaFrame
+          ratio={4 / 3}
+          label="تصویر پردیس به‌زودی"
+          icon={LandPlot}
+          className="rounded-3xl shadow-xl shadow-brand-navy/5 ring-1 ring-border/60"
+        />
+      }
+      actions={
+        <>
+          <Link
+            href="/admissions"
+            className={cn(
+              buttonVariants({ variant: "default", size: "lg", shape: "pill" }),
+              "bg-brand-navy text-white shadow-lg shadow-brand-navy/20 hover:bg-brand-navy/90",
+            )}
+          >
+            شرایط و مراحل پذیرش
+          </Link>
+          <Link
+            href="/contact"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "lg", shape: "pill" }),
+              "border-brand-navy/20 hover:bg-transparent",
+            )}
+          >
+            تماس با ما
+          </Link>
+        </>
+      }
+    />
   );
 }

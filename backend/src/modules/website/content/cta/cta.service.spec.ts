@@ -7,6 +7,7 @@ describe('CtaService', () => {
   let siteService: any;
   let publishing: any;
   let media: any;
+  let redis: any;
   let service: CtaService;
 
   beforeEach(() => {
@@ -19,7 +20,13 @@ describe('CtaService', () => {
     siteService = { getDefaultSiteId: jest.fn().mockReturnValue(siteId) };
     publishing = { transition: jest.fn() };
     media = { attach: jest.fn(), detach: jest.fn() };
-    service = new CtaService(repo, siteService, publishing, media);
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
+    service = new CtaService(repo, siteService, publishing, media, redis);
   });
 
   describe('onModuleInit', () => {

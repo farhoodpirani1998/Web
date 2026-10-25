@@ -1,5 +1,7 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayUnique,
+  IsArray,
   IsEmail,
   IsOptional,
   IsString,
@@ -55,6 +57,17 @@ export class CreateCampusDto {
   @IsOptional()
   @IsEmail()
   email?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TranslatableTextDto)
+  area?: TranslatableTextDto;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsString({ each: true })
+  features?: string[];
 
   @IsOptional()
   @IsUUID()

@@ -8,6 +8,7 @@ import { Features } from "@/features/features";
 import { HomeAchievements } from "@/features/achievements";
 import { HomeNews } from "@/features/news";
 import { HomeGallery } from "@/features/gallery";
+import { Testimonials } from "@/features/testimonials";
 import { CTA } from "@/features/cta";
 import { useHomepage } from "@/features/static-pages";
 
@@ -71,6 +72,7 @@ export function HomePage() {
       <PageLayout>
         <HomeNews />
         <HomeGallery />
+        <Testimonials />
       </PageLayout>
 
       <CTA />

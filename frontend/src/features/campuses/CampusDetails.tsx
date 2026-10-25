@@ -1,9 +1,11 @@
+import { ChevronDown } from "lucide-react";
+
 import {
   Badge,
   Card,
-  Heading,
   Link,
   Section,
+  SectionHeader,
   Stack,
   Text,
 } from "@/shared/design-system/components";
@@ -39,11 +41,14 @@ export function CampusDetails() {
   if (campuses.length === 0) return null;
 
   return (
-    <Section spacing="lg" tone="muted" aria-labelledby="campuses-details-heading">
+    <Section
+      spacing="lg"
+      tone="muted"
+      className="rounded-3xl"
+      aria-labelledby="campuses-details-heading"
+    >
       <Stack gap="md">
-        <Heading id="campuses-details-heading" level={2}>
-          جزئیات پردیس‌ها
-        </Heading>
+        <SectionHeader headingId="campuses-details-heading" title="جزئیات پردیس‌ها" />
 
         <Stack gap="sm">
           {campuses.map((campus) => (
@@ -69,7 +74,7 @@ export function CampusDetails() {
                     aria-hidden="true"
                     className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-foreground transition-transform group-open:rotate-180"
                   >
-                    ⌄
+                    <ChevronDown className="h-4 w-4" />
                   </span>
                 </summary>
 

@@ -85,7 +85,7 @@ export function FeatureForm({ feature, onCancel, onSaved }: FeatureFormProps) {
         : await createFeature(payload);
       onSaved(saved);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
       setIsSaving(false);
     }
     // No `finally` resetting isSaving on success: the dialog is about
@@ -97,13 +97,13 @@ export function FeatureForm({ feature, onCancel, onSaved }: FeatureFormProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-6">
         <h2 className="text-lg font-semibold text-slate-900">
-          {isEdit ? "Edit Feature" : "New Feature"}
+          {isEdit ? "ویرایش ویژگی" : "ویژگی جدید"}
         </h2>
 
         <form className="mt-4 flex max-h-[70vh] flex-col gap-4 overflow-y-auto" onSubmit={handleSubmit} noValidate>
           <div className="flex flex-col gap-1.5">
             <label htmlFor={titleFaId} className="text-sm font-medium text-slate-900">
-              Title (Farsi)
+              عنوان (Farsi)
             </label>
             <input
               id={titleFaId}
@@ -119,7 +119,7 @@ export function FeatureForm({ feature, onCancel, onSaved }: FeatureFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={titleEnId} className="text-sm font-medium text-slate-900">
-              Title (English) <span className="font-normal text-slate-400">— optional</span>
+              عنوان (English) <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <input
               id={titleEnId}
@@ -133,7 +133,7 @@ export function FeatureForm({ feature, onCancel, onSaved }: FeatureFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={descriptionFaId} className="text-sm font-medium text-slate-900">
-              Description (Farsi)
+              توضیحات (Farsi)
             </label>
             <textarea
               id={descriptionFaId}
@@ -149,7 +149,7 @@ export function FeatureForm({ feature, onCancel, onSaved }: FeatureFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={descriptionEnId} className="text-sm font-medium text-slate-900">
-              Description (English) <span className="font-normal text-slate-400">— optional</span>
+              توضیحات (English) <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <textarea
               id={descriptionEnId}
@@ -163,7 +163,7 @@ export function FeatureForm({ feature, onCancel, onSaved }: FeatureFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={iconId} className="text-sm font-medium text-slate-900">
-              Icon <span className="font-normal text-slate-400">— optional</span>
+              آیکون <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <input
               id={iconId}
@@ -189,14 +189,14 @@ export function FeatureForm({ feature, onCancel, onSaved }: FeatureFormProps) {
               disabled={isSaving}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Cancel
+              انصراف
             </button>
             <button
               type="submit"
               disabled={!canSubmit}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              {isSaving ? "Saving…" : isEdit ? "Save changes" : "Create Feature"}
+              {isSaving ? "در حال ذخیره…" : isEdit ? "ذخیره تغییرات" : "ایجاد ویژگی"}
             </button>
           </div>
         </form>

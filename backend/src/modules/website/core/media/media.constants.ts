@@ -30,7 +30,10 @@ type KnownMimeType = (typeof KNOWN_MIME_TYPES)[number];
 const KNOWN_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'] as const;
 type KnownExtension = (typeof KNOWN_EXTENSIONS)[number];
 
-function envMimeTypeList(name: string, fallback: readonly KnownMimeType[]): readonly KnownMimeType[] {
+function envMimeTypeList(
+  name: string,
+  fallback: readonly KnownMimeType[],
+): readonly KnownMimeType[] {
   const raw = process.env[name];
   if (!raw) return fallback;
   const requested = raw
@@ -43,7 +46,10 @@ function envMimeTypeList(name: string, fallback: readonly KnownMimeType[]): read
   return valid.length ? valid : fallback;
 }
 
-function envExtensionList(name: string, fallback: readonly KnownExtension[]): readonly KnownExtension[] {
+function envExtensionList(
+  name: string,
+  fallback: readonly KnownExtension[],
+): readonly KnownExtension[] {
   const raw = process.env[name];
   if (!raw) return fallback;
   const requested = raw
@@ -59,12 +65,18 @@ function envExtensionList(name: string, fallback: readonly KnownExtension[]): re
 
 // Configurable via MEDIA_ALLOWED_MIME_TYPES (see .env.example); falls
 // back to all 3 known formats when unset.
-export const ALLOWED_MIME_TYPES = envMimeTypeList('MEDIA_ALLOWED_MIME_TYPES', KNOWN_MIME_TYPES);
+export const ALLOWED_MIME_TYPES = envMimeTypeList(
+  'MEDIA_ALLOWED_MIME_TYPES',
+  KNOWN_MIME_TYPES,
+);
 export type AllowedMediaMimeType = (typeof ALLOWED_MIME_TYPES)[number];
 
 // Configurable via MEDIA_ALLOWED_EXTENSIONS (see .env.example); falls
 // back to all 4 known extensions when unset.
-export const ALLOWED_EXTENSIONS = envExtensionList('MEDIA_ALLOWED_EXTENSIONS', KNOWN_EXTENSIONS);
+export const ALLOWED_EXTENSIONS = envExtensionList(
+  'MEDIA_ALLOWED_EXTENSIONS',
+  KNOWN_EXTENSIONS,
+);
 
 // Configurable via MEDIA_MAX_SIZE_BYTES (see .env.example); falls back
 // to the previous hardcoded 10MB when unset.
@@ -80,7 +92,10 @@ export const MAX_SIZE_BYTES = envInt('MEDIA_MAX_SIZE_BYTES', 10 * 1024 * 1024);
  * file-type-sniffing dependency: the allow-list is exactly 3 well-known
  * image formats, so the signatures are small and stable.
  */
-export function matchesAllowedMimeType(buffer: Buffer, mimetype: string): boolean {
+export function matchesAllowedMimeType(
+  buffer: Buffer,
+  mimetype: string,
+): boolean {
   if (!buffer || buffer.length < 12) return false;
 
   switch (mimetype) {
@@ -121,6 +136,9 @@ const EXTENSION_MIME_MAP: Record<KnownExtension, KnownMimeType> = {
  * were already confirmed to be, not just appear in ALLOWED_EXTENSIONS
  * on its own.
  */
-export function extensionMatchesMimeType(extension: string, mimetype: string): boolean {
+export function extensionMatchesMimeType(
+  extension: string,
+  mimetype: string,
+): boolean {
   return EXTENSION_MIME_MAP[extension as KnownExtension] === mimetype;
 }

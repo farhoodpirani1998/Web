@@ -10,7 +10,8 @@ import {
   Stack,
   Text,
 } from "@/shared/design-system/components";
-import { tuitionPlans } from "./data";
+import { tuitionPlans as fallbackTuitionPlans } from "./data";
+import { useAdmissions } from "./useAdmissions";
 
 /**
  * Admissions page "Tuition Overview" section — a per-grade summary of
@@ -32,6 +33,10 @@ import { tuitionPlans } from "./data";
  * placeholder copy, not a real figure.
  */
 export function TuitionOverview() {
+  const { data } = useAdmissions();
+  const tuitionPlans =
+    data && data.tuitionPlans.length > 0 ? data.tuitionPlans : fallbackTuitionPlans;
+
   return (
     <Section spacing="lg" tone="muted" className="rounded-lg" aria-labelledby="admissions-tuition-heading">
       <Stack gap="md">

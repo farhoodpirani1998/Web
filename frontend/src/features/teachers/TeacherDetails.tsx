@@ -1,8 +1,10 @@
+import { ChevronDown } from "lucide-react";
+
 import {
   Badge,
   Card,
-  Heading,
   Section,
+  SectionHeader,
   Stack,
   Text,
 } from "@/shared/design-system/components";
@@ -40,11 +42,14 @@ export function TeacherDetails() {
   const teachers = data && data.length > 0 ? data : fallbackTeachers;
 
   return (
-    <Section spacing="lg" tone="muted" aria-labelledby="teachers-details-heading">
+    <Section
+      spacing="lg"
+      tone="muted"
+      className="rounded-3xl"
+      aria-labelledby="teachers-details-heading"
+    >
       <Stack gap="md">
-        <Heading id="teachers-details-heading" level={2}>
-          جزئیات مدرسان
-        </Heading>
+        <SectionHeader headingId="teachers-details-heading" title="جزئیات مدرسان" />
 
         <Stack gap="sm">
           {teachers.map((teacher) => (
@@ -68,7 +73,7 @@ export function TeacherDetails() {
                     aria-hidden="true"
                     className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-foreground transition-transform group-open:rotate-180"
                   >
-                    ⌄
+                    <ChevronDown className="h-4 w-4" />
                   </span>
                 </summary>
 

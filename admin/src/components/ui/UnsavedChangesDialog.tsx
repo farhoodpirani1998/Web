@@ -12,9 +12,9 @@
  * sidebar link mid-edit), so it needs to win over both.
  */
 export interface UnsavedChangesDialogProps {
-  /** "Discard changes" — proceeds with leaving/closing. */
+  /** "دور ریختن تغییرات" — proceeds with leaving/closing. */
   onDiscard: () => void;
-  /** "Keep editing" — stays on the form. */
+  /** "ادامه ویرایش" — stays on the form. */
   onKeepEditing: () => void;
 }
 
@@ -22,9 +22,9 @@ export function UnsavedChangesDialog({ onDiscard, onKeepEditing }: UnsavedChange
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 px-4">
       <div className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Discard unsaved changes?</h2>
+        <h2 className="text-lg font-semibold text-slate-900">تغییرات ذخیره‌نشده دور ریخته شود؟</h2>
         <p className="mt-1 text-sm text-slate-600">
-          You have unsaved changes. If you leave now, they&apos;ll be lost.
+          تغییرات ذخیره‌نشده دارید. اگر همین حالا خارج شوید، از دست خواهند رفت.
         </p>
 
         <div className="mt-5 flex justify-end gap-2">
@@ -33,14 +33,14 @@ export function UnsavedChangesDialog({ onDiscard, onKeepEditing }: UnsavedChange
             onClick={onKeepEditing}
             className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
-            Keep editing
+            ادامه ویرایش
           </button>
           <button
             type="button"
             onClick={onDiscard}
             className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500"
           >
-            Discard changes
+            دور ریختن تغییرات
           </button>
         </div>
       </div>

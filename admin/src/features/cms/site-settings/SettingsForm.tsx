@@ -74,7 +74,7 @@ export function SettingsForm({ settings, onSaved }: SettingsFormProps) {
  * `logoMediaId`/`faviconMediaId` are always sent (whether changed or
  * not): `SiteSettingsService.swapMedia` is a no-op when the value
  * equals the previous one, so re-sending the current id is harmless,
- * and it's what lets an explicit `null` (from "Remove") actually clear
+ * and it's what lets an explicit `null` (from "حذف") actually clear
  * the reference.
  */
 function GeneralSection({ settings, onSaved }: SettingsFormProps) {
@@ -139,7 +139,7 @@ function GeneralSection({ settings, onSaved }: SettingsFormProps) {
       onSaved(saved);
       resetBaseline();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
     } finally {
       setIsSaving(false);
     }
@@ -147,11 +147,11 @@ function GeneralSection({ settings, onSaved }: SettingsFormProps) {
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
-      <h2 className="text-base font-semibold text-slate-900">General</h2>
+      <h2 className="text-base font-semibold text-slate-900">عمومی</h2>
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={siteNameFaId} className="text-sm font-medium text-slate-900">
-          Site name (Farsi)
+          نام سایت (فارسی)
         </label>
         <input
           id={siteNameFaId}
@@ -167,7 +167,7 @@ function GeneralSection({ settings, onSaved }: SettingsFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={siteNameEnId} className="text-sm font-medium text-slate-900">
-          Site name (English) <span className="font-normal text-slate-400">— optional</span>
+          نام سایت (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
         </label>
         <input
           id={siteNameEnId}
@@ -181,7 +181,7 @@ function GeneralSection({ settings, onSaved }: SettingsFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={taglineFaId} className="text-sm font-medium text-slate-900">
-          Tagline (Farsi) <span className="font-normal text-slate-400">— optional</span>
+          شعار (فارسی) <span className="font-normal text-slate-400">— اختیاری</span>
         </label>
         <input
           id={taglineFaId}
@@ -196,7 +196,7 @@ function GeneralSection({ settings, onSaved }: SettingsFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={taglineEnId} className="text-sm font-medium text-slate-900">
-          Tagline (English) <span className="font-normal text-slate-400">— optional</span>
+          شعار (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
         </label>
         <input
           id={taglineEnId}
@@ -210,14 +210,14 @@ function GeneralSection({ settings, onSaved }: SettingsFormProps) {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <MediaField
-          label="Logo"
+          label="لوگو"
           mediaId={logoMediaId}
           disabled={isSaving}
           onChoose={() => setActivePicker("logo")}
           onClear={() => setLogoMediaId(null)}
         />
         <MediaField
-          label="Favicon"
+          label="فاوآیکون"
           mediaId={faviconMediaId}
           disabled={isSaving}
           onChoose={() => setActivePicker("favicon")}
@@ -238,7 +238,7 @@ function GeneralSection({ settings, onSaved }: SettingsFormProps) {
             disabled={!canSubmit}
             className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
           >
-            {isSaving ? "Saving…" : "Save general"}
+            {isSaving ? "در حال ذخیره…" : "ذخیره بخش عمومی"}
           </button>
         </PermissionGate>
       </div>
@@ -296,7 +296,7 @@ function MediaField({
           ) : media ? (
             <img src={media.thumbnailUrl ?? media.url} alt={media.altText} className="h-full w-full object-cover" />
           ) : (
-            <span className="text-xs text-slate-400">None</span>
+            <span className="text-xs text-slate-400">هیچ‌کدام</span>
           )}
         </div>
         <div className="flex flex-col gap-1.5">
@@ -306,7 +306,7 @@ function MediaField({
             disabled={disabled}
             className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Choose…
+            انتخاب…
           </button>
           {mediaId ? (
             <button
@@ -315,7 +315,7 @@ function MediaField({
               disabled={disabled}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Remove
+              حذف
             </button>
           ) : null}
         </div>
@@ -344,13 +344,13 @@ function MediaFieldPickerDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="flex max-h-[80vh] w-full max-w-2xl flex-col gap-4 overflow-y-auto rounded-lg border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Choose media</h2>
+          <h2 className="text-lg font-semibold text-slate-900">انتخاب رسانه</h2>
           <button
             type="button"
             onClick={onCancel}
             className="text-sm font-medium text-slate-500 hover:text-slate-900"
           >
-            Close
+            بستن
           </button>
         </div>
 
@@ -359,7 +359,7 @@ function MediaFieldPickerDialog({
           onSelect={onSelect}
           fallback={
             <p className="text-sm text-slate-600">
-              Choosing media requires the Media permission. Contact an admin if you need access.
+              انتخاب رسانه نیازمند دسترسی رسانه است. در صورت نیاز با مدیر تماس بگیرید.
             </p>
           }
         />
@@ -436,7 +436,7 @@ function ContactSection({ settings, onSaved }: SettingsFormProps) {
       onSaved(saved);
       resetBaseline();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
     } finally {
       setIsSaving(false);
     }
@@ -444,11 +444,11 @@ function ContactSection({ settings, onSaved }: SettingsFormProps) {
 
   return (
     <form className="flex flex-col gap-4 border-t border-slate-200 pt-6" onSubmit={handleSubmit} noValidate>
-      <h2 className="text-base font-semibold text-slate-900">Contact</h2>
+      <h2 className="text-base font-semibold text-slate-900">تماس</h2>
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={emailId} className="text-sm font-medium text-slate-900">
-          Contact email <span className="font-normal text-slate-400">— optional</span>
+          ایمیل تماس <span className="font-normal text-slate-400">— اختیاری</span>
         </label>
         <input
           id={emailId}
@@ -462,7 +462,7 @@ function ContactSection({ settings, onSaved }: SettingsFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={phoneId} className="text-sm font-medium text-slate-900">
-          Contact phone <span className="font-normal text-slate-400">— optional</span>
+          تلفن تماس <span className="font-normal text-slate-400">— اختیاری</span>
         </label>
         <input
           id={phoneId}
@@ -476,7 +476,7 @@ function ContactSection({ settings, onSaved }: SettingsFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={addressFaId} className="text-sm font-medium text-slate-900">
-          Address (Farsi) <span className="font-normal text-slate-400">— optional</span>
+          نشانی (فارسی) <span className="font-normal text-slate-400">— اختیاری</span>
         </label>
         <input
           id={addressFaId}
@@ -491,7 +491,7 @@ function ContactSection({ settings, onSaved }: SettingsFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={addressEnId} className="text-sm font-medium text-slate-900">
-          Address (English) <span className="font-normal text-slate-400">— optional</span>
+          نشانی (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
         </label>
         <input
           id={addressEnId}
@@ -505,7 +505,7 @@ function ContactSection({ settings, onSaved }: SettingsFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={mapUrlId} className="text-sm font-medium text-slate-900">
-          Map URL <span className="font-normal text-slate-400">— optional</span>
+          نشانی نقشه <span className="font-normal text-slate-400">— اختیاری</span>
         </label>
         <input
           id={mapUrlId}
@@ -531,7 +531,7 @@ function ContactSection({ settings, onSaved }: SettingsFormProps) {
             disabled={isSaving}
             className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
           >
-            {isSaving ? "Saving…" : "Save contact"}
+            {isSaving ? "در حال ذخیره…" : "ذخیره تماس"}
           </button>
         </PermissionGate>
       </div>
@@ -617,7 +617,7 @@ function SocialSection({ settings, onSaved }: SettingsFormProps) {
       pendingBaselineReset.current = true;
       setLinks(saved.socialLinks);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
     } finally {
       setIsSaving(false);
     }
@@ -625,11 +625,11 @@ function SocialSection({ settings, onSaved }: SettingsFormProps) {
 
   return (
     <form className="flex flex-col gap-4 border-t border-slate-200 pt-6" onSubmit={handleSubmit} noValidate>
-      <h2 className="text-base font-semibold text-slate-900">Social links</h2>
+      <h2 className="text-base font-semibold text-slate-900">شبکه‌های اجتماعی</h2>
 
       <div className="flex flex-col gap-3">
         {links.length === 0 ? (
-          <p className="text-sm text-slate-500">No social links yet.</p>
+          <p className="text-sm text-slate-500">هنوز شبکه اجتماعی‌ای اضافه نشده.</p>
         ) : (
           links.map((link, index) => (
             <div key={index} className="flex items-center gap-2">
@@ -659,10 +659,10 @@ function SocialSection({ settings, onSaved }: SettingsFormProps) {
                 type="button"
                 onClick={() => removeLink(index)}
                 disabled={isSaving}
-                aria-label="Remove"
+                aria-label="حذف"
                 className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Remove
+                حذف
               </button>
             </div>
           ))
@@ -676,7 +676,7 @@ function SocialSection({ settings, onSaved }: SettingsFormProps) {
           disabled={isSaving}
           className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Add link
+          افزودن لینک
         </button>
       </div>
 
@@ -693,7 +693,7 @@ function SocialSection({ settings, onSaved }: SettingsFormProps) {
             disabled={isSaving}
             className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
           >
-            {isSaving ? "Saving…" : "Save social links"}
+            {isSaving ? "در حال ذخیره…" : "ذخیره شبکه‌های اجتماعی"}
           </button>
         </PermissionGate>
       </div>
@@ -762,7 +762,7 @@ function FeatureFlagsSection({ settings, onSaved }: SettingsFormProps) {
       pendingBaselineReset.current = true;
       setCtaEnabled(saved.featureFlags.ctaEnabled);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
     } finally {
       setIsSaving(false);
     }
@@ -774,7 +774,7 @@ function FeatureFlagsSection({ settings, onSaved }: SettingsFormProps) {
       onSubmit={handleSubmit}
       noValidate
     >
-      <h2 className="text-base font-semibold text-slate-900">Feature flags</h2>
+      <h2 className="text-base font-semibold text-slate-900">امکانات اختیاری</h2>
 
       <label htmlFor={ctaEnabledId} className="flex items-center gap-2 text-sm text-slate-900">
         <input
@@ -785,7 +785,7 @@ function FeatureFlagsSection({ settings, onSaved }: SettingsFormProps) {
           disabled={isSaving}
           className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
         />
-        Show the CTA banner section on the public site
+        نمایش بخش فراخوان اقدام در سایت
       </label>
 
       {error ? (
@@ -801,7 +801,7 @@ function FeatureFlagsSection({ settings, onSaved }: SettingsFormProps) {
             disabled={isSaving}
             className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
           >
-            {isSaving ? "Saving…" : "Save feature flags"}
+            {isSaving ? "در حال ذخیره…" : "ذخیره امکانات اختیاری"}
           </button>
         </PermissionGate>
       </div>

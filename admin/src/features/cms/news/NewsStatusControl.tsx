@@ -21,9 +21,9 @@ const VALID_TRANSITIONS: Record<CmsNewsStatus, CmsNewsStatus[]> = {
 };
 
 const STATUS_LABEL: Record<CmsNewsStatus, string> = {
-  draft: "Draft",
-  published: "Published",
-  archived: "Archived",
+  draft: "پیش‌نویس",
+  published: "منتشرشده",
+  archived: "بایگانی",
 };
 
 const STATUS_BADGE_CLASS: Record<CmsNewsStatus, string> = {
@@ -56,7 +56,7 @@ export function NewsStatusControl({ status, isUpdating, onChangeStatus }: NewsSt
             onClick={() => onChangeStatus(next)}
             className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isUpdating ? "…" : `Move to ${STATUS_LABEL[next]}`}
+            {isUpdating ? "…" : `انتقال به ${STATUS_LABEL[next]}`}
           </button>
         ))}
       </PermissionGate>

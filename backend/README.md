@@ -4,9 +4,10 @@ Standalone backend for the public website + CMS. **Independent deployable
 from the School Management System (SMS)** — separate repo, separate
 database, separate process, separate scaling.
 
-## What's here (Phase 0 — kernel)
+## What's here
 
-Ported from the group's kernel design, adapted for standalone deployment:
+The backend includes the standalone kernel, CMS identity, content modules,
+and the public API:
 
 - `core/common` — base entities (`BaseEntity`, `BaseSiteScopedEntity`)
 - `core/events` — domain event names + `EventEmitterModule` wrapper
@@ -19,6 +20,10 @@ Ported from the group's kernel design, adapted for standalone deployment:
   interface with `LocalStorageProvider` and `S3CompatibleStorageProvider`
 - `core/revisions` — `ContentRevision` shared table, scoped to the 4 modules
   that need it (`hero`, `about`, `news_article`, `static_page`)
+- `content/*` — admin-managed content for news, pages, events, campuses,
+  teachers, media, settings, admissions, achievements, and related sections
+- `public-api/*` — unauthenticated, rate-limited public content endpoints,
+  sitemap, read-through Redis caching, and pre-registration submission
 
 Each kernel piece is its own NestJS module with explicit `imports`/`exports`
 — no barrel module. `WebsiteModule` is a composition root only.
@@ -39,24 +44,14 @@ The single biggest adaptation is in `modules/website/auth/`:
   verifies the token SMS issued and decides website-specific permissions
   locally.
 
-## Not yet built (next steps, in order)
+## Remaining production work
 
-1. **Content modules** (Phase 2+):
-   Achievements — each importing only the kernel pieces it actually
-   needs. (FAQ, Testimonials, Hero, About, Features, Statistics, Gallery,
-   News, Static Pages, Events, Campuses, Teachers, Navigation, CTA Banner,
-   and Site Settings — which bundles General/Contact/Social/SEO/Feature
-   Flags plus Portal Links — are already in place.)
-2. **Public API layer**: read-only, cached, unauthenticated, aggregated
-   endpoints (`/public/website/homepage`, etc.) — needs its own tighter
-   throttle policy separate from admin routes (see `ThrottlerModule` note
-   in `app.module.ts`).
-3. **`SMS_JWT_PUBLIC_KEY_PATH`**: `keys/sms-public-key.pem` currently holds
-   a locally-generated placeholder (see `keys/README.md`) so the app boots
-   for local development. Before any real deployment, replace it with the
-   actual public key exported from SMS.
-4. A real migration for `Site` seeding + first `WebsiteRoleAssignment` row
-   for yourself as `website_super_admin`.
+- Replace `keys/sms-public-key.pem`, which is a local-development
+  placeholder, with the production SMS verification public key.
+- Configure production secrets and isolated staging/production
+  infrastructure; follow the operational procedures in `docs/DEPLOYMENT.md`.
+- Provision the first `website_super_admin` role assignment and verify
+  initial site content as a controlled deployment/onboarding step.
 
 ## Running locally
 

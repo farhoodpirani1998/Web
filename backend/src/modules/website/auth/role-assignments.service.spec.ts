@@ -12,7 +12,9 @@ describe('RoleAssignmentsService', () => {
       findOne: jest.fn(),
       findOneByOrFail: jest.fn(),
       create: jest.fn((data) => data),
-      save: jest.fn((data) => Promise.resolve({ id: 'role-assignment-1', ...data })),
+      save: jest.fn((data) =>
+        Promise.resolve({ id: 'role-assignment-1', ...data }),
+      ),
       delete: jest.fn(),
       count: jest.fn(),
     };
@@ -23,7 +25,10 @@ describe('RoleAssignmentsService', () => {
     it('creates a new assignment when none exists yet', async () => {
       repo.findOne.mockResolvedValue(null);
 
-      const result = await service.assign('sms-user-1', WebsiteRole.CONTENT_EDITOR);
+      const result = await service.assign(
+        'sms-user-1',
+        WebsiteRole.CONTENT_EDITOR,
+      );
 
       expect(repo.create).toHaveBeenCalledWith({
         externalUserId: 'sms-user-1',
@@ -62,7 +67,10 @@ describe('RoleAssignmentsService', () => {
       });
       repo.count.mockResolvedValue(2);
 
-      const result = await service.assign('sms-user-1', WebsiteRole.CONTENT_EDITOR);
+      const result = await service.assign(
+        'sms-user-1',
+        WebsiteRole.CONTENT_EDITOR,
+      );
       expect(result.role).toBe(WebsiteRole.CONTENT_EDITOR);
     });
   });
@@ -76,7 +84,9 @@ describe('RoleAssignmentsService', () => {
 
       await service.remove('sms-user-1');
 
-      expect(repo.delete).toHaveBeenCalledWith({ externalUserId: 'sms-user-1' });
+      expect(repo.delete).toHaveBeenCalledWith({
+        externalUserId: 'sms-user-1',
+      });
     });
 
     it('blocks removing the last Super Admin', async () => {
@@ -86,7 +96,9 @@ describe('RoleAssignmentsService', () => {
       });
       repo.count.mockResolvedValue(1);
 
-      await expect(service.remove('sms-user-1')).rejects.toBeInstanceOf(ConflictException);
+      await expect(service.remove('sms-user-1')).rejects.toBeInstanceOf(
+        ConflictException,
+      );
       expect(repo.delete).not.toHaveBeenCalled();
     });
 
@@ -98,7 +110,9 @@ describe('RoleAssignmentsService', () => {
       repo.count.mockResolvedValue(2);
 
       await service.remove('sms-user-1');
-      expect(repo.delete).toHaveBeenCalledWith({ externalUserId: 'sms-user-1' });
+      expect(repo.delete).toHaveBeenCalledWith({
+        externalUserId: 'sms-user-1',
+      });
     });
   });
 });

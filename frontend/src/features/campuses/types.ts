@@ -55,6 +55,8 @@ export interface PublicCampusListItemDto {
   mapUrl?: string;
   phone?: string;
   email?: string;
+  area?: Translatable<string>;
+  features?: readonly string[];
   position: number;
   featuredImage: PublicMediaRef | null;
 }

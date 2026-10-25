@@ -38,7 +38,7 @@ export function MediaUsageDialog({ media, onClose }: MediaUsageDialogProps) {
       })
       .catch((err) => {
         if (!cancelled) {
-          setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+          setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
         }
       })
       .finally(() => {
@@ -53,14 +53,14 @@ export function MediaUsageDialog({ media, onClose }: MediaUsageDialogProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Where this is used</h2>
+        <h2 className="text-lg font-semibold text-slate-900">محل استفاده</h2>
         <p className="mt-1 text-sm text-slate-600" title={media.altText}>
           “{media.altText}”
         </p>
 
         <div className="mt-4">
           {isLoading ? (
-            <p className="py-4 text-center text-sm text-slate-500">Loading…</p>
+            <p className="py-4 text-center text-sm text-slate-500">در حال بارگذاری…</p>
           ) : error ? (
             <p role="alert" className="text-sm text-red-600">
               {error}
@@ -81,7 +81,7 @@ export function MediaUsageDialog({ media, onClose }: MediaUsageDialogProps) {
                         onClick={onClose}
                         className="text-xs font-medium text-indigo-600 hover:text-indigo-500"
                       >
-                        View
+                        مشاهده
                       </Link>
                     ) : null}
                   </li>
@@ -101,7 +101,7 @@ export function MediaUsageDialog({ media, onClose }: MediaUsageDialogProps) {
             onClick={onClose}
             className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
-            Close
+            بستن
           </button>
         </div>
       </div>

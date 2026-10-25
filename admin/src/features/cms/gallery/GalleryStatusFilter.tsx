@@ -2,12 +2,12 @@ import type { CmsGalleryStatus } from "./types";
 
 /**
  * All/Draft/Published/Archived filter for the gallery list. `undefined`
- * means "All" — that's also exactly what `fetchGalleryList`/`useGallery`
+ * means "همه" — that's also exactly what `fetchGalleryList`/`useGallery`
  * expect for "no status filter" (omitting the query param entirely, per
  * `GalleryController.findAll`), so this component's value type doubles
  * as the hook's param type with no translation step in `GalleryPage`.
  *
- * "All" is also the only mode `GalleryGrid` allows drag/move reordering
+ * "همه" is also the only mode `GalleryGrid` allows drag/move reordering
  * in — see that file's comment for why.
  *
  * No search box alongside this: `GET /admin/gallery` has no search
@@ -20,17 +20,17 @@ export interface GalleryStatusFilterProps {
 }
 
 const OPTIONS: { label: string; value: CmsGalleryStatus | undefined }[] = [
-  { label: "All", value: undefined },
-  { label: "Draft", value: "draft" },
-  { label: "Published", value: "published" },
-  { label: "Archived", value: "archived" },
+  { label: "همه", value: undefined },
+  { label: "پیش‌نویس", value: "draft" },
+  { label: "منتشرشده", value: "published" },
+  { label: "بایگانی", value: "archived" },
 ];
 
 export function GalleryStatusFilter({ value, onChange }: GalleryStatusFilterProps) {
   return (
     <div
       role="tablist"
-      aria-label="Filter gallery by status"
+      aria-label="فیلتر گالری بر اساس وضعیت"
       className="inline-flex w-fit rounded-md border border-slate-200 bg-slate-50 p-0.5"
     >
       {OPTIONS.map((option) => {

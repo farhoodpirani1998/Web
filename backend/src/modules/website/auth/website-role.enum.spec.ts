@@ -1,4 +1,8 @@
-import { ROLE_PERMISSIONS, WebsiteRole, WebsitePermission } from './website-role.enum';
+import {
+  ROLE_PERMISSIONS,
+  WebsiteRole,
+  WebsitePermission,
+} from './website-role.enum';
 
 describe('ROLE_PERMISSIONS', () => {
   it('defines an entry for every WebsiteRole', () => {
@@ -9,7 +13,9 @@ describe('ROLE_PERMISSIONS', () => {
 
   it('grants SUPER_ADMIN every permission', () => {
     const allPermissions = Object.values(WebsitePermission);
-    expect(ROLE_PERMISSIONS[WebsiteRole.SUPER_ADMIN].sort()).toEqual(allPermissions.sort());
+    expect(ROLE_PERMISSIONS[WebsiteRole.SUPER_ADMIN].sort()).toEqual(
+      allPermissions.sort(),
+    );
   });
 
   it('only grants CONTENT_PUBLISH to roles responsible for publishing', () => {

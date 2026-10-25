@@ -1,4 +1,13 @@
-import { Badge, Card, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { ChevronDown } from "lucide-react";
+
+import {
+  Badge,
+  Card,
+  Section,
+  SectionHeader,
+  Stack,
+  Text,
+} from "@/shared/design-system/components";
 import { events } from "./data";
 import { useEvents } from "./useEvents";
 
@@ -34,11 +43,14 @@ export function EventDetails() {
   const items = data && data.length > 0 ? data : events;
 
   return (
-    <Section spacing="lg" tone="muted" aria-labelledby="events-details-heading">
+    <Section
+      spacing="lg"
+      tone="muted"
+      className="rounded-3xl"
+      aria-labelledby="events-details-heading"
+    >
       <Stack gap="md">
-        <Heading id="events-details-heading" level={2}>
-          جزئیات رویدادها
-        </Heading>
+        <SectionHeader headingId="events-details-heading" title="جزئیات رویدادها" />
 
         <Stack gap="sm">
           {items.map((event) => (
@@ -62,7 +74,7 @@ export function EventDetails() {
                     aria-hidden="true"
                     className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-foreground transition-transform group-open:rotate-180"
                   >
-                    ⌄
+                    <ChevronDown className="h-4 w-4" />
                   </span>
                 </summary>
 

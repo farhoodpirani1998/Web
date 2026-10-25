@@ -22,19 +22,30 @@ describe('MenusService', () => {
     };
     menuItemRepo = {};
     siteService = { getDefaultSiteId: jest.fn().mockReturnValue(siteId) };
-    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
     service = new MenusService(menuRepo, menuItemRepo, siteService, redis);
   });
 
   describe('create', () => {
     it('creates a menu scoped to the default site', async () => {
-      const menu = await service.create({ key: 'header', name: 'Header Navigation' });
+      const menu = await service.create({
+        key: 'header',
+        name: 'Header Navigation',
+      });
       expect(menu.siteId).toBe(siteId);
       expect(menu.key).toBe('header');
     });
 
     it('rejects a key already in use on the same site', async () => {
-      menuRepo.findOne.mockResolvedValue({ id: 'menu-existing', key: 'header' });
+      menuRepo.findOne.mockResolvedValue({
+        id: 'menu-existing',
+        key: 'header',
+      });
       await expect(
         service.create({ key: 'header', name: 'Duplicate' }),
       ).rejects.toBeInstanceOf(ConflictException);
@@ -85,12 +96,18 @@ describe('MenusService', () => {
     it('deletes the menu and its items in one transaction', async () => {
       menuRepo.findOneByOrFail.mockResolvedValue({ id: 'menu-1', siteId });
       const trx = { delete: jest.fn() };
-      menuRepo.manager.transaction.mockImplementation(async (cb: any) => cb(trx));
+      menuRepo.manager.transaction.mockImplementation(async (cb: any) =>
+        cb(trx),
+      );
 
       await service.remove('menu-1');
 
-      expect(trx.delete).toHaveBeenCalledWith(expect.anything(), { menuId: 'menu-1' });
-      expect(trx.delete).toHaveBeenCalledWith(expect.anything(), { id: 'menu-1' });
+      expect(trx.delete).toHaveBeenCalledWith(expect.anything(), {
+        menuId: 'menu-1',
+      });
+      expect(trx.delete).toHaveBeenCalledWith(expect.anything(), {
+        id: 'menu-1',
+      });
     });
   });
 });

@@ -1,5 +1,11 @@
 import { Type } from 'class-transformer';
-import { IsEmail, IsOptional, IsString, IsUrl, ValidateNested } from 'class-validator';
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  IsUrl,
+  ValidateNested,
+} from 'class-validator';
 import { TranslatableTextDto } from '../../common/dto/translatable-text.dto';
 
 export class UpdateContactSettingsDto {

@@ -7,6 +7,7 @@ import { SiteModule } from '../../core/site/site.module';
 import { OrderingModule } from '../../core/ordering/ordering.module';
 import { PublishingModule } from '../../core/publishing/publishing.module';
 import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
+import { RedisModule } from '../../core/redis/redis.module';
 
 /**
  * Imports only the kernel pieces it actually uses: site scoping,
@@ -25,6 +26,7 @@ import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
     OrderingModule,
     PublishingModule,
     CmsAuthModule,
+    RedisModule,
   ],
   providers: [StatisticsService],
   controllers: [StatisticsController],

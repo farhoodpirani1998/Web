@@ -17,7 +17,11 @@ import { extname } from 'path';
 import { MediaService } from './media.service';
 import { UploadMediaDto } from './dto/upload-media.dto';
 import { MediaStatus } from './entities/media.entity';
-import { ALLOWED_EXTENSIONS, ALLOWED_MIME_TYPES, MAX_SIZE_BYTES } from './media.constants';
+import {
+  ALLOWED_EXTENSIONS,
+  ALLOWED_MIME_TYPES,
+  MAX_SIZE_BYTES,
+} from './media.constants';
 import { RequireCmsPermission } from '../../identity/auth/cms-permission.decorator';
 import { WebsitePermission } from '../../auth/website-role.enum';
 
@@ -66,17 +70,29 @@ export class MediaController {
       // check.
       limits: { fileSize: MAX_SIZE_BYTES },
       fileFilter: (_req, file, callback) => {
-        if (!ALLOWED_MIME_TYPES.includes(file.mimetype as (typeof ALLOWED_MIME_TYPES)[number])) {
+        if (
+          !ALLOWED_MIME_TYPES.includes(
+            file.mimetype as (typeof ALLOWED_MIME_TYPES)[number],
+          )
+        ) {
           callback(
-            new UnsupportedMediaTypeException(`Unsupported file type: ${file.mimetype}`),
+            new UnsupportedMediaTypeException(
+              `Unsupported file type: ${file.mimetype}`,
+            ),
             false,
           );
           return;
         }
         const extension = extname(file.originalname).toLowerCase();
-        if (!ALLOWED_EXTENSIONS.includes(extension as (typeof ALLOWED_EXTENSIONS)[number])) {
+        if (
+          !ALLOWED_EXTENSIONS.includes(
+            extension as (typeof ALLOWED_EXTENSIONS)[number],
+          )
+        ) {
           callback(
-            new UnsupportedMediaTypeException(`Unsupported file extension: ${extension || '(none)'}`),
+            new UnsupportedMediaTypeException(
+              `Unsupported file extension: ${extension || '(none)'}`,
+            ),
             false,
           );
           return;
@@ -85,7 +101,10 @@ export class MediaController {
       },
     }),
   )
-  upload(@UploadedFile() file: Express.Multer.File, @Body() dto: UploadMediaDto) {
+  upload(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: UploadMediaDto,
+  ) {
     return this.mediaService.upload(file, dto.altText);
   }
 

@@ -37,6 +37,8 @@ function snapshotOf(campus: Campus): Record<string, unknown> {
     mapUrl: campus.mapUrl,
     phone: campus.phone,
     email: campus.email,
+    area: campus.area,
+    features: campus.features,
     featuredImageMediaId: campus.featuredImageMediaId,
     seo: campus.seo,
   };
@@ -62,9 +64,14 @@ export class CampusesService implements OnModuleInit {
    * has no query params, unlike News/Teachers — so a plain delete is
    * enough, no deleteByPrefix needed).
    */
-  private async invalidatePublicCache(...slugs: Array<string | undefined>): Promise<void> {
+  private async invalidatePublicCache(
+    ...slugs: Array<string | undefined>
+  ): Promise<void> {
     for (const slug of slugs) {
-      if (slug) await this.redis.delete(buildPublicCacheKey('campuses', 'detail', slug));
+      if (slug)
+        await this.redis.delete(
+          buildPublicCacheKey('campuses', 'detail', slug),
+        );
     }
     await this.redis.delete(buildPublicCacheKey('campuses', 'list'));
   }
@@ -94,7 +101,9 @@ export class CampusesService implements OnModuleInit {
     slug: string,
     excludingId?: string,
   ): Promise<void> {
-    const existing = await this.campusesRepo.findOne({ where: { siteId, slug } });
+    const existing = await this.campusesRepo.findOne({
+      where: { siteId, slug },
+    });
     if (existing && existing.id !== excludingId) {
       throw new ConflictException(`Slug "${slug}" is already in use`);
     }
@@ -123,6 +132,8 @@ export class CampusesService implements OnModuleInit {
         mapUrl: dto.mapUrl,
         phone: dto.phone,
         email: dto.email,
+        area: dto.area,
+        features: dto.features,
         position: (maxPosition?.max ?? -1) + 1,
         featuredImageMediaId: dto.featuredImageMediaId,
         seo: dto.seo ?? {},
@@ -131,9 +142,18 @@ export class CampusesService implements OnModuleInit {
     );
 
     if (campus.featuredImageMediaId) {
-      await this.media.attach(campus.featuredImageMediaId, ENTITY_TYPE, campus.id);
+      await this.media.attach(
+        campus.featuredImageMediaId,
+        ENTITY_TYPE,
+        campus.id,
+      );
     }
-    await this.revisions.record(ENTITY_TYPE, campus.id, snapshotOf(campus), authorId);
+    await this.revisions.record(
+      ENTITY_TYPE,
+      campus.id,
+      snapshotOf(campus),
+      authorId,
+    );
     await this.invalidatePublicCache(campus.slug);
     return campus;
   }
@@ -169,11 +189,14 @@ export class CampusesService implements OnModuleInit {
     }
     if (dto.title !== undefined) campus.title = dto.title;
     if (dto.excerpt !== undefined) campus.excerpt = dto.excerpt ?? undefined;
-    if (dto.body !== undefined) campus.body = sanitizeTranslatableRichText(dto.body);
+    if (dto.body !== undefined)
+      campus.body = sanitizeTranslatableRichText(dto.body);
     if (dto.address !== undefined) campus.address = dto.address ?? undefined;
     if (dto.mapUrl !== undefined) campus.mapUrl = dto.mapUrl ?? undefined;
     if (dto.phone !== undefined) campus.phone = dto.phone ?? undefined;
     if (dto.email !== undefined) campus.email = dto.email ?? undefined;
+    if (dto.area !== undefined) campus.area = dto.area ?? undefined;
+    if (dto.features !== undefined) campus.features = dto.features ?? undefined;
 
     if (dto.featuredImageMediaId !== undefined) {
       campus.featuredImageMediaId = dto.featuredImageMediaId ?? undefined;
@@ -187,14 +210,27 @@ export class CampusesService implements OnModuleInit {
       dto.featuredImageMediaId !== previousFeaturedImageMediaId
     ) {
       if (previousFeaturedImageMediaId) {
-        await this.media.detach(previousFeaturedImageMediaId, ENTITY_TYPE, saved.id);
+        await this.media.detach(
+          previousFeaturedImageMediaId,
+          ENTITY_TYPE,
+          saved.id,
+        );
       }
       if (saved.featuredImageMediaId) {
-        await this.media.attach(saved.featuredImageMediaId, ENTITY_TYPE, saved.id);
+        await this.media.attach(
+          saved.featuredImageMediaId,
+          ENTITY_TYPE,
+          saved.id,
+        );
       }
     }
 
-    await this.revisions.record(ENTITY_TYPE, saved.id, snapshotOf(saved), authorId);
+    await this.revisions.record(
+      ENTITY_TYPE,
+      saved.id,
+      snapshotOf(saved),
+      authorId,
+    );
     await this.invalidatePublicCache(previousSlug, saved.slug);
     return saved;
   }
@@ -202,7 +238,11 @@ export class CampusesService implements OnModuleInit {
   async remove(id: string): Promise<void> {
     const campus = await this.findOne(id);
     if (campus.featuredImageMediaId) {
-      await this.media.detach(campus.featuredImageMediaId, ENTITY_TYPE, campus.id);
+      await this.media.detach(
+        campus.featuredImageMediaId,
+        ENTITY_TYPE,
+        campus.id,
+      );
     }
     await this.campusesRepo.delete({ id });
     await this.invalidatePublicCache(campus.slug);
@@ -233,7 +273,11 @@ export class CampusesService implements OnModuleInit {
 
   /** Same drag-and-drop reorder idiom as FeaturesService.reorder. */
   async reorder(orderedIds: string[]): Promise<void> {
-    await this.ordering.reorder(this.campusesRepo.manager, TABLE_NAME, orderedIds);
+    await this.ordering.reorder(
+      this.campusesRepo.manager,
+      TABLE_NAME,
+      orderedIds,
+    );
     // Reordering changes the list route's response (position order)
     // without touching any individual campus's updatedAt/slug, so only
     // the list cache — not any detail cache — needs clearing.
@@ -249,7 +293,11 @@ export class CampusesService implements OnModuleInit {
     versionNumber: number,
     authorId: string,
   ): Promise<Campus> {
-    const revision = await this.revisions.getVersion(ENTITY_TYPE, id, versionNumber);
+    const revision = await this.revisions.getVersion(
+      ENTITY_TYPE,
+      id,
+      versionNumber,
+    );
     const snapshot = revision.snapshot as {
       title: Campus['title'];
       slug: Campus['slug'];
@@ -259,6 +307,8 @@ export class CampusesService implements OnModuleInit {
       mapUrl?: Campus['mapUrl'];
       phone?: Campus['phone'];
       email?: Campus['email'];
+      area?: Campus['area'];
+      features?: Campus['features'];
       featuredImageMediaId?: Campus['featuredImageMediaId'];
       seo?: Campus['seo'];
     };
@@ -276,6 +326,8 @@ export class CampusesService implements OnModuleInit {
         mapUrl: snapshot.mapUrl ?? null,
         phone: snapshot.phone ?? null,
         email: snapshot.email ?? null,
+        area: snapshot.area ?? null,
+        features: snapshot.features ?? null,
         featuredImageMediaId: snapshot.featuredImageMediaId ?? null,
         seo: snapshot.seo,
       },

@@ -1,5 +1,7 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayUnique,
+  IsArray,
   IsEmail,
   IsOptional,
   IsString,
@@ -61,6 +63,13 @@ export class UpdateTeacherDto {
   @IsOptional()
   @IsEmail()
   email?: string | null;
+
+  // Explicit null clears the specialties list; undefined leaves it unchanged.
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsString({ each: true })
+  specialties?: string[] | null;
 
   // Explicit null clears the avatar; undefined leaves it unchanged.
   @IsOptional()

@@ -46,7 +46,7 @@ export function NewsRevisionsPanel({ article, onClose, onRestored }: NewsRevisio
       })
       .catch((err) => {
         if (!cancelled) {
-          setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+          setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
         }
       })
       .finally(() => {
@@ -66,7 +66,7 @@ export function NewsRevisionsPanel({ article, onClose, onRestored }: NewsRevisio
       const restored = await restoreNewsRevision(article.id, versionNumber);
       onRestored(restored);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
       setRestoringVersion(null);
     }
   }
@@ -76,7 +76,7 @@ export function NewsRevisionsPanel({ article, onClose, onRestored }: NewsRevisio
       <div className="flex max-h-[80vh] w-full max-w-lg flex-col gap-4 overflow-y-auto rounded-lg border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">Revision history</h2>
+            <h2 className="text-lg font-semibold text-slate-900">تاریخچه بازنگری‌ها</h2>
             <p className="mt-0.5 text-sm text-slate-600" dir="rtl">
               {article.title.fa}
             </p>
@@ -86,7 +86,7 @@ export function NewsRevisionsPanel({ article, onClose, onRestored }: NewsRevisio
             onClick={onClose}
             className="text-sm font-medium text-slate-500 hover:text-slate-900"
           >
-            Close
+            بستن
           </button>
         </div>
 
@@ -97,16 +97,16 @@ export function NewsRevisionsPanel({ article, onClose, onRestored }: NewsRevisio
         ) : null}
 
         {isLoading ? (
-          <p className="py-8 text-center text-sm text-slate-500">Loading revisions…</p>
+          <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری بازنگری‌ها…</p>
         ) : revisions.length === 0 ? (
-          <p className="py-8 text-center text-sm text-slate-500">No revisions recorded yet.</p>
+          <p className="py-8 text-center text-sm text-slate-500">هنوز بازنگری‌ای ثبت نشده است.</p>
         ) : (
           <ul className="flex flex-col divide-y divide-slate-200">
             {revisions.map((revision) => (
               <li key={revision.id} className="flex items-center justify-between gap-4 py-3">
                 <div>
                   <p className="text-sm font-medium text-slate-900">
-                    Version {revision.versionNumber}
+                    نسخه {revision.versionNumber}
                   </p>
                   <p className="mt-0.5 text-xs text-slate-500">
                     {new Date(revision.createdAt).toLocaleString()}
@@ -119,7 +119,7 @@ export function NewsRevisionsPanel({ article, onClose, onRestored }: NewsRevisio
                     disabled={restoringVersion !== null}
                     className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {restoringVersion === revision.versionNumber ? "Restoring…" : "Restore"}
+                    {restoringVersion === revision.versionNumber ? "در حال بازیابی…" : "بازیابی"}
                   </button>
                 </PermissionGate>
               </li>

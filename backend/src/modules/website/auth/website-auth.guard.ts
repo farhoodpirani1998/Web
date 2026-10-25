@@ -60,7 +60,11 @@ export class WebsiteAuthGuard implements CanActivate {
       throw new UnauthorizedException('Unexpected token issuer');
     }
 
-    request.user = { externalUserId: payload.sub, email: payload.email, name: payload.name };
+    request.user = {
+      externalUserId: payload.sub,
+      email: payload.email,
+      name: payload.name,
+    };
     return true;
   }
 }

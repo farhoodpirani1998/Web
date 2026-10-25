@@ -15,6 +15,9 @@ import { WebsiteAuthModule } from './auth/auth.module';
 import { AdminUsersModule } from './identity/admin-users/admin-users.module';
 import { CmsAuthModule } from './identity/auth/cms-auth.module';
 import { FaqModule } from './content/faq/faq.module';
+import { AchievementsModule } from './content/achievements/achievements.module';
+import { AcademicCalendarModule } from './content/academic-calendar/academic-calendar.module';
+import { AdmissionsModule } from './content/admissions/admissions.module';
 import { TestimonialsModule } from './content/testimonials/testimonials.module';
 import { HeroModule } from './content/hero/hero.module';
 import { AboutModule } from './content/about/about.module';
@@ -57,6 +60,9 @@ import { PublicApiModule } from './public-api/public-api.module';
     AdminUsersModule,
     CmsAuthModule,
     FaqModule,
+    AchievementsModule,
+    AcademicCalendarModule,
+    AdmissionsModule,
     TestimonialsModule,
     HeroModule,
     AboutModule,

@@ -48,7 +48,9 @@ export class AddCtaBanner1784500000000 implements MigrationInterface {
         CONSTRAINT "PK_cta_banner" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_cta_banner_siteId" ON "cta_banner" ("siteId")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_cta_banner_siteId" ON "cta_banner" ("siteId")`,
+    );
 
     await queryRunner.query(`
       ALTER TABLE "site_settings"
@@ -57,7 +59,9 @@ export class AddCtaBanner1784500000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "site_settings" DROP COLUMN "featureFlagsCtaEnabled"`);
+    await queryRunner.query(
+      `ALTER TABLE "site_settings" DROP COLUMN "featureFlagsCtaEnabled"`,
+    );
     await queryRunner.query(`DROP TABLE "cta_banner"`);
     await queryRunner.query(`DROP TYPE "cta_banner_status_enum"`);
   }

@@ -33,14 +33,21 @@ describe('EventsService', () => {
     media = { attach: jest.fn(), detach: jest.fn() };
     sitemap = { register: jest.fn() };
     siteSettings = {
-      get: jest.fn().mockResolvedValue({ featureFlags: { eventsEnabled: true } }),
+      get: jest
+        .fn()
+        .mockResolvedValue({ featureFlags: { eventsEnabled: true } }),
     };
     revisions = {
       record: jest.fn(),
       list: jest.fn(),
       getVersion: jest.fn(),
     };
-    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
     service = new EventsService(
       repo,
       siteService,
@@ -60,7 +67,9 @@ describe('EventsService', () => {
     });
 
     it('returns no entries when eventsEnabled is off', async () => {
-      siteSettings.get.mockResolvedValue({ featureFlags: { eventsEnabled: false } });
+      siteSettings.get.mockResolvedValue({
+        featureFlags: { eventsEnabled: false },
+      });
 
       service.onModuleInit();
       const provider = sitemap.register.mock.calls[0][0];
@@ -90,7 +99,12 @@ describe('EventsService', () => {
     it('includes a published event once publishAt has passed', async () => {
       const past = new Date(Date.now() - 86_400_000);
       jest.spyOn(service, 'findAll').mockResolvedValue([
-        { id: 'e1', slug: 'past-event', publishAt: past, updatedAt: past } as any,
+        {
+          id: 'e1',
+          slug: 'past-event',
+          publishAt: past,
+          updatedAt: past,
+        } as any,
       ]);
 
       service.onModuleInit();
@@ -117,7 +131,11 @@ describe('EventsService', () => {
       expect(event.status).toBe(PublishStatus.DRAFT);
       expect(event.siteId).toBe(siteId);
       expect(event.allDay).toBe(false);
-      expect(media.attach).toHaveBeenCalledWith('media-1', 'calendar_event', 'event-1');
+      expect(media.attach).toHaveBeenCalledWith(
+        'media-1',
+        'calendar_event',
+        'event-1',
+      );
       expect(revisions.record).toHaveBeenCalledWith(
         'calendar_event',
         'event-1',
@@ -198,10 +216,22 @@ describe('EventsService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      await service.update('event-1', { featuredImageMediaId: 'media-new' }, 'author-1');
+      await service.update(
+        'event-1',
+        { featuredImageMediaId: 'media-new' },
+        'author-1',
+      );
 
-      expect(media.detach).toHaveBeenCalledWith('media-old', 'calendar_event', 'event-1');
-      expect(media.attach).toHaveBeenCalledWith('media-new', 'calendar_event', 'event-1');
+      expect(media.detach).toHaveBeenCalledWith(
+        'media-old',
+        'calendar_event',
+        'event-1',
+      );
+      expect(media.attach).toHaveBeenCalledWith(
+        'media-new',
+        'calendar_event',
+        'event-1',
+      );
     });
 
     it('rejects moving endAt before the existing startAt', async () => {
@@ -214,7 +244,11 @@ describe('EventsService', () => {
       });
 
       await expect(
-        service.update('event-1', { endAt: '2027-01-01T10:00:00.000Z' }, 'author-1'),
+        service.update(
+          'event-1',
+          { endAt: '2027-01-01T10:00:00.000Z' },
+          'author-1',
+        ),
       ).rejects.toBeInstanceOf(BadRequestException);
     });
   });
@@ -229,7 +263,11 @@ describe('EventsService', () => {
 
       await service.remove('event-1');
 
-      expect(media.detach).toHaveBeenCalledWith('media-1', 'calendar_event', 'event-1');
+      expect(media.detach).toHaveBeenCalledWith(
+        'media-1',
+        'calendar_event',
+        'event-1',
+      );
       expect(repo.delete).toHaveBeenCalledWith({ id: 'event-1' });
     });
   });
@@ -242,7 +280,10 @@ describe('EventsService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      const result = await service.updateStatus('event-1', PublishStatus.PUBLISHED);
+      const result = await service.updateStatus(
+        'event-1',
+        PublishStatus.PUBLISHED,
+      );
 
       expect(publishing.transition).toHaveBeenCalledWith({
         from: PublishStatus.DRAFT,

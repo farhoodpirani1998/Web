@@ -10,7 +10,12 @@ import { ConfigService } from '@nestjs/config';
 import { CmsAdminUser } from '../admin-users/entities/admin-user.entity';
 import { PasswordHasherService } from './password/password-hasher.service';
 import { LoginDto } from './dto/login.dto';
-import { ROLE_PERMISSIONS, WebsitePermission, WebsiteRole } from '../../auth/website-role.enum';
+import {
+  ROLE_PERMISSIONS,
+  WebsitePermission,
+  WebsiteRole,
+} from '../../auth/website-role.enum';
+import { CmsRefreshTokenService } from './cms-refresh-token.service';
 
 /** Never leak `passwordHash` (or any other internal column) past this service. */
 export interface SafeAdminIdentity {
@@ -23,9 +28,17 @@ export interface SafeAdminIdentityWithPermissions extends SafeAdminIdentity {
   permissions: WebsitePermission[];
 }
 
+/**
+ * `admin` carries the permission list on purpose: this is the same shape
+ * `/auth/me` returns, and it's the only way the SPA learns what the
+ * current admin may do after a page reload — `AuthProvider` bootstraps
+ * from the refresh cookie through this response, not through `/auth/me`,
+ * so a `LoginResult` without `permissions` silently leaves every client
+ * side permission check failing.
+ */
 export interface LoginResult {
   accessToken: string;
-  admin: SafeAdminIdentity;
+  admin: SafeAdminIdentityWithPermissions;
 }
 
 /**
@@ -51,6 +64,7 @@ export class CmsAuthService {
     private readonly passwordHasher: PasswordHasherService,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
+    private readonly refreshTokens: CmsRefreshTokenService,
   ) {
     this.jwtSecret = this.config.getOrThrow<string>('CMS_JWT_SECRET');
     this.jwtIssuer = this.config.get<string>('CMS_JWT_ISSUER') ?? 'nhg-cms';
@@ -95,8 +109,41 @@ export class CmsAuthService {
 
     return {
       accessToken,
-      admin: { id: admin.id, email: admin.email, role: admin.role },
+      admin: this.toIdentityWithPermissions(admin),
     };
+  }
+
+  /**
+   * Self-service password change. Verifies `currentPassword` before
+   * hashing/writing `newPassword`, so a stolen access token alone can't
+   * take over the account. Rejects with a generic 401 when the current
+   * password doesn't match — no distinction that would help an attacker
+   * probe. Revokes every refresh token before saving the new password,
+   * so a stale session cannot continue minting access tokens after a change.
+   * The current access token remains valid until its short expiry.
+   */
+  async changePassword(
+    adminId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const admin = await this.adminRepo.findOne({ where: { id: adminId } });
+    if (!admin) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    const matches = await this.passwordHasher.verify(
+      admin.passwordHash,
+      currentPassword,
+    );
+    if (!matches) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    const passwordHash = await this.passwordHasher.hash(newPassword);
+    await this.refreshTokens.revokeAllForAdmin(adminId);
+    admin.passwordHash = passwordHash;
+    await this.adminRepo.save(admin);
   }
 
   /**
@@ -116,12 +163,7 @@ export class CmsAuthService {
     if (!admin || !admin.isActive) {
       throw new UnauthorizedException('Admin account is no longer active');
     }
-    return {
-      id: admin.id,
-      email: admin.email,
-      role: admin.role,
-      permissions: ROLE_PERMISSIONS[admin.role],
-    };
+    return this.toIdentityWithPermissions(admin);
   }
 
   /**
@@ -145,7 +187,18 @@ export class CmsAuthService {
 
     return {
       accessToken,
-      admin: { id: admin.id, email: admin.email, role: admin.role },
+      admin: this.toIdentityWithPermissions(admin),
+    };
+  }
+
+  private toIdentityWithPermissions(
+    admin: CmsAdminUser,
+  ): SafeAdminIdentityWithPermissions {
+    return {
+      id: admin.id,
+      email: admin.email,
+      role: admin.role,
+      permissions: ROLE_PERMISSIONS[admin.role],
     };
   }
 

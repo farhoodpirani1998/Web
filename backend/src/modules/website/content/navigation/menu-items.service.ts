@@ -1,4 +1,8 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MenuItem } from './entities/menu-item.entity';
@@ -39,14 +43,18 @@ export class MenuItemsService {
   private async assertValidMenu(siteId: string, menuId: string): Promise<void> {
     const menu = await this.menusService.findOne(menuId).catch(() => undefined);
     if (!menu || menu.siteId !== siteId) {
-      throw new BadRequestException('menuId does not reference an existing menu');
+      throw new BadRequestException(
+        'menuId does not reference an existing menu',
+      );
     }
   }
 
   private async assertValidPage(siteId: string, pageId: string): Promise<void> {
     const page = await this.pagesService.findOne(pageId).catch(() => undefined);
     if (!page || page.siteId !== siteId) {
-      throw new BadRequestException('pageId does not reference an existing page');
+      throw new BadRequestException(
+        'pageId does not reference an existing page',
+      );
     }
   }
 
@@ -62,17 +70,25 @@ export class MenuItemsService {
   ): void {
     if (linkType === MenuItemLinkType.PAGE) {
       if (!pageId) {
-        throw new BadRequestException('pageId is required when linkType is "page"');
+        throw new BadRequestException(
+          'pageId is required when linkType is "page"',
+        );
       }
       if (url) {
-        throw new BadRequestException('url must not be set when linkType is "page"');
+        throw new BadRequestException(
+          'url must not be set when linkType is "page"',
+        );
       }
     } else {
       if (!url) {
-        throw new BadRequestException('url is required when linkType is "external"');
+        throw new BadRequestException(
+          'url is required when linkType is "external"',
+        );
       }
       if (pageId) {
-        throw new BadRequestException('pageId must not be set when linkType is "external"');
+        throw new BadRequestException(
+          'pageId must not be set when linkType is "external"',
+        );
       }
     }
   }
@@ -90,7 +106,9 @@ export class MenuItemsService {
     parentId: string,
   ): Promise<void> {
     if (itemId && parentId === itemId) {
-      throw new BadRequestException('parentId would create a circular menu hierarchy');
+      throw new BadRequestException(
+        'parentId would create a circular menu hierarchy',
+      );
     }
     const parent = await this.menuItemRepo.findOne({
       where: { id: parentId, siteId, menuId },
@@ -106,7 +124,9 @@ export class MenuItemsService {
     let steps = 0;
     while (currentId) {
       if (currentId === itemId) {
-        throw new BadRequestException('parentId would create a circular menu hierarchy');
+        throw new BadRequestException(
+          'parentId would create a circular menu hierarchy',
+        );
       }
       if (++steps > MAX_ANCESTOR_WALK) break;
       const current = await this.menuItemRepo.findOne({
@@ -175,8 +195,9 @@ export class MenuItemsService {
     const item = await this.findOne(id);
 
     const nextLinkType = dto.linkType ?? item.linkType;
-    const nextPageId = dto.pageId === undefined ? item.pageId : dto.pageId ?? undefined;
-    const nextUrl = dto.url === undefined ? item.url : dto.url ?? undefined;
+    const nextPageId =
+      dto.pageId === undefined ? item.pageId : (dto.pageId ?? undefined);
+    const nextUrl = dto.url === undefined ? item.url : (dto.url ?? undefined);
     this.assertValidLink(nextLinkType, nextPageId, nextUrl);
     if (
       nextLinkType === MenuItemLinkType.PAGE &&
@@ -190,7 +211,12 @@ export class MenuItemsService {
       if (dto.parentId === null) {
         item.parentId = undefined;
       } else {
-        await this.assertValidParent(item.siteId, item.menuId, item.id, dto.parentId);
+        await this.assertValidParent(
+          item.siteId,
+          item.menuId,
+          item.id,
+          dto.parentId,
+        );
         item.parentId = dto.parentId;
       }
     }
@@ -213,7 +239,9 @@ export class MenuItemsService {
    */
   async remove(id: string): Promise<void> {
     const item = await this.findOne(id);
-    const childCount = await this.menuItemRepo.count({ where: { parentId: item.id } });
+    const childCount = await this.menuItemRepo.count({
+      where: { parentId: item.id },
+    });
     if (childCount > 0) {
       throw new ConflictException(
         'Cannot delete a menu item that has child items — move or delete them first',
@@ -254,7 +282,11 @@ export class MenuItemsService {
       );
     }
 
-    await this.ordering.reorder(this.menuItemRepo.manager, 'menu_items', orderedIds);
+    await this.ordering.reorder(
+      this.menuItemRepo.manager,
+      'menu_items',
+      orderedIds,
+    );
     await this.invalidateMenu(menuId);
   }
 }

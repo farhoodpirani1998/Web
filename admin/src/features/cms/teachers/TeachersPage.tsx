@@ -89,7 +89,7 @@ export function TeachersPage() {
       setTeachers((current) => current.map((item) => (item.id === updated.id ? updated : item)));
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingStatusId(null);
@@ -105,7 +105,7 @@ export function TeachersPage() {
       setTeachers((current) => current.map((item) => (item.id === updated.id ? updated : item)));
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingScheduleId(null);
@@ -134,7 +134,7 @@ export function TeachersPage() {
     } catch (err) {
       setTeachers(previous);
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setIsReordering(false);
@@ -143,25 +143,25 @@ export function TeachersPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Teachers" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "اساتید" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="Teachers" />
+            <PageHeader title="اساتید" />
             <Section>
               <EmptyState
-                title="You don't have access to Teachers"
-                description="Viewing teachers requires the Content permission. Contact an admin if you need access."
+                title="به اساتید دسترسی ندارید"
+                description="مشاهده اساتید نیازمند دسترسی محتوا است. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="Teachers"
-          description="Manage the teacher/staff profiles shown on the public site."
+          title="اساتید"
+          description="مدیریت پروفایل اساتید و کارکنان نمایش‌داده‌شده در سایت."
         >
           <PermissionGate permission="website.content:write">
             <button
@@ -169,7 +169,7 @@ export function TeachersPage() {
               onClick={handleCreate}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
-              New teacher
+              استاد جدید
             </button>
           </PermissionGate>
         </PageHeader>

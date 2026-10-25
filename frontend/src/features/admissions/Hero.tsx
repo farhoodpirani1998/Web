@@ -1,41 +1,57 @@
-import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { ScrollText } from "lucide-react";
+
+import {
+  Link,
+  MediaFrame,
+  PageHero,
+  buttonVariants,
+} from "@/shared/design-system/components";
+import { cn } from "@/shared/utils/cn";
 
 /**
- * Admissions page "Hero" section — first section of the `admissions`
- * feature, mirroring `@/features/campuses`'s, `@/features/teachers`'s,
- * and `@/features/events`'s `Hero` sections (themselves following the
- * same pattern as `hero`/`about`/`schools`/`pre-registration`'s `Hero`
- * sections).
+ * Admissions page hero — thin wrapper around the shared `PageHero`.
+ * Full-bleed, so `AdmissionsPage` renders it outside `PageLayout`.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Badge`, `Heading`, `Text`) — no data
- * fetching, no business logic. Real copy is ultimately the backend's
- * Admissions content-module data (§4, §8); this renders frontend-owned
- * Persian placeholder copy in the meantime.
- *
- * This feature is deliberately isolated, matching the same "new,
- * isolated feature" scope `@/features/campuses`, `@/features/teachers`,
- * and `@/features/events` were built under — no other feature/page is
- * replaced, renamed, or modified. In particular, `@/features/pre-
- * registration` (route `/pre-registration`) is not touched — this
- * feature only links to it via `AdmissionsCTA`.
+ * Presentation only: admission-step data belongs to `AdmissionSteps`
+ * and `Requirements`.
  */
 export function Hero() {
   return (
-    <Section spacing="lg" aria-labelledby="admissions-hero-heading">
-      <Stack gap="sm">
-        <Badge variant="secondary" className="w-fit">
-          پذیرش و ثبت‌نام
-        </Badge>
-        <Heading id="admissions-hero-heading" level={1}>
-          فرآیند پذیرش و ثبت‌نام دانش‌آموزان
-        </Heading>
-        <Text variant="lead" className="max-w-2xl">
-          متنی نمونه درباره فرآیند پذیرش، شرایط لازم، مدارک مورد نیاز و شهریه دوره‌های
-          مختلف. جزئیات نهایی هر بخش در نهایت از طریق سامانه مدیریت محتوا و سرویس عمومی
-          بک‌اند دریافت خواهد شد.
-        </Text>
-      </Stack>
-    </Section>
+    <PageHero
+      headingId="admissions-hero-heading"
+      eyebrow="پذیرش و ثبت‌نام"
+      title="فرآیند پذیرش و ثبت‌نام دانش‌آموزان"
+      description="شرایط لازم، مدارک مورد نیاز و مراحل پذیرش. جزئیات نهایی هر بخش پس از انتشار در سامانه مدیریت محتوا در همین صفحه به‌روزرسانی می‌شود."
+      media={
+        <MediaFrame
+          ratio={4 / 3}
+          label="تصویر مراحل پذیرش به‌زودی"
+          icon={ScrollText}
+          className="rounded-3xl shadow-xl shadow-brand-navy/5 ring-1 ring-border/60"
+        />
+      }
+      actions={
+        <>
+          <Link
+            href="/pre-registration"
+            className={cn(
+              buttonVariants({ variant: "default", size: "lg", shape: "pill" }),
+              "bg-brand-navy text-white shadow-lg shadow-brand-navy/20 hover:bg-brand-navy/90",
+            )}
+          >
+            شروع پیش‌ثبت‌نام
+          </Link>
+          <Link
+            href="/academic-calendar"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "lg", shape: "pill" }),
+              "border-brand-navy/20 hover:bg-transparent",
+            )}
+          >
+            تقویم آموزشی
+          </Link>
+        </>
+      }
+    />
   );
 }

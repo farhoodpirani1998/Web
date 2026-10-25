@@ -31,14 +31,16 @@ export type AdminPermission =
   | "website.seo:manage"
   | "website.feature_flags:manage"
   | "website.revisions:view"
-  | "website.revisions:restore";
+  | "website.revisions:restore"
+  | "website.admins:manage";
 
 /**
  * The authenticated admin's identity as returned by the CMS backend.
- * Mirrors `SafeAdminIdentity` / `SafeAdminIdentityWithPermissions` —
- * `permissions` is only present on the `/admin/auth/me` response, not on
- * login, so it's modeled as optional here rather than as two separate
- * exported types.
+ * Mirrors `SafeAdminIdentity` / `SafeAdminIdentityWithPermissions`.
+ * `permissions` is optional only as a fail-closed safety net: every
+ * response the store can be fed from (`/auth/login`, `/auth/refresh`,
+ * `/auth/me`) includes it, but a missing list must make permission checks
+ * deny rather than guess from `role`.
  */
 export interface AdminUser {
   id: string;

@@ -47,9 +47,15 @@ describe('CmsAuthController', () => {
       });
       const res = fakeResponse();
 
-      const result = await controller.login({ email: 'a@example.com', password: 'x' } as any, res);
+      const result = await controller.login(
+        { email: 'a@example.com', password: 'x' } as any,
+        res,
+      );
 
-      expect(refreshTokens.issue).toHaveBeenCalledWith('admin-1', expect.any(Number));
+      expect(refreshTokens.issue).toHaveBeenCalledWith(
+        'admin-1',
+        expect.any(Number),
+      );
       expect(res.cookie).toHaveBeenCalledWith(
         'cms_refresh_token',
         'raw-refresh-token',
@@ -64,7 +70,9 @@ describe('CmsAuthController', () => {
       const req = fakeRequest(undefined);
       const res = fakeResponse();
 
-      await expect(controller.refresh(req, res)).rejects.toBeInstanceOf(UnauthorizedException);
+      await expect(controller.refresh(req, res)).rejects.toBeInstanceOf(
+        UnauthorizedException,
+      );
       expect(refreshTokens.rotate).not.toHaveBeenCalled();
     });
 
@@ -73,7 +81,9 @@ describe('CmsAuthController', () => {
       const res = fakeResponse();
       refreshTokens.rotate.mockResolvedValue(null);
 
-      await expect(controller.refresh(req, res)).rejects.toBeInstanceOf(UnauthorizedException);
+      await expect(controller.refresh(req, res)).rejects.toBeInstanceOf(
+        UnauthorizedException,
+      );
       expect(res.cookie).toHaveBeenCalledWith(
         'cms_refresh_token',
         '',
@@ -95,7 +105,9 @@ describe('CmsAuthController', () => {
 
       const result = await controller.refresh(req, res);
 
-      expect(cmsAuth.issueAccessTokenForAdminId).toHaveBeenCalledWith('admin-1');
+      expect(cmsAuth.issueAccessTokenForAdminId).toHaveBeenCalledWith(
+        'admin-1',
+      );
       expect(res.cookie).toHaveBeenCalledWith(
         'cms_refresh_token',
         'new-raw-token',
@@ -111,9 +123,13 @@ describe('CmsAuthController', () => {
         adminId: 'admin-1',
         issued: { rawToken: 'new-raw-token', expiresAt: new Date() },
       });
-      cmsAuth.issueAccessTokenForAdminId.mockRejectedValue(new UnauthorizedException());
+      cmsAuth.issueAccessTokenForAdminId.mockRejectedValue(
+        new UnauthorizedException(),
+      );
 
-      await expect(controller.refresh(req, res)).rejects.toBeInstanceOf(UnauthorizedException);
+      await expect(controller.refresh(req, res)).rejects.toBeInstanceOf(
+        UnauthorizedException,
+      );
       expect(refreshTokens.revoke).toHaveBeenCalledWith('new-raw-token');
       expect(res.cookie).toHaveBeenCalledWith(
         'cms_refresh_token',

@@ -92,7 +92,7 @@ export function TestimonialsPage() {
       );
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingStatusId(null);
@@ -120,7 +120,7 @@ export function TestimonialsPage() {
     } catch (err) {
       setTestimonials(previous);
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setIsReordering(false);
@@ -209,25 +209,25 @@ export function TestimonialsPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Testimonials" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "نظرات" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="Testimonials" />
+            <PageHeader title="نظرات" />
             <Section>
               <EmptyState
-                title="You don't have access to Testimonials"
-                description="Viewing testimonials requires the Content permission. Contact an admin if you need access."
+                title="به نظرات دسترسی ندارید"
+                description="مشاهده نظرات نیازمند دسترسی محتوا است. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="Testimonials"
-          description="Manage the parent, student, and staff quotes shown on the public site."
+          title="نظرات"
+          description="مدیریت نظرات والدین، دانش‌آموزان و کارکنان نمایش‌داده‌شده در سایت."
         >
           <PermissionGate permission="website.content:write">
             <button
@@ -235,7 +235,7 @@ export function TestimonialsPage() {
               onClick={handleCreate}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
-              New testimonial
+              نظر جدید
             </button>
           </PermissionGate>
         </PageHeader>

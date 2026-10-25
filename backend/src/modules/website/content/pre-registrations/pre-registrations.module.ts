@@ -18,7 +18,11 @@ import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
  * logic against the repository a second time.
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([PreRegistration]), SiteModule, CmsAuthModule],
+  imports: [
+    TypeOrmModule.forFeature([PreRegistration]),
+    SiteModule,
+    CmsAuthModule,
+  ],
   providers: [PreRegistrationsService],
   controllers: [PreRegistrationsController],
   exports: [PreRegistrationsService],

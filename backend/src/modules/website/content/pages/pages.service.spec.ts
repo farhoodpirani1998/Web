@@ -40,8 +40,21 @@ describe('PagesService', () => {
       list: jest.fn(),
       getVersion: jest.fn(),
     };
-    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
-    service = new PagesService(repo, siteService, publishing, media, sitemap, revisions, redis);
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
+    service = new PagesService(
+      repo,
+      siteService,
+      publishing,
+      media,
+      sitemap,
+      revisions,
+      redis,
+    );
   });
 
   describe('onModuleInit', () => {
@@ -52,8 +65,20 @@ describe('PagesService', () => {
 
     it('maps the homepage page to "/" and other pages to "/{slug}"', async () => {
       jest.spyOn(service, 'findAll').mockResolvedValue([
-        { id: 'p1', slug: 'home', isHomepage: true, publishAt: undefined, updatedAt: new Date() } as any,
-        { id: 'p2', slug: 'about-us', isHomepage: false, publishAt: undefined, updatedAt: new Date() } as any,
+        {
+          id: 'p1',
+          slug: 'home',
+          isHomepage: true,
+          publishAt: undefined,
+          updatedAt: new Date(),
+        } as any,
+        {
+          id: 'p2',
+          slug: 'about-us',
+          isHomepage: false,
+          publishAt: undefined,
+          updatedAt: new Date(),
+        } as any,
       ]);
 
       service.onModuleInit();
@@ -68,9 +93,14 @@ describe('PagesService', () => {
 
     it('withholds a published page whose publishAt is still in the future', async () => {
       const future = new Date(Date.now() + 86_400_000);
-      jest
-        .spyOn(service, 'findAll')
-        .mockResolvedValue([{ id: 'p1', slug: 'future-page', publishAt: future, updatedAt: new Date() } as any]);
+      jest.spyOn(service, 'findAll').mockResolvedValue([
+        {
+          id: 'p1',
+          slug: 'future-page',
+          publishAt: future,
+          updatedAt: new Date(),
+        } as any,
+      ]);
 
       service.onModuleInit();
       const provider = sitemap.register.mock.calls[0][0];
@@ -104,7 +134,11 @@ describe('PagesService', () => {
 
       await expect(
         service.create(
-          { title: { fa: 'عنوان' }, slug: 'taken-slug', body: { fa: 'متن' } } as any,
+          {
+            title: { fa: 'عنوان' },
+            slug: 'taken-slug',
+            body: { fa: 'متن' },
+          } as any,
           'author-1',
         ),
       ).rejects.toBeInstanceOf(ConflictException);
@@ -150,7 +184,11 @@ describe('PagesService', () => {
       });
       // assertValidParent looks up the requested parent first — return
       // the page itself, so the ancestor walk immediately hits pageId.
-      repo.findOne.mockResolvedValue({ id: 'page-1', siteId, parentId: undefined });
+      repo.findOne.mockResolvedValue({
+        id: 'page-1',
+        siteId,
+        parentId: undefined,
+      });
 
       await expect(
         service.update('page-1', { parentId: 'page-1' } as any, 'author-1'),
@@ -186,7 +224,11 @@ describe('PagesService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      const result = await service.update('page-1', { parentId: null } as any, 'author-1');
+      const result = await service.update(
+        'page-1',
+        { parentId: null } as any,
+        'author-1',
+      );
 
       expect(result.parentId).toBeUndefined();
     });
@@ -200,10 +242,22 @@ describe('PagesService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      await service.update('page-1', { featuredImageMediaId: 'media-new' } as any, 'author-1');
+      await service.update(
+        'page-1',
+        { featuredImageMediaId: 'media-new' } as any,
+        'author-1',
+      );
 
-      expect(media.detach).toHaveBeenCalledWith('media-old', 'static_page', 'page-1');
-      expect(media.attach).toHaveBeenCalledWith('media-new', 'static_page', 'page-1');
+      expect(media.detach).toHaveBeenCalledWith(
+        'media-old',
+        'static_page',
+        'page-1',
+      );
+      expect(media.attach).toHaveBeenCalledWith(
+        'media-new',
+        'static_page',
+        'page-1',
+      );
     });
   });
 
@@ -212,7 +266,9 @@ describe('PagesService', () => {
       repo.findOneByOrFail.mockResolvedValue({ id: 'page-1', siteId });
       repo.count.mockResolvedValue(2);
 
-      await expect(service.remove('page-1')).rejects.toBeInstanceOf(ConflictException);
+      await expect(service.remove('page-1')).rejects.toBeInstanceOf(
+        ConflictException,
+      );
       expect(repo.delete).not.toHaveBeenCalled();
     });
 
@@ -226,7 +282,11 @@ describe('PagesService', () => {
 
       await service.remove('page-1');
 
-      expect(media.detach).toHaveBeenCalledWith('media-1', 'static_page', 'page-1');
+      expect(media.detach).toHaveBeenCalledWith(
+        'media-1',
+        'static_page',
+        'page-1',
+      );
       expect(repo.delete).toHaveBeenCalledWith({ id: 'page-1' });
     });
   });
@@ -240,7 +300,10 @@ describe('PagesService', () => {
         isHomepage: true,
       });
 
-      const result = await service.updateStatus('page-1', PublishStatus.ARCHIVED);
+      const result = await service.updateStatus(
+        'page-1',
+        PublishStatus.ARCHIVED,
+      );
 
       expect(result.isHomepage).toBe(false);
     });
@@ -261,11 +324,22 @@ describe('PagesService', () => {
 
     it('unsets any previous homepage before setting the new one, in a transaction', async () => {
       repo.findOneByOrFail
-        .mockResolvedValueOnce({ id: 'page-2', siteId, status: PublishStatus.PUBLISHED })
-        .mockResolvedValueOnce({ id: 'page-2', siteId, status: PublishStatus.PUBLISHED, isHomepage: true });
+        .mockResolvedValueOnce({
+          id: 'page-2',
+          siteId,
+          status: PublishStatus.PUBLISHED,
+        })
+        .mockResolvedValueOnce({
+          id: 'page-2',
+          siteId,
+          status: PublishStatus.PUBLISHED,
+          isHomepage: true,
+        });
 
       const trxUpdate = jest.fn();
-      repo.manager.transaction.mockImplementation(async (cb: any) => cb({ update: trxUpdate }));
+      repo.manager.transaction.mockImplementation(async (cb: any) =>
+        cb({ update: trxUpdate }),
+      );
 
       const result = await service.setHomepage('page-2', true);
 

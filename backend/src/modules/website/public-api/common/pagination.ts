@@ -29,7 +29,10 @@ export interface PaginatedResult<T> {
  * pipe, which validates the *whole* query string against that one DTO's
  * shape and would reject the controller's other params as "unknown".
  */
-export function clampPagination(page: number, limit: number): { page: number; limit: number } {
+export function clampPagination(
+  page: number,
+  limit: number,
+): { page: number; limit: number } {
   return {
     page: Math.max(1, page),
     limit: Math.min(Math.max(1, limit), MAX_LIMIT),

@@ -78,7 +78,7 @@ export function StatisticsPage() {
       );
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingStatusId(null);
@@ -106,7 +106,7 @@ export function StatisticsPage() {
     } catch (err) {
       setStatistics(previous);
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setIsReordering(false);
@@ -115,25 +115,25 @@ export function StatisticsPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Statistics" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "آمار" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="Statistics" />
+            <PageHeader title="آمار" />
             <Section>
               <EmptyState
-                title="You don't have access to Statistics"
-                description="Viewing Statistics requires the Content permission. Contact an admin if you need access."
+                title="به آمار دسترسی ندارید"
+                description="مشاهده آمار نیازمند دسترسی محتوا است. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="Statistics"
-          description="Manage the stat counters shown on the public site's statistics section."
+          title="آمار"
+          description="مدیریت آمارهای نمایش‌داده‌شده در بخش آمار سایت."
         >
           <PermissionGate permission="website.content:write">
             <button
@@ -141,7 +141,7 @@ export function StatisticsPage() {
               onClick={handleCreate}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
-              New Statistic
+              آمار جدید
             </button>
           </PermissionGate>
         </PageHeader>

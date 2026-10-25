@@ -37,7 +37,9 @@ export class WebsitePermissionGuard implements CanActivate {
       throw new ForbiddenException('No verified identity on request');
     }
 
-    const assignment = await this.roleRepo.findOne({ where: { externalUserId } });
+    const assignment = await this.roleRepo.findOne({
+      where: { externalUserId },
+    });
     if (!assignment) {
       throw new ForbiddenException('No website role assigned to this user');
     }

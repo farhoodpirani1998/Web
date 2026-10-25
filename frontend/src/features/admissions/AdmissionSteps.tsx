@@ -1,5 +1,6 @@
 import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
-import { admissionSteps } from "./data";
+import { admissionSteps as fallbackSteps } from "./data";
+import { useAdmissions } from "./useAdmissions";
 
 /**
  * Admissions page "Steps" section — the ordered admission process,
@@ -20,6 +21,9 @@ import { admissionSteps } from "./data";
  * copy in the meantime.
  */
 export function AdmissionSteps() {
+  const { data } = useAdmissions();
+  const admissionSteps = data && data.steps.length > 0 ? data.steps : fallbackSteps;
+
   return (
     <Section spacing="lg" aria-labelledby="admissions-steps-heading">
       <Stack gap="md">

@@ -177,25 +177,25 @@ export function MenusPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Menus" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "منوها" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="Menus" />
+            <PageHeader title="منوها" />
             <Section>
               <EmptyState
-                title="You don't have access to Menus"
-                description="Viewing menus requires the Content permission. Contact an admin if you need access."
+                title="به منوها دسترسی ندارید"
+                description="مشاهده منوها نیازمند دسترسی محتوا است. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="Menus"
-          description="Manage site navigation menus (header, footer, etc.) and their entries."
+          title="منوها"
+          description="مدیریت منوهای ناوبری سایت (هدر، فوتر و غیره) و آیتم‌های آن‌ها."
         >
           <PermissionGate permission="website.content:write">
             <button
@@ -203,7 +203,7 @@ export function MenusPage() {
               onClick={handleCreateMenu}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
-              New menu
+              منو جدید
             </button>
           </PermissionGate>
         </PageHeader>
@@ -229,8 +229,8 @@ export function MenusPage() {
             <div className="flex flex-col gap-4">
               {!selectedMenu ? (
                 <EmptyState
-                  title="Select a menu"
-                  description="Choose a menu on the left to manage its items."
+                  title="یک منو انتخاب کنید"
+                  description="برای مدیریت آیتم‌ها، یک منو از سمت راست انتخاب کنید."
                 />
               ) : (
                 <>
@@ -245,13 +245,13 @@ export function MenusPage() {
                         onClick={handleAddTopLevelItem}
                         className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
                       >
-                        New item
+                        آیتم جدید
                       </button>
                     </PermissionGate>
                   </div>
 
                   {isLoadingItems ? (
-                    <p className="py-8 text-center text-sm text-slate-500">Loading items…</p>
+                    <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری آیتم‌ها…</p>
                   ) : itemsError ? (
                     <p className="py-8 text-center text-sm text-red-600">{itemsError.message}</p>
                   ) : (

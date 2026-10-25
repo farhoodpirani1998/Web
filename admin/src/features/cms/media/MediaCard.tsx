@@ -29,11 +29,9 @@ import type { CmsMedia } from "./types";
  * Selection (`selected`/`onToggleSelect`) is owned by `MediaPage` via
  * `useRowSelection`, same "dumb display, state lives in the page" split
  * `NewsRow`/`PageRow`/`TestimonialRow` already use — this card only
- * renders the checkbox and wires its event. Gated behind
- * `website.media:manage`, same as Archive/Delete: selection only exists
- * to feed a future bulk action (Part 2B), so there's no point offering
- * it to a viewer who couldn't act on it anyway. Media Library UX v2
- * Part 2A scope — selection UI only, no bulk action wired up yet.
+ * renders the checkbox and wires its event. It feeds the page's bulk
+ * archive/delete actions, so it is gated behind the same
+ * `website.media:manage` permission as those actions.
  */
 export interface MediaCardProps {
   media: CmsMedia;
@@ -76,7 +74,7 @@ export function MediaCard({
         </PermissionGate>
 
         <img
-          src={media.url}
+          src={media.thumbnailUrl ?? media.url}
           alt={media.altText}
           className="aspect-square w-full bg-slate-100 object-cover"
         />
@@ -95,7 +93,7 @@ export function MediaCard({
               isActive ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"
             }`}
           >
-            {isActive ? "Active" : "Archived"}
+            {isActive ? "فعال" : "بایگانی"}
           </span>
         </div>
 
@@ -105,7 +103,7 @@ export function MediaCard({
             onClick={() => onViewUsage(media)}
             className="w-fit rounded px-1.5 py-0.5 text-xs font-medium text-indigo-700 underline-offset-2 hover:bg-indigo-50 hover:underline"
           >
-            Used in {media.usageCount} place{media.usageCount === 1 ? "" : "s"}
+            در {media.usageCount} مورد استفاده شده
           </button>
         ) : null}
 
@@ -118,7 +116,7 @@ export function MediaCard({
                 onClick={() => onArchive(media)}
                 className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isArchiving ? "Archiving…" : "Archive"}
+                {isArchiving ? "در حال بایگانی…" : "بایگانی"}
               </button>
             </PermissionGate>
           ) : null}
@@ -129,7 +127,7 @@ export function MediaCard({
               onClick={() => onDeleteRequest(media)}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
             >
-              Delete
+              حذف
             </button>
           </PermissionGate>
         </div>

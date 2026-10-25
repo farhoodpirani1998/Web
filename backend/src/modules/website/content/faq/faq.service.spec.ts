@@ -7,6 +7,7 @@ describe('FaqService', () => {
   let siteService: any;
   let ordering: any;
   let publishing: any;
+  let redis: any;
   let service: FaqService;
 
   beforeEach(() => {
@@ -26,7 +27,13 @@ describe('FaqService', () => {
     siteService = { getDefaultSiteId: jest.fn().mockReturnValue(siteId) };
     ordering = { reorder: jest.fn() };
     publishing = { transition: jest.fn() };
-    service = new FaqService(faqRepo, siteService, ordering, publishing);
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
+    service = new FaqService(faqRepo, siteService, ordering, publishing, redis);
   });
 
   describe('create', () => {
@@ -42,7 +49,9 @@ describe('FaqService', () => {
     });
 
     it('starts at position 0 when no FAQs exist yet for the site', async () => {
-      faqRepo.createQueryBuilder().getRawOne.mockResolvedValueOnce({ max: null });
+      faqRepo
+        .createQueryBuilder()
+        .getRawOne.mockResolvedValueOnce({ max: null });
 
       const faq = await service.create({
         question: { fa: 'چیست؟' },
@@ -61,7 +70,10 @@ describe('FaqService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      const result = await service.updateStatus('faq-1', PublishStatus.PUBLISHED);
+      const result = await service.updateStatus(
+        'faq-1',
+        PublishStatus.PUBLISHED,
+      );
 
       expect(publishing.transition).toHaveBeenCalledWith({
         from: PublishStatus.DRAFT,
@@ -77,11 +89,11 @@ describe('FaqService', () => {
   describe('reorder', () => {
     it('delegates to OrderingService against the faqs table', async () => {
       await service.reorder(['a', 'b', 'c']);
-      expect(ordering.reorder).toHaveBeenCalledWith(
-        faqRepo.manager,
-        'faqs',
-        ['a', 'b', 'c'],
-      );
+      expect(ordering.reorder).toHaveBeenCalledWith(faqRepo.manager, 'faqs', [
+        'a',
+        'b',
+        'c',
+      ]);
     });
   });
 });

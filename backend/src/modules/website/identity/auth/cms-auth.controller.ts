@@ -15,10 +15,15 @@ import type { Request, Response } from 'express';
 import { CmsAuthService, LoginResult } from './cms-auth.service';
 import { CmsRefreshTokenService } from './cms-refresh-token.service';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from '../admin-users/dto/change-password.dto';
 import { CmsAuthGuard } from './cms-auth.guard';
 import { CurrentAdmin } from './current-admin.decorator';
 import { CmsRequestUser } from './cms-jwt-payload.interface';
-import { CMS_LOGIN_THROTTLE, CMS_REFRESH_THROTTLE } from './cms-auth-rate-limit.constants';
+import {
+  CMS_LOGIN_THROTTLE,
+  CMS_REFRESH_THROTTLE,
+} from './cms-auth-rate-limit.constants';
+import { AllowAnonymousCmsEntry } from './cms-route-authorization.decorator';
 import {
   readRefreshCookie,
   refreshCookieName,
@@ -59,12 +64,19 @@ export class CmsAuthController {
   // CMS_LOGIN_THROTTLE's doc comment (Sprint 2.3B hardening). Every
   // other route on this controller keeps using the app-wide default
   // throttler untouched (except `refresh`, which has its own).
+  @AllowAnonymousCmsEntry()
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @Throttle(CMS_LOGIN_THROTTLE)
-  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.cmsAuth.login(dto);
-    const refreshToken = await this.refreshTokens.issue(result.admin.id, refreshTokenTtlMs(this.config));
+    const refreshToken = await this.refreshTokens.issue(
+      result.admin.id,
+      refreshTokenTtlMs(this.config),
+    );
     this.setRefreshCookie(res, refreshToken.rawToken);
     return result;
   }
@@ -73,6 +85,26 @@ export class CmsAuthController {
   @UseGuards(CmsAuthGuard)
   me(@CurrentAdmin() user: CmsRequestUser) {
     return this.cmsAuth.getCurrentAdmin(user.id);
+  }
+
+  /**
+   * Self-service password change for the signed-in admin. Behind
+   * `CmsAuthGuard` (must be authenticated) and requires the current
+   * password (see `CmsAuthService.changePassword`) — a bare stolen
+   * access token can't be used to change the password. Returns 204.
+   */
+  @Post('change-password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(CmsAuthGuard)
+  async changePassword(
+    @CurrentAdmin() user: CmsRequestUser,
+    @Body() dto: ChangePasswordDto,
+  ): Promise<void> {
+    await this.cmsAuth.changePassword(
+      user.id,
+      dto.currentPassword,
+      dto.newPassword,
+    );
   }
 
   /**
@@ -85,16 +117,23 @@ export class CmsAuthController {
    * token) — same "don't let the caller distinguish why" reasoning as
    * `CmsAuthService.login`.
    */
+  @AllowAnonymousCmsEntry()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @Throttle(CMS_REFRESH_THROTTLE)
-  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const presentedToken = readRefreshCookie(req, this.config);
     if (!presentedToken) {
       throw new UnauthorizedException('Missing refresh token');
     }
 
-    const rotated = await this.refreshTokens.rotate(presentedToken, refreshTokenTtlMs(this.config));
+    const rotated = await this.refreshTokens.rotate(
+      presentedToken,
+      refreshTokenTtlMs(this.config),
+    );
     if (!rotated) {
       this.clearRefreshCookie(res);
       throw new UnauthorizedException('Invalid or expired refresh token');
@@ -124,9 +163,13 @@ export class CmsAuthController {
    * A missing/already-invalid cookie is treated as "already logged
    * out", not an error — `revoke` itself is a no-op in that case.
    */
+  @AllowAnonymousCmsEntry()
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
+  async logout(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
     const presentedToken = readRefreshCookie(req, this.config);
     if (presentedToken) {
       await this.refreshTokens.revoke(presentedToken);
@@ -144,6 +187,10 @@ export class CmsAuthController {
 
   /** `maxAge: 0` — the standard way to tell a browser to drop a cookie immediately; same attributes as when it was set, or some browsers won't match it. */
   private clearRefreshCookie(res: Response): void {
-    res.cookie(refreshCookieName(this.config), '', refreshCookieOptions(this.config, 0));
+    res.cookie(
+      refreshCookieName(this.config),
+      '',
+      refreshCookieOptions(this.config, 0),
+    );
   }
 }

@@ -56,6 +56,7 @@ export interface PublicTeacherListItemDto {
   campusId?: string;
   phone?: string;
   email?: string;
+  specialties?: readonly string[];
   position: number;
   avatar: PublicMediaRef | null;
 }

@@ -43,7 +43,10 @@ export class MenusService {
 
   async findAll(): Promise<Menu[]> {
     const siteId = this.siteService.getDefaultSiteId();
-    return this.menuRepo.find({ where: { siteId }, order: { createdAt: 'ASC' } });
+    return this.menuRepo.find({
+      where: { siteId },
+      order: { createdAt: 'ASC' },
+    });
   }
 
   async findOne(id: string): Promise<Menu> {

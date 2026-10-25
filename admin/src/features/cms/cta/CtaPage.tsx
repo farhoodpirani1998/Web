@@ -48,7 +48,7 @@ export function CtaPage() {
       setCta(updated);
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setIsUpdatingStatus(false);
@@ -57,30 +57,30 @@ export function CtaPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "CTA" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "فراخوان اقدام" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="CTA" />
+            <PageHeader title="فراخوان اقدام" />
             <Section>
               <EmptyState
-                title="You don't have access to the CTA page"
-                description="Viewing the CTA page requires the Content permission. Contact an admin if you need access."
+                title="شما به صفحه فراخوان اقدام دسترسی ندارید"
+                description="مشاهده صفحه فراخوان اقدام نیازمند دسترسی محتوا است. اگر به دسترسی نیاز دارید با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="CTA"
-          description="Manage the site-wide call-to-action banner shown near the bottom of the homepage."
+          title="فراخوان اقدام"
+          description="مدیریت بنر فراخوان اقدام سراسری نمایش‌داده‌شده در نزدیکی انتهای صفحه اصلی."
         />
 
         <Section>
           {isLoading ? (
-            <p className="py-8 text-center text-sm text-slate-500">Loading CTA banner…</p>
+            <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری بنر فراخوان اقدام…</p>
           ) : error ? (
             <p className="py-8 text-center text-sm text-red-600">{error.message}</p>
           ) : cta ? (

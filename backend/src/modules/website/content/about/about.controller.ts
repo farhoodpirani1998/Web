@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { AboutService } from './about.service';
 import { UpdateAboutDto } from './dto/update-about.dto';
 import { UpdateAboutStatusDto } from './dto/update-about-status.dto';

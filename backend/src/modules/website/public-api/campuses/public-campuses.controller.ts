@@ -37,6 +37,8 @@ interface PublicCampusListItemDto {
   mapUrl?: string;
   phone?: string;
   email?: string;
+  area?: Campus['area'];
+  features?: string[];
   position: number;
   featuredImage: PublicMediaRef | null;
 }
@@ -97,7 +99,9 @@ export class PublicCampusesController {
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get(':slug')
-  async findBySlug(@Param('slug') slug: string): Promise<PublicCampusDetailDto> {
+  async findBySlug(
+    @Param('slug') slug: string,
+  ): Promise<PublicCampusDetailDto> {
     const detailCacheKey = buildPublicCacheKey('campuses', 'detail', slug);
     const cached = await this.redis.get<PublicCampusDetailDto>(detailCacheKey);
     if (cached) return cached;
@@ -116,7 +120,12 @@ export class PublicCampusesController {
       ...this.toListItem(campus, new Map()),
       featuredImage: image,
       body: campus.body,
-      seo: this.seo.resolvePublicSeo(campus.seo, title, `/campuses/${campus.slug}`, baseUrl),
+      seo: this.seo.resolvePublicSeo(
+        campus.seo,
+        title,
+        `/campuses/${campus.slug}`,
+        baseUrl,
+      ),
       structuredData: [
         this.seo.buildBreadcrumbSchema([
           { name: 'Home', url: baseUrl },
@@ -143,6 +152,8 @@ export class PublicCampusesController {
       mapUrl: campus.mapUrl,
       phone: campus.phone,
       email: campus.email,
+      area: campus.area,
+      features: campus.features,
       position: campus.position,
       featuredImage: campus.featuredImageMediaId
         ? (mediaMap.get(campus.featuredImageMediaId) ?? null)

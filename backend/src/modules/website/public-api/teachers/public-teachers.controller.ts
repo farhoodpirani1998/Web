@@ -39,6 +39,7 @@ interface PublicTeacherListItemDto {
   campusId?: string;
   phone?: string;
   email?: string;
+  specialties?: string[];
   position: number;
   avatar: PublicMediaRef | null;
 }
@@ -108,13 +109,17 @@ export class PublicTeachersController {
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get(':slug')
-  async findBySlug(@Param('slug') slug: string): Promise<PublicTeacherDetailDto> {
+  async findBySlug(
+    @Param('slug') slug: string,
+  ): Promise<PublicTeacherDetailDto> {
     const detailCacheKey = buildPublicCacheKey('teachers', 'detail', slug);
     const cached = await this.redis.get<PublicTeacherDetailDto>(detailCacheKey);
     if (cached) return cached;
 
     const siteId = this.siteService.getDefaultSiteId();
-    const teacher = await this.teachersRepo.findOne({ where: { siteId, slug } });
+    const teacher = await this.teachersRepo.findOne({
+      where: { siteId, slug },
+    });
     if (!teacher || !this.visibility.isVisible(teacher)) {
       throw new NotFoundException(`Teacher "${slug}" not found`);
     }
@@ -159,6 +164,7 @@ export class PublicTeachersController {
       campusId: teacher.campusId,
       phone: teacher.phone,
       email: teacher.email,
+      specialties: teacher.specialties,
       position: teacher.position,
       avatar: teacher.avatarMediaId
         ? (mediaMap.get(teacher.avatarMediaId) ?? null)

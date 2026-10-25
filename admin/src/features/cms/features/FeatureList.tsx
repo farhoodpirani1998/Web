@@ -10,7 +10,7 @@ import type { CmsFeature, CmsFeatureStatus } from "./types";
  * display whatever list/loading/error state it's handed, same split as
  * `features/cms/faq/FaqList.tsx`.
  *
- * Reordering is only enabled when `status` is `undefined` ("All"):
+ * Reordering is only enabled when `status` is `undefined` ("همه"):
  * `PATCH /features/reorder` (`OrderingService.reorder`) writes
  * `position` for exactly the ids it's given, in that order — it does
  * not shift the ids left out. Sending a filtered subset would silently
@@ -44,7 +44,7 @@ export function FeatureList({
   onReorder,
 }: FeatureListProps) {
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">Loading Features…</p>;
+    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری ویژگی‌ها…</p>;
   }
 
   if (error) {
@@ -54,8 +54,8 @@ export function FeatureList({
   if (features.length === 0) {
     return (
       <EmptyState
-        title="No features yet"
-        description="Add a highlight card to get started."
+        title="هنوز ویژگی‌ای نیست"
+        description="برای شروع یک کارت ویژگی اضافه کنید."
       />
     );
   }
@@ -69,23 +69,23 @@ export function FeatureList({
           <tr>
             {canReorder ? (
               <th scope="col" className="w-10 px-3 py-2 text-left font-medium text-slate-500">
-                <span className="sr-only">Reorder</span>
+                <span className="sr-only">مرتب‌سازی</span>
               </th>
             ) : null}
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Title
+              عنوان
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Description
+              توضیحات
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Icon
+              آیکون
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Status
+              وضعیت
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium text-slate-500">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">اقدامات</span>
             </th>
           </tr>
         </thead>

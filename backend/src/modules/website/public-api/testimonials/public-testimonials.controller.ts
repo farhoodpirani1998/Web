@@ -6,6 +6,7 @@ import { Testimonial } from '../../content/testimonials/entities/testimonial.ent
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
 import { SiteSettingsService } from '../../content/site-settings/site-settings.service';
+import { RedisService } from '../../core/redis/redis.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
   PublicMediaService,
@@ -15,6 +16,10 @@ import {
   PUBLIC_THROTTLE,
   PUBLIC_CACHE_CONTROL,
 } from '../common/public-rate-limit.constants';
+import {
+  buildPublicCacheKey,
+  PUBLIC_CACHE_TTL_SECONDS,
+} from '../common/public-cache.constants';
 
 interface PublicTestimonialDto {
   id: string;
@@ -37,13 +42,20 @@ export class PublicTestimonialsController {
     private readonly visibility: PublicVisibilityService,
     private readonly media: PublicMediaService,
     private readonly siteSettings: SiteSettingsService,
+    private readonly redis: RedisService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(): Promise<PublicTestimonialDto[]> {
+    // Feature-flag check stays uncached (siteSettings is itself cached) so a
+    // toggled-off section returns [] immediately rather than after the TTL.
     const settings = await this.siteSettings.get();
     if (!settings.featureFlags.testimonialsEnabled) return [];
+
+    const cacheKey = buildPublicCacheKey('testimonials', 'list');
+    const cached = await this.redis.get<PublicTestimonialDto[]>(cacheKey);
+    if (cached) return cached;
 
     const siteId = this.siteService.getDefaultSiteId();
     const testimonials = await this.testimonialRepo.find({
@@ -56,7 +68,7 @@ export class PublicTestimonialsController {
       visible.map((testimonial) => testimonial.avatarMediaId),
     );
 
-    return visible.map((testimonial) => ({
+    const dto = visible.map((testimonial) => ({
       id: testimonial.id,
       authorName: testimonial.authorName,
       authorRole: testimonial.authorRole,
@@ -67,5 +79,7 @@ export class PublicTestimonialsController {
         : null,
       position: testimonial.position,
     }));
+    await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 }

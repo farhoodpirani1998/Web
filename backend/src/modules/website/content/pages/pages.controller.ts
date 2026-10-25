@@ -34,7 +34,10 @@ export class PagesController {
 
   @Get()
   @RequireCmsPermission(WebsitePermission.CONTENT_READ)
-  findAll(@Query('status') status?: PublishStatus, @Query('parentId') parentId?: string) {
+  findAll(
+    @Query('status') status?: PublishStatus,
+    @Query('parentId') parentId?: string,
+  ) {
     return this.pagesService.findAll(status, parentId);
   }
 
@@ -52,10 +55,7 @@ export class PagesController {
 
   @Post()
   @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
-  create(
-    @Body() dto: CreatePageDto,
-    @CurrentAdmin() user: CmsRequestUser,
-  ) {
+  create(@Body() dto: CreatePageDto, @CurrentAdmin() user: CmsRequestUser) {
     return this.pagesService.create(dto, user.id);
   }
 

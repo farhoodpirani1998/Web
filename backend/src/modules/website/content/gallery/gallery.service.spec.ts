@@ -8,6 +8,7 @@ describe('GalleryService', () => {
   let ordering: any;
   let publishing: any;
   let media: any;
+  let redis: any;
   let service: GalleryService;
 
   beforeEach(() => {
@@ -18,7 +19,9 @@ describe('GalleryService', () => {
         getRawOne: jest.fn().mockResolvedValue({ max: null }),
       }),
       create: jest.fn((data) => data),
-      save: jest.fn((data) => Promise.resolve({ id: 'gallery-item-1', ...data })),
+      save: jest.fn((data) =>
+        Promise.resolve({ id: 'gallery-item-1', ...data }),
+      ),
       find: jest.fn(),
       findOneByOrFail: jest.fn(),
       delete: jest.fn(),
@@ -28,7 +31,20 @@ describe('GalleryService', () => {
     ordering = { reorder: jest.fn() };
     publishing = { transition: jest.fn() };
     media = { attach: jest.fn(), detach: jest.fn() };
-    service = new GalleryService(repo, siteService, ordering, publishing, media);
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
+    service = new GalleryService(
+      repo,
+      siteService,
+      ordering,
+      publishing,
+      media,
+      redis,
+    );
   });
 
   describe('create', () => {
@@ -111,7 +127,10 @@ describe('GalleryService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      const result = await service.updateStatus('gallery-item-1', PublishStatus.PUBLISHED);
+      const result = await service.updateStatus(
+        'gallery-item-1',
+        PublishStatus.PUBLISHED,
+      );
 
       expect(publishing.transition).toHaveBeenCalledWith({
         from: PublishStatus.DRAFT,
@@ -127,11 +146,11 @@ describe('GalleryService', () => {
   describe('reorder', () => {
     it('delegates to OrderingService with the gallery_items table name', async () => {
       await service.reorder(['a', 'b', 'c']);
-      expect(ordering.reorder).toHaveBeenCalledWith(repo.manager, 'gallery_items', [
-        'a',
-        'b',
-        'c',
-      ]);
+      expect(ordering.reorder).toHaveBeenCalledWith(
+        repo.manager,
+        'gallery_items',
+        ['a', 'b', 'c'],
+      );
     });
   });
 });

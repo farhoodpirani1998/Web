@@ -2,13 +2,13 @@ import type { CmsStatisticStatus } from "./types";
 
 /**
  * All/Draft/Published/Archived filter for the Statistics list.
- * `undefined` means "All" — that's also exactly what
+ * `undefined` means "همه" — that's also exactly what
  * `fetchStatisticList`/`useStatistics` expect for "no status filter"
  * (omitting the query param entirely, per `StatisticsController.findAll`),
  * so this component's value type doubles as the hook's param type with
  * no translation step in `StatisticsPage`.
  *
- * "All" is also the only mode `StatisticList` allows drag/move
+ * "همه" is also the only mode `StatisticList` allows drag/move
  * reordering in — see that file's comment for why.
  *
  * No search box alongside this: `GET /admin/statistics` has no search
@@ -21,17 +21,17 @@ export interface StatisticStatusFilterProps {
 }
 
 const OPTIONS: { label: string; value: CmsStatisticStatus | undefined }[] = [
-  { label: "All", value: undefined },
-  { label: "Draft", value: "draft" },
-  { label: "Published", value: "published" },
-  { label: "Archived", value: "archived" },
+  { label: "همه", value: undefined },
+  { label: "پیش‌نویس", value: "draft" },
+  { label: "منتشرشده", value: "published" },
+  { label: "بایگانی", value: "archived" },
 ];
 
 export function StatisticStatusFilter({ value, onChange }: StatisticStatusFilterProps) {
   return (
     <div
       role="tablist"
-      aria-label="Filter Statistics by status"
+      aria-label="فیلتر آمار بر اساس وضعیت"
       className="inline-flex w-fit rounded-md border border-slate-200 bg-slate-50 p-0.5"
     >
       {OPTIONS.map((option) => {

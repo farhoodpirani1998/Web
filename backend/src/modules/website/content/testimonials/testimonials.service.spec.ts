@@ -8,6 +8,7 @@ describe('TestimonialsService', () => {
   let ordering: any;
   let publishing: any;
   let media: any;
+  let redis: any;
   let service: TestimonialsService;
 
   beforeEach(() => {
@@ -18,7 +19,9 @@ describe('TestimonialsService', () => {
         getRawOne: jest.fn().mockResolvedValue({ max: null }),
       }),
       create: jest.fn((data) => data),
-      save: jest.fn((data) => Promise.resolve({ id: 'testimonial-1', ...data })),
+      save: jest.fn((data) =>
+        Promise.resolve({ id: 'testimonial-1', ...data }),
+      ),
       find: jest.fn(),
       findOneByOrFail: jest.fn(),
       delete: jest.fn(),
@@ -28,7 +31,20 @@ describe('TestimonialsService', () => {
     ordering = { reorder: jest.fn() };
     publishing = { transition: jest.fn() };
     media = { attach: jest.fn(), detach: jest.fn() };
-    service = new TestimonialsService(repo, siteService, ordering, publishing, media);
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
+    service = new TestimonialsService(
+      repo,
+      siteService,
+      ordering,
+      publishing,
+      media,
+      redis,
+    );
   });
 
   describe('create', () => {
@@ -40,11 +56,18 @@ describe('TestimonialsService', () => {
       });
 
       expect(testimonial.status).toBe(PublishStatus.DRAFT);
-      expect(media.attach).toHaveBeenCalledWith('media-1', 'testimonial', 'testimonial-1');
+      expect(media.attach).toHaveBeenCalledWith(
+        'media-1',
+        'testimonial',
+        'testimonial-1',
+      );
     });
 
     it('does not call attach when no avatarMediaId is given', async () => {
-      await service.create({ authorName: 'Jane Doe', content: { fa: 'عالی بود' } });
+      await service.create({
+        authorName: 'Jane Doe',
+        content: { fa: 'عالی بود' },
+      });
       expect(media.attach).not.toHaveBeenCalled();
     });
   });
@@ -62,8 +85,16 @@ describe('TestimonialsService', () => {
 
       await service.update('testimonial-1', { avatarMediaId: 'media-new' });
 
-      expect(media.detach).toHaveBeenCalledWith('media-old', 'testimonial', 'testimonial-1');
-      expect(media.attach).toHaveBeenCalledWith('media-new', 'testimonial', 'testimonial-1');
+      expect(media.detach).toHaveBeenCalledWith(
+        'media-old',
+        'testimonial',
+        'testimonial-1',
+      );
+      expect(media.attach).toHaveBeenCalledWith(
+        'media-new',
+        'testimonial',
+        'testimonial-1',
+      );
     });
 
     it('leaves media usage untouched when avatarMediaId is not part of the update', async () => {
@@ -94,7 +125,11 @@ describe('TestimonialsService', () => {
 
       await service.remove('testimonial-1');
 
-      expect(media.detach).toHaveBeenCalledWith('media-1', 'testimonial', 'testimonial-1');
+      expect(media.detach).toHaveBeenCalledWith(
+        'media-1',
+        'testimonial',
+        'testimonial-1',
+      );
       expect(repo.delete).toHaveBeenCalledWith({ id: 'testimonial-1' });
     });
   });
@@ -107,7 +142,10 @@ describe('TestimonialsService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      const result = await service.updateStatus('testimonial-1', PublishStatus.PUBLISHED);
+      const result = await service.updateStatus(
+        'testimonial-1',
+        PublishStatus.PUBLISHED,
+      );
 
       expect(publishing.transition).toHaveBeenCalledWith({
         from: PublishStatus.DRAFT,

@@ -8,16 +8,20 @@ import { SiteService } from '../../core/site/site.service';
 import { OrderingService } from '../../core/ordering/ordering.service';
 import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 
 const ENTITY_TYPE = 'feature';
 
 @Injectable()
 export class FeaturesService {
   constructor(
-    @InjectRepository(Feature) private readonly featureRepo: Repository<Feature>,
+    @InjectRepository(Feature)
+    private readonly featureRepo: Repository<Feature>,
     private readonly siteService: SiteService,
     private readonly ordering: OrderingService,
     private readonly publishing: PublishingService,
+    private readonly redis: RedisService,
   ) {}
 
   async create(dto: CreateFeatureDto): Promise<Feature> {
@@ -28,7 +32,7 @@ export class FeaturesService {
       .where('feature.siteId = :siteId', { siteId })
       .getRawOne<{ max: number | null }>();
 
-    return this.featureRepo.save(
+    const created = await this.featureRepo.save(
       this.featureRepo.create({
         siteId,
         title: dto.title,
@@ -38,6 +42,8 @@ export class FeaturesService {
         status: PublishStatus.DRAFT,
       }),
     );
+    await this.invalidatePublicCache();
+    return created;
   }
 
   async findAll(status?: PublishStatus): Promise<Feature[]> {
@@ -57,11 +63,14 @@ export class FeaturesService {
     if (dto.title !== undefined) feature.title = dto.title;
     if (dto.description !== undefined) feature.description = dto.description;
     if (dto.icon !== undefined) feature.icon = dto.icon;
-    return this.featureRepo.save(feature);
+    const saved = await this.featureRepo.save(feature);
+    await this.invalidatePublicCache();
+    return saved;
   }
 
   async remove(id: string): Promise<void> {
     await this.featureRepo.delete({ id });
+    await this.invalidatePublicCache();
   }
 
   async updateStatus(id: string, to: PublishStatus): Promise<Feature> {
@@ -74,10 +83,24 @@ export class FeaturesService {
       siteId: feature.siteId,
     });
     feature.status = to;
-    return this.featureRepo.save(feature);
+    const saved = await this.featureRepo.save(feature);
+    await this.invalidatePublicCache();
+    return saved;
   }
 
   async reorder(orderedIds: string[]): Promise<void> {
-    await this.ordering.reorder(this.featureRepo.manager, 'features', orderedIds);
+    await this.ordering.reorder(
+      this.featureRepo.manager,
+      'features',
+      orderedIds,
+    );
+    await this.invalidatePublicCache();
+  }
+
+  /** Clears every cached variant of this module's public list after a write. */
+  private async invalidatePublicCache(): Promise<void> {
+    await this.redis.deleteByPrefix(
+      `${buildPublicCacheKey('features', 'list')}:`,
+    );
   }
 }

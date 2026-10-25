@@ -49,6 +49,7 @@ export interface PublicGalleryItemDto {
   id: string;
   image: PublicMediaRef | null;
   caption?: Translatable<string>;
+  description?: Translatable<string>;
   category?: string;
   position: number;
 }

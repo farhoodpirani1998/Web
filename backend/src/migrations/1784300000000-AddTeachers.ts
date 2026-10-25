@@ -57,8 +57,12 @@ export class AddTeachers1784300000000 implements MigrationInterface {
         CONSTRAINT "PK_teachers" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_teachers_siteId" ON "teachers" ("siteId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_teachers_position" ON "teachers" ("position")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_teachers_siteId" ON "teachers" ("siteId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_teachers_position" ON "teachers" ("position")`,
+    );
     await queryRunner.query(`
       CREATE UNIQUE INDEX "IDX_teachers_siteId_slug" ON "teachers" ("siteId", "slug")
     `);

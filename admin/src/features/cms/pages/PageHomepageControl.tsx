@@ -12,7 +12,7 @@ import type { CmsPageStatus } from "./types";
  *
  * The backend only accepts `isHomepage: true` for an already-`published`
  * page (`PagesService.setHomepage`) — this control disables the
- * "Set as homepage" button rather than hiding it when the page isn't
+ * "تعیین به‌عنوان صفحه اصلی" button rather than hiding it when the page isn't
  * published, so the constraint is visible rather than mysterious; the
  * backend remains the actual source of truth (a race with another
  * admin's concurrent status change still surfaces as a normal
@@ -35,7 +35,7 @@ export function PageHomepageControl({
     return (
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="rounded bg-indigo-50 px-1.5 py-0.5 text-xs font-medium text-indigo-700">
-          Homepage
+          صفحه اصلی
         </span>
         <PermissionGate permission="website.content:publish">
           <button
@@ -44,7 +44,7 @@ export function PageHomepageControl({
             disabled={isUpdating}
             className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isUpdating ? "…" : "Unset"}
+            {isUpdating ? "…" : "تنظیم‌نشده"}
           </button>
         </PermissionGate>
       </div>
@@ -60,7 +60,7 @@ export function PageHomepageControl({
         title={status !== "published" ? "Only a published page can be set as the homepage" : undefined}
         className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isUpdating ? "…" : "Set as homepage"}
+        {isUpdating ? "…" : "تعیین به‌عنوان صفحه اصلی"}
       </button>
     </PermissionGate>
   );

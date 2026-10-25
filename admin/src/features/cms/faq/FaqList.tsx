@@ -10,7 +10,7 @@ import type { CmsFaq, CmsFaqStatus } from "./types";
  * whatever list/loading/error state it's handed, same split as
  * `features/cms/media/MediaGrid.tsx`.
  *
- * Reordering is only enabled when `status` is `undefined` ("All"):
+ * Reordering is only enabled when `status` is `undefined` ("همه"):
  * `PATCH /faqs/reorder` (`OrderingService.reorder`) writes `position`
  * for exactly the ids it's given, in that order — it does not shift
  * the ids left out. Sending a filtered subset would silently corrupt
@@ -43,7 +43,7 @@ export function FaqList({
   onReorder,
 }: FaqListProps) {
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">Loading FAQs…</p>;
+    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری پرسش‌های متداول…</p>;
   }
 
   if (error) {
@@ -53,8 +53,8 @@ export function FaqList({
   if (faqs.length === 0) {
     return (
       <EmptyState
-        title={status ? `No ${status} FAQs` : "No FAQs yet"}
-        description="Add a question and answer to get started."
+        title={status ? "پرسش متداولی با این وضعیت نیست" : "هنوز پرسش متداولی ثبت نشده"}
+        description="برای شروع یک پرسش و پاسخ اضافه کنید."
       />
     );
   }
@@ -68,20 +68,20 @@ export function FaqList({
           <tr>
             {canReorder ? (
               <th scope="col" className="w-10 px-3 py-2 text-left font-medium text-slate-500">
-                <span className="sr-only">Reorder</span>
+                <span className="sr-only">مرتب‌سازی</span>
               </th>
             ) : null}
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Question
+              پرسش
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Category
+              دسته‌بندی
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Status
+              وضعیت
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium text-slate-500">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">اقدامات</span>
             </th>
           </tr>
         </thead>

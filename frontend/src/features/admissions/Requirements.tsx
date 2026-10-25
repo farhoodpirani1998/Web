@@ -9,7 +9,8 @@ import {
   Stack,
   Text,
 } from "@/shared/design-system/components";
-import { requirements } from "./data";
+import { requirements as fallbackRequirements } from "./data";
+import { useAdmissions } from "./useAdmissions";
 
 /**
  * Admissions page "Requirements" section — eligibility criteria for
@@ -28,6 +29,10 @@ import { requirements } from "./data";
  * copy in the meantime.
  */
 export function Requirements() {
+  const { data } = useAdmissions();
+  const requirements =
+    data && data.requirements.length > 0 ? data.requirements : fallbackRequirements;
+
   return (
     <Section spacing="lg" tone="muted" className="rounded-lg" aria-labelledby="admissions-requirements-heading">
       <Stack gap="md">

@@ -2,7 +2,7 @@ import type { CmsMediaStatus } from "./types";
 
 /**
  * All/Active/Archived filter for the media grid. `undefined` means
- * "All" — that's also exactly what `fetchMediaList`/`useMediaList`
+ * "همه" — that's also exactly what `fetchMediaList`/`useMediaList`
  * expect for "no status filter" (omitting the query param entirely, per
  * `MediaController.findAll`), so this component's value type doubles as
  * the hook's param type with no translation step in `MediaPage`.
@@ -17,16 +17,16 @@ export interface MediaStatusFilterProps {
 }
 
 const OPTIONS: { label: string; value: CmsMediaStatus | undefined }[] = [
-  { label: "All", value: undefined },
-  { label: "Active", value: "active" },
-  { label: "Archived", value: "archived" },
+  { label: "همه", value: undefined },
+  { label: "فعال", value: "active" },
+  { label: "بایگانی", value: "archived" },
 ];
 
 export function MediaStatusFilter({ value, onChange }: MediaStatusFilterProps) {
   return (
     <div
       role="tablist"
-      aria-label="Filter media by status"
+      aria-label="فیلتر رسانه بر اساس وضعیت"
       className="inline-flex w-fit rounded-md border border-slate-200 bg-slate-50 p-0.5"
     >
       {OPTIONS.map((option) => {

@@ -20,7 +20,12 @@ describe('SiteSettingsService', () => {
     siteService = { getDefaultSiteId: jest.fn().mockReturnValue(siteId) };
     media = { attach: jest.fn(), detach: jest.fn() };
     events = { emit: jest.fn() };
-    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
     service = new SiteSettingsService(repo, siteService, media, events, redis);
   });
 
@@ -66,8 +71,16 @@ describe('SiteSettingsService', () => {
 
       await service.updateGeneral({ logoMediaId: 'media-new' });
 
-      expect(media.detach).toHaveBeenCalledWith('media-old', 'site_settings', 'settings-1');
-      expect(media.attach).toHaveBeenCalledWith('media-new', 'site_settings', 'settings-1');
+      expect(media.detach).toHaveBeenCalledWith(
+        'media-old',
+        'site_settings',
+        'settings-1',
+      );
+      expect(media.attach).toHaveBeenCalledWith(
+        'media-new',
+        'site_settings',
+        'settings-1',
+      );
       expect(events.emit).toHaveBeenCalledWith(
         WEBSITE_EVENTS.SETTINGS_UPDATED,
         { siteId, group: 'general' },
@@ -99,7 +112,10 @@ describe('SiteSettingsService', () => {
 
       const result = await service.updateSeo({ metaTitle: 'New Title' });
 
-      expect(result.defaultSeo).toEqual({ metaTitle: 'New Title', noindex: false });
+      expect(result.defaultSeo).toEqual({
+        metaTitle: 'New Title',
+        noindex: false,
+      });
       expect(events.emit).toHaveBeenCalledWith(
         WEBSITE_EVENTS.SETTINGS_UPDATED,
         { siteId, group: 'seo' },
@@ -121,7 +137,9 @@ describe('SiteSettingsService', () => {
         },
       });
 
-      const result = await service.updateFeatureFlags({ galleryEnabled: false });
+      const result = await service.updateFeatureFlags({
+        galleryEnabled: false,
+      });
 
       expect(result.featureFlags).toEqual({
         newsEnabled: true,

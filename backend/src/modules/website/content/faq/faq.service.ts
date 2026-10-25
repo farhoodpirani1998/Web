@@ -8,6 +8,8 @@ import { SiteService } from '../../core/site/site.service';
 import { OrderingService } from '../../core/ordering/ordering.service';
 import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 
 const ENTITY_TYPE = 'faq';
 
@@ -18,6 +20,7 @@ export class FaqService {
     private readonly siteService: SiteService,
     private readonly ordering: OrderingService,
     private readonly publishing: PublishingService,
+    private readonly redis: RedisService,
   ) {}
 
   async create(dto: CreateFaqDto): Promise<Faq> {
@@ -28,7 +31,7 @@ export class FaqService {
       .where('faq.siteId = :siteId', { siteId })
       .getRawOne<{ max: number | null }>();
 
-    return this.faqRepo.save(
+    const created = await this.faqRepo.save(
       this.faqRepo.create({
         siteId,
         question: dto.question,
@@ -38,6 +41,8 @@ export class FaqService {
         status: PublishStatus.DRAFT,
       }),
     );
+    await this.invalidatePublicCache();
+    return created;
   }
 
   async findAll(status?: PublishStatus): Promise<Faq[]> {
@@ -57,11 +62,14 @@ export class FaqService {
     if (dto.question !== undefined) faq.question = dto.question;
     if (dto.answer !== undefined) faq.answer = dto.answer;
     if (dto.category !== undefined) faq.category = dto.category;
-    return this.faqRepo.save(faq);
+    const saved = await this.faqRepo.save(faq);
+    await this.invalidatePublicCache();
+    return saved;
   }
 
   async remove(id: string): Promise<void> {
     await this.faqRepo.delete({ id });
+    await this.invalidatePublicCache();
   }
 
   async updateStatus(id: string, to: PublishStatus): Promise<Faq> {
@@ -74,10 +82,18 @@ export class FaqService {
       siteId: faq.siteId,
     });
     faq.status = to;
-    return this.faqRepo.save(faq);
+    const saved = await this.faqRepo.save(faq);
+    await this.invalidatePublicCache();
+    return saved;
   }
 
   async reorder(orderedIds: string[]): Promise<void> {
     await this.ordering.reorder(this.faqRepo.manager, 'faqs', orderedIds);
+    await this.invalidatePublicCache();
+  }
+
+  /** Clears every cached variant of this module's public list after a write. */
+  private async invalidatePublicCache(): Promise<void> {
+    await this.redis.deleteByPrefix(`${buildPublicCacheKey('faq', 'list')}:`);
   }
 }

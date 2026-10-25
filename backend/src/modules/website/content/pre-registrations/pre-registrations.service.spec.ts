@@ -67,7 +67,10 @@ describe('PreRegistrationsService', () => {
         status: PreRegistrationStatus.NEW,
       });
 
-      const result = await service.updateStatus('pre-reg-1', PreRegistrationStatus.CONTACTED);
+      const result = await service.updateStatus(
+        'pre-reg-1',
+        PreRegistrationStatus.CONTACTED,
+      );
 
       expect(result.status).toBe(PreRegistrationStatus.CONTACTED);
     });

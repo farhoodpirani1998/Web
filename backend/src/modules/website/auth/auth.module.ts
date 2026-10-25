@@ -9,7 +9,10 @@ import { RoleAssignmentsService } from './role-assignments.service';
 import { RoleAssignmentsController } from './role-assignments.controller';
 
 @Module({
-  imports: [JwtModule.register({}), TypeOrmModule.forFeature([WebsiteRoleAssignment])],
+  imports: [
+    JwtModule.register({}),
+    TypeOrmModule.forFeature([WebsiteRoleAssignment]),
+  ],
   controllers: [RoleAssignmentsController],
   providers: [
     WebsiteAuthGuard,

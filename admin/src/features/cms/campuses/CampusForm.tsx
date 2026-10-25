@@ -210,7 +210,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
           });
       onSaved(saved);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
       setIsSaving(false);
     }
     // No `finally` resetting isSaving on success: the dialog is about
@@ -222,7 +222,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="w-full max-w-2xl rounded-lg border border-slate-200 bg-white p-6">
         <h2 className="text-lg font-semibold text-slate-900">
-          {isEdit ? "Edit campus" : "New campus"}
+          {isEdit ? "ویرایش پردیس" : "پردیس جدید"}
         </h2>
 
         <form
@@ -233,7 +233,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={titleFaId} className="text-sm font-medium text-slate-900">
-                Title (Farsi)
+                عنوان (Farsi)
               </label>
               <input
                 id={titleFaId}
@@ -249,7 +249,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={titleEnId} className="text-sm font-medium text-slate-900">
-                Title (English) <span className="font-normal text-slate-400">— optional</span>
+                عنوان (English) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={titleEnId}
@@ -264,7 +264,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={slugId} className="text-sm font-medium text-slate-900">
-              Slug
+              نامک
             </label>
             <input
               id={slugId}
@@ -279,7 +279,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
             />
             {trimmedSlug.length > 0 && !slugIsValid ? (
               <p className="text-xs text-red-600">
-                Slug must be lowercase kebab-case (e.g. &ldquo;downtown-campus&rdquo;).
+                نامک باید be lowercase kebab-case (e.g. &ldquo;downtown-campus&rdquo;).
               </p>
             ) : null}
           </div>
@@ -287,7 +287,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={excerptFaId} className="text-sm font-medium text-slate-900">
-                Excerpt (Farsi) <span className="font-normal text-slate-400">— optional</span>
+                Excerpt (Farsi) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <textarea
                 id={excerptFaId}
@@ -302,7 +302,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={excerptEnId} className="text-sm font-medium text-slate-900">
-                Excerpt (English) <span className="font-normal text-slate-400">— optional</span>
+                Excerpt (English) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <textarea
                 id={excerptEnId}
@@ -333,7 +333,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={bodyEnId} className="text-sm font-medium text-slate-900">
-              Body (English) <span className="font-normal text-slate-400">— optional</span>
+              Body (English) <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <textarea
               id={bodyEnId}
@@ -348,7 +348,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={addressFaId} className="text-sm font-medium text-slate-900">
-                Address (Farsi) <span className="font-normal text-slate-400">— optional</span>
+                نشانی (Farsi) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <textarea
                 id={addressFaId}
@@ -363,7 +363,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={addressEnId} className="text-sm font-medium text-slate-900">
-                Address (English) <span className="font-normal text-slate-400">— optional</span>
+                نشانی (English) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <textarea
                 id={addressEnId}
@@ -378,7 +378,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={mapUrlId} className="text-sm font-medium text-slate-900">
-              Map URL <span className="font-normal text-slate-400">— optional</span>
+              Map URL <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <input
               id={mapUrlId}
@@ -394,7 +394,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={phoneId} className="text-sm font-medium text-slate-900">
-                Phone <span className="font-normal text-slate-400">— optional</span>
+                تلفن <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={phoneId}
@@ -408,7 +408,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={emailId} className="text-sm font-medium text-slate-900">
-                Email <span className="font-normal text-slate-400">— optional</span>
+                ایمیل <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={emailId}
@@ -430,12 +430,12 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
 
           <fieldset className="flex flex-col gap-4 rounded-md border border-slate-200 p-3">
             <legend className="px-1 text-sm font-medium text-slate-900">
-              SEO <span className="font-normal text-slate-400">— optional</span>
+              SEO <span className="font-normal text-slate-400">— اختیاری</span>
             </legend>
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={metaTitleId} className="text-sm font-medium text-slate-900">
-                Meta title
+                عنوان متا
               </label>
               <input
                 id={metaTitleId}
@@ -449,7 +449,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={metaDescriptionId} className="text-sm font-medium text-slate-900">
-                Meta description
+                توضیحات متا
               </label>
               <textarea
                 id={metaDescriptionId}
@@ -464,7 +464,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor={ogImageUrlId} className="text-sm font-medium text-slate-900">
-                  OG image URL
+                  نشانی تصویر OG
                 </label>
                 <input
                   id={ogImageUrlId}
@@ -479,7 +479,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
 
               <div className="flex flex-col gap-1.5">
                 <label htmlFor={canonicalUrlId} className="text-sm font-medium text-slate-900">
-                  Canonical URL
+                  نشانی یکتا
                 </label>
                 <input
                   id={canonicalUrlId}
@@ -519,14 +519,14 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
               disabled={isSaving}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Cancel
+              انصراف
             </button>
             <button
               type="submit"
               disabled={!canSubmit}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              {isSaving ? "Saving…" : isEdit ? "Save changes" : "Create campus"}
+              {isSaving ? "در حال ذخیره…" : isEdit ? "ذخیره تغییرات" : "ایجاد پردیس"}
             </button>
           </div>
         </form>
@@ -552,7 +552,7 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
 
 /**
  * Optional, clearable featured-image field row — thumbnail preview plus
- * "Choose…"/"Remove" buttons. Same layout as Events' `EventFeaturedImageField`
+ * "انتخاب…"/"حذف" buttons. Same layout as Events' `EventFeaturedImageField`
  * and Teachers' `TeacherAvatarField`, but this is its own copy, not an
  * import, since nothing shared between those modules and Campuses yet
  * justifies promoting it (see `features/cms/components/README.md`).
@@ -573,7 +573,7 @@ function CampusFeaturedImageField({
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-sm font-medium text-slate-900">
-        Featured image <span className="font-normal text-slate-400">— optional</span>
+        Featured image <span className="font-normal text-slate-400">— اختیاری</span>
       </span>
       <div className="flex items-center gap-3">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-slate-50">
@@ -586,7 +586,7 @@ function CampusFeaturedImageField({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="text-xs text-slate-400">None</span>
+            <span className="text-xs text-slate-400">هیچ‌کدام</span>
           )}
         </div>
         <div className="flex flex-col gap-1.5">
@@ -596,7 +596,7 @@ function CampusFeaturedImageField({
             disabled={disabled}
             className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {mediaId ? "Change…" : "Choose…"}
+            {mediaId ? "Change…" : "انتخاب…"}
           </button>
           {mediaId ? (
             <button
@@ -605,7 +605,7 @@ function CampusFeaturedImageField({
               disabled={disabled}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Remove
+              حذف
             </button>
           ) : null}
         </div>
@@ -633,13 +633,13 @@ function CampusMediaPickerDialog({
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
       <div className="flex max-h-[80vh] w-full max-w-2xl flex-col gap-4 overflow-y-auto rounded-lg border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Choose media</h2>
+          <h2 className="text-lg font-semibold text-slate-900">انتخاب رسانه</h2>
           <button
             type="button"
             onClick={onCancel}
             className="text-sm font-medium text-slate-500 hover:text-slate-900"
           >
-            Close
+            بستن
           </button>
         </div>
 

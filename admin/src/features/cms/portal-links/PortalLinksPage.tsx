@@ -73,7 +73,7 @@ export function PortalLinksPage() {
       setLinks((current) => current.map((item) => (item.id === updated.id ? updated : item)));
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setTogglingVisibleId(null);
@@ -99,7 +99,7 @@ export function PortalLinksPage() {
     } catch (err) {
       setLinks(previous);
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setIsReordering(false);
@@ -108,25 +108,25 @@ export function PortalLinksPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Portal Links" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "لینک‌های سامانه" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="Portal Links" />
+            <PageHeader title="لینک‌های سامانه" />
             <Section>
               <EmptyState
-                title="You don't have access to Portal Links"
-                description="Viewing portal links requires the Content permission. Contact an admin if you need access."
+                title="به لینک‌های سامانه دسترسی ندارید"
+                description="مشاهده لینک‌های سامانه نیازمند دسترسی محتوا است. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="Portal Links"
-          description="Manage links out to external systems (parent portal, LMS, webmail, etc.)."
+          title="لینک‌های سامانه"
+          description="مدیریت پیوندها به سامانه‌های خارجی (پرتابل والدین، LMS، ایمیل و غیره)."
         >
           <PermissionGate permission="website.content:write">
             <button
@@ -134,7 +134,7 @@ export function PortalLinksPage() {
               onClick={handleCreate}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
-              New link
+              پیوند جدید
             </button>
           </PermissionGate>
         </PageHeader>

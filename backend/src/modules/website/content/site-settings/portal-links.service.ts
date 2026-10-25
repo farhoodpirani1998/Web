@@ -9,7 +9,10 @@ import { SiteService } from '../../core/site/site.service';
 import { OrderingService } from '../../core/ordering/ordering.service';
 import { RedisService } from '../../core/redis/redis.service';
 import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
-import { WEBSITE_EVENTS, SettingsUpdatedPayload } from '../../core/events/events.constants';
+import {
+  WEBSITE_EVENTS,
+  SettingsUpdatedPayload,
+} from '../../core/events/events.constants';
 
 /**
  * CRUD + reorder for Portal Links — same shape as FeaturesService
@@ -91,7 +94,11 @@ export class PortalLinksService {
   }
 
   async reorder(orderedIds: string[]): Promise<void> {
-    await this.ordering.reorder(this.portalLinkRepo.manager, 'portal_links', orderedIds);
+    await this.ordering.reorder(
+      this.portalLinkRepo.manager,
+      'portal_links',
+      orderedIds,
+    );
     await this.emitUpdated(this.siteService.getDefaultSiteId());
   }
 }

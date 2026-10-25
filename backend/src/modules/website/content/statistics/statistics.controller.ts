@@ -57,7 +57,10 @@ export class StatisticsController {
 
   @Patch(':id')
   @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateStatisticDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateStatisticDto,
+  ) {
     return this.statisticsService.update(id, dto);
   }
 

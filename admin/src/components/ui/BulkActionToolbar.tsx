@@ -26,11 +26,11 @@ export function BulkActionToolbar({ selectedCount, onClear, children }: BulkActi
   return (
     <div
       role="toolbar"
-      aria-label="Bulk actions"
+      aria-label="اقدامات گروهی"
       className="flex flex-wrap items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
     >
       <span className="font-medium text-slate-900">
-        {selectedCount} {selectedCount === 1 ? "item" : "items"} selected
+        {selectedCount} مورد انتخاب شده
       </span>
 
       {children ? <div className="flex flex-wrap items-center gap-2">{children}</div> : null}
@@ -40,7 +40,7 @@ export function BulkActionToolbar({ selectedCount, onClear, children }: BulkActi
         onClick={onClear}
         className="ml-auto text-xs font-medium text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline"
       >
-        Clear selection
+        پاک کردن انتخاب
       </button>
     </div>
   );

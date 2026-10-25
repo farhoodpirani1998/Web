@@ -54,8 +54,12 @@ export class AddCampuses1784200000000 implements MigrationInterface {
         CONSTRAINT "PK_campuses" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_campuses_siteId" ON "campuses" ("siteId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_campuses_position" ON "campuses" ("position")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_campuses_siteId" ON "campuses" ("siteId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_campuses_position" ON "campuses" ("position")`,
+    );
     await queryRunner.query(`
       CREATE UNIQUE INDEX "IDX_campuses_siteId_slug" ON "campuses" ("siteId", "slug")
     `);

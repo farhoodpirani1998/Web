@@ -11,9 +11,9 @@ import type { CmsPreRegistrationStatus } from "./types";
  * current one is always offered.
  */
 const STATUS_LABEL: Record<CmsPreRegistrationStatus, string> = {
-  new: "New",
-  contacted: "Contacted",
-  archived: "Archived",
+  new: "جدید",
+  contacted: "پیگیری‌شده",
+  archived: "بایگانی",
 };
 
 const STATUS_BADGE_CLASS: Record<CmsPreRegistrationStatus, string> = {
@@ -52,7 +52,7 @@ export function PreRegistrationStatusControl({
             onClick={() => onChangeStatus(next)}
             className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isUpdating ? "…" : `Move to ${STATUS_LABEL[next]}`}
+            {isUpdating ? "…" : `انتقال به ${STATUS_LABEL[next]}`}
           </button>
         ))}
       </PermissionGate>

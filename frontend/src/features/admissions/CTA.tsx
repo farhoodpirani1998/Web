@@ -1,42 +1,59 @@
-import { buttonVariants, Heading, Link, Section, Stack, Text } from "@/shared/design-system/components";
+import {
+  Container,
+  Link,
+  SectionHeader,
+  Stack,
+  buttonVariants,
+} from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
 
 /**
- * Admissions page "CTA" section — closes the page by directing
- * visitors to the actual submission flow.
+ * Admissions page closing CTA — directs visitors to the actual
+ * submission flow.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Heading`, `Text`, `Link`/
- * `buttonVariants`) — no new components, no data fetching, no business
- * logic. Reuses the exact same `tone="primary"` rounded banner pattern
- * as the homepage's `@/features/cta`'s `CTA`, just pointed at
- * `/pre-registration` instead of `/contact`. Real headline/supporting
- * copy are ultimately Admissions content-module data (§4, §8); this
- * renders frontend-owned Persian placeholder copy in the meantime.
+ * Rendered full-bleed *outside* `AdmissionsPage`'s `PageLayout`, the
+ * same way the homepage's `@/features/cta` `CTA` is: a `bg-primary`
+ * band needs the full viewport width, so it opens its own `Container`
+ * instead of inheriting the page gutter.
  *
- * Deliberately does not duplicate `@/features/pre-registration` (route
- * `/pre-registration`) — that feature owns the actual registration
- * form; this component only links to it, the same way `AboutPage`
- * links out to `/contact` rather than re-implementing a contact form.
+ * Presentation only. It deliberately does not duplicate
+ * `@/features/pre-registration` (route `/pre-registration`) — that
+ * feature owns the form; this only links to it.
  */
 export function CTA() {
   return (
-    <Section spacing="lg" tone="primary" className="rounded-lg" aria-labelledby="admissions-cta-heading">
-      <Stack gap="md" align="center" className="text-center px-6">
-        <Heading id="admissions-cta-heading" level={2} color="inherit">
-          آماده شروع فرآیند ثبت‌نام هستید؟
-        </Heading>
-        <Text variant="lead" color="inherit" className="max-w-2xl">
-          متن جمع‌بندی نمونه برای دعوت خانواده‌ها به تکمیل فرم پیش‌ثبت‌نام و آغاز فرآیند
-          پذیرش.
-        </Text>
-        <Link
-          href="/pre-registration"
-          className={cn(buttonVariants({ variant: "secondary", size: "lg" }))}
-        >
-          شروع پیش‌ثبت‌نام
-        </Link>
-      </Stack>
-    </Section>
+    <section aria-labelledby="admissions-cta-heading" className="bg-primary">
+      <Container size="xl" className="py-16 text-center sm:py-24">
+        <SectionHeader
+          headingId="admissions-cta-heading"
+          headingLevel={2}
+          align="center"
+          onDark
+          eyebrow="به خانواده‌ی ما بپیوندید"
+          title="آماده شروع فرآیند ثبت‌نام هستید؟"
+          description="فرم پیش‌ثبت‌نام را تکمیل کنید تا مراحل پذیرش را آغاز کنیم."
+        />
+        <Stack direction="row" gap="sm" wrap justify="center" className="mt-10">
+          <Link
+            href="/pre-registration"
+            className={cn(
+              buttonVariants({ size: "lg", shape: "pill" }),
+              "bg-brand-gold text-brand-navy shadow-xl shadow-brand-gold/20 hover:bg-brand-gold/90",
+            )}
+          >
+            شروع پیش‌ثبت‌نام
+          </Link>
+          <Link
+            href="/contact"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "lg", shape: "pill" }),
+              "border-white/25 text-white hover:border-brand-gold hover:bg-transparent hover:text-brand-gold",
+            )}
+          >
+            پرسیدن سؤال
+          </Link>
+        </Stack>
+      </Container>
+    </section>
   );
 }

@@ -52,7 +52,10 @@ export class PortalLinksController {
 
   @Patch(':id')
   @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdatePortalLinkDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdatePortalLinkDto,
+  ) {
     return this.portalLinksService.update(id, dto);
   }
 

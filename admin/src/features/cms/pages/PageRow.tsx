@@ -102,7 +102,7 @@ export function PageRow({
       <td className="px-3 py-3 align-top text-xs text-slate-600">
         <span className="rounded bg-slate-100 px-1.5 py-0.5">{page.template}</span>
         {!page.showInMenu ? (
-          <span className="mt-1 block text-slate-400">Hidden from menu</span>
+          <span className="mt-1 block text-slate-400">پنهان از منو</span>
         ) : null}
       </td>
 
@@ -139,7 +139,7 @@ export function PageRow({
               onClick={() => onViewHistory(page)}
               className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
-              History
+              تاریخچه
             </button>
           </PermissionGate>
           <PermissionGate permission="website.content:write">
@@ -148,7 +148,7 @@ export function PageRow({
               onClick={() => onEdit(page)}
               className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
-              Edit
+              ویرایش
             </button>
           </PermissionGate>
           <PermissionGate permission="website.content:write">
@@ -157,7 +157,7 @@ export function PageRow({
               onClick={() => onDeleteRequest(page)}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
             >
-              Delete
+              حذف
             </button>
           </PermissionGate>
         </div>

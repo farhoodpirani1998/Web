@@ -21,9 +21,9 @@ const VALID_TRANSITIONS: Record<CmsCampusStatus, CmsCampusStatus[]> = {
 };
 
 const STATUS_LABEL: Record<CmsCampusStatus, string> = {
-  draft: "Draft",
-  published: "Published",
-  archived: "Archived",
+  draft: "پیش‌نویس",
+  published: "منتشرشده",
+  archived: "بایگانی",
 };
 
 const STATUS_BADGE_CLASS: Record<CmsCampusStatus, string> = {

@@ -29,7 +29,7 @@ import type { CmsPreRegistration, CmsPreRegistrationStatus } from "./types";
  * layered-gating approach `FaqPage`/`PortalLinksPage` use.
  *
  * No create/new-submission action in the header (unlike `FaqPage`'s
- * "New FAQ" button) — submissions only ever arrive via the public
+ * "پرسش متداول جدید" button) — submissions only ever arrive via the public
  * site's own form, this admin surface only triages what's already
  * there. No reorder either: this list has no manual ordering, see
  * `types.ts`.
@@ -67,7 +67,7 @@ export function PreRegistrationsPage() {
       );
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingStatusId(null);
@@ -76,25 +76,25 @@ export function PreRegistrationsPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Pre-Registrations" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "Pre-Registrations" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="Pre-Registrations" />
+            <PageHeader title="پیش‌ثبت‌نام‌ها" />
             <Section>
               <EmptyState
-                title="You don't have access to Pre-Registrations"
-                description="Viewing pre-registrations requires the Content permission. Contact an admin if you need access."
+                title="به پیش‌ثبت‌نام‌ها دسترسی ندارید"
+                description="مشاهده پیش‌ثبت‌نام‌ها نیازمند دسترسی محتوا است. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="Pre-Registrations"
-          description="Review and triage pre-registration submissions from the public site."
+          title="پیش‌ثبت‌نام‌ها"
+          description="بررسی و دسته‌بندی درخواست‌های پیش‌ثبت‌نام از سایت."
         />
 
         <Section>

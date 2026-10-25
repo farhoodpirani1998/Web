@@ -31,7 +31,9 @@ export class WebsiteSuperAdminGuard implements CanActivate {
       throw new ForbiddenException('No verified identity on request');
     }
 
-    const assignment = await this.roleRepo.findOne({ where: { externalUserId } });
+    const assignment = await this.roleRepo.findOne({
+      where: { externalUserId },
+    });
     if (!assignment || assignment.role !== WebsiteRole.SUPER_ADMIN) {
       throw new ForbiddenException('Website Super Admin role required');
     }

@@ -56,10 +56,7 @@ export class CampusesController {
 
   @Post()
   @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
-  create(
-    @Body() dto: CreateCampusDto,
-    @CurrentAdmin() user: CmsRequestUser,
-  ) {
+  create(@Body() dto: CreateCampusDto, @CurrentAdmin() user: CmsRequestUser) {
     return this.campusesService.create(dto, user.id);
   }
 

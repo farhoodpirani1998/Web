@@ -9,6 +9,8 @@ import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
 import { SitemapService } from '../../core/seo/sitemap.service';
 import { SeoService } from '../../core/seo/seo.service';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
 import {
   RevisionsService,
@@ -43,6 +45,7 @@ export class AboutService implements OnModuleInit {
     private readonly media: MediaService,
     private readonly sitemap: SitemapService,
     private readonly revisions: RevisionsService,
+    private readonly redis: RedisService,
   ) {}
 
   async onModuleInit() {
@@ -81,13 +84,18 @@ export class AboutService implements OnModuleInit {
     const previousImageMediaId = page.imageMediaId;
 
     if (dto.title !== undefined) page.title = dto.title;
-    if (dto.body !== undefined) page.body = sanitizeTranslatableRichText(dto.body);
-    if (dto.imageMediaId !== undefined) page.imageMediaId = dto.imageMediaId ?? undefined;
+    if (dto.body !== undefined)
+      page.body = sanitizeTranslatableRichText(dto.body);
+    if (dto.imageMediaId !== undefined)
+      page.imageMediaId = dto.imageMediaId ?? undefined;
     if (dto.seo !== undefined) page.seo = { ...page.seo, ...dto.seo };
 
     const saved = await this.aboutRepo.save(page);
 
-    if (dto.imageMediaId !== undefined && dto.imageMediaId !== previousImageMediaId) {
+    if (
+      dto.imageMediaId !== undefined &&
+      dto.imageMediaId !== previousImageMediaId
+    ) {
       if (previousImageMediaId) {
         await this.media.detach(previousImageMediaId, ENTITY_TYPE, saved.id);
       }
@@ -96,7 +104,13 @@ export class AboutService implements OnModuleInit {
       }
     }
 
-    await this.revisions.record(ENTITY_TYPE, saved.id, snapshotOf(saved), authorId);
+    await this.revisions.record(
+      ENTITY_TYPE,
+      saved.id,
+      snapshotOf(saved),
+      authorId,
+    );
+    await this.invalidatePublicCache();
     return saved;
   }
 
@@ -110,7 +124,9 @@ export class AboutService implements OnModuleInit {
       siteId: page.siteId,
     });
     page.status = to;
-    return this.aboutRepo.save(page);
+    const saved = await this.aboutRepo.save(page);
+    await this.invalidatePublicCache();
+    return saved;
   }
 
   async listRevisions() {
@@ -118,9 +134,16 @@ export class AboutService implements OnModuleInit {
     return this.revisions.list(ENTITY_TYPE, page.id);
   }
 
-  async restoreRevision(versionNumber: number, authorId: string): Promise<AboutPage> {
+  async restoreRevision(
+    versionNumber: number,
+    authorId: string,
+  ): Promise<AboutPage> {
     const page = await this.get();
-    const revision = await this.revisions.getVersion(ENTITY_TYPE, page.id, versionNumber);
+    const revision = await this.revisions.getVersion(
+      ENTITY_TYPE,
+      page.id,
+      versionNumber,
+    );
     const snapshot = revision.snapshot as {
       title: AboutPage['title'];
       body: AboutPage['body'];
@@ -136,5 +159,10 @@ export class AboutService implements OnModuleInit {
       },
       authorId,
     );
+  }
+
+  /** Clears the cached public About singleton after a write. */
+  private async invalidatePublicCache(): Promise<void> {
+    await this.redis.delete(buildPublicCacheKey('about', 'singleton'));
   }
 }

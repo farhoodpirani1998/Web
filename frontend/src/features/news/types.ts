@@ -59,6 +59,8 @@ export interface PublicNewsListItemDto {
   title: Translatable<string>;
   slug: string;
   excerpt?: Translatable<string>;
+  /** Full article body — now included on the list DTO so `NewsDetails` renders real prose, not an excerpt stand-in. */
+  body: Translatable<string>;
   category?: string;
   tags?: string[];
   featuredImage: PublicMediaRef | null;

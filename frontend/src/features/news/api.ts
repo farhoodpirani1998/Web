@@ -75,7 +75,7 @@ function toNewsItem(dto: PublicNewsListItemDto): NewsItem {
     category: dto.category ?? "",
     date: formatPersianDate(dto.publishAt),
     excerpt,
-    body: excerpt,
+    body: dto.body?.fa ?? excerpt,
     imageUrl: dto.featuredImage?.url,
   };
 }

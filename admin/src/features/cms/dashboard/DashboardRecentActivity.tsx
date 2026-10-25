@@ -1,54 +1,23 @@
 import { useEffect, useState } from "react";
 
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { ApiError } from "@/lib/apiError";
+import { formatDateTime, formatRelativeTime } from "@/lib/formatDate";
 
-import { fetchRecentActivity } from "@/features/cms/audit-log";
+import { describeEntry, fetchRecentActivity } from "@/features/cms/audit-log";
 import type { CmsAuditLogEntry } from "@/features/cms/audit-log";
 
 /**
- * Recent Activity section — now backed by `GET /admin/audit-log`
+ * Recent Activity — a timeline feed backed by `GET /admin/audit-log`
  * (`features/cms/audit-log/api.ts`), populated by the backend's
- * `AuditLogListener` reacting to events every content/media/settings
- * service already emits (see that listener's own comment). No polling:
- * this fetches once per Dashboard visit, same as the KPI cards
- * (`useDashboardStats`) — a manual page refresh is how an admin sees
- * newer activity, consistent with the rest of this page.
+ * `AuditLogListener`. Fetches once per Dashboard visit (no polling), same
+ * as the KPI cards.
  *
- * `action` values are the raw backend strings (`PublishStatus` values
- * like "published"/"draft"/"archived", or "media_uploaded"/
- * "settings_updated") — `describeEntry` below turns them into a short
- * human sentence. No author is shown: today's events carry none (see
- * `AuditLogEntry`'s own doc comment on why).
+ * `describeEntry` (the `action` → Persian-sentence mapping) lives in the
+ * `audit-log` feature so this strip and the fuller Audit Log page share
+ * one implementation. No author is shown: today's events carry none.
  */
-function describeEntry(entry: CmsAuditLogEntry): string {
-  const entityLabel = entry.entityType
-    ? entry.entityType.replace(/_/g, " ")
-    : null;
-
-  switch (entry.action) {
-    case "published":
-      return entityLabel ? `${capitalize(entityLabel)} published` : "Content published";
-    case "draft":
-      return entityLabel ? `${capitalize(entityLabel)} moved to draft` : "Content moved to draft";
-    case "archived":
-      return entityLabel ? `${capitalize(entityLabel)} archived` : "Content archived";
-    case "media_uploaded":
-      return "Media uploaded";
-    case "settings_updated": {
-      const group = entry.metadata?.group;
-      return typeof group === "string"
-        ? `Site settings updated (${group.replace(/_/g, " ")})`
-        : "Site settings updated";
-    }
-    default:
-      return entityLabel ? `${capitalize(entityLabel)} ${entry.action}` : entry.action;
-  }
-}
-
-function capitalize(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
 
 export function DashboardRecentActivity() {
   const [entries, setEntries] = useState<CmsAuditLogEntry[]>([]);
@@ -79,12 +48,24 @@ export function DashboardRecentActivity() {
   }, []);
 
   if (isLoading) {
-    return <p className="py-4 text-sm text-slate-500">Loading recent activity…</p>;
+    return (
+      <ul className="flex flex-col gap-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <li key={index} className="flex items-center gap-3">
+            <Skeleton shape="circle" className="h-8 w-8" />
+            <div className="flex flex-1 flex-col gap-1.5">
+              <Skeleton className="h-4 w-3/5" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
   }
 
   if (error) {
     return (
-      <p role="alert" className="text-sm text-red-600">
+      <p role="alert" className="text-sm text-destructive">
         {error}
       </p>
     );
@@ -93,23 +74,36 @@ export function DashboardRecentActivity() {
   if (entries.length === 0) {
     return (
       <EmptyState
-        title="No recent activity"
-        description="Actions like publishing, uploading media, or updating settings will show up here."
+        title="فعالیتی ثبت نشده"
+        description="کارهایی مانند انتشار، بارگذاری رسانه یا تغییر تنظیمات اینجا نمایش داده می‌شوند."
       />
     );
   }
 
   return (
-    <ul className="flex flex-col divide-y divide-slate-200">
-      {entries.map((entry) => (
-        <li key={entry.id} className="flex items-center justify-between gap-4 py-3">
-          <p className="text-sm text-slate-900">{describeEntry(entry)}</p>
-          <p className="shrink-0 text-xs text-slate-500">
-            {new Date(entry.createdAt).toLocaleString()}
-          </p>
+    <ol className="relative flex flex-col">
+      {entries.map((entry, index) => (
+        <li key={entry.id} className="relative flex gap-4 pb-5 last:pb-0">
+          {/* Timeline rail: dot + connector, omitted under the last row. */}
+          <div className="relative flex flex-col items-center">
+            <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-brand-gold ring-4 ring-brand-gold/15" />
+            {index < entries.length - 1 ? (
+              <span className="mt-1 w-px flex-1 bg-border" aria-hidden="true" />
+            ) : null}
+          </div>
+
+          <div className="flex flex-1 flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+            <p className="text-sm text-foreground">{describeEntry(entry)}</p>
+            <time
+              dateTime={entry.createdAt}
+              title={formatDateTime(entry.createdAt)}
+              className="shrink-0 text-xs text-muted-foreground"
+            >
+              {formatRelativeTime(entry.createdAt)}
+            </time>
+          </div>
         </li>
       ))}
-    </ul>
+    </ol>
   );
 }
-

@@ -99,7 +99,7 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
       });
       onSaved(saved);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
     } finally {
       setIsSaving(false);
     }
@@ -109,7 +109,7 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
     <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
       <div className="flex flex-col gap-1.5">
         <label htmlFor={titleFaId} className="text-sm font-medium text-slate-900">
-          Title (Farsi)
+          عنوان (فارسی)
         </label>
         <input
           id={titleFaId}
@@ -125,7 +125,7 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={titleEnId} className="text-sm font-medium text-slate-900">
-          Title (English) <span className="font-normal text-slate-400">— optional</span>
+          عنوان (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
         </label>
         <input
           id={titleEnId}
@@ -139,7 +139,7 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={bodyFaId} className="text-sm font-medium text-slate-900">
-          Body (Farsi)
+          متن (فارسی)
         </label>
         <textarea
           id={bodyFaId}
@@ -155,7 +155,7 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={bodyEnId} className="text-sm font-medium text-slate-900">
-          Body (English) <span className="font-normal text-slate-400">— optional</span>
+          متن (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
         </label>
         <textarea
           id={bodyEnId}
@@ -176,12 +176,12 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
 
       <fieldset className="flex flex-col gap-4 rounded-md border border-slate-200 p-3">
         <legend className="px-1 text-sm font-medium text-slate-900">
-          SEO <span className="font-normal text-slate-400">— optional</span>
+          سئو <span className="font-normal text-slate-400">— اختیاری</span>
         </legend>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor={metaTitleId} className="text-sm font-medium text-slate-900">
-            Meta title
+            عنوان متا
           </label>
           <input
             id={metaTitleId}
@@ -195,7 +195,7 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor={metaDescriptionId} className="text-sm font-medium text-slate-900">
-            Meta description
+            توضیحات متا
           </label>
           <textarea
             id={metaDescriptionId}
@@ -210,7 +210,7 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <label htmlFor={ogImageUrlId} className="text-sm font-medium text-slate-900">
-              OG image URL
+              نشانی تصویر OG
             </label>
             <input
               id={ogImageUrlId}
@@ -225,7 +225,7 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={canonicalUrlId} className="text-sm font-medium text-slate-900">
-              Canonical URL
+              نشانی کانونیکال
             </label>
             <input
               id={canonicalUrlId}
@@ -248,7 +248,7 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
             disabled={isSaving}
             className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
           />
-          Hide from search engines (noindex)
+          پنهان کردن از موتورهای جستجو (noindex)
         </label>
       </fieldset>
 
@@ -265,7 +265,7 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
             disabled={!canSubmit}
             className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
           >
-            {isSaving ? "Saving…" : "Save changes"}
+            {isSaving ? "در حال ذخیره…" : "ذخیره تغییرات"}
           </button>
         </PermissionGate>
       </div>
@@ -286,7 +286,7 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
 
 /**
  * Optional, clearable image field row — thumbnail preview plus
- * "Choose…"/"Remove" buttons. Same layout as Campuses'
+ * "انتخاب…"/"حذف" buttons. Same layout as Campuses'
  * `CampusFeaturedImageField`/Site Settings' `MediaField`, but this is
  * its own copy, not an import, since nothing shared between those
  * modules and About yet justifies promoting it (see
@@ -308,7 +308,7 @@ function AboutImageField({
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-sm font-medium text-slate-900">
-        Image <span className="font-normal text-slate-400">— optional</span>
+        تصویر <span className="font-normal text-slate-400">— اختیاری</span>
       </span>
       <div className="flex items-center gap-3">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-slate-50">
@@ -321,7 +321,7 @@ function AboutImageField({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="text-xs text-slate-400">None</span>
+            <span className="text-xs text-slate-400">هیچ‌کدام</span>
           )}
         </div>
         <div className="flex flex-col gap-1.5">
@@ -331,7 +331,7 @@ function AboutImageField({
             disabled={disabled}
             className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {mediaId ? "Change…" : "Choose…"}
+            {mediaId ? "تغییر…" : "انتخاب…"}
           </button>
           {mediaId ? (
             <button
@@ -340,7 +340,7 @@ function AboutImageField({
               disabled={disabled}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Remove
+              حذف
             </button>
           ) : null}
         </div>
@@ -368,13 +368,13 @@ function AboutMediaPickerDialog({
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
       <div className="flex max-h-[80vh] w-full max-w-2xl flex-col gap-4 overflow-y-auto rounded-lg border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Choose media</h2>
+          <h2 className="text-lg font-semibold text-slate-900">انتخاب رسانه</h2>
           <button
             type="button"
             onClick={onCancel}
             className="text-sm font-medium text-slate-500 hover:text-slate-900"
           >
-            Close
+            بستن
           </button>
         </div>
 
@@ -383,7 +383,7 @@ function AboutMediaPickerDialog({
           onSelect={onSelect}
           fallback={
             <p className="text-sm text-slate-600">
-              Choosing media requires the Media permission. Contact an admin if you need access.
+              انتخاب رسانه نیازمند دسترسی رسانه است. اگر به دسترسی نیاز دارید با مدیر تماس بگیرید.
             </p>
           }
         />

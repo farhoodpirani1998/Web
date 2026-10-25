@@ -30,11 +30,17 @@ export class RoleAssignmentsService {
    * doesn't exist yet or changing the role on the existing one
    * (@Unique(['externalUserId']) on the entity — one role per user).
    */
-  async assign(externalUserId: string, role: WebsiteRole): Promise<WebsiteRoleAssignment> {
+  async assign(
+    externalUserId: string,
+    role: WebsiteRole,
+  ): Promise<WebsiteRoleAssignment> {
     const existing = await this.roleRepo.findOne({ where: { externalUserId } });
 
     if (existing) {
-      if (existing.role === WebsiteRole.SUPER_ADMIN && role !== WebsiteRole.SUPER_ADMIN) {
+      if (
+        existing.role === WebsiteRole.SUPER_ADMIN &&
+        role !== WebsiteRole.SUPER_ADMIN
+      ) {
         await this.assertNotLastSuperAdmin();
       }
       existing.role = role;

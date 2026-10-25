@@ -1,48 +1,42 @@
-import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { Link, PageHero, buttonVariants } from "@/shared/design-system/components";
+import { cn } from "@/shared/utils/cn";
 
 /**
- * Statistics page "Hero" section — first section of the `statistics`
- * feature (Website Frontend Architecture §4, §10 "Section
- * Architecture"), following the same pattern as `hero`/`features`/
- * `cta`/`about`/`contact`/`schools`/`news`/`gallery`.
+ * Statistics page hero — thin wrapper around the shared `PageHero`.
+ * Full-bleed, so `StatisticsPage` renders it outside `PageLayout`.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Badge`, `Heading`, `Text`) — no data
- * fetching, no business logic. Real figures are ultimately the
- * backend's Statistics content module (§4, §8); no such endpoint
- * exists on the Public API yet, so this renders frontend-owned Persian
- * placeholder copy in the meantime. Swapping this for a
- * `useStatistics()`-style data hook later is additive —
- * `StatisticsPage` only ever composes `<StatisticsHero />`, never its
- * internals.
- *
- * Brand pass: the eyebrow badge and gold underline now match the same
- * treatment `Hero`/`Features`/`CTA` already use on the homepage, so a
- * visitor landing on this page (e.g. from the header nav) reads it as
- * the same brand system rather than a plainer, disconnected page.
+ * Deliberately no `media` slot: `StatisticsGrid` below carries the
+ * numbers, which is the whole point of this page.
  */
 export function StatisticsHero() {
   return (
-    <Section spacing="lg" aria-labelledby="statistics-hero-heading">
-      <Stack gap="sm" align="start">
-        <Badge
-          variant="outline"
-          className="w-fit rounded-full border-brand-gold/40 bg-brand-gold/10 text-brand-navy"
-        >
-          آمار و ارقام
-        </Badge>
-        <Stack gap="xs" align="start">
-          <Heading id="statistics-hero-heading" level={1}>
-            مجموعه ما در آینه اعداد
-          </Heading>
-          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
-        </Stack>
-        <Text variant="lead" className="max-w-2xl">
-          متنی نمونه درباره دستاوردهای عددی مجموعه در طول سال‌های
-          فعالیت. ارقام واقعی در نهایت از طریق سامانه مدیریت محتوا و
-          سرویس عمومی بک‌اند دریافت خواهد شد.
-        </Text>
-      </Stack>
-    </Section>
+    <PageHero
+      headingId="statistics-hero-heading"
+      eyebrow="آمار و ارقام"
+      title="مجموعه ما در آینه اعداد"
+      description="ارقام رسمی مجموعه — شعب، دانش‌آموزان، مدرسان و دستاوردها — پس از انتشار در سامانه مدیریت محتوا در همین صفحه به‌روزرسانی می‌شود."
+      actions={
+        <>
+          <Link
+            href="/pre-registration"
+            className={cn(
+              buttonVariants({ variant: "default", size: "lg", shape: "pill" }),
+              "bg-brand-navy text-white shadow-lg shadow-brand-navy/20 hover:bg-brand-navy/90",
+            )}
+          >
+            پیش‌ثبت‌نام
+          </Link>
+          <Link
+            href="/about"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "lg", shape: "pill" }),
+              "border-brand-navy/20 hover:bg-transparent",
+            )}
+          >
+            درباره مجموعه
+          </Link>
+        </>
+      }
+    />
   );
 }

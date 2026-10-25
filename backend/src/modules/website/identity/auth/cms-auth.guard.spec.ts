@@ -24,9 +24,9 @@ describe('CmsAuthGuard', () => {
   });
 
   it('rejects a missing bearer token', async () => {
-    await expect(guard.canActivate(contextWithHeader(undefined))).rejects.toBeInstanceOf(
-      UnauthorizedException,
-    );
+    await expect(
+      guard.canActivate(contextWithHeader(undefined)),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
   it('enforces the issuer via verifyAsync options, not a separate check', async () => {
@@ -69,7 +69,9 @@ describe('CmsAuthGuard', () => {
       role: WebsiteRole.PUBLISHER,
       iss: 'nhg-cms',
     });
-    const request = { headers: { authorization: 'Bearer some.jwt.token' } } as any;
+    const request = {
+      headers: { authorization: 'Bearer some.jwt.token' },
+    } as any;
     const context = {
       switchToHttp: () => ({ getRequest: () => request }),
     } as ExecutionContext;

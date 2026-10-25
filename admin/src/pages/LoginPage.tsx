@@ -67,15 +67,15 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-6 sm:p-8">
-        <h1 className="text-2xl font-semibold text-slate-900">Admin Login</h1>
+        <h1 className="text-2xl font-semibold text-slate-900">ورود به پنل مدیریت</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Sign in with your CMS admin account.
+          با حساب مدیریت محتوای خود وارد شوید.
         </p>
 
         <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
           <div className="flex flex-col gap-1.5">
             <label htmlFor={emailId} className="text-sm font-medium text-slate-900">
-              Email
+              ایمیل
             </label>
             <input
               id={emailId}
@@ -91,7 +91,7 @@ export function LoginPage() {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={passwordId} className="text-sm font-medium text-slate-900">
-              Password
+              رمز عبور
             </label>
             <input
               id={passwordId}
@@ -116,7 +116,7 @@ export function LoginPage() {
             disabled={isSubmitting}
             className="mt-2 rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
           >
-            {isSubmitting ? "Signing in…" : "Sign in"}
+            {isSubmitting ? "در حال ورود…" : "ورود"}
           </button>
         </form>
       </div>

@@ -243,7 +243,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
           });
       onSaved(saved);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
       setIsSaving(false);
     }
     // No `finally` resetting isSaving on success: the dialog is about
@@ -255,7 +255,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="w-full max-w-2xl rounded-lg border border-slate-200 bg-white p-6">
         <h2 className="text-lg font-semibold text-slate-900">
-          {isEdit ? "Edit event" : "New event"}
+          {isEdit ? "ویرایش رویداد" : "رویداد جدید"}
         </h2>
 
         <form
@@ -266,7 +266,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={titleFaId} className="text-sm font-medium text-slate-900">
-                Title (Farsi)
+                عنوان (فارسی)
               </label>
               <input
                 id={titleFaId}
@@ -282,7 +282,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={titleEnId} className="text-sm font-medium text-slate-900">
-                Title (English) <span className="font-normal text-slate-400">— optional</span>
+                عنوان (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={titleEnId}
@@ -297,7 +297,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={slugId} className="text-sm font-medium text-slate-900">
-              Slug
+              نامک
             </label>
             <input
               id={slugId}
@@ -306,13 +306,13 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               disabled={isSaving}
-              placeholder="e.g. spring-open-house"
+              placeholder="مثلاً spring-open-house"
               aria-invalid={trimmedSlug.length > 0 && !slugIsValid}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
             />
             {trimmedSlug.length > 0 && !slugIsValid ? (
               <p className="text-xs text-red-600">
-                Slug must be lowercase kebab-case (e.g. &ldquo;spring-open-house&rdquo;).
+                نامک باید با حروف کوچک انگلیسی و در قالب kebab-case باشد (مثلاً &ldquo;spring-open-house&rdquo;).
               </p>
             ) : null}
           </div>
@@ -320,7 +320,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={startAtId} className="text-sm font-medium text-slate-900">
-                Starts at
+                زمان شروع
               </label>
               <input
                 id={startAtId}
@@ -335,7 +335,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={endAtId} className="text-sm font-medium text-slate-900">
-                Ends at <span className="font-normal text-slate-400">— optional</span>
+                زمان پایان <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={endAtId}
@@ -347,7 +347,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
                 className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
               />
               {!rangeIsValid ? (
-                <p className="text-xs text-red-600">End time cannot be before the start time.</p>
+                <p className="text-xs text-red-600">زمان پایان نمی‌تواند قبل از زمان شروع باشد.</p>
               ) : null}
             </div>
           </div>
@@ -361,13 +361,13 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
               disabled={isSaving}
               className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
             />
-            All-day event
+            رویداد تمام‌روزه
           </label>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={excerptFaId} className="text-sm font-medium text-slate-900">
-                Excerpt (Farsi) <span className="font-normal text-slate-400">— optional</span>
+                خلاصه (فارسی) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <textarea
                 id={excerptFaId}
@@ -382,7 +382,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={excerptEnId} className="text-sm font-medium text-slate-900">
-                Excerpt (English) <span className="font-normal text-slate-400">— optional</span>
+                خلاصه (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <textarea
                 id={excerptEnId}
@@ -397,7 +397,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={bodyFaId} className="text-sm font-medium text-slate-900">
-              Body (Farsi)
+              متن (فارسی)
             </label>
             <textarea
               id={bodyFaId}
@@ -413,7 +413,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={bodyEnId} className="text-sm font-medium text-slate-900">
-              Body (English) <span className="font-normal text-slate-400">— optional</span>
+              متن (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <textarea
               id={bodyEnId}
@@ -428,7 +428,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={categoryId} className="text-sm font-medium text-slate-900">
-                Category <span className="font-normal text-slate-400">— optional</span>
+                دسته‌بندی <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={categoryId}
@@ -443,7 +443,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={tagsId} className="text-sm font-medium text-slate-900">
-                Tags <span className="font-normal text-slate-400">— optional, comma-separated</span>
+                برچسب‌ها <span className="font-normal text-slate-400">— اختیاری، جدا شده با ویرگول</span>
               </label>
               <input
                 id={tagsId}
@@ -460,7 +460,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={locationFaId} className="text-sm font-medium text-slate-900">
-                Location (Farsi) <span className="font-normal text-slate-400">— optional</span>
+                مکان (Farsi) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={locationFaId}
@@ -475,7 +475,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={locationEnId} className="text-sm font-medium text-slate-900">
-                Location (English) <span className="font-normal text-slate-400">— optional</span>
+                مکان (English) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={locationEnId}
@@ -490,7 +490,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={locationUrlId} className="text-sm font-medium text-slate-900">
-              Location URL <span className="font-normal text-slate-400">— optional</span>
+              مکان URL <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <input
               id={locationUrlId}
@@ -512,12 +512,12 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
 
           <fieldset className="flex flex-col gap-4 rounded-md border border-slate-200 p-3">
             <legend className="px-1 text-sm font-medium text-slate-900">
-              SEO <span className="font-normal text-slate-400">— optional</span>
+              SEO <span className="font-normal text-slate-400">— اختیاری</span>
             </legend>
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={metaTitleId} className="text-sm font-medium text-slate-900">
-                Meta title
+                عنوان متا
               </label>
               <input
                 id={metaTitleId}
@@ -531,7 +531,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={metaDescriptionId} className="text-sm font-medium text-slate-900">
-                Meta description
+                توضیحات متا
               </label>
               <textarea
                 id={metaDescriptionId}
@@ -546,7 +546,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor={ogImageUrlId} className="text-sm font-medium text-slate-900">
-                  OG image URL
+                  نشانی تصویر OG
                 </label>
                 <input
                   id={ogImageUrlId}
@@ -561,7 +561,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
 
               <div className="flex flex-col gap-1.5">
                 <label htmlFor={canonicalUrlId} className="text-sm font-medium text-slate-900">
-                  Canonical URL
+                  نشانی یکتا
                 </label>
                 <input
                   id={canonicalUrlId}
@@ -601,14 +601,14 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
               disabled={isSaving}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Cancel
+              انصراف
             </button>
             <button
               type="submit"
               disabled={!canSubmit}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              {isSaving ? "Saving…" : isEdit ? "Save changes" : "Create event"}
+              {isSaving ? "در حال ذخیره…" : isEdit ? "ذخیره تغییرات" : "ایجاد رویداد"}
             </button>
           </div>
         </form>
@@ -634,7 +634,7 @@ export function EventForm({ event, onCancel, onSaved }: EventFormProps) {
 
 /**
  * Optional, clearable featured-image field row — thumbnail preview plus
- * "Choose…"/"Remove" buttons. Same layout as News' `NewsFeaturedImageField`
+ * "انتخاب…"/"حذف" buttons. Same layout as News' `NewsFeaturedImageField`
  * and Hero's `HeroBackgroundField`, but this is its own copy, not an
  * import, since nothing shared between those modules and Events yet
  * justifies promoting it (see `features/cms/components/README.md`).
@@ -655,7 +655,7 @@ function EventFeaturedImageField({
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-sm font-medium text-slate-900">
-        Featured image <span className="font-normal text-slate-400">— optional</span>
+        Featured image <span className="font-normal text-slate-400">— اختیاری</span>
       </span>
       <div className="flex items-center gap-3">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-slate-50">
@@ -668,7 +668,7 @@ function EventFeaturedImageField({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="text-xs text-slate-400">None</span>
+            <span className="text-xs text-slate-400">هیچ‌کدام</span>
           )}
         </div>
         <div className="flex flex-col gap-1.5">
@@ -678,7 +678,7 @@ function EventFeaturedImageField({
             disabled={disabled}
             className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {mediaId ? "Change…" : "Choose…"}
+            {mediaId ? "Change…" : "انتخاب…"}
           </button>
           {mediaId ? (
             <button
@@ -687,7 +687,7 @@ function EventFeaturedImageField({
               disabled={disabled}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Remove
+              حذف
             </button>
           ) : null}
         </div>
@@ -715,13 +715,13 @@ function EventMediaPickerDialog({
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
       <div className="flex max-h-[80vh] w-full max-w-2xl flex-col gap-4 overflow-y-auto rounded-lg border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Choose media</h2>
+          <h2 className="text-lg font-semibold text-slate-900">انتخاب رسانه</h2>
           <button
             type="button"
             onClick={onCancel}
             className="text-sm font-medium text-slate-500 hover:text-slate-900"
           >
-            Close
+            بستن
           </button>
         </div>
 

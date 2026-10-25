@@ -12,7 +12,10 @@ import { SiteService } from '../../core/site/site.service';
 import { MediaService } from '../../core/media/media.service';
 import { RedisService } from '../../core/redis/redis.service';
 import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
-import { WEBSITE_EVENTS, SettingsUpdatedPayload } from '../../core/events/events.constants';
+import {
+  WEBSITE_EVENTS,
+  SettingsUpdatedPayload,
+} from '../../core/events/events.constants';
 
 const ENTITY_TYPE = 'site_settings';
 
@@ -95,7 +98,8 @@ export class SiteSettingsService implements OnModuleInit {
 
     if (dto.siteName !== undefined) settings.siteName = dto.siteName;
     if (dto.tagline !== undefined) settings.tagline = dto.tagline;
-    if (dto.logoMediaId !== undefined) settings.logoMediaId = dto.logoMediaId ?? undefined;
+    if (dto.logoMediaId !== undefined)
+      settings.logoMediaId = dto.logoMediaId ?? undefined;
     if (dto.faviconMediaId !== undefined) {
       settings.faviconMediaId = dto.faviconMediaId ?? undefined;
     }
@@ -111,8 +115,10 @@ export class SiteSettingsService implements OnModuleInit {
 
   async updateContact(dto: UpdateContactSettingsDto): Promise<SiteSettings> {
     const settings = await this.get();
-    if (dto.contactEmail !== undefined) settings.contactEmail = dto.contactEmail;
-    if (dto.contactPhone !== undefined) settings.contactPhone = dto.contactPhone;
+    if (dto.contactEmail !== undefined)
+      settings.contactEmail = dto.contactEmail;
+    if (dto.contactPhone !== undefined)
+      settings.contactPhone = dto.contactPhone;
     if (dto.address !== undefined) settings.address = dto.address;
     if (dto.mapUrl !== undefined) settings.mapUrl = dto.mapUrl;
 

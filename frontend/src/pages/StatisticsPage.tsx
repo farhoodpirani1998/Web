@@ -1,4 +1,4 @@
-import { PageLayout, Stack } from "@/shared/design-system/components";
+import { PageLayout } from "@/shared/design-system/components";
 import { StatisticsHero, StatisticsGrid } from "@/features/statistics";
 
 /**
@@ -29,11 +29,12 @@ import { StatisticsHero, StatisticsGrid } from "@/features/statistics";
  */
 export function StatisticsPage() {
   return (
-    <PageLayout>
-      <Stack gap="none">
-        <StatisticsHero />
+    <>
+      {/* Full-bleed hero band, outside PageLayout (which is a Container). */}
+      <StatisticsHero />
+      <PageLayout>
         <StatisticsGrid />
-      </Stack>
-    </PageLayout>
+      </PageLayout>
+    </>
   );
 }

@@ -7,6 +7,7 @@ describe('FeaturesService', () => {
   let siteService: any;
   let ordering: any;
   let publishing: any;
+  let redis: any;
   let service: FeaturesService;
 
   beforeEach(() => {
@@ -26,7 +27,19 @@ describe('FeaturesService', () => {
     siteService = { getDefaultSiteId: jest.fn().mockReturnValue(siteId) };
     ordering = { reorder: jest.fn() };
     publishing = { transition: jest.fn() };
-    service = new FeaturesService(repo, siteService, ordering, publishing);
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
+    service = new FeaturesService(
+      repo,
+      siteService,
+      ordering,
+      publishing,
+      redis,
+    );
   });
 
   describe('create', () => {
@@ -96,7 +109,10 @@ describe('FeaturesService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      const result = await service.updateStatus('feature-1', PublishStatus.PUBLISHED);
+      const result = await service.updateStatus(
+        'feature-1',
+        PublishStatus.PUBLISHED,
+      );
 
       expect(publishing.transition).toHaveBeenCalledWith({
         from: PublishStatus.DRAFT,

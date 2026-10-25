@@ -57,7 +57,10 @@ export class PreRegistrationsService {
     return this.repo.findOneByOrFail({ id });
   }
 
-  async updateStatus(id: string, status: PreRegistrationStatus): Promise<PreRegistration> {
+  async updateStatus(
+    id: string,
+    status: PreRegistrationStatus,
+  ): Promise<PreRegistration> {
     const preRegistration = await this.findOne(id);
     preRegistration.status = status;
     return this.repo.save(preRegistration);

@@ -44,7 +44,11 @@ export class MediaService {
     if (!file?.buffer?.length) {
       throw new BadRequestException('No file uploaded');
     }
-    if (!ALLOWED_MIME_TYPES.includes(file.mimetype as (typeof ALLOWED_MIME_TYPES)[number])) {
+    if (
+      !ALLOWED_MIME_TYPES.includes(
+        file.mimetype as (typeof ALLOWED_MIME_TYPES)[number],
+      )
+    ) {
       throw new BadRequestException(`Unsupported file type: ${file.mimetype}`);
     }
     if (file.size > MAX_SIZE_BYTES) {
@@ -69,12 +73,22 @@ export class MediaService {
     // already-verified content type — a "payload.jpg" whose bytes are
     // actually a PNG is rejected even though each check would pass on
     // its own.
-    const extension = extname(sanitizeFilename(file.originalname)).toLowerCase();
-    if (!ALLOWED_EXTENSIONS.includes(extension as (typeof ALLOWED_EXTENSIONS)[number])) {
-      throw new BadRequestException(`Unsupported file extension: ${extension || '(none)'}`);
+    const extension = extname(
+      sanitizeFilename(file.originalname),
+    ).toLowerCase();
+    if (
+      !ALLOWED_EXTENSIONS.includes(
+        extension as (typeof ALLOWED_EXTENSIONS)[number],
+      )
+    ) {
+      throw new BadRequestException(
+        `Unsupported file extension: ${extension || '(none)'}`,
+      );
     }
     if (!extensionMatchesMimeType(extension, file.mimetype)) {
-      throw new BadRequestException('File extension does not match its content type');
+      throw new BadRequestException(
+        'File extension does not match its content type',
+      );
     }
 
     const { url, storageKey } = await this.storage.upload(file, 'media');
@@ -104,7 +118,10 @@ export class MediaService {
     if (media.length === 0) return [];
 
     const counts = await this.usageCounts(media.map((item) => item.id));
-    return media.map((item) => ({ ...item, usageCount: counts.get(item.id) ?? 0 }));
+    return media.map((item) => ({
+      ...item,
+      usageCount: counts.get(item.id) ?? 0,
+    }));
   }
 
   async findOne(id: string): Promise<Media> {
@@ -166,7 +183,10 @@ export class MediaService {
   }
 
   async archive(mediaId: string): Promise<void> {
-    await this.mediaRepo.update({ id: mediaId }, { status: MediaStatus.ARCHIVED });
+    await this.mediaRepo.update(
+      { id: mediaId },
+      { status: MediaStatus.ARCHIVED },
+    );
   }
 
   /** Delegates to whichever StorageProvider is configured. Used by /health. */

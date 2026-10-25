@@ -73,7 +73,7 @@ export function FaqPage() {
       setFaqs((current) => current.map((item) => (item.id === updated.id ? updated : item)));
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "خطایی رخ داد. دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingStatusId(null);
@@ -101,7 +101,7 @@ export function FaqPage() {
     } catch (err) {
       setFaqs(previous);
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "خطایی رخ داد. دوباره تلاش کنید.",
       );
     } finally {
       setIsReordering(false);
@@ -110,25 +110,25 @@ export function FaqPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "FAQ" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "پرسش متداول" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="FAQ" />
+            <PageHeader title="پرسش متداول" />
             <Section>
               <EmptyState
-                title="You don't have access to FAQ"
-                description="Viewing FAQs requires the Content permission. Contact an admin if you need access."
+                title="شما به پرسش متداول دسترسی ندارید"
+                description="برای مشاهده پرسش‌های متداول به مجوز محتوا نیاز دارید. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="FAQ"
-          description="Manage the questions and answers shown on the public site."
+          title="پرسش متداول"
+          description="مدیریت پرسش‌ها و پاسخ‌های نمایش‌داده‌شده در سایت عمومی."
         >
           <PermissionGate permission="website.content:write">
             <button
@@ -136,7 +136,7 @@ export function FaqPage() {
               onClick={handleCreate}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
-              New FAQ
+              پرسش متداول جدید
             </button>
           </PermissionGate>
         </PageHeader>

@@ -1,0 +1,150 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Runtime parity: 22 is what every Dockerfile builds and runs on
+  # (`FROM node:22-alpine`), so CI must exercise the same major — Node 20
+  # reached end of life on 2026-04-30.
+  dependencies:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        workspace: [backend, frontend, admin]
+    defaults:
+      run:
+        working-directory: ${{ matrix.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ matrix.workspace }}/package-lock.json
+      - run: npm ci
+      # Full picture for humans, without failing on it …
+      - run: npm audit --omit=dev
+        continue-on-error: true
+      # … and the actual gate: no new critical prod advisory merges.
+      # Known items that stay red-free today (body-parser via express 4,
+      # react-router via v6, file-type via @nestjs/common) each need a
+      # framework major migration; tighten this to `--audit-level=high`
+      # once those migrations land, not before — a permanently red or
+      # permanently-ignored gate tells nobody anything.
+      - run: npm audit --omit=dev --audit-level=critical
+
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: nhg_website_test
+          POSTGRES_USER: nhg_website
+          POSTGRES_PASSWORD: test-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U nhg_website -d nhg_website_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      NODE_ENV: test
+      DATABASE_HOST: 127.0.0.1
+      DATABASE_PORT: 5432
+      DATABASE_NAME: nhg_website_test
+      DATABASE_USER: nhg_website
+      DATABASE_PASSWORD: test-password
+      DATABASE_SYNCHRONIZE: "false"
+      CMS_JWT_SECRET: integration-test-secret-that-is-at-least-32-characters
+      SMS_JWT_PUBLIC_KEY_PATH: ./keys/sms-public-key.pem
+      SMS_JWT_ISSUER: nhg-sms
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+      STORAGE_DRIVER: local
+      LOCAL_STORAGE_PATH: ./test-uploads
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npx eslint "test/**/*.ts" --max-warnings 0
+      - run: npm run build
+      - run: npm test -- --runInBand
+      - run: npm run migration:run
+      - run: npm run test:e2e -- --runInBand
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  admin:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: admin/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t nhg-website-backend:ci ./backend
+      - run: >
+          docker build
+          --build-arg VITE_PUBLIC_API_BASE_URL=https://api.example.com/public
+          -t nhg-website-frontend:ci
+          ./frontend
+      - run: >
+          docker build
+          --build-arg VITE_ADMIN_API_BASE_URL=https://api.example.com/admin
+          -t nhg-website-admin:ci
+          ./admin

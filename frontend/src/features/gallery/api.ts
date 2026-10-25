@@ -54,6 +54,6 @@ function toGalleryItem(dto: PublicGalleryItemDto): GalleryItem {
       alt: dto.image?.altText ?? caption ?? "",
       src: dto.image?.url,
     },
-    description: caption ?? "",
+    description: dto.description?.fa ?? caption ?? "",
   };
 }

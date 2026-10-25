@@ -68,7 +68,7 @@ export function PageRevisionsPanel({ page, onClose, onRestored }: PageRevisionsP
       <div className="flex max-h-[80vh] w-full max-w-lg flex-col gap-4 overflow-y-auto rounded-lg border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">Revision history</h2>
+            <h2 className="text-lg font-semibold text-slate-900">تاریخچه نسخه‌ها</h2>
             <p className="mt-0.5 text-sm text-slate-600" dir="rtl">
               {page.title.fa}
             </p>
@@ -78,7 +78,7 @@ export function PageRevisionsPanel({ page, onClose, onRestored }: PageRevisionsP
             onClick={onClose}
             className="text-sm font-medium text-slate-500 hover:text-slate-900"
           >
-            Close
+            بستن
           </button>
         </div>
 
@@ -89,9 +89,9 @@ export function PageRevisionsPanel({ page, onClose, onRestored }: PageRevisionsP
         ) : null}
 
         {isLoading ? (
-          <p className="py-8 text-center text-sm text-slate-500">Loading revisions…</p>
+          <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری نسخه‌ها…</p>
         ) : revisions.length === 0 ? (
-          <p className="py-8 text-center text-sm text-slate-500">No revisions recorded yet.</p>
+          <p className="py-8 text-center text-sm text-slate-500">هنوز نسخه‌ای ثبت نشده.</p>
         ) : (
           <ul className="flex flex-col divide-y divide-slate-200">
             {revisions.map((revision) => (
@@ -111,7 +111,7 @@ export function PageRevisionsPanel({ page, onClose, onRestored }: PageRevisionsP
                     disabled={restoringVersion !== null}
                     className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {restoringVersion === revision.versionNumber ? "Restoring…" : "Restore"}
+                    {restoringVersion === revision.versionNumber ? "در حال بازیابی…" : "بازیابی"}
                   </button>
                 </PermissionGate>
               </li>

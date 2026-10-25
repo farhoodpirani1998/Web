@@ -33,9 +33,18 @@ describe('MenuItemsService', () => {
     };
     siteService = { getDefaultSiteId: jest.fn().mockReturnValue(siteId) };
     ordering = { reorder: jest.fn() };
-    menusService = { findOne: jest.fn().mockResolvedValue({ id: menuId, siteId }) };
-    pagesService = { findOne: jest.fn().mockResolvedValue({ id: 'page-1', siteId }) };
-    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
+    menusService = {
+      findOne: jest.fn().mockResolvedValue({ id: menuId, siteId }),
+    };
+    pagesService = {
+      findOne: jest.fn().mockResolvedValue({ id: 'page-1', siteId }),
+    };
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
     service = new MenuItemsService(
       menuItemRepo,
       siteService,
@@ -108,7 +117,10 @@ describe('MenuItemsService', () => {
     });
 
     it('rejects a pageId that does not resolve on this site', async () => {
-      pagesService.findOne.mockResolvedValue({ id: 'page-1', siteId: 'other-site' });
+      pagesService.findOne.mockResolvedValue({
+        id: 'page-1',
+        siteId: 'other-site',
+      });
       await expect(
         service.create({
           menuId,
@@ -144,7 +156,10 @@ describe('MenuItemsService', () => {
         url: 'https://example.com',
       });
       // Walking up from the proposed parent leads straight back to item-1.
-      menuItemRepo.findOne.mockResolvedValueOnce({ id: 'item-2', parentId: undefined });
+      menuItemRepo.findOne.mockResolvedValueOnce({
+        id: 'item-2',
+        parentId: undefined,
+      });
 
       await expect(
         service.update('item-1', { parentId: 'item-1' }),
@@ -172,19 +187,24 @@ describe('MenuItemsService', () => {
 
   describe('remove', () => {
     it('rejects deleting an item that still has children', async () => {
-      menuItemRepo.findOneByOrFail.mockResolvedValue({ id: 'item-1', siteId, menuId });
+      menuItemRepo.findOneByOrFail.mockResolvedValue({
+        id: 'item-1',
+        siteId,
+        menuId,
+      });
       menuItemRepo.count.mockResolvedValue(2);
 
-      await expect(service.remove('item-1')).rejects.toBeInstanceOf(ConflictException);
+      await expect(service.remove('item-1')).rejects.toBeInstanceOf(
+        ConflictException,
+      );
     });
   });
 
   describe('reorder', () => {
     it('delegates to OrderingService when orderedIds exactly match the sibling set', async () => {
-      menuItemRepo.createQueryBuilder().getMany.mockResolvedValue([
-        { id: 'a' },
-        { id: 'b' },
-      ]);
+      menuItemRepo
+        .createQueryBuilder()
+        .getMany.mockResolvedValue([{ id: 'a' }, { id: 'b' }]);
 
       await service.reorder(menuId, null, ['b', 'a']);
 
@@ -196,7 +216,9 @@ describe('MenuItemsService', () => {
     });
 
     it('rejects an orderedIds list that does not match the sibling set', async () => {
-      menuItemRepo.createQueryBuilder().getMany.mockResolvedValue([{ id: 'a' }, { id: 'b' }]);
+      menuItemRepo
+        .createQueryBuilder()
+        .getMany.mockResolvedValue([{ id: 'a' }, { id: 'b' }]);
 
       await expect(service.reorder(menuId, null, ['a'])).rejects.toBeInstanceOf(
         BadRequestException,

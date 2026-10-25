@@ -60,7 +60,7 @@ export function NewsList({
   onViewHistory,
 }: NewsListProps) {
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">Loading news articles…</p>;
+    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری اخبار…</p>;
   }
 
   if (error) {
@@ -70,8 +70,8 @@ export function NewsList({
   if (articles.length === 0) {
     return (
       <EmptyState
-        title={status ? `No ${status} news articles` : "No news articles yet"}
-        description="Add an article to get started."
+        title={status ? "موردی با این وضعیت نیست" : "موردی ثبت نشده"}
+        description="برای شروع یک خبر اضافه کنید."
       />
     );
   }
@@ -87,27 +87,27 @@ export function NewsList({
                   checked={isAllSelected}
                   indeterminate={isSelectionIndeterminate}
                   onChange={onToggleSelectAll}
-                  aria-label="Select all news articles"
+                  aria-label="انتخاب همه اخبار"
                 />
               </PermissionGate>
             </th>
             <th scope="col" className="w-16 px-3 py-2 text-left font-medium text-slate-500">
-              <span className="sr-only">Image</span>
+              <span className="sr-only">تصویر</span>
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Title
+              عنوان
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Category
+              دسته‌بندی
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Status
+              وضعیت
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Publish at
+              زمان انتشار
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium text-slate-500">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">اقدامات</span>
             </th>
           </tr>
         </thead>

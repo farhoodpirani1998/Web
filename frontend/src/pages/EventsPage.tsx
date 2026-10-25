@@ -62,14 +62,17 @@ const EVENTS_SEO = {
  */
 export function EventsPage() {
   return (
-    <PageLayout>
+    <>
       <Seo seo={EVENTS_SEO} />
-      <Stack gap="none">
-        <Hero />
-        <EventList />
-        <EventDetails />
-        <FAQ />
-      </Stack>
-    </PageLayout>
+      {/* Full-bleed hero band, outside PageLayout (which is a Container). */}
+      <Hero />
+      <PageLayout>
+        <Stack gap="none">
+          <EventList />
+          <EventDetails />
+          <FAQ />
+        </Stack>
+      </PageLayout>
+    </>
   );
 }

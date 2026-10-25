@@ -14,11 +14,11 @@ import type { CmsPage, CmsPageSeoMetadataInput, CmsPageTemplate } from "./types"
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const TEMPLATE_LABEL: Record<CmsPageTemplate, string> = {
-  default: "Default",
-  full_width: "Full width",
-  landing: "Landing",
-  contact: "Contact",
-  sidebar: "Sidebar",
+  default: "پیش‌فرض",
+  full_width: "تمام‌عرض",
+  landing: "لندینگ",
+  contact: "تماس",
+  sidebar: "نوار کناری",
 };
 
 /**
@@ -184,7 +184,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
           });
       onSaved(saved);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
       setIsSaving(false);
     }
     // No `finally` resetting isSaving on success: the dialog is about
@@ -195,7 +195,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="w-full max-w-2xl rounded-lg border border-slate-200 bg-white p-6">
         <h2 className="text-lg font-semibold text-slate-900">
-          {isEdit ? "Edit page" : "New page"}
+          {isEdit ? "ویرایش صفحه" : "صفحه جدید"}
         </h2>
 
         <form
@@ -206,7 +206,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={titleFaId} className="text-sm font-medium text-slate-900">
-                Title (Farsi)
+                عنوان (فارسی)
               </label>
               <input
                 id={titleFaId}
@@ -222,7 +222,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={titleEnId} className="text-sm font-medium text-slate-900">
-                Title (English) <span className="font-normal text-slate-400">— optional</span>
+                عنوان (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={titleEnId}
@@ -237,7 +237,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={slugId} className="text-sm font-medium text-slate-900">
-              Slug
+              نامک
             </label>
             <input
               id={slugId}
@@ -246,20 +246,20 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
               value={slug}
               onChange={(event) => setSlug(event.target.value)}
               disabled={isSaving}
-              placeholder="e.g. admissions-policy"
+              placeholder="مثلاً admissions-policy"
               aria-invalid={trimmedSlug.length > 0 && !slugIsValid}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
             />
             {trimmedSlug.length > 0 && !slugIsValid ? (
               <p className="text-xs text-red-600">
-                Slug must be lowercase kebab-case (e.g. &ldquo;admissions-policy&rdquo;).
+                نامک باید با حروف کوچک انگلیسی و در قالب kebab-case باشد (مثلاً &ldquo;admissions-policy&rdquo;).
               </p>
             ) : null}
           </div>
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={bodyFaId} className="text-sm font-medium text-slate-900">
-              Body (Farsi)
+              متن (فارسی)
             </label>
             <textarea
               id={bodyFaId}
@@ -275,7 +275,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={bodyEnId} className="text-sm font-medium text-slate-900">
-              Body (English) <span className="font-normal text-slate-400">— optional</span>
+              متن (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <textarea
               id={bodyEnId}
@@ -290,7 +290,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={templateId} className="text-sm font-medium text-slate-900">
-                Template
+                قالب
               </label>
               <select
                 id={templateId}
@@ -309,7 +309,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={parentFieldId} className="text-sm font-medium text-slate-900">
-                Parent page <span className="font-normal text-slate-400">— optional</span>
+                صفحه والد <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <select
                 id={parentFieldId}
@@ -318,7 +318,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
                 disabled={isSaving || isLoadingParentOptions}
                 className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
               >
-                <option value="">None (top-level)</option>
+                <option value="">هیچ‌کدام (سطح بالا)</option>
                 {availableParentOptions.map((option) => (
                   <option key={option.id} value={option.id}>
                     {option.title.fa}
@@ -337,7 +337,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
               disabled={isSaving}
               className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
             />
-            Show in site navigation
+            نمایش در ناوبری سایت
           </label>
 
           <PageFeaturedImageField
@@ -349,12 +349,12 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
 
           <fieldset className="flex flex-col gap-4 rounded-md border border-slate-200 p-3">
             <legend className="px-1 text-sm font-medium text-slate-900">
-              SEO <span className="font-normal text-slate-400">— optional</span>
+              سئو <span className="font-normal text-slate-400">— اختیاری</span>
             </legend>
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={metaTitleId} className="text-sm font-medium text-slate-900">
-                Meta title
+                عنوان متا
               </label>
               <input
                 id={metaTitleId}
@@ -368,7 +368,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={metaDescriptionId} className="text-sm font-medium text-slate-900">
-                Meta description
+                توضیحات متا
               </label>
               <textarea
                 id={metaDescriptionId}
@@ -383,7 +383,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor={ogImageUrlId} className="text-sm font-medium text-slate-900">
-                  OG image URL
+                  نشانی تصویر OG
                 </label>
                 <input
                   id={ogImageUrlId}
@@ -398,7 +398,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
 
               <div className="flex flex-col gap-1.5">
                 <label htmlFor={canonicalUrlId} className="text-sm font-medium text-slate-900">
-                  Canonical URL
+                  نشانی یکتا
                 </label>
                 <input
                   id={canonicalUrlId}
@@ -421,7 +421,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
                 disabled={isSaving}
                 className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
               />
-              Hide from search engines (noindex)
+              پنهان‌سازی از موتورهای جستجو (noindex)
             </label>
           </fieldset>
 
@@ -438,14 +438,14 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
               disabled={isSaving}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Cancel
+              انصراف
             </button>
             <button
               type="submit"
               disabled={!canSubmit}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              {isSaving ? "Saving…" : isEdit ? "Save changes" : "Create page"}
+              {isSaving ? "در حال ذخیره…" : isEdit ? "ذخیره تغییرات" : "ایجاد صفحه"}
             </button>
           </div>
         </form>
@@ -490,7 +490,7 @@ function PageFeaturedImageField({
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-sm font-medium text-slate-900">
-        Featured image <span className="font-normal text-slate-400">— optional</span>
+        تصویر شاخص <span className="font-normal text-slate-400">— اختیاری</span>
       </span>
       <div className="flex items-center gap-3">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-slate-50">
@@ -503,7 +503,7 @@ function PageFeaturedImageField({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="text-xs text-slate-400">None</span>
+            <span className="text-xs text-slate-400">هیچ‌کدام</span>
           )}
         </div>
         <div className="flex flex-col gap-1.5">
@@ -513,7 +513,7 @@ function PageFeaturedImageField({
             disabled={disabled}
             className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {mediaId ? "Change…" : "Choose…"}
+            {mediaId ? "تغییر…" : "انتخاب…"}
           </button>
           {mediaId ? (
             <button
@@ -522,7 +522,7 @@ function PageFeaturedImageField({
               disabled={disabled}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Remove
+              حذف
             </button>
           ) : null}
         </div>
@@ -548,13 +548,13 @@ function PageMediaPickerDialog({
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
       <div className="flex max-h-[80vh] w-full max-w-2xl flex-col gap-4 overflow-y-auto rounded-lg border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Choose media</h2>
+          <h2 className="text-lg font-semibold text-slate-900">انتخاب رسانه</h2>
           <button
             type="button"
             onClick={onCancel}
             className="text-sm font-medium text-slate-500 hover:text-slate-900"
           >
-            Close
+            بستن
           </button>
         </div>
 
@@ -563,7 +563,7 @@ function PageMediaPickerDialog({
           onSelect={onSelect}
           fallback={
             <p className="text-sm text-slate-600">
-              Choosing media requires the Media permission. Contact an admin if you need access.
+              انتخاب رسانه نیازمند دسترسی «رسانه» است. در صورت نیاز به دسترسی با مدیر تماس بگیرید.
             </p>
           }
         />

@@ -21,9 +21,9 @@ const VALID_TRANSITIONS: Record<CmsEventStatus, CmsEventStatus[]> = {
 };
 
 const STATUS_LABEL: Record<CmsEventStatus, string> = {
-  draft: "Draft",
-  published: "Published",
-  archived: "Archived",
+  draft: "پیش‌نویس",
+  published: "منتشرشده",
+  archived: "بایگانی",
 };
 
 const STATUS_BADGE_CLASS: Record<CmsEventStatus, string> = {

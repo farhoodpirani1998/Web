@@ -16,7 +16,7 @@ import type { CmsGalleryItem } from "./types";
  *
  * `imageMediaId` is the only required field, matching
  * `CreateGalleryItemDto` — unlike Site Settings' `logoMediaId`/
- * `faviconMediaId`, there is no "Remove" action for it: per
+ * `faviconMediaId`, there is no "حذف" action for it: per
  * `UpdateGalleryItemDto`'s own comment, the image can be swapped but
  * never cleared, since a gallery item without one isn't a meaningful
  * row (delete the item instead).
@@ -81,7 +81,7 @@ export function GalleryItemForm({ item, onCancel, onSaved }: GalleryItemFormProp
       const saved = isEdit ? await updateGalleryItem(item.id, payload) : await createGalleryItem(payload);
       onSaved(saved);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
       setIsSaving(false);
     }
     // No `finally` resetting isSaving on success: the dialog is about
@@ -93,7 +93,7 @@ export function GalleryItemForm({ item, onCancel, onSaved }: GalleryItemFormProp
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-6">
         <h2 className="text-lg font-semibold text-slate-900">
-          {isEdit ? "Edit gallery item" : "New gallery item"}
+          {isEdit ? "ویرایش تصویر گالری" : "تصویر گالری جدید"}
         </h2>
 
         <form
@@ -109,7 +109,7 @@ export function GalleryItemForm({ item, onCancel, onSaved }: GalleryItemFormProp
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={captionFaId} className="text-sm font-medium text-slate-900">
-              Caption (Farsi) <span className="font-normal text-slate-400">— optional</span>
+              Caption (Farsi) <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <input
               id={captionFaId}
@@ -124,7 +124,7 @@ export function GalleryItemForm({ item, onCancel, onSaved }: GalleryItemFormProp
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={captionEnId} className="text-sm font-medium text-slate-900">
-              Caption (English) <span className="font-normal text-slate-400">— optional</span>
+              Caption (English) <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <input
               id={captionEnId}
@@ -138,7 +138,7 @@ export function GalleryItemForm({ item, onCancel, onSaved }: GalleryItemFormProp
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={categoryId} className="text-sm font-medium text-slate-900">
-              Category <span className="font-normal text-slate-400">— optional</span>
+              دسته‌بندی <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <input
               id={categoryId}
@@ -164,14 +164,14 @@ export function GalleryItemForm({ item, onCancel, onSaved }: GalleryItemFormProp
               disabled={isSaving}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Cancel
+              انصراف
             </button>
             <button
               type="submit"
               disabled={!canSubmit}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              {isSaving ? "Saving…" : isEdit ? "Save changes" : "Create item"}
+              {isSaving ? "در حال ذخیره…" : isEdit ? "ذخیره تغییرات" : "ایجاد آیتم"}
             </button>
           </div>
         </form>
@@ -196,8 +196,8 @@ export function GalleryItemForm({ item, onCancel, onSaved }: GalleryItemFormProp
 }
 
 /**
- * Required-image field row — thumbnail preview plus a "Choose…"
- * button, no "Remove" (see this file's top comment on why). Same
+ * Required-image field row — thumbnail preview plus a "انتخاب…"
+ * button, no "حذف" (see this file's top comment on why). Same
  * layout as Site Settings' `MediaField`, but that component is private
  * to `SettingsForm.tsx`, so this is its own copy rather than an import
  * — nothing shared between the two modules yet justifies promoting it.
@@ -215,7 +215,7 @@ function GalleryImageField({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-sm font-medium text-slate-900">Image</span>
+      <span className="text-sm font-medium text-slate-900">تصویر</span>
       <div className="flex items-center gap-3">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-slate-50">
           {mediaId && isLoading ? (
@@ -227,7 +227,7 @@ function GalleryImageField({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="text-xs text-slate-400">None</span>
+            <span className="text-xs text-slate-400">هیچ‌کدام</span>
           )}
         </div>
         <button
@@ -236,7 +236,7 @@ function GalleryImageField({
           disabled={disabled}
           className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {mediaId ? "Change…" : "Choose…"}
+          {mediaId ? "Change…" : "انتخاب…"}
         </button>
       </div>
     </div>
@@ -264,13 +264,13 @@ function GalleryMediaPickerDialog({
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
       <div className="flex max-h-[80vh] w-full max-w-2xl flex-col gap-4 overflow-y-auto rounded-lg border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Choose media</h2>
+          <h2 className="text-lg font-semibold text-slate-900">انتخاب رسانه</h2>
           <button
             type="button"
             onClick={onCancel}
             className="text-sm font-medium text-slate-500 hover:text-slate-900"
           >
-            Close
+            بستن
           </button>
         </div>
 

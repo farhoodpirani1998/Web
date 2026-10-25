@@ -9,6 +9,8 @@ import { OrderingService } from '../../core/ordering/ordering.service';
 import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 
 const ENTITY_TYPE = 'gallery_item';
 
@@ -21,6 +23,7 @@ export class GalleryService {
     private readonly ordering: OrderingService,
     private readonly publishing: PublishingService,
     private readonly media: MediaService,
+    private readonly redis: RedisService,
   ) {}
 
   async create(dto: CreateGalleryItemDto): Promise<GalleryItem> {
@@ -36,6 +39,7 @@ export class GalleryService {
         siteId,
         imageMediaId: dto.imageMediaId,
         caption: dto.caption,
+        description: dto.description,
         category: dto.category,
         position: (maxPosition?.max ?? -1) + 1,
         status: PublishStatus.DRAFT,
@@ -45,6 +49,7 @@ export class GalleryService {
     // Unlike Testimonial's avatar, imageMediaId is required — attach
     // unconditionally rather than guarding on presence.
     await this.media.attach(item.imageMediaId, ENTITY_TYPE, item.id);
+    await this.invalidatePublicCache();
     return item;
   }
 
@@ -66,17 +71,22 @@ export class GalleryService {
 
     if (dto.imageMediaId !== undefined) item.imageMediaId = dto.imageMediaId;
     if (dto.caption !== undefined) item.caption = dto.caption;
+    if (dto.description !== undefined) item.description = dto.description;
     if (dto.category !== undefined) item.category = dto.category;
 
     const saved = await this.galleryRepo.save(item);
 
     // Keep MediaUsage in sync only when the image actually changed —
     // avoids redundant attach/detach churn on every unrelated field edit.
-    if (dto.imageMediaId !== undefined && dto.imageMediaId !== previousImageMediaId) {
+    if (
+      dto.imageMediaId !== undefined &&
+      dto.imageMediaId !== previousImageMediaId
+    ) {
       await this.media.detach(previousImageMediaId, ENTITY_TYPE, saved.id);
       await this.media.attach(saved.imageMediaId, ENTITY_TYPE, saved.id);
     }
 
+    await this.invalidatePublicCache();
     return saved;
   }
 
@@ -84,6 +94,7 @@ export class GalleryService {
     const item = await this.findOne(id);
     await this.media.detach(item.imageMediaId, ENTITY_TYPE, item.id);
     await this.galleryRepo.delete({ id });
+    await this.invalidatePublicCache();
   }
 
   async updateStatus(id: string, to: PublishStatus): Promise<GalleryItem> {
@@ -96,10 +107,24 @@ export class GalleryService {
       siteId: item.siteId,
     });
     item.status = to;
-    return this.galleryRepo.save(item);
+    const saved = await this.galleryRepo.save(item);
+    await this.invalidatePublicCache();
+    return saved;
   }
 
   async reorder(orderedIds: string[]): Promise<void> {
-    await this.ordering.reorder(this.galleryRepo.manager, 'gallery_items', orderedIds);
+    await this.ordering.reorder(
+      this.galleryRepo.manager,
+      'gallery_items',
+      orderedIds,
+    );
+    await this.invalidatePublicCache();
+  }
+
+  /** Clears every cached variant of this module's public list after a write. */
+  private async invalidatePublicCache(): Promise<void> {
+    await this.redis.deleteByPrefix(
+      `${buildPublicCacheKey('gallery', 'list')}:`,
+    );
   }
 }

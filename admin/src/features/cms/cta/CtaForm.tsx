@@ -142,7 +142,7 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
       onSaved(saved);
       resetBaseline();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
     } finally {
       setIsSaving(false);
     }
@@ -152,7 +152,7 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
     <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
       <div className="flex flex-col gap-1.5">
         <label htmlFor={titleFaId} className="text-sm font-medium text-slate-900">
-          Title (Farsi)
+          عنوان (فارسی)
         </label>
         <input
           id={titleFaId}
@@ -168,7 +168,7 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={titleEnId} className="text-sm font-medium text-slate-900">
-          Title (English) <span className="font-normal text-slate-400">— optional</span>
+          عنوان (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
         </label>
         <input
           id={titleEnId}
@@ -182,7 +182,7 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={descriptionFaId} className="text-sm font-medium text-slate-900">
-          Description (Farsi) <span className="font-normal text-slate-400">— optional</span>
+          توضیحات (فارسی) <span className="font-normal text-slate-400">— اختیاری</span>
         </label>
         <textarea
           id={descriptionFaId}
@@ -197,7 +197,7 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={descriptionEnId} className="text-sm font-medium text-slate-900">
-          Description (English) <span className="font-normal text-slate-400">— optional</span>
+          توضیحات (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
         </label>
         <textarea
           id={descriptionEnId}
@@ -210,11 +210,11 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
       </div>
 
       <fieldset className="flex flex-col gap-4 rounded-md border border-slate-200 p-3">
-        <legend className="px-1 text-sm font-medium text-slate-900">Primary button</legend>
+        <legend className="px-1 text-sm font-medium text-slate-900">دکمه اصلی</legend>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor={primaryLabelFaId} className="text-sm font-medium text-slate-900">
-            Label (Farsi)
+            برچسب (فارسی)
           </label>
           <input
             id={primaryLabelFaId}
@@ -230,7 +230,7 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor={primaryLabelEnId} className="text-sm font-medium text-slate-900">
-            Label (English) <span className="font-normal text-slate-400">— optional</span>
+            برچسب (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
           </label>
           <input
             id={primaryLabelEnId}
@@ -244,7 +244,7 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor={primaryUrlId} className="text-sm font-medium text-slate-900">
-            URL
+            نشانی
           </label>
           <input
             id={primaryUrlId}
@@ -253,7 +253,7 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
             value={primaryUrl}
             onChange={(event) => setPrimaryUrl(event.target.value)}
             disabled={isSaving}
-            placeholder="/enroll or https://…"
+            placeholder="/enroll یا https://…"
             className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
           />
         </div>
@@ -261,12 +261,12 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
 
       <fieldset className="flex flex-col gap-4 rounded-md border border-slate-200 p-3">
         <legend className="px-1 text-sm font-medium text-slate-900">
-          Secondary button <span className="font-normal text-slate-400">— optional</span>
+          دکمه فرعی <span className="font-normal text-slate-400">— اختیاری</span>
         </legend>
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor={secondaryLabelFaId} className="text-sm font-medium text-slate-900">
-            Label (Farsi)
+            برچسب (فارسی)
           </label>
           <input
             id={secondaryLabelFaId}
@@ -281,7 +281,7 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor={secondaryLabelEnId} className="text-sm font-medium text-slate-900">
-            Label (English) <span className="font-normal text-slate-400">— optional</span>
+            برچسب (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
           </label>
           <input
             id={secondaryLabelEnId}
@@ -295,7 +295,7 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor={secondaryUrlId} className="text-sm font-medium text-slate-900">
-            URL
+            نشانی
           </label>
           <input
             id={secondaryUrlId}
@@ -303,13 +303,13 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
             value={secondaryUrl}
             onChange={(event) => setSecondaryUrl(event.target.value)}
             disabled={isSaving}
-            placeholder="/about or https://…"
+            placeholder="/about یا https://…"
             className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
           />
         </div>
 
         <p className="text-xs text-slate-400">
-          Leave both label and URL blank to remove the secondary button.
+          برای حذف دکمه فرعی، برچسب و نشانی را خالی بگذارید.
         </p>
       </fieldset>
 
@@ -333,7 +333,7 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
             disabled={!canSubmit}
             className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
           >
-            {isSaving ? "Saving…" : "Save changes"}
+            {isSaving ? "در حال ذخیره…" : "ذخیره تغییرات"}
           </button>
         </PermissionGate>
       </div>
@@ -358,7 +358,7 @@ export function CtaForm({ cta, onSaved }: CtaFormProps) {
 
 /**
  * Optional, clearable background image field row — thumbnail preview
- * plus "Choose…"/"Remove" buttons. Same layout as `AboutForm`'s
+ * plus "انتخاب…"/"حذف" buttons. Same layout as `AboutForm`'s
  * `AboutImageField`, but this is its own copy, not an import, since
  * nothing shared between those modules and CTA yet justifies promoting
  * it (see `features/cms/components/README.md`).
@@ -379,7 +379,7 @@ function CtaBackgroundImageField({
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-sm font-medium text-slate-900">
-        Background image <span className="font-normal text-slate-400">— optional</span>
+        تصویر پس‌زمینه <span className="font-normal text-slate-400">— اختیاری</span>
       </span>
       <div className="flex items-center gap-3">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-slate-50">
@@ -392,7 +392,7 @@ function CtaBackgroundImageField({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="text-xs text-slate-400">None</span>
+            <span className="text-xs text-slate-400">هیچ‌کدام</span>
           )}
         </div>
         <div className="flex flex-col gap-1.5">
@@ -402,7 +402,7 @@ function CtaBackgroundImageField({
             disabled={disabled}
             className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {mediaId ? "Change…" : "Choose…"}
+            {mediaId ? "تغییر…" : "انتخاب…"}
           </button>
           {mediaId ? (
             <button
@@ -411,7 +411,7 @@ function CtaBackgroundImageField({
               disabled={disabled}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Remove
+              حذف
             </button>
           ) : null}
         </div>
@@ -439,13 +439,13 @@ function CtaMediaPickerDialog({
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
       <div className="flex max-h-[80vh] w-full max-w-2xl flex-col gap-4 overflow-y-auto rounded-lg border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Choose media</h2>
+          <h2 className="text-lg font-semibold text-slate-900">انتخاب رسانه</h2>
           <button
             type="button"
             onClick={onCancel}
             className="text-sm font-medium text-slate-500 hover:text-slate-900"
           >
-            Close
+            بستن
           </button>
         </div>
 
@@ -454,7 +454,7 @@ function CtaMediaPickerDialog({
           onSelect={onSelect}
           fallback={
             <p className="text-sm text-slate-600">
-              Choosing media requires the Media permission. Contact an admin if you need access.
+              انتخاب رسانه نیازمند دسترسی رسانه است. اگر به دسترسی نیاز دارید با مدیر تماس بگیرید.
             </p>
           }
         />

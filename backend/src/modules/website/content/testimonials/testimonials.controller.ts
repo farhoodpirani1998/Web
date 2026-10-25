@@ -52,7 +52,10 @@ export class TestimonialsController {
 
   @Patch(':id')
   @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateTestimonialDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateTestimonialDto,
+  ) {
     return this.testimonialsService.update(id, dto);
   }
 

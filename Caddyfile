@@ -1,14 +1,41 @@
-﻿{$SITE_DOMAIN} {
-  encode zstd gzip
-  reverse_proxy frontend:80
+# Security headers for the two static SPAs. The API site deliberately gets
+# none of these: NestJS already emits helmet + HSTS, and setting them here too
+# would send browsers two conflicting Strict-Transport-Security values.
+#
+# includeSubDomains assumes every subdomain of SITE_DOMAIN is HTTPS-only.
+# If you ever serve a plain-HTTP subdomain, drop it before deploying.
+(sec_headers) {
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+	header X-Content-Type-Options "nosniff"
+	header X-Frame-Options "DENY"
+	header Referrer-Policy "strict-origin-when-cross-origin"
+	header Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=()"
+	header Cross-Origin-Opener-Policy "same-origin"
+}
+
+# style-src needs 'unsafe-inline' because React sets inline style attributes.
+# No inline <script> exists in the Vite output, so script-src stays strict.
+# Connect-src must name API_DOMAIN: the SPAs are served from a different
+# origin than the API, so 'self' alone breaks every request.
+(spa_csp) {
+	header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://{$API_DOMAIN}; form-action 'self'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
+}
+
+{$SITE_DOMAIN} {
+	import sec_headers
+	import spa_csp
+	encode zstd gzip
+	reverse_proxy frontend:80
 }
 
 {$ADMIN_DOMAIN} {
-  encode zstd gzip
-  reverse_proxy admin:80
+	import sec_headers
+	import spa_csp
+	encode zstd gzip
+	reverse_proxy admin:80
 }
 
 {$API_DOMAIN} {
-  encode zstd gzip
-  reverse_proxy backend:3100
+	encode zstd gzip
+	reverse_proxy backend:3100
 }

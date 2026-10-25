@@ -1,5 +1,7 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayUnique,
+  IsArray,
   IsEmail,
   IsOptional,
   IsString,
@@ -58,6 +60,12 @@ export class CreateTeacherDto {
   @IsOptional()
   @IsEmail()
   email?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsString({ each: true })
+  specialties?: string[];
 
   @IsOptional()
   @IsUUID()

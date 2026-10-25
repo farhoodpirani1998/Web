@@ -219,7 +219,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
           });
       onSaved(saved);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
       setIsSaving(false);
     }
     // No `finally` resetting isSaving on success: the dialog is about
@@ -231,7 +231,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="w-full max-w-2xl rounded-lg border border-slate-200 bg-white p-6">
         <h2 className="text-lg font-semibold text-slate-900">
-          {isEdit ? "Edit teacher" : "New teacher"}
+          {isEdit ? "ویرایش استاد" : "استاد جدید"}
         </h2>
 
         <form
@@ -242,7 +242,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={fullNameId} className="text-sm font-medium text-slate-900">
-                Full name
+                نام کامل
               </label>
               <input
                 id={fullNameId}
@@ -257,7 +257,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={slugId} className="text-sm font-medium text-slate-900">
-                Slug
+                نامک
               </label>
               <input
                 id={slugId}
@@ -272,7 +272,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
               />
               {trimmedSlug.length > 0 && !slugIsValid ? (
                 <p className="text-xs text-red-600">
-                  Slug must be lowercase kebab-case (e.g. &ldquo;jane-smith&rdquo;).
+                  نامک باید be lowercase kebab-case (e.g. &ldquo;jane-smith&rdquo;).
                 </p>
               ) : null}
             </div>
@@ -297,7 +297,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={jobTitleEnId} className="text-sm font-medium text-slate-900">
-                Job title (English) <span className="font-normal text-slate-400">— optional</span>
+                Job title (English) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={jobTitleEnId}
@@ -313,7 +313,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={departmentFaId} className="text-sm font-medium text-slate-900">
-                Department (Farsi) <span className="font-normal text-slate-400">— optional</span>
+                Department (Farsi) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={departmentFaId}
@@ -328,7 +328,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={departmentEnId} className="text-sm font-medium text-slate-900">
-                Department (English) <span className="font-normal text-slate-400">— optional</span>
+                Department (English) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={departmentEnId}
@@ -344,7 +344,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={excerptFaId} className="text-sm font-medium text-slate-900">
-                Excerpt (Farsi) <span className="font-normal text-slate-400">— optional</span>
+                Excerpt (Farsi) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <textarea
                 id={excerptFaId}
@@ -359,7 +359,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={excerptEnId} className="text-sm font-medium text-slate-900">
-                Excerpt (English) <span className="font-normal text-slate-400">— optional</span>
+                Excerpt (English) <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <textarea
                 id={excerptEnId}
@@ -390,7 +390,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={bioEnId} className="text-sm font-medium text-slate-900">
-              Bio (English) <span className="font-normal text-slate-400">— optional</span>
+              Bio (English) <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <textarea
               id={bioEnId}
@@ -405,7 +405,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor={phoneId} className="text-sm font-medium text-slate-900">
-                Phone <span className="font-normal text-slate-400">— optional</span>
+                تلفن <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={phoneId}
@@ -419,7 +419,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={emailId} className="text-sm font-medium text-slate-900">
-                Email <span className="font-normal text-slate-400">— optional</span>
+                ایمیل <span className="font-normal text-slate-400">— اختیاری</span>
               </label>
               <input
                 id={emailId}
@@ -434,7 +434,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={campusIdFieldId} className="text-sm font-medium text-slate-900">
-              Campus ID <span className="font-normal text-slate-400">— optional, UUID</span>
+              Campus ID <span className="font-normal text-slate-400">— اختیاری، UUID</span>
             </label>
             <input
               id={campusIdFieldId}
@@ -456,12 +456,12 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
 
           <fieldset className="flex flex-col gap-4 rounded-md border border-slate-200 p-3">
             <legend className="px-1 text-sm font-medium text-slate-900">
-              SEO <span className="font-normal text-slate-400">— optional</span>
+              SEO <span className="font-normal text-slate-400">— اختیاری</span>
             </legend>
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={metaTitleId} className="text-sm font-medium text-slate-900">
-                Meta title
+                عنوان متا
               </label>
               <input
                 id={metaTitleId}
@@ -475,7 +475,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor={metaDescriptionId} className="text-sm font-medium text-slate-900">
-                Meta description
+                توضیحات متا
               </label>
               <textarea
                 id={metaDescriptionId}
@@ -490,7 +490,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor={ogImageUrlId} className="text-sm font-medium text-slate-900">
-                  OG image URL
+                  نشانی تصویر OG
                 </label>
                 <input
                   id={ogImageUrlId}
@@ -505,7 +505,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
 
               <div className="flex flex-col gap-1.5">
                 <label htmlFor={canonicalUrlId} className="text-sm font-medium text-slate-900">
-                  Canonical URL
+                  نشانی یکتا
                 </label>
                 <input
                   id={canonicalUrlId}
@@ -545,14 +545,14 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
               disabled={isSaving}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Cancel
+              انصراف
             </button>
             <button
               type="submit"
               disabled={!canSubmit}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              {isSaving ? "Saving…" : isEdit ? "Save changes" : "Create teacher"}
+              {isSaving ? "در حال ذخیره…" : isEdit ? "ذخیره تغییرات" : "ایجاد استاد"}
             </button>
           </div>
         </form>
@@ -578,7 +578,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
 
 /**
  * Optional, clearable avatar field row — thumbnail preview plus
- * "Choose…"/"Remove" buttons. Same layout as Events'
+ * "انتخاب…"/"حذف" buttons. Same layout as Events'
  * `EventFeaturedImageField`, but this is its own copy, not an import,
  * since nothing shared between those modules and Teachers yet
  * justifies promoting it (see `features/cms/components/README.md`).
@@ -599,7 +599,7 @@ function TeacherAvatarField({
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-sm font-medium text-slate-900">
-        Avatar <span className="font-normal text-slate-400">— optional</span>
+        Avatar <span className="font-normal text-slate-400">— اختیاری</span>
       </span>
       <div className="flex items-center gap-3">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-50">
@@ -612,7 +612,7 @@ function TeacherAvatarField({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="text-xs text-slate-400">None</span>
+            <span className="text-xs text-slate-400">هیچ‌کدام</span>
           )}
         </div>
         <div className="flex flex-col gap-1.5">
@@ -622,7 +622,7 @@ function TeacherAvatarField({
             disabled={disabled}
             className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {mediaId ? "Change…" : "Choose…"}
+            {mediaId ? "Change…" : "انتخاب…"}
           </button>
           {mediaId ? (
             <button
@@ -631,7 +631,7 @@ function TeacherAvatarField({
               disabled={disabled}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Remove
+              حذف
             </button>
           ) : null}
         </div>
@@ -659,13 +659,13 @@ function TeacherMediaPickerDialog({
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
       <div className="flex max-h-[80vh] w-full max-w-2xl flex-col gap-4 overflow-y-auto rounded-lg border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Choose media</h2>
+          <h2 className="text-lg font-semibold text-slate-900">انتخاب رسانه</h2>
           <button
             type="button"
             onClick={onCancel}
             className="text-sm font-medium text-slate-500 hover:text-slate-900"
           >
-            Close
+            بستن
           </button>
         </div>
 

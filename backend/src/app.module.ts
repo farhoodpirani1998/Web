@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { WebsiteModule } from './modules/website/website.module';
+import { CmsRouteDefaultDenyGuard } from './modules/website/identity/auth/cms-route-default-deny.guard';
 import { resolveDatabaseSynchronize } from './config/database-synchronize.config';
 import { validateEnvironment } from './config/env-validation.config';
 
@@ -51,6 +52,11 @@ import { validateEnvironment } from './config/env-validation.config';
     }),
     WebsiteModule,
   ],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  // Order matters: the throttler runs first so an undeclared route is
+  // rate-limited like everything else before the deny guard rejects it.
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: CmsRouteDefaultDenyGuard },
+  ],
 })
 export class AppModule {}

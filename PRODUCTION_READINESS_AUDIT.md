@@ -26,6 +26,40 @@
   earlier `.env` exposure finding as unresolved until checked in the actual
   Git checkout; rotate any credentials that may have been exposed.
 
+### Re-audit status - 2026-10-21
+
+This checkout is a Git repository. Current tracked-file checks found no
+`backend/.env`, root `.env`, `frontend/.env`, or `admin/.env` among the
+checked paths. The tracked `backend/keys/sms-public-key.pem` is a local
+placeholder public key, not a production key. A complete historical secret
+scan was not performed; rotate any credential known to have been exposed.
+
+Several blockers listed in the historical sections below have since been
+addressed: Dockerfiles, Compose and Caddy deployment configuration exist;
+the public content API exists; and the frontend, admin, and backend builds
+pass in the current checkout. The backend has 33 unit-test suites (251 tests).
+GitHub Actions is configured to run builds, tests, migrations, and a backend
+integration health check against PostgreSQL and Redis services. PostgreSQL backup,
+isolated restore-verification, new-database restore, and deployment smoke-test
+procedures are documented in `docs/DEPLOYMENT.md`.
+
+This re-audit did not deploy to staging/production or run the integration
+test against real PostgreSQL/Redis services; the first CI run remains pending.
+The full existing backend and frontend ESLint
+baselines currently fail, so full-project lint is not yet a required CI
+check; CI lints the new backend integration test and the admin project.
+
+### Follow-up status — 2026-10-22
+
+Operational go-live gaps below are now encoded in the repo (they still
+need to be *executed* on a real staging host):
+
+- Staging bring-up, migrations, and first Super Admin: `ops/staging-bootstrap.sh`
+- Tagged Compose images (`RELEASE_TAG`) and rollback: `ops/record-release.sh`, `ops/rollback.sh`
+- Smoke test covers TLS URLs, CORS preflight, health/HSTS, public API, login/refresh, CMS permissions, and upload: `ops/smoke-test.mjs`
+- CI builds backend/frontend/admin images and runs integration tests for health, public API, auth/refresh, permissions, upload, and migration history
+- Production startup requires `SENTRY_DSN`; Compose emits JSON logs. Alert and log-retention steps are in `docs/DEPLOYMENT.md`
+
 ---
 
 ## ðŸ”´ CRITICAL BLOCKERS FOR PRODUCTION
@@ -85,7 +119,8 @@ and 'TypographyVariants'. Named property 'color' of types are incompatible.
 **Severity**: CRITICAL | **Impact**: Exposed credentials, leaked secrets in repository
 
 **Previously reported issues (current Git status unverified)**:
-- `backend/.env` is checked into Git (contains password="2448" for DATABASE_PASSWORD and JWT secrets)
+- `backend/.env` was previously reported as committed. Re-verified 2026-10-25 against the full history (`git log --all --name-only`): **no `.env` file is tracked in any commit** — the root and backend `.gitignore` rules exclude it. The credential it held is still treated as disclosed, because its literal value was written into this document, and this document is pushed to the public remote. Rotate it.
+- The `DATABASE_PASSWORD` value that used to be printed on this line has been redacted; it must not be restored. Regenerate the password and keep the value out of any tracked file.
 - `backend/keys/sms-public-key.pem` is a locally-generated placeholder, not production key
 
 **Required Action** (URGENT):
@@ -556,4 +591,3 @@ Fix this before any deployment attempt. Should take 1-2 hours.
 **Generated**: 2024-10-06  
 **Scope**: Entire Web-main monorepo (frontend, admin, backend)  
 **Conclusion**: Backend architecture is production-grade. Frontend + Admin scaffolding complete. Ready for staging in 1-2 weeks; full production readiness in 4-6 weeks.
-

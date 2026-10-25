@@ -84,7 +84,7 @@ export function PortalLinkForm({ link, onCancel, onSaved }: PortalLinkFormProps)
         : await createPortalLink(payload);
       onSaved(saved);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
       setIsSaving(false);
     }
     // No `finally` resetting isSaving on success: the dialog is about
@@ -96,13 +96,13 @@ export function PortalLinkForm({ link, onCancel, onSaved }: PortalLinkFormProps)
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-6">
         <h2 className="text-lg font-semibold text-slate-900">
-          {isEdit ? "Edit portal link" : "New portal link"}
+          {isEdit ? "ویرایش لینک سامانه" : "لینک سامانه جدید"}
         </h2>
 
         <form className="mt-4 flex max-h-[70vh] flex-col gap-4 overflow-y-auto" onSubmit={handleSubmit} noValidate>
           <div className="flex flex-col gap-1.5">
             <label htmlFor={labelFaId} className="text-sm font-medium text-slate-900">
-              Label (Farsi)
+              برچسب (Farsi)
             </label>
             <input
               id={labelFaId}
@@ -118,7 +118,7 @@ export function PortalLinkForm({ link, onCancel, onSaved }: PortalLinkFormProps)
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={labelEnId} className="text-sm font-medium text-slate-900">
-              Label (English) <span className="font-normal text-slate-400">— optional</span>
+              برچسب (English) <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <input
               id={labelEnId}
@@ -132,7 +132,7 @@ export function PortalLinkForm({ link, onCancel, onSaved }: PortalLinkFormProps)
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={urlId} className="text-sm font-medium text-slate-900">
-              URL
+              نشانی
             </label>
             <input
               id={urlId}
@@ -148,7 +148,7 @@ export function PortalLinkForm({ link, onCancel, onSaved }: PortalLinkFormProps)
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor={iconId} className="text-sm font-medium text-slate-900">
-              Icon <span className="font-normal text-slate-400">— optional</span>
+              آیکون <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <input
               id={iconId}
@@ -156,7 +156,7 @@ export function PortalLinkForm({ link, onCancel, onSaved }: PortalLinkFormProps)
               value={icon}
               onChange={(event) => setIcon(event.target.value)}
               disabled={isSaving}
-              placeholder="e.g. graduation-cap"
+              placeholder="مثلاً graduation-cap"
               className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
             />
           </div>
@@ -171,7 +171,7 @@ export function PortalLinkForm({ link, onCancel, onSaved }: PortalLinkFormProps)
               className="h-4 w-4 rounded border-slate-300"
             />
             <label htmlFor={visibleId} className="text-sm font-medium text-slate-900">
-              Visible on the public site
+              نمایش در سایت
             </label>
           </div>
 
@@ -188,14 +188,14 @@ export function PortalLinkForm({ link, onCancel, onSaved }: PortalLinkFormProps)
               disabled={isSaving}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Cancel
+              انصراف
             </button>
             <button
               type="submit"
               disabled={!canSubmit}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              {isSaving ? "Saving…" : isEdit ? "Save changes" : "Create link"}
+              {isSaving ? "در حال ذخیره…" : isEdit ? "ذخیره تغییرات" : "ایجاد پیوند"}
             </button>
           </div>
         </form>

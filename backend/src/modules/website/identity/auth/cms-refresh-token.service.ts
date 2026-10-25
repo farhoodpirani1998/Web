@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CmsRefreshToken } from './entities/cms-refresh-token.entity';
-import { generateRefreshToken, hashRefreshToken } from './refresh-token-hash.util';
+import {
+  generateRefreshToken,
+  hashRefreshToken,
+} from './refresh-token-hash.util';
 
 export interface IssuedRefreshToken {
   /** Raw token — hand this to the client (cookie) and never persist it as-is. */
@@ -87,7 +90,10 @@ export class CmsRefreshTokenService {
    * "revoked" — the controller maps every rejection to the same generic
    * 401, so there's nothing a caller needs to branch on here.
    */
-  async rotate(rawToken: string, ttlMs: number): Promise<{ adminId: string; issued: IssuedRefreshToken } | null> {
+  async rotate(
+    rawToken: string,
+    ttlMs: number,
+  ): Promise<{ adminId: string; issued: IssuedRefreshToken } | null> {
     const tokenHash = hashRefreshToken(rawToken);
 
     const claim = await this.repo
@@ -120,7 +126,10 @@ export class CmsRefreshTokenService {
     const adminId = claimed!.adminId;
 
     const issued = await this.issue(adminId, ttlMs);
-    await this.repo.update({ tokenHash }, { replacedByTokenHash: hashRefreshToken(issued.rawToken) });
+    await this.repo.update(
+      { tokenHash },
+      { replacedByTokenHash: hashRefreshToken(issued.rawToken) },
+    );
 
     return { adminId, issued };
   }
@@ -131,7 +140,9 @@ export class CmsRefreshTokenService {
       .createQueryBuilder()
       .update(CmsRefreshToken)
       .set({ revokedAt: new Date() })
-      .where('"tokenHash" = :tokenHash', { tokenHash: hashRefreshToken(rawToken) })
+      .where('"tokenHash" = :tokenHash', {
+        tokenHash: hashRefreshToken(rawToken),
+      })
       .andWhere('"revokedAt" IS NULL')
       .execute();
   }

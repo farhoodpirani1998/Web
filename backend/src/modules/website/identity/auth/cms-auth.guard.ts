@@ -53,7 +53,8 @@ export class CmsAuthGuard implements CanActivate {
     private readonly config: ConfigService,
   ) {
     this.secret = this.config.getOrThrow<string>('CMS_JWT_SECRET');
-    this.expectedIssuer = this.config.get<string>('CMS_JWT_ISSUER') ?? 'nhg-cms';
+    this.expectedIssuer =
+      this.config.get<string>('CMS_JWT_ISSUER') ?? 'nhg-cms';
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -86,8 +87,11 @@ export class CmsAuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid or expired token');
     }
 
-    request.user = { id: payload.sub, email: payload.email, role: payload.role };
+    request.user = {
+      id: payload.sub,
+      email: payload.email,
+      role: payload.role,
+    };
     return true;
   }
 }
-

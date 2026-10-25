@@ -48,16 +48,20 @@ import {
  */
 export function AdmissionsPage() {
   return (
-    <PageLayout>
-      <Stack gap="none">
-        <Hero />
-        <AdmissionSteps />
-        <Requirements />
-        <RequiredDocuments />
-        <TuitionOverview />
-        <FAQ />
-        <CTA />
-      </Stack>
-    </PageLayout>
+    <>
+      {/* Hero and CTA are full-bleed bands, outside PageLayout (which is a
+          Container); each opens its own Container internally. */}
+      <Hero />
+      <PageLayout>
+        <Stack gap="none">
+          <AdmissionSteps />
+          <Requirements />
+          <RequiredDocuments />
+          <TuitionOverview />
+          <FAQ />
+        </Stack>
+      </PageLayout>
+      <CTA />
+    </>
   );
 }

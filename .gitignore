@@ -7,3 +7,15 @@
 # Local certificates and generated runtime data
 certs/
 caddy-data/
+backups/
+
+# Editor/agent-local settings. settings.local.json currently holds plaintext
+# admin credentials and PGPASSWORD values; it was only ever excluded by the
+# committing user's global core.excludesFile, so a fresh clone tracked it.
+.claude/
+
+# Runtime logs and incremental-build metadata: neither is a source of truth,
+# both disclose host paths and internal network addresses.
+logs/
+*.log
+*.tsbuildinfo

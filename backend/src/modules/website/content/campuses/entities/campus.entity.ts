@@ -76,6 +76,17 @@ export class Campus extends BaseSiteScopedEntity {
   @Column({ nullable: true })
   email?: string;
 
+  // Short geographic label ("تهران، مرکز شهر") — translatable prose,
+  // same reasoning as `address`.
+  @Column({ type: 'jsonb', nullable: true })
+  area?: Translatable<string>;
+
+  // Amenities/features list ("کتابخانه", "سالن ورزشی", ...). A native
+  // Postgres text array, matching News.tags — these are short labels,
+  // not translatable prose.
+  @Column({ type: 'text', array: true, nullable: true })
+  features?: string[];
+
   // Manual admin ordering — see class comment. Indexed since it's the
   // primary sort key for both admin and public listings.
   @Index()

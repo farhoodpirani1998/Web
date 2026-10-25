@@ -16,7 +16,9 @@ export class SiteService implements OnModuleInit {
 
   /** Seeds the "main" site row if it doesn't exist yet, and caches its id. */
   async onModuleInit() {
-    let site = await this.siteRepo.findOne({ where: { key: DEFAULT_SITE_KEY } });
+    let site = await this.siteRepo.findOne({
+      where: { key: DEFAULT_SITE_KEY },
+    });
     if (!site) {
       site = await this.siteRepo.save(
         this.siteRepo.create({ key: DEFAULT_SITE_KEY, name: 'Main Site' }),

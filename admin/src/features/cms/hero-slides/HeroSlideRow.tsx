@@ -9,7 +9,7 @@ import type { CmsHeroSlide, CmsHeroSlideStatus } from "./types";
 /**
  * One hero slide row in `HeroSlideList`'s table. Reorder controls (drag
  * handle plus up/down buttons) only render when `canReorder` is true —
- * `HeroSlideList` only sets that when the status filter is "All", see
+ * `HeroSlideList` only sets that when the status filter is "همه", see
  * that file's comment for why. Up/down buttons exist alongside native
  * HTML5 drag and drop because dragging alone isn't keyboard accessible
  * — same reasoning as `features/cms/faq/FaqRow.tsx`.
@@ -93,7 +93,7 @@ export function HeroSlideRow({
             <div className="flex flex-col items-center gap-1">
               <span
                 aria-hidden="true"
-                title="Drag to reorder"
+                title="برای مرتب‌سازی بکشید"
                 className={`cursor-grab select-none text-slate-400 ${
                   isReordering ? "opacity-50" : ""
                 }`}
@@ -105,7 +105,7 @@ export function HeroSlideRow({
                   type="button"
                   disabled={isReordering || index === 0}
                   onClick={() => onReorder(index, index - 1)}
-                  aria-label="Move up"
+                  aria-label="انتقال به بالا"
                   className="text-xs leading-none text-slate-500 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-30"
                 >
                   ▲
@@ -114,7 +114,7 @@ export function HeroSlideRow({
                   type="button"
                   disabled={isReordering || index === rowCount - 1}
                   onClick={() => onReorder(index, index + 1)}
-                  aria-label="Move down"
+                  aria-label="انتقال به پایین"
                   className="text-xs leading-none text-slate-500 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-30"
                 >
                   ▼
@@ -176,7 +176,7 @@ export function HeroSlideRow({
               onClick={() => onViewHistory(slide)}
               className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
-              History
+              تاریخچه
             </button>
           </PermissionGate>
           <PermissionGate permission="website.content:write">
@@ -185,7 +185,7 @@ export function HeroSlideRow({
               onClick={() => onEdit(slide)}
               className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
-              Edit
+              ویرایش
             </button>
           </PermissionGate>
           <PermissionGate permission="website.content:write">
@@ -194,7 +194,7 @@ export function HeroSlideRow({
               onClick={() => onDeleteRequest(slide)}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
             >
-              Delete
+              حذف
             </button>
           </PermissionGate>
         </div>

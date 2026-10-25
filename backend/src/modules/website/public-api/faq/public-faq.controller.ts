@@ -6,11 +6,16 @@ import { Faq } from '../../content/faq/entities/faq.entity';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
 import { SiteSettingsService } from '../../content/site-settings/site-settings.service';
+import { RedisService } from '../../core/redis/redis.service';
 import { PublicVisibilityService } from '../common/public-visibility.service';
 import {
   PUBLIC_THROTTLE,
   PUBLIC_CACHE_CONTROL,
 } from '../common/public-rate-limit.constants';
+import {
+  buildPublicCacheKey,
+  PUBLIC_CACHE_TTL_SECONDS,
+} from '../common/public-cache.constants';
 
 interface PublicFaqDto {
   id: string;
@@ -30,6 +35,7 @@ export class PublicFaqController {
     private readonly siteService: SiteService,
     private readonly visibility: PublicVisibilityService,
     private readonly siteSettings: SiteSettingsService,
+    private readonly redis: RedisService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -37,6 +43,10 @@ export class PublicFaqController {
   async findAll(@Query('category') category?: string): Promise<PublicFaqDto[]> {
     const settings = await this.siteSettings.get();
     if (!settings.featureFlags.faqEnabled) return [];
+
+    const cacheKey = buildPublicCacheKey('faq', 'list', category);
+    const cached = await this.redis.get<PublicFaqDto[]>(cacheKey);
+    if (cached) return cached;
 
     const siteId = this.siteService.getDefaultSiteId();
     const qb = this.faqRepo
@@ -48,12 +58,14 @@ export class PublicFaqController {
     const faqs = await qb.addOrderBy('faq.position', 'ASC').getMany();
     const visible = this.visibility.filterVisible(faqs);
 
-    return visible.map((faq) => ({
+    const dto = visible.map((faq) => ({
       id: faq.id,
       question: faq.question,
       answer: faq.answer,
       category: faq.category,
       position: faq.position,
     }));
+    await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
+    return dto;
   }
 }

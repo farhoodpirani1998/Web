@@ -9,6 +9,8 @@ import { OrderingService } from '../../core/ordering/ordering.service';
 import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { MediaService } from '../../core/media/media.service';
+import { RedisService } from '../../core/redis/redis.service';
+import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 
 const ENTITY_TYPE = 'testimonial';
 
@@ -21,6 +23,7 @@ export class TestimonialsService {
     private readonly ordering: OrderingService,
     private readonly publishing: PublishingService,
     private readonly media: MediaService,
+    private readonly redis: RedisService,
   ) {}
 
   async create(dto: CreateTestimonialDto): Promise<Testimonial> {
@@ -45,8 +48,13 @@ export class TestimonialsService {
     );
 
     if (testimonial.avatarMediaId) {
-      await this.media.attach(testimonial.avatarMediaId, ENTITY_TYPE, testimonial.id);
+      await this.media.attach(
+        testimonial.avatarMediaId,
+        ENTITY_TYPE,
+        testimonial.id,
+      );
     }
+    await this.invalidatePublicCache();
     return testimonial;
   }
 
@@ -78,7 +86,10 @@ export class TestimonialsService {
 
     // Keep MediaUsage in sync only when the avatar actually changed —
     // avoids redundant attach/detach churn on every unrelated field edit.
-    if (dto.avatarMediaId !== undefined && dto.avatarMediaId !== previousAvatarMediaId) {
+    if (
+      dto.avatarMediaId !== undefined &&
+      dto.avatarMediaId !== previousAvatarMediaId
+    ) {
       if (previousAvatarMediaId) {
         await this.media.detach(previousAvatarMediaId, ENTITY_TYPE, saved.id);
       }
@@ -87,15 +98,21 @@ export class TestimonialsService {
       }
     }
 
+    await this.invalidatePublicCache();
     return saved;
   }
 
   async remove(id: string): Promise<void> {
     const testimonial = await this.findOne(id);
     if (testimonial.avatarMediaId) {
-      await this.media.detach(testimonial.avatarMediaId, ENTITY_TYPE, testimonial.id);
+      await this.media.detach(
+        testimonial.avatarMediaId,
+        ENTITY_TYPE,
+        testimonial.id,
+      );
     }
     await this.testimonialRepo.delete({ id });
+    await this.invalidatePublicCache();
   }
 
   async updateStatus(id: string, to: PublishStatus): Promise<Testimonial> {
@@ -108,10 +125,24 @@ export class TestimonialsService {
       siteId: testimonial.siteId,
     });
     testimonial.status = to;
-    return this.testimonialRepo.save(testimonial);
+    const saved = await this.testimonialRepo.save(testimonial);
+    await this.invalidatePublicCache();
+    return saved;
   }
 
   async reorder(orderedIds: string[]): Promise<void> {
-    await this.ordering.reorder(this.testimonialRepo.manager, 'testimonials', orderedIds);
+    await this.ordering.reorder(
+      this.testimonialRepo.manager,
+      'testimonials',
+      orderedIds,
+    );
+    await this.invalidatePublicCache();
+  }
+
+  /** Clears every cached variant of this module's public list after a write. */
+  private async invalidatePublicCache(): Promise<void> {
+    await this.redis.deleteByPrefix(
+      `${buildPublicCacheKey('testimonials', 'list')}:`,
+    );
   }
 }

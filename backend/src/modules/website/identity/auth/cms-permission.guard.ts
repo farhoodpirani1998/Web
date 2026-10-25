@@ -5,7 +5,10 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ROLE_PERMISSIONS, WebsitePermission } from '../../auth/website-role.enum';
+import {
+  ROLE_PERMISSIONS,
+  WebsitePermission,
+} from '../../auth/website-role.enum';
 import { CMS_PERMISSION_KEY } from './cms-permission.constants';
 import { CmsRequestUser } from './cms-jwt-payload.interface';
 

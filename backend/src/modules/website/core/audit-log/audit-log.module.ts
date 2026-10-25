@@ -16,7 +16,11 @@ import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
  * events; no explicit subscription wiring is needed here.
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([AuditLogEntry]), SiteModule, CmsAuthModule],
+  imports: [
+    TypeOrmModule.forFeature([AuditLogEntry]),
+    SiteModule,
+    CmsAuthModule,
+  ],
   controllers: [AuditLogController],
   providers: [AuditLogService, AuditLogListener],
   exports: [AuditLogService],

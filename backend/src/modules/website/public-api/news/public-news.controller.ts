@@ -31,13 +31,18 @@ import {
   buildPublicCacheKey,
   PUBLIC_CACHE_TTL_SECONDS,
 } from '../common/public-cache.constants';
-import { clampPagination, paginate, PaginatedResult } from '../common/pagination';
+import {
+  clampPagination,
+  paginate,
+  PaginatedResult,
+} from '../common/pagination';
 
 interface PublicNewsListItemDto {
   id: string;
   title: NewsArticle['title'];
   slug: string;
   excerpt?: NewsArticle['excerpt'];
+  body: NewsArticle['body'];
   category?: string;
   tags?: string[];
   featuredImage: PublicMediaRef | null;
@@ -109,10 +114,9 @@ export class PublicNewsController {
       // in-memory, pushed into the query here (rather than relied on
       // in-memory below) so `total`/pagination reflect the true visible
       // set instead of the pre-filter row count.
-      .andWhere(
-        '(article.publishAt IS NULL OR article.publishAt <= :now)',
-        { now: new Date() },
-      );
+      .andWhere('(article.publishAt IS NULL OR article.publishAt <= :now)', {
+        now: new Date(),
+      });
     if (category) qb.andWhere('article.category = :category', { category });
     if (tag) qb.andWhere(':tag = ANY(article.tags)', { tag });
 
@@ -168,7 +172,12 @@ export class PublicNewsController {
       ...this.toListItem(article, new Map()),
       featuredImage: image,
       body: article.body,
-      seo: this.seo.resolvePublicSeo(article.seo, title, `/news/${article.slug}`, baseUrl),
+      seo: this.seo.resolvePublicSeo(
+        article.seo,
+        title,
+        `/news/${article.slug}`,
+        baseUrl,
+      ),
       structuredData: [
         this.seo.buildArticleSchema({
           headline: title,
@@ -200,6 +209,7 @@ export class PublicNewsController {
       title: article.title,
       slug: article.slug,
       excerpt: article.excerpt,
+      body: article.body,
       category: article.category,
       tags: article.tags,
       featuredImage: article.featuredImageMediaId

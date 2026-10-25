@@ -1,4 +1,4 @@
- import {
+import {
   BadRequestException,
   ConflictException,
   Injectable,
@@ -67,7 +67,8 @@ export class PagesService implements OnModuleInit {
    * NewsService/EventsService — there's no list-prefix to clear here.
    */
   private async invalidateDetail(slug: string | undefined): Promise<void> {
-    if (slug) await this.redis.delete(buildPublicCacheKey('pages', 'detail', slug));
+    if (slug)
+      await this.redis.delete(buildPublicCacheKey('pages', 'detail', slug));
   }
 
   private async invalidateHomepage(): Promise<void> {
@@ -116,9 +117,13 @@ export class PagesService implements OnModuleInit {
     parentId: string,
   ): Promise<void> {
     if (pageId && parentId === pageId) {
-      throw new BadRequestException('parentId would create a circular page hierarchy');
+      throw new BadRequestException(
+        'parentId would create a circular page hierarchy',
+      );
     }
-    const parent = await this.pagesRepo.findOne({ where: { id: parentId, siteId } });
+    const parent = await this.pagesRepo.findOne({
+      where: { id: parentId, siteId },
+    });
     if (!parent) {
       throw new BadRequestException(
         'parentId does not reference an existing page on this site',
@@ -169,12 +174,20 @@ export class PagesService implements OnModuleInit {
     if (page.featuredImageMediaId) {
       await this.media.attach(page.featuredImageMediaId, ENTITY_TYPE, page.id);
     }
-    await this.revisions.record(ENTITY_TYPE, page.id, snapshotOf(page), authorId);
+    await this.revisions.record(
+      ENTITY_TYPE,
+      page.id,
+      snapshotOf(page),
+      authorId,
+    );
     await this.invalidateDetail(page.slug);
     return page;
   }
 
-  async findAll(status?: PublishStatus, parentId?: string): Promise<StaticPage[]> {
+  async findAll(
+    status?: PublishStatus,
+    parentId?: string,
+  ): Promise<StaticPage[]> {
     const siteId = this.siteService.getDefaultSiteId();
     const qb = this.pagesRepo
       .createQueryBuilder('page')
@@ -204,7 +217,8 @@ export class PagesService implements OnModuleInit {
       page.slug = dto.slug;
     }
     if (dto.title !== undefined) page.title = dto.title;
-    if (dto.body !== undefined) page.body = sanitizeTranslatableRichText(dto.body);
+    if (dto.body !== undefined)
+      page.body = sanitizeTranslatableRichText(dto.body);
     if (dto.template !== undefined) page.template = dto.template;
     if (dto.parentId !== undefined) {
       if (dto.parentId === null) {
@@ -227,14 +241,27 @@ export class PagesService implements OnModuleInit {
       dto.featuredImageMediaId !== previousFeaturedImageMediaId
     ) {
       if (previousFeaturedImageMediaId) {
-        await this.media.detach(previousFeaturedImageMediaId, ENTITY_TYPE, saved.id);
+        await this.media.detach(
+          previousFeaturedImageMediaId,
+          ENTITY_TYPE,
+          saved.id,
+        );
       }
       if (saved.featuredImageMediaId) {
-        await this.media.attach(saved.featuredImageMediaId, ENTITY_TYPE, saved.id);
+        await this.media.attach(
+          saved.featuredImageMediaId,
+          ENTITY_TYPE,
+          saved.id,
+        );
       }
     }
 
-    await this.revisions.record(ENTITY_TYPE, saved.id, snapshotOf(saved), authorId);
+    await this.revisions.record(
+      ENTITY_TYPE,
+      saved.id,
+      snapshotOf(saved),
+      authorId,
+    );
     // previousSlug and saved.slug can differ (slug rename) and, unlike
     // News, this page's content can also be served under 'homepage' —
     // clear that too whenever the edited page is the current homepage.
@@ -250,7 +277,9 @@ export class PagesService implements OnModuleInit {
     // Same guard idiom as MediaService.purge: reject rather than
     // silently orphaning or cascading. The caller re-parents or deletes
     // the children first.
-    const childCount = await this.pagesRepo.count({ where: { parentId: page.id } });
+    const childCount = await this.pagesRepo.count({
+      where: { parentId: page.id },
+    });
     if (childCount > 0) {
       throw new ConflictException(
         'Cannot delete a page that has child pages — move or delete them first',
@@ -309,7 +338,9 @@ export class PagesService implements OnModuleInit {
 
     if (isHomepage) {
       if (page.status !== PublishStatus.PUBLISHED) {
-        throw new BadRequestException('Only a published page can be set as the homepage');
+        throw new BadRequestException(
+          'Only a published page can be set as the homepage',
+        );
       }
       // Read the previous homepage (if any) before the transaction so its
       // detail cache can be invalidated too — its `isHomepage` field in
@@ -352,7 +383,11 @@ export class PagesService implements OnModuleInit {
     versionNumber: number,
     authorId: string,
   ): Promise<StaticPage> {
-    const revision = await this.revisions.getVersion(ENTITY_TYPE, id, versionNumber);
+    const revision = await this.revisions.getVersion(
+      ENTITY_TYPE,
+      id,
+      versionNumber,
+    );
     const snapshot = revision.snapshot as {
       title: StaticPage['title'];
       slug: StaticPage['slug'];

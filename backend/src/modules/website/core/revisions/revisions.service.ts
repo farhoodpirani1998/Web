@@ -45,7 +45,13 @@ export class RevisionsService {
     });
     const versionNumber = (last?.versionNumber ?? 0) + 1;
     return this.repo.save(
-      this.repo.create({ entityType, entityId, versionNumber, snapshot, authorId }),
+      this.repo.create({
+        entityType,
+        entityId,
+        versionNumber,
+        snapshot,
+        authorId,
+      }),
     );
   }
 

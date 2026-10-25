@@ -48,16 +48,19 @@ import {
  */
 export function AcademicCalendarPage() {
   return (
-    <PageLayout>
-      <Stack gap="none">
-        <Hero />
-        <YearOverview />
-        <Terms />
-        <Holidays />
-        <Exams />
-        <ImportantDates />
-        <FAQ />
-      </Stack>
-    </PageLayout>
+    <>
+      {/* Full-bleed hero band, outside PageLayout (which is a Container). */}
+      <Hero />
+      <PageLayout>
+        <Stack gap="none">
+          <YearOverview />
+          <Terms />
+          <Holidays />
+          <Exams />
+          <ImportantDates />
+          <FAQ />
+        </Stack>
+      </PageLayout>
+    </>
   );
 }

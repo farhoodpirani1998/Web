@@ -48,7 +48,9 @@ export class AddAdminUsers1784600000000 implements MigrationInterface {
       )
     `);
 
-    await queryRunner.query(`CREATE INDEX "IDX_admin_users_email" ON "admin_users" ("email")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_admin_users_email" ON "admin_users" ("email")`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

@@ -18,7 +18,9 @@ describe('PortalLinksService', () => {
         getRawOne: jest.fn().mockResolvedValue({ max: null }),
       }),
       create: jest.fn((data) => data),
-      save: jest.fn((data) => Promise.resolve({ id: 'portal-link-1', ...data })),
+      save: jest.fn((data) =>
+        Promise.resolve({ id: 'portal-link-1', ...data }),
+      ),
       find: jest.fn(),
       findOneByOrFail: jest.fn(),
       delete: jest.fn(),
@@ -27,8 +29,19 @@ describe('PortalLinksService', () => {
     siteService = { getDefaultSiteId: jest.fn().mockReturnValue(siteId) };
     ordering = { reorder: jest.fn() };
     events = { emit: jest.fn() };
-    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
-    service = new PortalLinksService(repo, siteService, ordering, events, redis);
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
+    service = new PortalLinksService(
+      repo,
+      siteService,
+      ordering,
+      events,
+      redis,
+    );
   });
 
   describe('create', () => {
@@ -87,11 +100,11 @@ describe('PortalLinksService', () => {
   describe('reorder', () => {
     it('delegates to OrderingService with the portal_links table name', async () => {
       await service.reorder(['a', 'b', 'c']);
-      expect(ordering.reorder).toHaveBeenCalledWith(repo.manager, 'portal_links', [
-        'a',
-        'b',
-        'c',
-      ]);
+      expect(ordering.reorder).toHaveBeenCalledWith(
+        repo.manager,
+        'portal_links',
+        ['a', 'b', 'c'],
+      );
       expect(events.emit).toHaveBeenCalledWith(
         WEBSITE_EVENTS.SETTINGS_UPDATED,
         { siteId, group: 'portal_links' },

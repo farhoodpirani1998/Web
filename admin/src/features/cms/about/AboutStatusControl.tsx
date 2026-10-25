@@ -25,9 +25,9 @@ const VALID_TRANSITIONS: Record<CmsAboutStatus, CmsAboutStatus[]> = {
 };
 
 const STATUS_LABEL: Record<CmsAboutStatus, string> = {
-  draft: "Draft",
-  published: "Published",
-  archived: "Archived",
+  draft: "پیش‌نویس",
+  published: "منتشرشده",
+  archived: "بایگانی",
 };
 
 const STATUS_BADGE_CLASS: Record<CmsAboutStatus, string> = {
@@ -64,7 +64,7 @@ export function AboutStatusControl({
             onClick={() => onChangeStatus(next)}
             className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isUpdating ? "…" : `Move to ${STATUS_LABEL[next]}`}
+            {isUpdating ? "…" : `انتقال به ${STATUS_LABEL[next]}`}
           </button>
         ))}
       </PermissionGate>

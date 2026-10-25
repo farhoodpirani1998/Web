@@ -41,7 +41,12 @@ describe('TeachersService', () => {
       list: jest.fn(),
       getVersion: jest.fn(),
     };
-    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
     service = new TeachersService(
       repo,
       siteService,
@@ -81,14 +86,21 @@ describe('TeachersService', () => {
     it('includes a published teacher once publishAt has passed', async () => {
       const past = new Date(Date.now() - 86_400_000);
       jest.spyOn(service, 'findAll').mockResolvedValue([
-        { id: 't1', slug: 'past-teacher', publishAt: past, updatedAt: past } as any,
+        {
+          id: 't1',
+          slug: 'past-teacher',
+          publishAt: past,
+          updatedAt: past,
+        } as any,
       ]);
 
       service.onModuleInit();
       const provider = sitemap.register.mock.calls[0][0];
       const entries = await provider();
 
-      expect(entries).toEqual([{ loc: '/teachers/past-teacher', lastmod: past }]);
+      expect(entries).toEqual([
+        { loc: '/teachers/past-teacher', lastmod: past },
+      ]);
     });
   });
 
@@ -114,7 +126,11 @@ describe('TeachersService', () => {
       expect(teacher.status).toBe(PublishStatus.DRAFT);
       expect(teacher.siteId).toBe(siteId);
       expect(teacher.position).toBe(3);
-      expect(media.attach).toHaveBeenCalledWith('media-1', 'teacher', 'teacher-1');
+      expect(media.attach).toHaveBeenCalledWith(
+        'media-1',
+        'teacher',
+        'teacher-1',
+      );
       expect(revisions.record).toHaveBeenCalledWith(
         'teacher',
         'teacher-1',
@@ -191,10 +207,22 @@ describe('TeachersService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      await service.update('teacher-1', { avatarMediaId: 'media-new' }, 'author-1');
+      await service.update(
+        'teacher-1',
+        { avatarMediaId: 'media-new' },
+        'author-1',
+      );
 
-      expect(media.detach).toHaveBeenCalledWith('media-old', 'teacher', 'teacher-1');
-      expect(media.attach).toHaveBeenCalledWith('media-new', 'teacher', 'teacher-1');
+      expect(media.detach).toHaveBeenCalledWith(
+        'media-old',
+        'teacher',
+        'teacher-1',
+      );
+      expect(media.attach).toHaveBeenCalledWith(
+        'media-new',
+        'teacher',
+        'teacher-1',
+      );
     });
 
     it('clears campusId/phone/email when explicitly set to null', async () => {
@@ -230,7 +258,11 @@ describe('TeachersService', () => {
 
       await service.remove('teacher-1');
 
-      expect(media.detach).toHaveBeenCalledWith('media-1', 'teacher', 'teacher-1');
+      expect(media.detach).toHaveBeenCalledWith(
+        'media-1',
+        'teacher',
+        'teacher-1',
+      );
       expect(repo.delete).toHaveBeenCalledWith({ id: 'teacher-1' });
     });
   });
@@ -243,7 +275,10 @@ describe('TeachersService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      const result = await service.updateStatus('teacher-1', PublishStatus.PUBLISHED);
+      const result = await service.updateStatus(
+        'teacher-1',
+        PublishStatus.PUBLISHED,
+      );
 
       expect(publishing.transition).toHaveBeenCalledWith({
         from: PublishStatus.DRAFT,
@@ -283,11 +318,11 @@ describe('TeachersService', () => {
     it('delegates to OrderingService against the teachers table', async () => {
       await service.reorder(['t1', 't2', 't3']);
 
-      expect(ordering.reorder).toHaveBeenCalledWith(
-        repo.manager,
-        'teachers',
-        ['t1', 't2', 't3'],
-      );
+      expect(ordering.reorder).toHaveBeenCalledWith(repo.manager, 'teachers', [
+        't1',
+        't2',
+        't3',
+      ]);
     });
   });
 });

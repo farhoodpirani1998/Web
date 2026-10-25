@@ -59,9 +59,12 @@ export class NewsService implements OnModuleInit {
    * order, on any list page, not just the one article's own detail
    * route.
    */
-  private async invalidatePublicCache(...slugs: Array<string | undefined>): Promise<void> {
+  private async invalidatePublicCache(
+    ...slugs: Array<string | undefined>
+  ): Promise<void> {
     for (const slug of slugs) {
-      if (slug) await this.redis.delete(buildPublicCacheKey('news', 'detail', slug));
+      if (slug)
+        await this.redis.delete(buildPublicCacheKey('news', 'detail', slug));
     }
     await this.redis.deleteByPrefix(`${buildPublicCacheKey('news', 'list')}:`);
   }
@@ -85,7 +88,10 @@ export class NewsService implements OnModuleInit {
       return articles
         .filter((article) => !article.publishAt || article.publishAt <= now)
         .filter((article) => SeoService.isIndexable(article.seo))
-        .map((article) => ({ loc: `/news/${article.slug}`, lastmod: article.updatedAt }));
+        .map((article) => ({
+          loc: `/news/${article.slug}`,
+          lastmod: article.updatedAt,
+        }));
     });
   }
 
@@ -100,7 +106,10 @@ export class NewsService implements OnModuleInit {
     }
   }
 
-  async create(dto: CreateNewsArticleDto, authorId: string): Promise<NewsArticle> {
+  async create(
+    dto: CreateNewsArticleDto,
+    authorId: string,
+  ): Promise<NewsArticle> {
     const siteId = this.siteService.getDefaultSiteId();
     await this.assertSlugAvailable(siteId, dto.slug);
 
@@ -120,14 +129,26 @@ export class NewsService implements OnModuleInit {
     );
 
     if (article.featuredImageMediaId) {
-      await this.media.attach(article.featuredImageMediaId, ENTITY_TYPE, article.id);
+      await this.media.attach(
+        article.featuredImageMediaId,
+        ENTITY_TYPE,
+        article.id,
+      );
     }
-    await this.revisions.record(ENTITY_TYPE, article.id, snapshotOf(article), authorId);
+    await this.revisions.record(
+      ENTITY_TYPE,
+      article.id,
+      snapshotOf(article),
+      authorId,
+    );
     await this.invalidatePublicCache(article.slug);
     return article;
   }
 
-  async findAll(status?: PublishStatus, category?: string): Promise<NewsArticle[]> {
+  async findAll(
+    status?: PublishStatus,
+    category?: string,
+  ): Promise<NewsArticle[]> {
     const siteId = this.siteService.getDefaultSiteId();
     const qb = this.newsRepo
       .createQueryBuilder('article')
@@ -164,7 +185,8 @@ export class NewsService implements OnModuleInit {
     }
     if (dto.title !== undefined) article.title = dto.title;
     if (dto.excerpt !== undefined) article.excerpt = dto.excerpt;
-    if (dto.body !== undefined) article.body = sanitizeTranslatableRichText(dto.body);
+    if (dto.body !== undefined)
+      article.body = sanitizeTranslatableRichText(dto.body);
     if (dto.category !== undefined) article.category = dto.category;
     if (dto.tags !== undefined) article.tags = dto.tags;
     if (dto.featuredImageMediaId !== undefined) {
@@ -179,14 +201,27 @@ export class NewsService implements OnModuleInit {
       dto.featuredImageMediaId !== previousFeaturedImageMediaId
     ) {
       if (previousFeaturedImageMediaId) {
-        await this.media.detach(previousFeaturedImageMediaId, ENTITY_TYPE, saved.id);
+        await this.media.detach(
+          previousFeaturedImageMediaId,
+          ENTITY_TYPE,
+          saved.id,
+        );
       }
       if (saved.featuredImageMediaId) {
-        await this.media.attach(saved.featuredImageMediaId, ENTITY_TYPE, saved.id);
+        await this.media.attach(
+          saved.featuredImageMediaId,
+          ENTITY_TYPE,
+          saved.id,
+        );
       }
     }
 
-    await this.revisions.record(ENTITY_TYPE, saved.id, snapshotOf(saved), authorId);
+    await this.revisions.record(
+      ENTITY_TYPE,
+      saved.id,
+      snapshotOf(saved),
+      authorId,
+    );
     await this.invalidatePublicCache(previousSlug, saved.slug);
     return saved;
   }
@@ -194,7 +229,11 @@ export class NewsService implements OnModuleInit {
   async remove(id: string): Promise<void> {
     const article = await this.findOne(id);
     if (article.featuredImageMediaId) {
-      await this.media.detach(article.featuredImageMediaId, ENTITY_TYPE, article.id);
+      await this.media.detach(
+        article.featuredImageMediaId,
+        ENTITY_TYPE,
+        article.id,
+      );
     }
     await this.newsRepo.delete({ id });
     await this.invalidatePublicCache(article.slug);
@@ -232,7 +271,11 @@ export class NewsService implements OnModuleInit {
     versionNumber: number,
     authorId: string,
   ): Promise<NewsArticle> {
-    const revision = await this.revisions.getVersion(ENTITY_TYPE, id, versionNumber);
+    const revision = await this.revisions.getVersion(
+      ENTITY_TYPE,
+      id,
+      versionNumber,
+    );
     const snapshot = revision.snapshot as {
       title: NewsArticle['title'];
       slug: NewsArticle['slug'];

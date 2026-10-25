@@ -15,12 +15,13 @@ import type { CmsAuditLogEntry } from "./types";
 
 /**
  * `GET /admin/audit-log` — the most recent activity across the CMS,
- * newest first, already capped server-side (`AuditLogService.listRecent`'s
- * own default limit). No params: there's no filter/pagination on this
- * endpoint today, matching the "short recent slice, not a full log
- * viewer" scope of the Dashboard section this feeds.
+ * newest first. Optional `limit` caps how many rows come back (the
+ * Dashboard omits it → server default; the Audit Log page passes one).
+ * The server clamps the value, so an out-of-range `limit` is safe.
  */
-export async function fetchRecentActivity(): Promise<CmsAuditLogEntry[]> {
-  const response = await apiClient.get<CmsAuditLogEntry[]>("/audit-log");
+export async function fetchRecentActivity(limit?: number): Promise<CmsAuditLogEntry[]> {
+  const response = await apiClient.get<CmsAuditLogEntry[]>("/audit-log", {
+    params: limit ? { limit } : undefined,
+  });
   return response.data;
 }

@@ -44,7 +44,10 @@ export class PublicSitemapController {
   async getSitemap(): Promise<string> {
     const entries = await this.sitemap.generate();
     const port = this.config.get<number>('PORT', 3100);
-    const baseUrl = this.config.get<string>('PUBLIC_SITE_URL', `http://localhost:${port}`);
+    const baseUrl = this.config.get<string>(
+      'PUBLIC_SITE_URL',
+      `http://localhost:${port}`,
+    );
     return buildSitemapXml(entries, baseUrl);
   }
 
@@ -53,7 +56,15 @@ export class PublicSitemapController {
   @Get('robots.txt')
   getRobots(): string {
     const port = this.config.get<number>('PORT', 3100);
-    const baseUrl = this.config.get<string>('PUBLIC_SITE_URL', `http://localhost:${port}`);
-    return ['User-agent: *', 'Allow: /', `Sitemap: ${baseUrl}/sitemap.xml`, ''].join('\n');
+    const baseUrl = this.config.get<string>(
+      'PUBLIC_SITE_URL',
+      `http://localhost:${port}`,
+    );
+    return [
+      'User-agent: *',
+      'Allow: /',
+      `Sitemap: ${baseUrl}/sitemap.xml`,
+      '',
+    ].join('\n');
   }
 }

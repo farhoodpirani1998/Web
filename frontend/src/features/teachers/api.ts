@@ -72,6 +72,6 @@ function toTeacher(dto: PublicTeacherListItemDto): Teacher {
       alt: dto.avatar?.altText ?? name,
       src: dto.avatar?.cardUrl ?? dto.avatar?.url,
     },
-    specialties: [],
+    specialties: dto.specialties ?? [],
   };
 }

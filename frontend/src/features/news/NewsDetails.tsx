@@ -1,3 +1,5 @@
+import { ChevronDown } from "lucide-react";
+
 import {
   Badge,
   Card,
@@ -74,13 +76,10 @@ export function NewsDetails() {
                       </Text>
                     </Stack>
                   </Stack>
-                  <Text
-                    as="span"
+                  <ChevronDown
                     aria-hidden="true"
-                    className="shrink-0 text-brand-gold transition-transform group-open:rotate-180"
-                  >
-                    ⌄
-                  </Text>
+                    className="h-5 w-5 shrink-0 text-brand-gold transition-transform group-open:rotate-180"
+                  />
                 </summary>
 
                 <Stack gap="sm" className="pt-3">

@@ -75,7 +75,7 @@ export function CampusScheduleControl({
             disabled={isUpdating || !draft}
             className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isUpdating ? "…" : "Save"}
+            {isUpdating ? "…" : "ذخیره"}
           </button>
           {publishAt ? (
             <button
@@ -84,7 +84,7 @@ export function CampusScheduleControl({
               disabled={isUpdating}
               className="rounded-md border border-red-200 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Clear
+              پاک کردن
             </button>
           ) : null}
           <button
@@ -93,7 +93,7 @@ export function CampusScheduleControl({
             disabled={isUpdating}
             className="rounded-md px-2 py-1 text-xs font-medium text-slate-500 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Cancel
+            انصراف
           </button>
         </div>
       </div>
@@ -105,7 +105,7 @@ export function CampusScheduleControl({
       {publishAt ? (
         <span className="text-xs text-slate-600">{new Date(publishAt).toLocaleString()}</span>
       ) : (
-        <span className="text-xs text-slate-400">Not scheduled</span>
+        <span className="text-xs text-slate-400">زمان‌بندی‌نشده</span>
       )}
 
       <PermissionGate permission="website.content:publish">

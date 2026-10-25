@@ -13,7 +13,9 @@ export class LoginDto {
   // that lookup case-insensitive in practice; the bootstrap script
   // applies the same normalization when creating a row so the two
   // stay consistent.
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim().toLowerCase() : value))
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim().toLowerCase() : value,
+  )
   @IsEmail()
   @MaxLength(320) // longest theoretically valid email address (RFC 3696 erratum)
   email!: string;
@@ -31,4 +33,3 @@ export class LoginDto {
   @MaxLength(256)
   password!: string;
 }
-

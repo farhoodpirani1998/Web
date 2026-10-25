@@ -41,7 +41,7 @@ export function EventList({
   onViewHistory,
 }: EventListProps) {
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">Loading events…</p>;
+    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری رویدادها…</p>;
   }
 
   if (error) {
@@ -49,7 +49,7 @@ export function EventList({
   }
 
   if (events.length === 0) {
-    return <EmptyState title="No events yet" description="Add an event to get started." />;
+    return <EmptyState title="هنوز رویدادی نیست" description="برای شروع یک رویداد اضافه کنید." />;
   }
 
   return (
@@ -58,25 +58,25 @@ export function EventList({
         <thead className="bg-slate-50">
           <tr>
             <th scope="col" className="w-16 px-3 py-2 text-left font-medium text-slate-500">
-              <span className="sr-only">Image</span>
+              <span className="sr-only">تصویر</span>
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Title
+              عنوان
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Category
+              دسته‌بندی
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              When
+              زمان
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Status
+              وضعیت
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Publish at
+              زمان انتشار
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium text-slate-500">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">اقدامات</span>
             </th>
           </tr>
         </thead>

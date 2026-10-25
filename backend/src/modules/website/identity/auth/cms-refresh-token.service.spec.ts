@@ -68,7 +68,7 @@ describe('CmsRefreshTokenService', () => {
       expect(repo.createQueryBuilder).toHaveBeenCalledTimes(1);
     });
 
-    it('does not sweep the admin\'s other tokens when the presented token was revoked moments ago (benign race, e.g. two tabs or StrictMode double-invoke)', async () => {
+    it("does not sweep the admin's other tokens when the presented token was revoked moments ago (benign race, e.g. two tabs or StrictMode double-invoke)", async () => {
       queryBuilder.execute.mockResolvedValue({ affected: 0 });
       repo.findOne.mockResolvedValue({
         adminId: 'admin-1',

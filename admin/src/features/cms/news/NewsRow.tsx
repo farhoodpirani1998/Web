@@ -55,7 +55,7 @@ export function NewsRow({
             type="checkbox"
             checked={selected}
             onChange={() => onToggleSelect(article)}
-            aria-label={`Select ${article.title.fa}`}
+            aria-label={`انتخاب ${article.title.fa}`}
             className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
           />
         </PermissionGate>
@@ -118,7 +118,7 @@ export function NewsRow({
               onClick={() => onViewHistory(article)}
               className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
-              History
+              تاریخچه
             </button>
           </PermissionGate>
           <PermissionGate permission="website.content:write">
@@ -127,7 +127,7 @@ export function NewsRow({
               onClick={() => onEdit(article)}
               className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
-              Edit
+              ویرایش
             </button>
           </PermissionGate>
           <PermissionGate permission="website.content:write">
@@ -136,7 +136,7 @@ export function NewsRow({
               onClick={() => onDeleteRequest(article)}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
             >
-              Delete
+              حذف
             </button>
           </PermissionGate>
         </div>

@@ -6,7 +6,10 @@ import { SitemapEntry } from './sitemap.service';
  * no DI, no I/O — so PublicSitemapController stays a thin HTTP wrapper
  * around SitemapService.generate() + this.
  */
-export function buildSitemapXml(entries: SitemapEntry[], baseUrl: string): string {
+export function buildSitemapXml(
+  entries: SitemapEntry[],
+  baseUrl: string,
+): string {
   const normalizedBase = baseUrl.replace(/\/+$/, '');
 
   const urls = entries

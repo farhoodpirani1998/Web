@@ -1,4 +1,13 @@
-import { Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Body, Query } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Body,
+  Query,
+} from '@nestjs/common';
 import { PreRegistrationsService } from './pre-registrations.service';
 import { UpdatePreRegistrationStatusDto } from './dto/update-pre-registration-status.dto';
 import { PreRegistrationStatus } from './entities/pre-registration-status.enum';
@@ -19,7 +28,9 @@ import { WebsitePermission } from '../../auth/website-role.enum';
  */
 @Controller('admin/pre-registrations')
 export class PreRegistrationsController {
-  constructor(private readonly preRegistrationsService: PreRegistrationsService) {}
+  constructor(
+    private readonly preRegistrationsService: PreRegistrationsService,
+  ) {}
 
   @Get()
   @RequireCmsPermission(WebsitePermission.CONTENT_READ)

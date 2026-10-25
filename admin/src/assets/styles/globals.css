@@ -1,3 +1,153 @@
+@import "../fonts/fonts.css";
+
+/*
+ * Admin global styles + design tokens.
+ *
+ * Token values are ported from the public frontend
+ * (frontend/src/shared/design-system/tokens/tokens.css) so both apps
+ * speak the same navy-and-gold brand / Vazirmatn-Estedad type language,
+ * and extended with a dark "sidebar" palette for the admin shell. The
+ * light content surface keeps the frontend's shadcn/ui HSL-triplet
+ * convention; components read these through tailwind.config.js, never
+ * as raw values.
+ */
+
+:root {
+  /* Brand core */
+  --brand-navy: 213 69% 19%; /* #0F2D52 */
+  --brand-gold: 46 68% 47%; /* #C9A227 */
+
+  /* Semantic tokens (shadcn/ui HSL channel triplets) */
+  --background: 216 33% 97%; /* #F5F7FA — cooler than pure white so cards read as raised */
+  --foreground: 222 34% 15%; /* #1A2235 */
+
+  --card: 0 0% 100%;
+  --card-foreground: 222 34% 15%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 34% 15%;
+
+  --primary: 213 69% 19%; /* #0F2D52 */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 216 42% 95%; /* #EEF2F8 */
+  --secondary-foreground: 213 69% 19%;
+
+  --muted: 216 42% 95%;
+  --muted-foreground: 224 11% 47%; /* #6B7285 */
+
+  --accent: 46 68% 47%; /* #C9A227 — solid gold */
+  --accent-foreground: 213 69% 19%;
+
+  --destructive: 348 80% 46%; /* #d4183d */
+  --destructive-foreground: 0 0% 100%;
+
+  --success: 152 60% 36%; /* #178a5a */
+  --success-foreground: 0 0% 100%;
+
+  --border: 214 32% 91%; /* #E2E8F0 */
+  --input: 220 13% 89%;
+  --ring: 46 68% 47%; /* gold ring */
+
+  --radius: 0.875rem;
+
+  /* Elevation tint (used by boxShadow.card / .card-hover) */
+  --shadow-color: 213 69% 19%;
+
+  /* Dark shell palette — navy-family sidebar with a gold accent. */
+  --sidebar: 216 63% 11%; /* #0A1E38 — matches the brand footer surface */
+  --sidebar-foreground: 214 30% 88%;
+  --sidebar-muted: 215 20% 58%;
+  --sidebar-hover: 214 40% 18%;
+  --sidebar-active: 214 45% 23%;
+  --sidebar-border: 215 35% 20%;
+  --sidebar-accent: 46 68% 47%; /* gold — active bar / highlight */
+
+  /* Typography — Vazirmatn body, Estedad headings (Persian RTL identity). */
+  --font-sans: "Vazirmatn", system-ui, sans-serif;
+  --font-heading: "Estedad", "Vazirmatn", system-ui, sans-serif;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    /* Very low-opacity navy radial wash — breaks up the flat light
+       canvas without reading as visible texture. */
+    background-image: radial-gradient(
+      ellipse at top,
+      hsl(var(--brand-navy) / 0.035),
+      transparent 55%
+    );
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading leading-[1.4];
+  }
+
+  /* Brand focus ring for interactive elements that don't set their own —
+     gold, offset, keyboard-only. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Slim, unobtrusive scrollbars that suit the shell. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    @apply rounded-full;
+    background-color: hsl(var(--muted-foreground) / 0.3);
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.5);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Faint dot grid, used behind hero surfaces for a dashboard feel. */
+  .bg-dot-grid {
+    background-image: radial-gradient(hsl(var(--foreground) / 0.06) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+}

@@ -53,7 +53,10 @@ export class GalleryController {
 
   @Patch(':id')
   @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateGalleryItemDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateGalleryItemDto,
+  ) {
     return this.galleryService.update(id, dto);
   }
 

@@ -93,7 +93,7 @@ export function CampusesPage() {
       );
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingStatusId(null);
@@ -109,7 +109,7 @@ export function CampusesPage() {
       setCampuses((current) => current.map((item) => (item.id === updated.id ? updated : item)));
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingScheduleId(null);
@@ -138,7 +138,7 @@ export function CampusesPage() {
     } catch (err) {
       setCampuses(previous);
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setIsReordering(false);
@@ -147,25 +147,25 @@ export function CampusesPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Campuses" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "پردیس‌ها" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="Campuses" />
+            <PageHeader title="پردیس‌ها" />
             <Section>
               <EmptyState
-                title="You don't have access to Campuses"
-                description="Viewing campuses requires the Content permission. Contact an admin if you need access."
+                title="به پردیس‌ها دسترسی ندارید"
+                description="مشاهده پردیس‌ها نیازمند دسترسی محتوا است. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="Campuses"
-          description="Manage the physical campuses/branches shown on the public site."
+          title="پردیس‌ها"
+          description="مدیریت پردیس‌ها و شعبه‌های نمایش‌داده‌شده در سایت."
         >
           <PermissionGate permission="website.content:write">
             <button
@@ -173,7 +173,7 @@ export function CampusesPage() {
               onClick={handleCreate}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
-              New campus
+              پردیس جدید
             </button>
           </PermissionGate>
         </PageHeader>

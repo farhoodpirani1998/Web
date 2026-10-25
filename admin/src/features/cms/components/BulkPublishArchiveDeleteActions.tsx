@@ -82,7 +82,7 @@ export function BulkPublishArchiveDeleteActions({
             className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isProcessing
-              ? "Archiving…"
+              ? "در حال بایگانی…"
               : `Archive${archivableCount < totalCount ? ` (${archivableCount})` : ""}`}
           </button>
         ) : null}
@@ -95,7 +95,7 @@ export function BulkPublishArchiveDeleteActions({
           disabled={isProcessing}
           className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Delete
+          حذف
         </button>
       </PermissionGate>
     </>

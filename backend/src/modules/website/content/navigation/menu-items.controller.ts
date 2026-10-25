@@ -27,7 +27,10 @@ export class MenuItemsController {
 
   @Get()
   @RequireCmsPermission(WebsitePermission.CONTENT_READ)
-  findAll(@Query('menuId', ParseUUIDPipe) menuId: string, @Query('parentId') parentId?: string) {
+  findAll(
+    @Query('menuId', ParseUUIDPipe) menuId: string,
+    @Query('parentId') parentId?: string,
+  ) {
     return this.menuItemsService.findAll(menuId, parentId);
   }
 
@@ -49,12 +52,19 @@ export class MenuItemsController {
   @Patch('reorder')
   @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   reorder(@Body() dto: ReorderMenuItemsDto) {
-    return this.menuItemsService.reorder(dto.menuId, dto.parentId, dto.orderedIds);
+    return this.menuItemsService.reorder(
+      dto.menuId,
+      dto.parentId,
+      dto.orderedIds,
+    );
   }
 
   @Patch(':id')
   @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateMenuItemDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateMenuItemDto,
+  ) {
     return this.menuItemsService.update(id, dto);
   }
 

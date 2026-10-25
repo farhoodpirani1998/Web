@@ -38,7 +38,7 @@ export function MediaDeleteConfirm({ media, onCancel, onDeleted }: MediaDeleteCo
       if (err instanceof ApiError && err.status === 409) {
         setIsConflict(true);
       } else {
-        setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+        setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
       }
       setIsDeleting(false);
     }
@@ -47,7 +47,7 @@ export function MediaDeleteConfirm({ media, onCancel, onDeleted }: MediaDeleteCo
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="text-lg font-semibold text-slate-900">Delete media</h2>
+        <h2 className="text-lg font-semibold text-slate-900">حذف رسانه</h2>
         <p className="mt-1 text-sm text-slate-600">
           This permanently deletes “{media.altText}”. This can&apos;t be undone.
         </p>
@@ -70,7 +70,7 @@ export function MediaDeleteConfirm({ media, onCancel, onDeleted }: MediaDeleteCo
             disabled={isDeleting}
             className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isConflict ? "Close" : "Cancel"}
+            {isConflict ? "بستن" : "انصراف"}
           </button>
           {isConflict ? null : (
             <button
@@ -79,7 +79,7 @@ export function MediaDeleteConfirm({ media, onCancel, onDeleted }: MediaDeleteCo
               disabled={isDeleting}
               className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500 disabled:cursor-not-allowed disabled:bg-red-300"
             >
-              {isDeleting ? "Deleting…" : "Delete"}
+              {isDeleting ? "در حال حذف…" : "حذف"}
             </button>
           )}
         </div>

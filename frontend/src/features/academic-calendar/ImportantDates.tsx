@@ -1,5 +1,12 @@
-import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
-import { importantDates } from "./data";
+import {
+  Badge,
+  Section,
+  SectionHeader,
+  Stack,
+  Text,
+} from "@/shared/design-system/components";
+import { importantDates as fallbackImportantDates } from "./data";
+import { useAcademicCalendar } from "./useAcademicCalendar";
 
 /**
  * Academic Calendar page "Important Dates" section — key
@@ -27,17 +34,22 @@ import { importantDates } from "./data";
  * a navy/gold `Badge`, matching `Holidays`'s refresh above.
  */
 export function ImportantDates() {
+  const { data } = useAcademicCalendar();
+  const importantDates =
+    data && data.importantDates.length > 0 ? data.importantDates : fallbackImportantDates;
+
   return (
     <Section
       spacing="lg"
       tone="muted"
-      className="rounded-lg"
+      className="rounded-3xl"
       aria-labelledby="academic-calendar-important-dates-heading"
     >
       <Stack gap="md">
-        <Heading id="academic-calendar-important-dates-heading" level={2}>
-          تاریخ‌های مهم
-        </Heading>
+        <SectionHeader
+          headingId="academic-calendar-important-dates-heading"
+          title="تاریخ‌های مهم"
+        />
         <Stack gap="none" as="ol" className="border-s-2 border-brand-gold/30 ps-6">
           {importantDates.map((item, index) => (
             <Stack

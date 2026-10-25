@@ -31,7 +31,11 @@ import {
   buildPublicCacheKey,
   PUBLIC_CACHE_TTL_SECONDS,
 } from '../common/public-cache.constants';
-import { clampPagination, paginate, PaginatedResult } from '../common/pagination';
+import {
+  clampPagination,
+  paginate,
+  PaginatedResult,
+} from '../common/pagination';
 
 interface PublicEventListItemDto {
   id: string;
@@ -121,25 +125,18 @@ export class PublicEventsController {
       // in-memory, pushed into the query here (rather than relied on
       // in-memory below) so `total`/pagination reflect the true visible
       // set instead of the pre-filter row count.
-      .andWhere(
-        '(event.publishAt IS NULL OR event.publishAt <= :now)',
-        { now },
-      );
+      .andWhere('(event.publishAt IS NULL OR event.publishAt <= :now)', {
+        now,
+      });
     if (category) qb.andWhere('event.category = :category', { category });
     if (tag) qb.andWhere(':tag = ANY(event.tags)', { tag });
 
     // An event is "over" once its end (or, lacking one, its start) has
     // passed — the same rule used for 'past' below, inverted.
     if (when === 'upcoming') {
-      qb.andWhere(
-        '(COALESCE(event.endAt, event.startAt) >= :now)',
-        { now },
-      );
+      qb.andWhere('(COALESCE(event.endAt, event.startAt) >= :now)', { now });
     } else if (when === 'past') {
-      qb.andWhere(
-        '(COALESCE(event.endAt, event.startAt) < :now)',
-        { now },
-      );
+      qb.andWhere('(COALESCE(event.endAt, event.startAt) < :now)', { now });
     }
 
     const [events, total] = await qb
@@ -191,7 +188,12 @@ export class PublicEventsController {
       ...this.toListItem(event, new Map()),
       featuredImage: image,
       body: event.body,
-      seo: this.seo.resolvePublicSeo(event.seo, title, `/events/${event.slug}`, baseUrl),
+      seo: this.seo.resolvePublicSeo(
+        event.seo,
+        title,
+        `/events/${event.slug}`,
+        baseUrl,
+      ),
       structuredData: [
         this.seo.buildEventSchema({
           name: title,

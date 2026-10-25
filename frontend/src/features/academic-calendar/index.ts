@@ -21,3 +21,5 @@ export type {
   ImportantDate,
 } from "./types";
 export { academicYearStats, terms, holidays, examPeriods, importantDates } from "./data";
+export { fetchAcademicCalendar, type AcademicCalendar } from "./api";
+export { useAcademicCalendar, academicCalendarQueryKey } from "./useAcademicCalendar";

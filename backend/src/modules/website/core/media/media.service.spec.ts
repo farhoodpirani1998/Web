@@ -27,7 +27,13 @@ describe('MediaService', () => {
     storage = { upload: jest.fn(), delete: jest.fn() };
     siteService = { getDefaultSiteId: jest.fn().mockReturnValue(siteId) };
     events = { emit: jest.fn() };
-    service = new MediaService(mediaRepo, usageRepo, storage, siteService, events);
+    service = new MediaService(
+      mediaRepo,
+      usageRepo,
+      storage,
+      siteService,
+      events,
+    );
   });
 
   describe('findAll', () => {
@@ -50,7 +56,9 @@ describe('MediaService', () => {
         addSelect: jest.fn().mockReturnThis(),
         where: jest.fn().mockReturnThis(),
         groupBy: jest.fn().mockReturnThis(),
-        getRawMany: jest.fn().mockResolvedValue([{ mediaId: 'media-1', count: '3' }]),
+        getRawMany: jest
+          .fn()
+          .mockResolvedValue([{ mediaId: 'media-1', count: '3' }]),
       };
       usageRepo.createQueryBuilder.mockReturnValue(qb);
 

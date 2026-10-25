@@ -1,64 +1,56 @@
-import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { CalendarDays } from "lucide-react";
+
+import {
+  Link,
+  MediaFrame,
+  PageHero,
+  buttonVariants,
+} from "@/shared/design-system/components";
+import { cn } from "@/shared/utils/cn";
 
 /**
- * Events page "Hero" section — first section of the `events` feature,
- * mirroring `@/features/campuses`'s and `@/features/teachers`'s
- * `Hero` sections (which themselves follow the same pattern as
- * `hero`/`about`/`schools`/`pre-registration`'s `Hero` sections).
+ * Events page hero — thin wrapper around the shared `PageHero`.
+ * Full-bleed, so `EventsPage` renders it outside `PageLayout`.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Stack`, `Badge`, `Heading`, `Text`) — no data
- * fetching, no business logic. Real copy is ultimately the backend's
- * Events content-module data (§4, §8); this renders frontend-owned
- * Persian placeholder copy in the meantime.
- *
- * This feature is deliberately isolated, matching the same "new,
- * isolated feature" scope `@/features/campuses` and
- * `@/features/teachers` were built under — no other feature/page is
- * replaced, renamed, or modified.
- *
- * Visual refresh: adopts the same gold-badge/underline eyebrow
- * treatment and soft gradient backdrop already established by the
- * homepage `Hero`/`Features` sections (and now `AboutHero`/
- * `GalleryHero`/`NewsHero`/`CampusesHero`/`TeachersHero`), so this
- * page reads as part of the same premium navy/gold system instead of
- * a plain text block. Still zero new dependencies — the backdrop is a
- * plain `aria-hidden` `div` built from existing tokens, the same
- * technique those sections already use.
+ * Presentation only: event data belongs to `EventList`.
  */
 export function Hero() {
   return (
-    <Section
-      spacing="lg"
-      aria-labelledby="events-hero-heading"
-      className="relative isolate overflow-hidden"
-    >
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-10 rounded-[2.5rem] bg-gradient-to-b from-muted/70 via-muted/15 to-transparent"
-      />
-
-      <Stack gap="sm" align="start" className="max-w-2xl">
-        <Badge
-          variant="outline"
-          className="w-fit gap-1.5 rounded-full border-brand-gold/40 bg-brand-gold/10 px-3 py-1 text-brand-navy"
-        >
-          رویدادها
-        </Badge>
-
-        <Stack gap="xs" align="start">
-          <Heading id="events-hero-heading" level={1}>
-            رویدادها و برنامه‌های مجموعه ما
-          </Heading>
-          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
-        </Stack>
-
-        <Text variant="lead" className="max-w-2xl text-foreground/70">
-          متنی نمونه درباره رویدادهای پیش‌رو، جشن‌ها، کارگاه‌های آموزشی و بازدیدهای علمی
-          مجموعه. زمان، مکان و جزئیات هر رویداد در نهایت از طریق سامانه مدیریت محتوا و
-          سرویس عمومی بک‌اند دریافت خواهد شد.
-        </Text>
-      </Stack>
-    </Section>
+    <PageHero
+      headingId="events-hero-heading"
+      eyebrow="رویدادها"
+      title="رویدادها و برنامه‌های مجموعه ما"
+      description="زمان، مکان و جزئیات هر رویداد — از کارگاه‌های آموزشی و بازدیدهای علمی تا جشن‌ها — پس از انتشار در سامانه مدیریت محتوا در همین صفحه نمایش داده می‌شود."
+      media={
+        <MediaFrame
+          ratio={4 / 3}
+          label="تصویر رویداد به‌زودی"
+          icon={CalendarDays}
+          className="rounded-3xl shadow-xl shadow-brand-navy/5 ring-1 ring-border/60"
+        />
+      }
+      actions={
+        <>
+          <Link
+            href="/news"
+            className={cn(
+              buttonVariants({ variant: "default", size: "lg", shape: "pill" }),
+              "bg-brand-navy text-white shadow-lg shadow-brand-navy/20 hover:bg-brand-navy/90",
+            )}
+          >
+            اخبار مجموعه
+          </Link>
+          <Link
+            href="/contact"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "lg", shape: "pill" }),
+              "border-brand-navy/20 hover:bg-transparent",
+            )}
+          >
+            تماس با ما
+          </Link>
+        </>
+      }
+    />
   );
 }

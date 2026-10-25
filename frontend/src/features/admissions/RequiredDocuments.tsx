@@ -9,7 +9,8 @@ import {
   Stack,
   Text,
 } from "@/shared/design-system/components";
-import { requiredDocuments } from "./data";
+import { requiredDocuments as fallbackDocuments } from "./data";
+import { useAdmissions } from "./useAdmissions";
 
 /**
  * Admissions page "Required Documents" section — the checklist of
@@ -30,6 +31,10 @@ import { requiredDocuments } from "./data";
  * frontend-owned Persian placeholder copy in the meantime.
  */
 export function RequiredDocuments() {
+  const { data } = useAdmissions();
+  const requiredDocuments =
+    data && data.requiredDocuments.length > 0 ? data.requiredDocuments : fallbackDocuments;
+
   return (
     <Section spacing="lg" aria-labelledby="admissions-documents-heading">
       <Stack gap="md">

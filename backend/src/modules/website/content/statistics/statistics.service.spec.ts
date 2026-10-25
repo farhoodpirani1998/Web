@@ -7,6 +7,7 @@ describe('StatisticsService', () => {
   let siteService: any;
   let ordering: any;
   let publishing: any;
+  let redis: any;
   let service: StatisticsService;
 
   beforeEach(() => {
@@ -26,7 +27,19 @@ describe('StatisticsService', () => {
     siteService = { getDefaultSiteId: jest.fn().mockReturnValue(siteId) };
     ordering = { reorder: jest.fn() };
     publishing = { transition: jest.fn() };
-    service = new StatisticsService(repo, siteService, ordering, publishing);
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
+    service = new StatisticsService(
+      repo,
+      siteService,
+      ordering,
+      publishing,
+      redis,
+    );
   });
 
   describe('create', () => {
@@ -101,7 +114,10 @@ describe('StatisticsService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      const result = await service.update('statistic-1', { suffix: null, icon: null });
+      const result = await service.update('statistic-1', {
+        suffix: null,
+        icon: null,
+      });
 
       expect(result.suffix).toBeUndefined();
       expect(result.icon).toBeUndefined();
@@ -116,7 +132,10 @@ describe('StatisticsService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      const result = await service.updateStatus('statistic-1', PublishStatus.PUBLISHED);
+      const result = await service.updateStatus(
+        'statistic-1',
+        PublishStatus.PUBLISHED,
+      );
 
       expect(publishing.transition).toHaveBeenCalledWith({
         from: PublishStatus.DRAFT,
@@ -132,11 +151,11 @@ describe('StatisticsService', () => {
   describe('reorder', () => {
     it('delegates to OrderingService with the statistics table name', async () => {
       await service.reorder(['a', 'b', 'c']);
-      expect(ordering.reorder).toHaveBeenCalledWith(repo.manager, 'statistics', [
-        'a',
-        'b',
-        'c',
-      ]);
+      expect(ordering.reorder).toHaveBeenCalledWith(
+        repo.manager,
+        'statistics',
+        ['a', 'b', 'c'],
+      );
     });
   });
 });

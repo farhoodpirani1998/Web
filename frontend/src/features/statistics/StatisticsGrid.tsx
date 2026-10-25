@@ -1,4 +1,11 @@
-import { Card, Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import {
+  Card,
+  Grid,
+  Section,
+  SectionHeader,
+  Stack,
+  Text,
+} from "@/shared/design-system/components";
 import { toPersianDigits } from "@/shared/utils/toPersianDigits";
 import { useStatistics } from "./useStatistics";
 import type { StatisticItem } from "./types";
@@ -71,14 +78,21 @@ export function StatisticsGrid() {
     data && data.length > 0 ? data.map(toDisplayStat) : fallbackStats;
 
   return (
-    <Section spacing="lg" tone="muted" aria-labelledby="statistics-grid-heading">
+    <Section
+      spacing="lg"
+      tone="muted"
+      className="rounded-3xl"
+      aria-labelledby="statistics-grid-heading"
+    >
+      {/* Mid-page band: an inset rounded card inside `PageLayout`'s
+          container, per the rule that only heroes and CTAs bleed full
+          width (see `AboutStats`, which uses the same treatment). */}
       <Stack gap="lg">
-        <Stack gap="xs" align="start">
-          <Heading id="statistics-grid-heading" level={2}>
-            آمار مجموعه
-          </Heading>
-          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
-        </Stack>
+        <SectionHeader
+          headingId="statistics-grid-heading"
+          eyebrow="آمار مجموعه"
+          title="مجموعه در یک نگاه"
+        />
 
         <Grid cols="4" gap="md">
           {stats.map((stat) => (
@@ -92,7 +106,10 @@ export function StatisticsGrid() {
                 <Text as="span" variant="lead" weight="bold" className="text-brand-navy">
                   {stat.value}
                 </Text>
-                <span aria-hidden="true" className="block h-0.5 w-8 rounded-full bg-brand-gold" />
+                <span
+                  aria-hidden="true"
+                  className="block h-0.5 w-8 rounded-full bg-brand-gold"
+                />
                 <Text variant="bodySm" color="muted">
                   {stat.label}
                 </Text>

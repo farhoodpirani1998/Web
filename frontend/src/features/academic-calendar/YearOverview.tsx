@@ -1,12 +1,13 @@
 import {
   Card,
   Grid,
-  Heading,
   Section,
+  SectionHeader,
   Stack,
   Text,
 } from "@/shared/design-system/components";
-import { academicYearStats } from "./data";
+import { academicYearStats as fallbackStats } from "./data";
+import { useAcademicCalendar } from "./useAcademicCalendar";
 
 /**
  * Academic Calendar page "Year Overview" section — a snapshot of the
@@ -33,23 +34,22 @@ import { academicYearStats } from "./data";
  * value/label text.
  */
 export function YearOverview() {
+  const { data } = useAcademicCalendar();
+  const academicYearStats = data && data.yearStats.length > 0 ? data.yearStats : fallbackStats;
+
   return (
     <Section
       spacing="lg"
       tone="muted"
-      className="rounded-lg"
+      className="rounded-3xl"
       aria-labelledby="academic-calendar-overview-heading"
     >
       <Stack gap="md">
-        <Stack gap="sm">
-          <Heading id="academic-calendar-overview-heading" level={2}>
-            سال تحصیلی در یک نگاه
-          </Heading>
-          <Text variant="lead" className="max-w-2xl">
-            متن نمونه برای معرفی کلی سال تحصیلی جاری. تاریخ‌های دقیق آغاز و پایان هر
-            سال تحصیلی هر ساله توسط مجموعه اعلام و در همین صفحه به‌روزرسانی می‌شود.
-          </Text>
-        </Stack>
+        <SectionHeader
+          headingId="academic-calendar-overview-heading"
+          title="سال تحصیلی در یک نگاه"
+          description="تاریخ‌های دقیق آغاز و پایان هر سال تحصیلی، تعداد ترم‌ها و هفته‌های آموزشی پس از انتشار در سامانه مدیریت محتوا در همین صفحه به‌روزرسانی می‌شود."
+        />
 
         <Grid cols="4" gap="md">
           {academicYearStats.map((stat) => (

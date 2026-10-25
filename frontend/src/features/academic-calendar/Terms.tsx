@@ -1,5 +1,6 @@
 import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
-import { terms } from "./data";
+import { terms as fallbackTerms } from "./data";
+import { useAcademicCalendar } from "./useAcademicCalendar";
 
 /**
  * Academic Calendar page "Terms" section — the ordered list of
@@ -30,6 +31,9 @@ import { terms } from "./data";
  * page instead of a plain two-column row.
  */
 export function Terms() {
+  const { data } = useAcademicCalendar();
+  const terms = data && data.terms.length > 0 ? data.terms : fallbackTerms;
+
   return (
     <Section spacing="lg" aria-labelledby="academic-calendar-terms-heading">
       <Stack gap="md">

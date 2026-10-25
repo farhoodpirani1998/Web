@@ -17,9 +17,9 @@ const VALID_TRANSITIONS: Record<CmsGalleryStatus, CmsGalleryStatus[]> = {
 };
 
 const STATUS_LABEL: Record<CmsGalleryStatus, string> = {
-  draft: "Draft",
-  published: "Published",
-  archived: "Archived",
+  draft: "پیش‌نویس",
+  published: "منتشرشده",
+  archived: "بایگانی",
 };
 
 const STATUS_BADGE_CLASS: Record<CmsGalleryStatus, string> = {

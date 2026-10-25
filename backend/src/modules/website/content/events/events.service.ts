@@ -62,11 +62,16 @@ export class EventsService implements OnModuleInit {
   ) {}
 
   /** Same reasoning as NewsService.invalidatePublicCache. */
-  private async invalidatePublicCache(...slugs: Array<string | undefined>): Promise<void> {
+  private async invalidatePublicCache(
+    ...slugs: Array<string | undefined>
+  ): Promise<void> {
     for (const slug of slugs) {
-      if (slug) await this.redis.delete(buildPublicCacheKey('events', 'detail', slug));
+      if (slug)
+        await this.redis.delete(buildPublicCacheKey('events', 'detail', slug));
     }
-    await this.redis.deleteByPrefix(`${buildPublicCacheKey('events', 'list')}:`);
+    await this.redis.deleteByPrefix(
+      `${buildPublicCacheKey('events', 'list')}:`,
+    );
   }
 
   onModuleInit() {
@@ -85,7 +90,10 @@ export class EventsService implements OnModuleInit {
       return events
         .filter((event) => !event.publishAt || event.publishAt <= now)
         .filter((event) => SeoService.isIndexable(event.seo))
-        .map((event) => ({ loc: `/events/${event.slug}`, lastmod: event.updatedAt }));
+        .map((event) => ({
+          loc: `/events/${event.slug}`,
+          lastmod: event.updatedAt,
+        }));
     });
   }
 
@@ -109,7 +117,10 @@ export class EventsService implements OnModuleInit {
     }
   }
 
-  async create(dto: CreateCalendarEventDto, authorId: string): Promise<CalendarEvent> {
+  async create(
+    dto: CreateCalendarEventDto,
+    authorId: string,
+  ): Promise<CalendarEvent> {
     const siteId = this.siteService.getDefaultSiteId();
     await this.assertSlugAvailable(siteId, dto.slug);
 
@@ -138,14 +149,26 @@ export class EventsService implements OnModuleInit {
     );
 
     if (event.featuredImageMediaId) {
-      await this.media.attach(event.featuredImageMediaId, ENTITY_TYPE, event.id);
+      await this.media.attach(
+        event.featuredImageMediaId,
+        ENTITY_TYPE,
+        event.id,
+      );
     }
-    await this.revisions.record(ENTITY_TYPE, event.id, snapshotOf(event), authorId);
+    await this.revisions.record(
+      ENTITY_TYPE,
+      event.id,
+      snapshotOf(event),
+      authorId,
+    );
     await this.invalidatePublicCache(event.slug);
     return event;
   }
 
-  async findAll(status?: PublishStatus, category?: string): Promise<CalendarEvent[]> {
+  async findAll(
+    status?: PublishStatus,
+    category?: string,
+  ): Promise<CalendarEvent[]> {
     const siteId = this.siteService.getDefaultSiteId();
     const qb = this.eventsRepo
       .createQueryBuilder('event')
@@ -178,13 +201,16 @@ export class EventsService implements OnModuleInit {
     }
     if (dto.title !== undefined) event.title = dto.title;
     if (dto.excerpt !== undefined) event.excerpt = dto.excerpt;
-    if (dto.body !== undefined) event.body = sanitizeTranslatableRichText(dto.body);
+    if (dto.body !== undefined)
+      event.body = sanitizeTranslatableRichText(dto.body);
     if (dto.category !== undefined) event.category = dto.category;
     if (dto.tags !== undefined) event.tags = dto.tags;
     if (dto.location !== undefined) event.location = dto.location;
-    if (dto.locationUrl !== undefined) event.locationUrl = dto.locationUrl ?? undefined;
+    if (dto.locationUrl !== undefined)
+      event.locationUrl = dto.locationUrl ?? undefined;
     if (dto.startAt !== undefined) event.startAt = new Date(dto.startAt);
-    if (dto.endAt !== undefined) event.endAt = dto.endAt ? new Date(dto.endAt) : undefined;
+    if (dto.endAt !== undefined)
+      event.endAt = dto.endAt ? new Date(dto.endAt) : undefined;
     if (dto.allDay !== undefined) event.allDay = dto.allDay;
     this.assertValidRange(event.startAt, event.endAt);
 
@@ -200,14 +226,27 @@ export class EventsService implements OnModuleInit {
       dto.featuredImageMediaId !== previousFeaturedImageMediaId
     ) {
       if (previousFeaturedImageMediaId) {
-        await this.media.detach(previousFeaturedImageMediaId, ENTITY_TYPE, saved.id);
+        await this.media.detach(
+          previousFeaturedImageMediaId,
+          ENTITY_TYPE,
+          saved.id,
+        );
       }
       if (saved.featuredImageMediaId) {
-        await this.media.attach(saved.featuredImageMediaId, ENTITY_TYPE, saved.id);
+        await this.media.attach(
+          saved.featuredImageMediaId,
+          ENTITY_TYPE,
+          saved.id,
+        );
       }
     }
 
-    await this.revisions.record(ENTITY_TYPE, saved.id, snapshotOf(saved), authorId);
+    await this.revisions.record(
+      ENTITY_TYPE,
+      saved.id,
+      snapshotOf(saved),
+      authorId,
+    );
     await this.invalidatePublicCache(previousSlug, saved.slug);
     return saved;
   }
@@ -215,7 +254,11 @@ export class EventsService implements OnModuleInit {
   async remove(id: string): Promise<void> {
     const event = await this.findOne(id);
     if (event.featuredImageMediaId) {
-      await this.media.detach(event.featuredImageMediaId, ENTITY_TYPE, event.id);
+      await this.media.detach(
+        event.featuredImageMediaId,
+        ENTITY_TYPE,
+        event.id,
+      );
     }
     await this.eventsRepo.delete({ id });
     await this.invalidatePublicCache(event.slug);
@@ -253,7 +296,11 @@ export class EventsService implements OnModuleInit {
     versionNumber: number,
     authorId: string,
   ): Promise<CalendarEvent> {
-    const revision = await this.revisions.getVersion(ENTITY_TYPE, id, versionNumber);
+    const revision = await this.revisions.getVersion(
+      ENTITY_TYPE,
+      id,
+      versionNumber,
+    );
     const snapshot = revision.snapshot as {
       title: CalendarEvent['title'];
       slug: CalendarEvent['slug'];

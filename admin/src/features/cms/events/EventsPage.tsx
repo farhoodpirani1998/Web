@@ -87,7 +87,7 @@ export function EventsPage() {
       setEvents((current) => current.map((item) => (item.id === updated.id ? updated : item)));
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingStatusId(null);
@@ -103,7 +103,7 @@ export function EventsPage() {
       setEvents((current) => current.map((item) => (item.id === updated.id ? updated : item)));
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingScheduleId(null);
@@ -112,25 +112,25 @@ export function EventsPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Events" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "رویدادها" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="Events" />
+            <PageHeader title="رویدادها" />
             <Section>
               <EmptyState
-                title="You don't have access to Events"
-                description="Viewing events requires the Content permission. Contact an admin if you need access."
+                title="به رویدادها دسترسی ندارید"
+                description="مشاهده رویدادها نیازمند دسترسی محتوا است. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="Events"
-          description="Manage the calendar events shown on the public site."
+          title="رویدادها"
+          description="مدیریت رویدادهای تقویم نمایش‌داده‌شده در سایت."
         >
           <PermissionGate permission="website.content:write">
             <button
@@ -138,7 +138,7 @@ export function EventsPage() {
               onClick={handleCreate}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
-              New event
+              رویداد جدید
             </button>
           </PermissionGate>
         </PageHeader>

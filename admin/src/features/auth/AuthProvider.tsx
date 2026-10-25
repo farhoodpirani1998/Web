@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   if (status === "checking") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <p className="text-sm text-slate-500">Checking authentication…</p>
+        <p className="text-sm text-slate-500">در حال بررسی احراز هویت…</p>
       </div>
     );
   }

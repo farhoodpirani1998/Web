@@ -74,7 +74,7 @@ export function CommandPalette({ search }: CommandPaletteProps) {
           key={`group:${groupKey}`}
           className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-slate-400 first:pt-1"
         >
-          {result.kind === "nav" ? "Navigation" : result.moduleLabel}
+          {result.kind === "nav" ? "ناوبری" : result.moduleLabel}
         </p>,
       );
       lastGroupKey = groupKey;
@@ -102,14 +102,14 @@ export function CommandPalette({ search }: CommandPaletteProps) {
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4 pt-24">
       <button
         type="button"
-        aria-label="Close search"
+        aria-label="بستن جستجو"
         onClick={close}
         className="absolute inset-0 cursor-default"
       />
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Search"
+        aria-label="جستجو"
         className="relative z-10 flex max-h-[70vh] w-full max-w-lg flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl"
       >
         <div className="border-b border-slate-200 p-3">
@@ -119,8 +119,8 @@ export function CommandPalette({ search }: CommandPaletteProps) {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search pages and content…"
-            aria-label="Search pages and content"
+            placeholder="جستجوی صفحات و محتوا…"
+            aria-label="جستجوی صفحات و محتوا"
             className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300"
           />
         </div>
@@ -129,10 +129,10 @@ export function CommandPalette({ search }: CommandPaletteProps) {
           {rows.length === 0 ? (
             <p className="px-3 py-6 text-center text-sm text-slate-500">
               {isContentLoading
-                ? "Searching…"
+                ? "در حال جستجو…"
                 : isContentError
-                  ? "Content search is unavailable. Close and reopen search to retry."
-                  : "No results found."}
+                  ? "جستجوی محتوا در دسترس نیست. برای تلاش دوباره، جستجو را ببندید و باز کنید."
+                  : "نتیجه‌ای یافت نشد."}
             </p>
           ) : (
             rows
@@ -140,8 +140,8 @@ export function CommandPalette({ search }: CommandPaletteProps) {
         </div>
 
         <div className="flex items-center justify-between border-t border-slate-200 px-3 py-2 text-xs text-slate-400">
-          <span>↑↓ to navigate, Enter to select, Esc to close</span>
-          {isContentLoading ? <span>Loading content…</span> : null}
+          <span>↑↓ برای جابه‌جایی، Enter برای انتخاب، Esc برای بستن</span>
+          {isContentLoading ? <span>در حال بارگذاری محتوا…</span> : null}
         </div>
       </div>
     </div>

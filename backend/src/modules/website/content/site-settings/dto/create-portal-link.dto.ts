@@ -1,5 +1,11 @@
 import { Type } from 'class-transformer';
-import { IsBoolean, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
+import {
+  IsBoolean,
+  IsOptional,
+  IsString,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
 import { TranslatableTextDto } from '../../common/dto/translatable-text.dto';
 
 export class CreatePortalLinkDto {

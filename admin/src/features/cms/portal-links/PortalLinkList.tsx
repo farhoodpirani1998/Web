@@ -33,7 +33,7 @@ export function PortalLinkList({
   onReorder,
 }: PortalLinkListProps) {
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">Loading portal links…</p>;
+    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری لینک‌های سامانه…</p>;
   }
 
   if (error) {
@@ -43,8 +43,8 @@ export function PortalLinkList({
   if (links.length === 0) {
     return (
       <EmptyState
-        title="No portal links yet"
-        description="Add a link to an external system (parent portal, LMS, webmail, etc.) to get started."
+        title="هنوز لینک سامانه‌ای نیست"
+        description="برای شروع یک پیوند به سامانه خارجی (پرتابل والدین، LMS، ایمیل و غیره) اضافه کنید."
       />
     );
   }
@@ -55,19 +55,19 @@ export function PortalLinkList({
         <thead className="bg-slate-50">
           <tr>
             <th scope="col" className="w-10 px-3 py-2 text-left font-medium text-slate-500">
-              <span className="sr-only">Reorder</span>
+              <span className="sr-only">مرتب‌سازی</span>
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Label
+              برچسب
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              URL
+              نشانی
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Status
+              وضعیت
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium text-slate-500">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">اقدامات</span>
             </th>
           </tr>
         </thead>

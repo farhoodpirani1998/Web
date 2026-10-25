@@ -15,3 +15,5 @@ export { FAQ } from "./FAQ";
 export { CTA } from "./CTA";
 export type { AdmissionStep, Requirement, RequiredDocument, TuitionPlan } from "./types";
 export { admissionSteps, requirements, requiredDocuments, tuitionPlans } from "./data";
+export { fetchAdmissions, type Admissions } from "./api";
+export { useAdmissions, admissionsQueryKey } from "./useAdmissions";

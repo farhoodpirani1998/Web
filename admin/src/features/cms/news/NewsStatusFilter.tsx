@@ -4,7 +4,7 @@ import type { CmsNewsStatus } from "./types";
 
 /**
  * All/Draft/Published/Archived filter for the news list, plus a
- * category text filter. `undefined` means "All" for status — that's
+ * category text filter. `undefined` means "همه" for status — that's
  * also exactly what `fetchNewsList`/`useNews` expect for "no status
  * filter" (omitting the query param entirely, per
  * `NewsController.findAll`), so this component's status value type
@@ -31,10 +31,10 @@ export interface NewsStatusFilterProps {
 }
 
 const STATUS_OPTIONS: { label: string; value: CmsNewsStatus | undefined }[] = [
-  { label: "All", value: undefined },
-  { label: "Draft", value: "draft" },
-  { label: "Published", value: "published" },
-  { label: "Archived", value: "archived" },
+  { label: "همه", value: undefined },
+  { label: "پیش‌نویس", value: "draft" },
+  { label: "منتشرشده", value: "published" },
+  { label: "بایگانی", value: "archived" },
 ];
 
 export function NewsStatusFilter({
@@ -60,7 +60,7 @@ export function NewsStatusFilter({
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div
         role="tablist"
-        aria-label="Filter news by status"
+        aria-label="فیلتر اخبار بر اساس وضعیت"
         className="inline-flex w-fit rounded-md border border-slate-200 bg-slate-50 p-0.5"
       >
         {STATUS_OPTIONS.map((option) => {
@@ -84,21 +84,22 @@ export function NewsStatusFilter({
 
       <form onSubmit={handleCategorySubmit} className="flex items-center gap-2">
         <label htmlFor="news-category-filter" className="sr-only">
-          Filter by category
+          فیلتر بر اساس دسته‌بندی
         </label>
         <input
           id="news-category-filter"
           type="text"
+          dir="rtl"
           value={categoryInput}
           onChange={(event) => setCategoryInput(event.target.value)}
-          placeholder="Filter by category…"
+          placeholder="فیلتر بر اساس دسته‌بندی…"
           className="w-40 rounded-md border border-slate-300 px-2.5 py-1.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
         />
         <button
           type="submit"
           className="rounded-md border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
         >
-          Apply
+          اعمال
         </button>
         {category ? (
           <button
@@ -106,7 +107,7 @@ export function NewsStatusFilter({
             onClick={handleClearCategory}
             className="text-sm font-medium text-slate-500 hover:text-slate-900"
           >
-            Clear
+            پاک کردن
           </button>
         ) : null}
       </form>

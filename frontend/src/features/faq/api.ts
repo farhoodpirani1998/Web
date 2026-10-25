@@ -1,6 +1,7 @@
 import { apiClient } from "@/shared/api";
+import { resolveLocalizedText } from "@/shared/utils/localized";
 
-import type { Faq } from "./types";
+import type { Faq, PublicFaqItemDto } from "./types";
 
 /**
  * Request functions for the `faq` feature's Public API endpoint.
@@ -10,6 +11,10 @@ import type { Faq } from "./types";
  * never `apiClient` directly.
  */
 export async function fetchFaq(): Promise<Faq> {
-  const response = await apiClient.get<Faq>("/faq");
-  return response.data;
+  const response = await apiClient.get<readonly PublicFaqItemDto[]>("/faq");
+  return response.data.map(({ id, question, answer }) => ({
+    id,
+    question: resolveLocalizedText(question),
+    answer: resolveLocalizedText(answer),
+  }));
 }

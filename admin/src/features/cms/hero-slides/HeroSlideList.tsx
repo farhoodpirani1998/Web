@@ -10,7 +10,7 @@ import type { CmsHeroSlide, CmsHeroSlideStatus } from "./types";
  * display whatever list/loading/error state it's handed, same split
  * as `features/cms/faq/FaqList.tsx`.
  *
- * Reordering is only enabled when `status` is `undefined` ("All"):
+ * Reordering is only enabled when `status` is `undefined` ("همه"):
  * `PATCH /hero-slides/reorder` (`OrderingService.reorder`) writes
  * `position` for exactly the ids it's given, in that order — it does
  * not shift the ids left out. Sending a filtered subset would silently
@@ -46,7 +46,7 @@ export function HeroSlideList({
   onReorder,
 }: HeroSlideListProps) {
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">Loading hero slides…</p>;
+    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری اسلایدهای هدر…</p>;
   }
 
   if (error) {
@@ -56,8 +56,8 @@ export function HeroSlideList({
   if (slides.length === 0) {
     return (
       <EmptyState
-        title="No hero slides yet"
-        description="Add a slide to get started."
+        title="هنوز اسلاید هدری نیست"
+        description="برای شروع یک اسلاید اضافه کنید."
       />
     );
   }
@@ -71,23 +71,23 @@ export function HeroSlideList({
           <tr>
             {canReorder ? (
               <th scope="col" className="w-10 px-3 py-2 text-left font-medium text-slate-500">
-                <span className="sr-only">Reorder</span>
+                <span className="sr-only">مرتب‌سازی</span>
               </th>
             ) : null}
             <th scope="col" className="w-16 px-3 py-2 text-left font-medium text-slate-500">
-              <span className="sr-only">Image</span>
+              <span className="sr-only">تصویر</span>
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Heading
+              سرتیتر
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              CTA
+              فراخوان اقدام
             </th>
             <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              Status
+              وضعیت
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium text-slate-500">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">اقدامات</span>
             </th>
           </tr>
         </thead>

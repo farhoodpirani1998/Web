@@ -73,7 +73,7 @@ export function PreRegistrationRow({
             onClick={() => onViewDetail(preRegistration)}
             className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
           >
-            View
+            مشاهده
           </button>
           <PermissionGate permission="website.content:write">
             <button
@@ -81,7 +81,7 @@ export function PreRegistrationRow({
               onClick={() => onDeleteRequest(preRegistration)}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
             >
-              Delete
+              حذف
             </button>
           </PermissionGate>
         </div>

@@ -1,0 +1,51 @@
+/*
+ * Font-face declarations — ported from the public frontend so the admin
+ * panel shares the same brand type: Vazirmatn (body) + Estedad (headings),
+ * both self-hosted from src/assets/fonts/.
+ *
+ * Components read type through the --font-sans / --font-heading tokens
+ * (see globals.css), never a hardcoded family name.
+ */
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("./vazirmatn-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("./vazirmatn-medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("./vazirmatn-semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("./vazirmatn-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Heading typeface — Estedad ExtraBold only (single weight, as on the
+   public site). File: OFL-licensed (rastikerdar/estedad-font), license
+   kept alongside at src/assets/fonts/OFL-Estedad.txt. */
+@font-face {
+  font-family: "Estedad";
+  src: url("./estedad-extrabold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}

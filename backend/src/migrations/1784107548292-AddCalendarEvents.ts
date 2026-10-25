@@ -47,9 +47,15 @@ export class AddCalendarEvents1784107548292 implements MigrationInterface {
         CONSTRAINT "PK_calendar_events" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_calendar_events_siteId" ON "calendar_events" ("siteId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_calendar_events_category" ON "calendar_events" ("category")`);
-    await queryRunner.query(`CREATE INDEX "IDX_calendar_events_startAt" ON "calendar_events" ("startAt")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_calendar_events_siteId" ON "calendar_events" ("siteId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_calendar_events_category" ON "calendar_events" ("category")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_calendar_events_startAt" ON "calendar_events" ("startAt")`,
+    );
     await queryRunner.query(`
       CREATE UNIQUE INDEX "IDX_calendar_events_siteId_slug" ON "calendar_events" ("siteId", "slug")
     `);
@@ -61,7 +67,9 @@ export class AddCalendarEvents1784107548292 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "site_settings" DROP COLUMN "featureFlagsEventsEnabled"`);
+    await queryRunner.query(
+      `ALTER TABLE "site_settings" DROP COLUMN "featureFlagsEventsEnabled"`,
+    );
     await queryRunner.query(`DROP TABLE "calendar_events"`);
     await queryRunner.query(`DROP TYPE "calendar_events_status_enum"`);
   }

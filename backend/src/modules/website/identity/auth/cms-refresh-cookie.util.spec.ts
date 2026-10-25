@@ -35,7 +35,10 @@ describe('cms-refresh-cookie.util', () => {
     it('respects a custom cookie name from config', () => {
       const req = { headers: { cookie: 'custom_name=xyz123' } } as any;
       expect(
-        readRefreshCookie(req, fakeConfig({ CMS_REFRESH_COOKIE_NAME: 'custom_name' })),
+        readRefreshCookie(
+          req,
+          fakeConfig({ CMS_REFRESH_COOKIE_NAME: 'custom_name' }),
+        ),
       ).toBe('xyz123');
     });
 
@@ -58,16 +61,22 @@ describe('cms-refresh-cookie.util', () => {
 
     it('honors a configured day count', () => {
       expect(
-        refreshTokenTtlMs(fakeConfig({ CMS_REFRESH_TOKEN_EXPIRES_IN_DAYS: '7' })),
+        refreshTokenTtlMs(
+          fakeConfig({ CMS_REFRESH_TOKEN_EXPIRES_IN_DAYS: '7' }),
+        ),
       ).toBe(7 * 24 * 60 * 60 * 1000);
     });
 
     it('falls back to 30 days for a non-numeric or non-positive override', () => {
       expect(
-        refreshTokenTtlMs(fakeConfig({ CMS_REFRESH_TOKEN_EXPIRES_IN_DAYS: 'not-a-number' })),
+        refreshTokenTtlMs(
+          fakeConfig({ CMS_REFRESH_TOKEN_EXPIRES_IN_DAYS: 'not-a-number' }),
+        ),
       ).toBe(30 * 24 * 60 * 60 * 1000);
       expect(
-        refreshTokenTtlMs(fakeConfig({ CMS_REFRESH_TOKEN_EXPIRES_IN_DAYS: '-5' })),
+        refreshTokenTtlMs(
+          fakeConfig({ CMS_REFRESH_TOKEN_EXPIRES_IN_DAYS: '-5' }),
+        ),
       ).toBe(30 * 24 * 60 * 60 * 1000);
     });
   });
@@ -82,20 +91,32 @@ describe('cms-refresh-cookie.util', () => {
     });
 
     it('defaults secure to true in production and false otherwise', () => {
-      expect(refreshCookieOptions(fakeConfig({ NODE_ENV: 'production' }), 1000).secure).toBe(true);
-      expect(refreshCookieOptions(fakeConfig({ NODE_ENV: 'development' }), 1000).secure).toBe(false);
+      expect(
+        refreshCookieOptions(fakeConfig({ NODE_ENV: 'production' }), 1000)
+          .secure,
+      ).toBe(true);
+      expect(
+        refreshCookieOptions(fakeConfig({ NODE_ENV: 'development' }), 1000)
+          .secure,
+      ).toBe(false);
     });
 
     it('lets CMS_REFRESH_COOKIE_SECURE override the NODE_ENV-derived default', () => {
       expect(
         refreshCookieOptions(
-          fakeConfig({ NODE_ENV: 'development', CMS_REFRESH_COOKIE_SECURE: 'true' }),
+          fakeConfig({
+            NODE_ENV: 'development',
+            CMS_REFRESH_COOKIE_SECURE: 'true',
+          }),
           1000,
         ).secure,
       ).toBe(true);
       expect(
         refreshCookieOptions(
-          fakeConfig({ NODE_ENV: 'production', CMS_REFRESH_COOKIE_SECURE: 'false' }),
+          fakeConfig({
+            NODE_ENV: 'production',
+            CMS_REFRESH_COOKIE_SECURE: 'false',
+          }),
           1000,
         ).secure,
       ).toBe(false);
@@ -103,7 +124,10 @@ describe('cms-refresh-cookie.util', () => {
 
     it('lets CMS_REFRESH_COOKIE_SAMESITE override the default', () => {
       expect(
-        refreshCookieOptions(fakeConfig({ CMS_REFRESH_COOKIE_SAMESITE: 'none' }), 1000).sameSite,
+        refreshCookieOptions(
+          fakeConfig({ CMS_REFRESH_COOKIE_SAMESITE: 'none' }),
+          1000,
+        ).sameSite,
       ).toBe('none');
     });
   });

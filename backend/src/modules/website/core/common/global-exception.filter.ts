@@ -10,6 +10,7 @@ import {
 import * as Sentry from '@sentry/node';
 import { EntityNotFoundError } from 'typeorm';
 import type { Request, Response } from 'express';
+import { logJson } from './json-logger';
 
 /**
  * Registered as the app's single global exception filter (see
@@ -58,14 +59,28 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       exception = new NotFoundException('The requested resource was not found');
     }
 
-    const status = exception instanceof HttpException
-      ? exception.getStatus()
-      : HttpStatus.INTERNAL_SERVER_ERROR;
-    const error = exception instanceof Error ? exception : new Error(String(exception));
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
+    const error =
+      exception instanceof Error ? exception : new Error(String(exception));
 
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
       // Full detail (message + stack) always goes to the server log,
       // regardless of environment or exception type — never to the client.
+      // Emitted as one structured JSON line (correlation id included so it
+      // ties back to the request-logger line for the same request); the
+      // Nest logger line is kept too for local readability.
+      logJson('error', 'request failed', {
+        correlationId: request.correlationId,
+        method: request.method,
+        // path only — never query string (see request-logger.middleware.ts)
+        path: request.path,
+        status,
+        error: error.message,
+        stack: error.stack,
+      });
       this.logger.error(
         `${request.method} ${request.url} -> ${status}: ${error.message}`,
         error.stack,
@@ -80,7 +95,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       const body = exception.getResponse();
       response
         .status(status)
-        .json(typeof body === 'string' ? { statusCode: status, message: body } : body);
+        .json(
+          typeof body === 'string'
+            ? { statusCode: status, message: body }
+            : body,
+        );
       return;
     }
 

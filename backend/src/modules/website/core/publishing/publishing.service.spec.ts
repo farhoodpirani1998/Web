@@ -16,25 +16,37 @@ describe('PublishingService', () => {
   describe('assertValidTransition', () => {
     it('allows draft -> published', () => {
       expect(() =>
-        service.assertValidTransition(PublishStatus.DRAFT, PublishStatus.PUBLISHED),
+        service.assertValidTransition(
+          PublishStatus.DRAFT,
+          PublishStatus.PUBLISHED,
+        ),
       ).not.toThrow();
     });
 
     it('allows published -> archived', () => {
       expect(() =>
-        service.assertValidTransition(PublishStatus.PUBLISHED, PublishStatus.ARCHIVED),
+        service.assertValidTransition(
+          PublishStatus.PUBLISHED,
+          PublishStatus.ARCHIVED,
+        ),
       ).not.toThrow();
     });
 
     it('allows archived -> draft', () => {
       expect(() =>
-        service.assertValidTransition(PublishStatus.ARCHIVED, PublishStatus.DRAFT),
+        service.assertValidTransition(
+          PublishStatus.ARCHIVED,
+          PublishStatus.DRAFT,
+        ),
       ).not.toThrow();
     });
 
     it('rejects archived -> published (must go through draft first)', () => {
       expect(() =>
-        service.assertValidTransition(PublishStatus.ARCHIVED, PublishStatus.PUBLISHED),
+        service.assertValidTransition(
+          PublishStatus.ARCHIVED,
+          PublishStatus.PUBLISHED,
+        ),
       ).toThrow(BadRequestException);
     });
 
@@ -53,7 +65,11 @@ describe('PublishingService', () => {
     };
 
     it('emits CONTENT_UPDATED but not CONTENT_PUBLISHED for a non-publish transition', () => {
-      service.transition({ ...base, from: PublishStatus.DRAFT, to: PublishStatus.ARCHIVED });
+      service.transition({
+        ...base,
+        from: PublishStatus.DRAFT,
+        to: PublishStatus.ARCHIVED,
+      });
 
       expect(events.emit).toHaveBeenCalledTimes(1);
       expect(events.emit).toHaveBeenCalledWith(
@@ -63,7 +79,11 @@ describe('PublishingService', () => {
     });
 
     it('emits both CONTENT_UPDATED and CONTENT_PUBLISHED when transitioning to PUBLISHED', () => {
-      service.transition({ ...base, from: PublishStatus.DRAFT, to: PublishStatus.PUBLISHED });
+      service.transition({
+        ...base,
+        from: PublishStatus.DRAFT,
+        to: PublishStatus.PUBLISHED,
+      });
 
       expect(events.emit).toHaveBeenCalledTimes(2);
       expect(events.emit).toHaveBeenNthCalledWith(
@@ -80,7 +100,11 @@ describe('PublishingService', () => {
 
     it('throws and emits nothing for an invalid transition', () => {
       expect(() =>
-        service.transition({ ...base, from: PublishStatus.ARCHIVED, to: PublishStatus.PUBLISHED }),
+        service.transition({
+          ...base,
+          from: PublishStatus.ARCHIVED,
+          to: PublishStatus.PUBLISHED,
+        }),
       ).toThrow(BadRequestException);
       expect(events.emit).not.toHaveBeenCalled();
     });

@@ -17,7 +17,7 @@ import type { CmsCalendarEvent, CmsEventStatus } from "./types";
  *
  * The "When" column is Events-specific (News/Pages have no equivalent
  * concept) — it formats `startAt`/`endAt`/`allDay` for a quick glance,
- * distinct from the "Publish at" column (`publishAt`, via
+ * distinct from the "زمان انتشار" column (`publishAt`, via
  * `EventScheduleControl`), which is a listing-visibility concern, not
  * when the event itself happens (see the entity's own doc comment).
  */
@@ -126,7 +126,7 @@ export function EventRow({
               onClick={() => onViewHistory(event)}
               className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
-              History
+              تاریخچه
             </button>
           </PermissionGate>
           <PermissionGate permission="website.content:write">
@@ -135,7 +135,7 @@ export function EventRow({
               onClick={() => onEdit(event)}
               className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
-              Edit
+              ویرایش
             </button>
           </PermissionGate>
           <PermissionGate permission="website.content:write">
@@ -144,7 +144,7 @@ export function EventRow({
               onClick={() => onDeleteRequest(event)}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
             >
-              Delete
+              حذف
             </button>
           </PermissionGate>
         </div>

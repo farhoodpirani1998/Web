@@ -19,15 +19,15 @@ export function EmptyState({ icon, title, description, children }: EmptyStatePro
   return (
     <div className="flex flex-col items-center gap-2 py-12 text-center">
       {icon ? (
-        <div className="mb-2 flex h-10 w-10 items-center justify-center text-slate-400">
+        <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-muted-foreground">
           {icon}
         </div>
       ) : null}
 
-      <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+      <h3 className="font-heading text-sm font-bold text-foreground">{title}</h3>
 
       {description ? (
-        <p className="max-w-sm text-sm text-slate-600">{description}</p>
+        <p className="max-w-sm text-sm text-muted-foreground">{description}</p>
       ) : null}
 
       {children ? <div className="mt-4">{children}</div> : null}

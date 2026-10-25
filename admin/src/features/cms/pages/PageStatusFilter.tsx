@@ -3,7 +3,7 @@ import { usePageOptions } from "./hooks/usePages";
 
 /**
  * All/Draft/Published/Archived filter for the pages list, plus a
- * "Parent" filter. `undefined` means "All" for status — same
+ * "والد" filter. `undefined` means "همه" for status — same
  * convention as `features/cms/news/NewsStatusFilter.tsx`.
  *
  * The parent filter exists here (and not in FAQ/Gallery/Hero/News'
@@ -27,10 +27,10 @@ export interface PageStatusFilterProps {
 }
 
 const STATUS_OPTIONS: { label: string; value: CmsPageStatus | undefined }[] = [
-  { label: "All", value: undefined },
-  { label: "Draft", value: "draft" },
-  { label: "Published", value: "published" },
-  { label: "Archived", value: "archived" },
+  { label: "همه", value: undefined },
+  { label: "پیش‌نویس", value: "draft" },
+  { label: "منتشرشده", value: "published" },
+  { label: "بایگانی", value: "archived" },
 ];
 
 export function PageStatusFilter({
@@ -45,7 +45,7 @@ export function PageStatusFilter({
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div
         role="tablist"
-        aria-label="Filter pages by status"
+        aria-label="فیلتر صفحات بر اساس وضعیت"
         className="inline-flex w-fit rounded-md border border-slate-200 bg-slate-50 p-0.5"
       >
         {STATUS_OPTIONS.map((option) => {
@@ -69,7 +69,7 @@ export function PageStatusFilter({
 
       <div className="flex items-center gap-2">
         <label htmlFor="page-parent-filter" className="text-sm text-slate-600">
-          Parent
+          والد
         </label>
         <select
           id="page-parent-filter"
@@ -78,7 +78,7 @@ export function PageStatusFilter({
           disabled={isLoading}
           className="rounded-md border border-slate-300 px-2.5 py-1.5 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
         >
-          <option value="">All pages</option>
+          <option value="">همه صفحات</option>
           {options.map((page) => (
             <option key={page.id} value={page.id}>
               {page.title.fa}

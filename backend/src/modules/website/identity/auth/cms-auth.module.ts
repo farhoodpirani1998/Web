@@ -61,6 +61,12 @@ const refreshTokenFeature = TypeOrmModule.forFeature([CmsRefreshToken]);
     PasswordHasherService,
     CmsRefreshTokenService,
   ],
-  exports: [CmsAuthGuard, CmsPermissionGuard, PasswordHasherService, JwtModule, adminUserFeature],
+  exports: [
+    CmsAuthGuard,
+    CmsPermissionGuard,
+    PasswordHasherService,
+    JwtModule,
+    adminUserFeature,
+  ],
 })
 export class CmsAuthModule {}

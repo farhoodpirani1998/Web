@@ -17,15 +17,15 @@ const CONTENT_MODULES = ADMIN_NAV_ITEMS.filter(
 export function ContentPage() {
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Content" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "محتوا" }]} />
 
       <PageHeader
-        title="Content"
-        description="Open a module to manage its published website content."
+        title="محتوا"
+        description="برای مدیریت محتوای منتشرشده، یک ماژول را باز کنید."
       />
 
       <Section>
-        <nav aria-label="Content modules">
+        <nav aria-label="ماژول‌های محتوا">
           <ul className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
             {CONTENT_MODULES.map((module) => (
               <li key={module.id} className="border-b border-slate-200">

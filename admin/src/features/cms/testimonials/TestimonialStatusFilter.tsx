@@ -2,14 +2,14 @@ import type { CmsTestimonialStatus } from "./types";
 
 /**
  * All/Draft/Published/Archived filter for the testimonials list.
- * `undefined` means "All" — that's also exactly what
+ * `undefined` means "همه" — that's also exactly what
  * `fetchTestimonialList`/`useTestimonials` expect for "no status
  * filter" (omitting the query param entirely, per
  * `TestimonialsController.findAll`), so this component's value type
  * doubles as the hook's param type with no translation step in
  * `TestimonialsPage`. Identical to `FaqStatusFilter`.
  *
- * "All" is also the only mode `TestimonialList` allows drag/move
+ * "همه" is also the only mode `TestimonialList` allows drag/move
  * reordering in — see that file's comment for why.
  *
  * No search box alongside this: `GET /admin/testimonials` has no
@@ -22,17 +22,17 @@ export interface TestimonialStatusFilterProps {
 }
 
 const OPTIONS: { label: string; value: CmsTestimonialStatus | undefined }[] = [
-  { label: "All", value: undefined },
-  { label: "Draft", value: "draft" },
-  { label: "Published", value: "published" },
-  { label: "Archived", value: "archived" },
+  { label: "همه", value: undefined },
+  { label: "پیش‌نویس", value: "draft" },
+  { label: "منتشرشده", value: "published" },
+  { label: "بایگانی", value: "archived" },
 ];
 
 export function TestimonialStatusFilter({ value, onChange }: TestimonialStatusFilterProps) {
   return (
     <div
       role="tablist"
-      aria-label="Filter testimonials by status"
+      aria-label="فیلتر نظرات بر اساس وضعیت"
       className="inline-flex w-fit rounded-md border border-slate-200 bg-slate-50 p-0.5"
     >
       {OPTIONS.map((option) => {

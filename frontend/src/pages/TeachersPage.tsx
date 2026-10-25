@@ -57,14 +57,17 @@ const TEACHERS_SEO = {
  */
 export function TeachersPage() {
   return (
-    <PageLayout>
+    <>
       <Seo seo={TEACHERS_SEO} />
-      <Stack gap="none">
-        <Hero />
-        <TeacherGrid />
-        <TeacherDetails />
-        <FAQ />
-      </Stack>
-    </PageLayout>
+      {/* Full-bleed hero band, outside PageLayout (which is a Container). */}
+      <Hero />
+      <PageLayout>
+        <Stack gap="none">
+          <TeacherGrid />
+          <TeacherDetails />
+          <FAQ />
+        </Stack>
+      </PageLayout>
+    </>
   );
 }

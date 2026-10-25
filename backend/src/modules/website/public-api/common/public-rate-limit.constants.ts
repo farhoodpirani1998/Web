@@ -77,4 +77,5 @@ export const PUBLIC_FORM_THROTTLE = {
  * rather than every client blocking on a fresh DB read once the 60s
  * window lapses.
  */
-export const PUBLIC_CACHE_CONTROL = 'public, max-age=60, stale-while-revalidate=300';
+export const PUBLIC_CACHE_CONTROL =
+  'public, max-age=60, stale-while-revalidate=300';

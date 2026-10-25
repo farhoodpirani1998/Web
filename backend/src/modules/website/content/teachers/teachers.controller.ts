@@ -56,10 +56,7 @@ export class TeachersController {
 
   @Post()
   @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
-  create(
-    @Body() dto: CreateTeacherDto,
-    @CurrentAdmin() user: CmsRequestUser,
-  ) {
+  create(@Body() dto: CreateTeacherDto, @CurrentAdmin() user: CmsRequestUser) {
     return this.teachersService.create(dto, user.id);
   }
 

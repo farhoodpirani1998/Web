@@ -1,5 +1,12 @@
-import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
-import { holidays } from "./data";
+import {
+  Badge,
+  Section,
+  SectionHeader,
+  Stack,
+  Text,
+} from "@/shared/design-system/components";
+import { holidays as fallbackHolidays } from "./data";
+import { useAcademicCalendar } from "./useAcademicCalendar";
 
 /**
  * Academic Calendar page "Holidays" section — official and religious
@@ -28,17 +35,21 @@ import { holidays } from "./data";
  * for stronger scannability than same-weight text.
  */
 export function Holidays() {
+  const { data } = useAcademicCalendar();
+  const holidays = data && data.holidays.length > 0 ? data.holidays : fallbackHolidays;
+
   return (
     <Section
       spacing="lg"
       tone="muted"
-      className="rounded-lg"
+      className="rounded-3xl"
       aria-labelledby="academic-calendar-holidays-heading"
     >
       <Stack gap="md">
-        <Heading id="academic-calendar-holidays-heading" level={2}>
-          تعطیلات رسمی و مذهبی
-        </Heading>
+        <SectionHeader
+          headingId="academic-calendar-holidays-heading"
+          title="تعطیلات رسمی و مذهبی"
+        />
         <Stack gap="none" as="ol" className="border-s-2 border-brand-gold/30 ps-6">
           {holidays.map((holiday, index) => (
             <Stack

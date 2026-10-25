@@ -8,6 +8,7 @@ import { OrderingModule } from '../../core/ordering/ordering.module';
 import { PublishingModule } from '../../core/publishing/publishing.module';
 import { MediaModule } from '../../core/media/media.module';
 import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
+import { RedisModule } from '../../core/redis/redis.module';
 
 /**
  * Kernel pieces used: site scoping, ordering, publishing, media
@@ -22,6 +23,7 @@ import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
     PublishingModule,
     MediaModule,
     CmsAuthModule,
+    RedisModule,
   ],
   providers: [TestimonialsService],
   controllers: [TestimonialsController],

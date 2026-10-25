@@ -49,7 +49,10 @@ export class HeroController {
 
   @Post()
   @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
-  create(@Body() dto: CreateHeroSlideDto, @CurrentAdmin() user: CmsRequestUser) {
+  create(
+    @Body() dto: CreateHeroSlideDto,
+    @CurrentAdmin() user: CmsRequestUser,
+  ) {
     return this.heroService.create(dto, user.id);
   }
 

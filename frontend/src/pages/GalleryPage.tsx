@@ -45,13 +45,16 @@ import { GalleryHero, GalleryGrid, GalleryDetails, FAQ } from "@/features/galler
  */
 export function GalleryPage() {
   return (
-    <PageLayout>
-      <Stack gap="none">
-        <GalleryHero />
-        <GalleryGrid />
-        <GalleryDetails />
-        <FAQ />
-      </Stack>
-    </PageLayout>
+    <>
+      {/* Full-bleed hero band, outside PageLayout (which is a Container). */}
+      <GalleryHero />
+      <PageLayout>
+        <Stack gap="none">
+          <GalleryGrid />
+          <GalleryDetails />
+          <FAQ />
+        </Stack>
+      </PageLayout>
+    </>
   );
 }

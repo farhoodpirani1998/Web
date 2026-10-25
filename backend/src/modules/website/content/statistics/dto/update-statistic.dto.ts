@@ -1,5 +1,11 @@
 import { Type } from 'class-transformer';
-import { IsNumber, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import {
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+  ValidateNested,
+} from 'class-validator';
 import { TranslatableTextDto } from '../../common/dto/translatable-text.dto';
 
 export class UpdateStatisticDto {

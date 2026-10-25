@@ -67,7 +67,6 @@ export class InitSchema1784049505842 implements MigrationInterface {
       CREATE TYPE "testimonials_status_enum" AS ENUM ('draft', 'published', 'archived')
     `);
 
-
     await queryRunner.query(`
       CREATE TABLE "sites" (
         "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -110,7 +109,9 @@ export class InitSchema1784049505842 implements MigrationInterface {
         CONSTRAINT "PK_media" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_media_siteId" ON "media" ("siteId")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_media_siteId" ON "media" ("siteId")`,
+    );
 
     await queryRunner.query(`
       CREATE TABLE "media_usages" (
@@ -166,7 +167,9 @@ export class InitSchema1784049505842 implements MigrationInterface {
         CONSTRAINT "PK_about_page" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_about_page_siteId" ON "about_page" ("siteId")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_about_page_siteId" ON "about_page" ("siteId")`,
+    );
 
     await queryRunner.query(`
       CREATE TABLE "site_settings" (
@@ -196,7 +199,9 @@ export class InitSchema1784049505842 implements MigrationInterface {
         CONSTRAINT "PK_site_settings" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_site_settings_siteId" ON "site_settings" ("siteId")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_site_settings_siteId" ON "site_settings" ("siteId")`,
+    );
 
     // --- Site-scoped ordered lists --------------------------------------------
     await queryRunner.query(`
@@ -213,8 +218,12 @@ export class InitSchema1784049505842 implements MigrationInterface {
         CONSTRAINT "PK_faqs" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_faqs_siteId" ON "faqs" ("siteId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_faqs_position" ON "faqs" ("position")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_faqs_siteId" ON "faqs" ("siteId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_faqs_position" ON "faqs" ("position")`,
+    );
 
     await queryRunner.query(`
       CREATE TABLE "features" (
@@ -230,8 +239,12 @@ export class InitSchema1784049505842 implements MigrationInterface {
         CONSTRAINT "PK_features" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_features_siteId" ON "features" ("siteId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_features_position" ON "features" ("position")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_features_siteId" ON "features" ("siteId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_features_position" ON "features" ("position")`,
+    );
 
     await queryRunner.query(`
       CREATE TABLE "gallery_items" (
@@ -247,9 +260,15 @@ export class InitSchema1784049505842 implements MigrationInterface {
         CONSTRAINT "PK_gallery_items" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_gallery_items_siteId" ON "gallery_items" ("siteId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_gallery_items_category" ON "gallery_items" ("category")`);
-    await queryRunner.query(`CREATE INDEX "IDX_gallery_items_position" ON "gallery_items" ("position")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_gallery_items_siteId" ON "gallery_items" ("siteId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_gallery_items_category" ON "gallery_items" ("category")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_gallery_items_position" ON "gallery_items" ("position")`,
+    );
 
     await queryRunner.query(`
       CREATE TABLE "hero_slides" (
@@ -267,8 +286,12 @@ export class InitSchema1784049505842 implements MigrationInterface {
         CONSTRAINT "PK_hero_slides" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_hero_slides_siteId" ON "hero_slides" ("siteId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_hero_slides_position" ON "hero_slides" ("position")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_hero_slides_siteId" ON "hero_slides" ("siteId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_hero_slides_position" ON "hero_slides" ("position")`,
+    );
 
     await queryRunner.query(`
       CREATE TABLE "testimonials" (
@@ -286,8 +309,12 @@ export class InitSchema1784049505842 implements MigrationInterface {
         CONSTRAINT "PK_testimonials" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_testimonials_siteId" ON "testimonials" ("siteId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_testimonials_position" ON "testimonials" ("position")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_testimonials_siteId" ON "testimonials" ("siteId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_testimonials_position" ON "testimonials" ("position")`,
+    );
 
     await queryRunner.query(`
       CREATE TABLE "portal_links" (
@@ -303,8 +330,12 @@ export class InitSchema1784049505842 implements MigrationInterface {
         CONSTRAINT "PK_portal_links" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_portal_links_siteId" ON "portal_links" ("siteId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_portal_links_position" ON "portal_links" ("position")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_portal_links_siteId" ON "portal_links" ("siteId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_portal_links_position" ON "portal_links" ("position")`,
+    );
 
     // --- Navigation ------------------------------------------------------------
     await queryRunner.query(`
@@ -318,8 +349,12 @@ export class InitSchema1784049505842 implements MigrationInterface {
         CONSTRAINT "PK_menus" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_menus_siteId" ON "menus" ("siteId")`);
-    await queryRunner.query(`CREATE UNIQUE INDEX "IDX_menus_siteId_key" ON "menus" ("siteId", "key")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_menus_siteId" ON "menus" ("siteId")`,
+    );
+    await queryRunner.query(
+      `CREATE UNIQUE INDEX "IDX_menus_siteId_key" ON "menus" ("siteId", "key")`,
+    );
 
     await queryRunner.query(`
       CREATE TABLE "menu_items" (
@@ -338,10 +373,18 @@ export class InitSchema1784049505842 implements MigrationInterface {
         CONSTRAINT "PK_menu_items" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_menu_items_siteId" ON "menu_items" ("siteId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_menu_items_menuId" ON "menu_items" ("menuId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_menu_items_parentId" ON "menu_items" ("parentId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_menu_items_position" ON "menu_items" ("position")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_menu_items_siteId" ON "menu_items" ("siteId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_menu_items_menuId" ON "menu_items" ("menuId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_menu_items_parentId" ON "menu_items" ("parentId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_menu_items_position" ON "menu_items" ("position")`,
+    );
 
     // --- Indexable public pages -------------------------------------------------
     await queryRunner.query(`
@@ -367,8 +410,12 @@ export class InitSchema1784049505842 implements MigrationInterface {
         CONSTRAINT "PK_news_articles" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_news_articles_siteId" ON "news_articles" ("siteId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_news_articles_category" ON "news_articles" ("category")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_news_articles_siteId" ON "news_articles" ("siteId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_news_articles_category" ON "news_articles" ("category")`,
+    );
     await queryRunner.query(`
       CREATE UNIQUE INDEX "IDX_news_articles_siteId_slug" ON "news_articles" ("siteId", "slug")
     `);
@@ -397,8 +444,12 @@ export class InitSchema1784049505842 implements MigrationInterface {
         CONSTRAINT "PK_static_pages" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_static_pages_siteId" ON "static_pages" ("siteId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_static_pages_parentId" ON "static_pages" ("parentId")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_static_pages_siteId" ON "static_pages" ("siteId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_static_pages_parentId" ON "static_pages" ("parentId")`,
+    );
     await queryRunner.query(`
       CREATE UNIQUE INDEX "IDX_static_pages_siteId_slug" ON "static_pages" ("siteId", "slug")
     `);

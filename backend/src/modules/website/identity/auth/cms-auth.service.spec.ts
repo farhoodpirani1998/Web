@@ -7,17 +7,27 @@ describe('CmsAuthService', () => {
   let passwordHasher: any;
   let jwt: any;
   let config: any;
+  let refreshTokens: any;
   let service: CmsAuthService;
 
   beforeEach(() => {
-    repo = { findOne: jest.fn() };
+    repo = { findOne: jest.fn(), save: jest.fn() };
     passwordHasher = { verify: jest.fn(), hash: jest.fn() };
     jwt = { signAsync: jest.fn().mockResolvedValue('signed.jwt.token') };
+    refreshTokens = {
+      revokeAllForAdmin: jest.fn().mockResolvedValue(undefined),
+    };
     config = {
       getOrThrow: jest.fn().mockReturnValue('test-secret'),
       get: jest.fn((key: string, fallback?: unknown) => fallback),
     };
-    service = new CmsAuthService(repo, passwordHasher, jwt, config);
+    service = new CmsAuthService(
+      repo,
+      passwordHasher,
+      jwt,
+      config,
+      refreshTokens,
+    );
   });
 
   describe('login', () => {
@@ -26,7 +36,10 @@ describe('CmsAuthService', () => {
       passwordHasher.verify.mockResolvedValue(false);
 
       await expect(
-        service.login({ email: 'nobody@example.com', password: 'whatever12345' }),
+        service.login({
+          email: 'nobody@example.com',
+          password: 'whatever12345',
+        }),
       ).rejects.toBeInstanceOf(UnauthorizedException);
       // Still compares against something, so timing doesn't leak "no such row".
       expect(passwordHasher.verify).toHaveBeenCalled();
@@ -58,7 +71,10 @@ describe('CmsAuthService', () => {
       passwordHasher.verify.mockResolvedValue(true);
 
       await expect(
-        service.login({ email: 'admin@example.com', password: 'correct-horse' }),
+        service.login({
+          email: 'admin@example.com',
+          password: 'correct-horse',
+        }),
       ).rejects.toBeInstanceOf(ForbiddenException);
     });
 
@@ -82,10 +98,15 @@ describe('CmsAuthService', () => {
         id: 'admin-1',
         email: 'admin@example.com',
         role: WebsiteRole.PUBLISHER,
+        permissions: ROLE_PERMISSIONS[WebsiteRole.PUBLISHER],
       });
       expect((result.admin as any).passwordHash).toBeUndefined();
       expect(jwt.signAsync).toHaveBeenCalledWith(
-        { sub: 'admin-1', email: 'admin@example.com', role: WebsiteRole.PUBLISHER },
+        {
+          sub: 'admin-1',
+          email: 'admin@example.com',
+          role: WebsiteRole.PUBLISHER,
+        },
         expect.objectContaining({ algorithm: 'HS256' }),
       );
     });
@@ -148,6 +169,7 @@ describe('CmsAuthService', () => {
         id: 'admin-1',
         email: 'admin@example.com',
         role: WebsiteRole.PUBLISHER,
+        permissions: ROLE_PERMISSIONS[WebsiteRole.PUBLISHER],
       });
     });
 
@@ -170,6 +192,46 @@ describe('CmsAuthService', () => {
       await expect(
         service.issueAccessTokenForAdminId('gone'),
       ).rejects.toBeInstanceOf(UnauthorizedException);
+    });
+  });
+
+  describe('changePassword', () => {
+    it('revokes all refresh tokens before saving the new password', async () => {
+      const admin = {
+        id: 'admin-1',
+        passwordHash: 'old-hash',
+      };
+      repo.findOne.mockResolvedValue(admin);
+      passwordHasher.verify.mockResolvedValue(true);
+      passwordHasher.hash.mockResolvedValue('new-hash');
+
+      await service.changePassword(
+        'admin-1',
+        'current-password',
+        'new-password',
+      );
+
+      expect(refreshTokens.revokeAllForAdmin).toHaveBeenCalledWith('admin-1');
+      expect(admin.passwordHash).toBe('new-hash');
+      expect(repo.save).toHaveBeenCalledWith(admin);
+      expect(
+        refreshTokens.revokeAllForAdmin.mock.invocationCallOrder[0],
+      ).toBeLessThan(repo.save.mock.invocationCallOrder[0]);
+    });
+
+    it('does not revoke refresh tokens when the current password is incorrect', async () => {
+      repo.findOne.mockResolvedValue({
+        id: 'admin-1',
+        passwordHash: 'old-hash',
+      });
+      passwordHasher.verify.mockResolvedValue(false);
+
+      await expect(
+        service.changePassword('admin-1', 'wrong-password', 'new-password'),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+
+      expect(refreshTokens.revokeAllForAdmin).not.toHaveBeenCalled();
+      expect(repo.save).not.toHaveBeenCalled();
     });
   });
 });

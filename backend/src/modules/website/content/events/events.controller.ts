@@ -33,7 +33,10 @@ export class EventsController {
 
   @Get()
   @RequireCmsPermission(WebsitePermission.CONTENT_READ)
-  findAll(@Query('status') status?: PublishStatus, @Query('category') category?: string) {
+  findAll(
+    @Query('status') status?: PublishStatus,
+    @Query('category') category?: string,
+  ) {
     return this.eventsService.findAll(status, category);
   }
 

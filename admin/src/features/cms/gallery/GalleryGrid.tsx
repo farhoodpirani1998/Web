@@ -10,7 +10,7 @@ import type { CmsGalleryItem, CmsGalleryStatus } from "./types";
  * whatever list/loading/error state it's handed, same split as
  * `features/cms/faq/FaqList.tsx`.
  *
- * Reordering is only enabled when `status` is `undefined` ("All"):
+ * Reordering is only enabled when `status` is `undefined` ("همه"):
  * `PATCH /gallery/reorder` (`OrderingService.reorder`) writes `position`
  * for exactly the ids it's given, in that order — it does not shift
  * the ids left out. Sending a filtered subset would silently corrupt
@@ -46,7 +46,7 @@ export function GalleryGrid({
   onReorder,
 }: GalleryGridProps) {
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">Loading gallery…</p>;
+    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری گالری…</p>;
   }
 
   if (error) {
@@ -56,8 +56,8 @@ export function GalleryGrid({
   if (items.length === 0) {
     return (
       <EmptyState
-        title="No gallery items yet"
-        description="Add a photo to get started."
+        title="هنوز تصویری در گالری نیست"
+        description="برای شروع یک تصویر اضافه کنید."
       />
     );
   }

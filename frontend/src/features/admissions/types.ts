@@ -13,6 +13,31 @@
  * change shape.
  */
 
+/** Local mirror of the backend kernel's `Translatable<T>`. */
+export interface Translatable<T = string> {
+  fa: T;
+  en?: T;
+}
+
+/**
+ * Wire shape of one entry in `GET /public/admissions`. The backend
+ * stores every section's rows in one table with a `kind` discriminator,
+ * so this flat list is grouped client-side (see `./api.ts`'s
+ * `fetchAdmissions`) into the four list shapes the section components
+ * render.
+ */
+export interface PublicAdmissionEntryDto {
+  id: string;
+  kind: "step" | "requirement" | "required_document" | "tuition_plan";
+  title: Translatable<string>;
+  value?: string;
+  description?: Translatable<string>;
+  price?: string;
+  period?: string;
+  includes?: readonly string[];
+  position: number;
+}
+
 export interface AdmissionStep {
   /** Stable identifier, also used as the React list key. */
   id: string;

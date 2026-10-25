@@ -48,11 +48,13 @@ export class AddStatistics1784400000000 implements MigrationInterface {
         CONSTRAINT "PK_statistics" PRIMARY KEY ("id")
       )
     `);
-    await queryRunner.query(`CREATE INDEX "IDX_statistics_siteId" ON "statistics" ("siteId")`);
-    await queryRunner.query(`CREATE INDEX "IDX_statistics_position" ON "statistics" ("position")`);
+    await queryRunner.query(
+      `CREATE INDEX "IDX_statistics_siteId" ON "statistics" ("siteId")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_statistics_position" ON "statistics" ("position")`,
+    );
   }
-
-  
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`DROP TABLE "statistics"`);

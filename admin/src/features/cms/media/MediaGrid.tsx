@@ -52,7 +52,7 @@ export function MediaGrid({
   onViewUsage,
 }: MediaGridProps) {
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">Loading media…</p>;
+    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری رسانه…</p>;
   }
 
   if (error) {
@@ -62,8 +62,8 @@ export function MediaGrid({
   if (media.length === 0) {
     return (
       <EmptyState
-        title="No media yet"
-        description="Upload an image to get started."
+        title="هنوز رسانه‌ای نیست"
+        description="برای شروع یک تصویر بارگذاری کنید."
       />
     );
   }
@@ -76,10 +76,10 @@ export function MediaGrid({
             checked={isAllSelected}
             indeterminate={isSelectionIndeterminate}
             onChange={onToggleSelectAll}
-            aria-label="Select all media"
+            aria-label="انتخاب همه رسانه‌ها"
           />
-          Select all
-          <span>Select all</span>
+          انتخاب همه
+          <span>انتخاب همه</span>
         </div>
       </PermissionGate>
 

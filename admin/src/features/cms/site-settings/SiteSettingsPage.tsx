@@ -30,30 +30,30 @@ export function SiteSettingsPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Settings" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "تنظیمات" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="Settings" />
+            <PageHeader title="تنظیمات" />
             <Section>
               <EmptyState
-                title="You don't have access to Settings"
-                description="Viewing site settings requires the Content permission. Contact an admin if you need access."
+                title="به تنظیمات دسترسی ندارید"
+                description="مشاهده تنظیمات سایت نیازمند دسترسی محتوا است. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="Settings"
-          description="General site information, contact details, and social links."
+          title="تنظیمات"
+          description="اطلاعات کلی سایت، اطلاعات تماس و شبکه‌های اجتماعی."
         />
 
         <Section>
           {isLoading ? (
-            <p className="py-8 text-center text-sm text-slate-500">Loading settings…</p>
+            <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری تنظیمات…</p>
           ) : error ? (
             <p className="py-8 text-center text-sm text-red-600">{error.message}</p>
           ) : settings ? (

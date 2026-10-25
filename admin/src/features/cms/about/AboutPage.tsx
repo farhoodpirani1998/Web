@@ -50,7 +50,7 @@ export function AboutPage() {
       setAbout(updated);
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setIsUpdatingStatus(false);
@@ -59,25 +59,25 @@ export function AboutPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "About" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "درباره ما" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="About" />
+            <PageHeader title="درباره ما" />
             <Section>
               <EmptyState
-                title="You don't have access to the About page"
-                description="Viewing the About page requires the Content permission. Contact an admin if you need access."
+                title="شما به صفحه درباره ما دسترسی ندارید"
+                description="مشاهده صفحه درباره ما نیازمند دسترسی محتوا است. اگر به دسترسی نیاز دارید با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="About"
-          description="Manage the public site's About Us page content, image, and SEO."
+          title="درباره ما"
+          description="مدیریت محتوا، تصویر و سئوی صفحه درباره ما در سایت عمومی."
         >
           <PermissionGate permission="website.revisions:view">
             <button
@@ -86,14 +86,14 @@ export function AboutPage() {
               disabled={!about}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Revision history
+              تاریخچه ویرایش‌ها
             </button>
           </PermissionGate>
         </PageHeader>
 
         <Section>
           {isLoading ? (
-            <p className="py-8 text-center text-sm text-slate-500">Loading About page…</p>
+            <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری صفحه درباره ما…</p>
           ) : error ? (
             <p className="py-8 text-center text-sm text-red-600">{error.message}</p>
           ) : about ? (

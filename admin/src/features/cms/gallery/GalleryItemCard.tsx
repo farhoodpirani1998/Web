@@ -9,7 +9,7 @@ import type { CmsGalleryItem, CmsGalleryStatus } from "./types";
 /**
  * One gallery item in `GalleryGrid`'s grid. Reorder controls (drag
  * handle plus up/down buttons) only render when `canReorder` is true —
- * `GalleryGrid` only sets that when the status filter is "All", see
+ * `GalleryGrid` only sets that when the status filter is "همه", see
  * that file's comment for why. Up/down buttons exist alongside native
  * HTML5 drag and drop because dragging alone isn't keyboard accessible
  * — same reasoning as `features/cms/faq/FaqRow.tsx`.
@@ -91,7 +91,7 @@ export function GalleryItemCard({
           />
         ) : (
           <div className="flex h-full items-center justify-center text-xs text-slate-400">
-            No image
+            بدون تصویر
           </div>
         )}
       </div>
@@ -102,7 +102,7 @@ export function GalleryItemCard({
             {item.caption.fa}
           </p>
         ) : (
-          <p className="text-sm text-slate-400">No caption</p>
+          <p className="text-sm text-slate-400">بدون عنوان</p>
         )}
 
         {item.category ? (
@@ -123,7 +123,7 @@ export function GalleryItemCard({
               <div className="flex items-center gap-1">
                 <span
                   aria-hidden="true"
-                  title="Drag to reorder"
+                  title="برای مرتب‌سازی بکشید"
                   className={`cursor-grab select-none text-slate-400 ${
                     isReordering ? "opacity-50" : ""
                   }`}
@@ -134,7 +134,7 @@ export function GalleryItemCard({
                   type="button"
                   disabled={isReordering || index === 0}
                   onClick={() => onReorder(index, index - 1)}
-                  aria-label="Move up"
+                  aria-label="انتقال به بالا"
                   className="text-xs leading-none text-slate-500 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-30"
                 >
                   ▲
@@ -143,7 +143,7 @@ export function GalleryItemCard({
                   type="button"
                   disabled={isReordering || index === itemCount - 1}
                   onClick={() => onReorder(index, index + 1)}
-                  aria-label="Move down"
+                  aria-label="انتقال به پایین"
                   className="text-xs leading-none text-slate-500 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-30"
                 >
                   ▼
@@ -161,7 +161,7 @@ export function GalleryItemCard({
                 onClick={() => onEdit(item)}
                 className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
               >
-                Edit
+                ویرایش
               </button>
             </PermissionGate>
             <PermissionGate permission="website.content:write">
@@ -170,7 +170,7 @@ export function GalleryItemCard({
                 onClick={() => onDeleteRequest(item)}
                 className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
               >
-                Delete
+                حذف
               </button>
             </PermissionGate>
           </div>

@@ -7,3 +7,6 @@
  */
 export type { CmsAuditLogEntry } from "./types";
 export { fetchRecentActivity } from "./api";
+export { useAuditLog, type UseAuditLogResult } from "./hooks/useAuditLog";
+export { describeEntry } from "./describeEntry";
+export { AuditLogPage } from "./AuditLogPage";

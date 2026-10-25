@@ -1,4 +1,7 @@
-import { generateRefreshToken, hashRefreshToken } from './refresh-token-hash.util';
+import {
+  generateRefreshToken,
+  hashRefreshToken,
+} from './refresh-token-hash.util';
 
 describe('refresh-token-hash.util', () => {
   describe('generateRefreshToken', () => {

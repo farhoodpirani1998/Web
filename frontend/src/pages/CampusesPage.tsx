@@ -58,14 +58,17 @@ const CAMPUSES_SEO = {
  */
 export function CampusesPage() {
   return (
-    <PageLayout>
+    <>
       <Seo seo={CAMPUSES_SEO} />
-      <Stack gap="none">
-        <Hero />
-        <CampusList />
-        <CampusDetails />
-        <FAQ />
-      </Stack>
-    </PageLayout>
+      {/* Full-bleed hero band, outside PageLayout (which is a Container). */}
+      <Hero />
+      <PageLayout>
+        <Stack gap="none">
+          <CampusList />
+          <CampusDetails />
+          <FAQ />
+        </Stack>
+      </PageLayout>
+    </>
   );
 }

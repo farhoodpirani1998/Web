@@ -70,7 +70,12 @@ export class HeroService {
     if (slide.backgroundMediaId) {
       await this.media.attach(slide.backgroundMediaId, ENTITY_TYPE, slide.id);
     }
-    await this.revisions.record(ENTITY_TYPE, slide.id, snapshotOf(slide), authorId);
+    await this.revisions.record(
+      ENTITY_TYPE,
+      slide.id,
+      snapshotOf(slide),
+      authorId,
+    );
     await this.invalidatePublicCache();
     return slide;
   }
@@ -110,14 +115,23 @@ export class HeroService {
       dto.backgroundMediaId !== previousBackgroundMediaId
     ) {
       if (previousBackgroundMediaId) {
-        await this.media.detach(previousBackgroundMediaId, ENTITY_TYPE, saved.id);
+        await this.media.detach(
+          previousBackgroundMediaId,
+          ENTITY_TYPE,
+          saved.id,
+        );
       }
       if (saved.backgroundMediaId) {
         await this.media.attach(saved.backgroundMediaId, ENTITY_TYPE, saved.id);
       }
     }
 
-    await this.revisions.record(ENTITY_TYPE, saved.id, snapshotOf(saved), authorId);
+    await this.revisions.record(
+      ENTITY_TYPE,
+      saved.id,
+      snapshotOf(saved),
+      authorId,
+    );
     await this.invalidatePublicCache();
     return saved;
   }
@@ -147,7 +161,11 @@ export class HeroService {
   }
 
   async reorder(orderedIds: string[]): Promise<void> {
-    await this.ordering.reorder(this.heroRepo.manager, 'hero_slides', orderedIds);
+    await this.ordering.reorder(
+      this.heroRepo.manager,
+      'hero_slides',
+      orderedIds,
+    );
     await this.invalidatePublicCache();
   }
 
@@ -160,7 +178,11 @@ export class HeroService {
     versionNumber: number,
     authorId: string,
   ): Promise<HeroSlide> {
-    const revision = await this.revisions.getVersion(ENTITY_TYPE, id, versionNumber);
+    const revision = await this.revisions.getVersion(
+      ENTITY_TYPE,
+      id,
+      versionNumber,
+    );
     const snapshot = revision.snapshot as {
       heading: HeroSlide['heading'];
       subheading?: HeroSlide['subheading'];

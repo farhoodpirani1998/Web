@@ -40,8 +40,22 @@ describe('NewsService', () => {
       list: jest.fn(),
       getVersion: jest.fn(),
     };
-    redis = { get: jest.fn(), set: jest.fn(), delete: jest.fn(), deleteByPrefix: jest.fn() };
-    service = new NewsService(repo, siteService, publishing, media, sitemap, siteSettings, revisions, redis);
+    redis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      delete: jest.fn(),
+      deleteByPrefix: jest.fn(),
+    };
+    service = new NewsService(
+      repo,
+      siteService,
+      publishing,
+      media,
+      sitemap,
+      siteSettings,
+      revisions,
+      redis,
+    );
   });
 
   describe('onModuleInit', () => {
@@ -51,7 +65,9 @@ describe('NewsService', () => {
     });
 
     it('returns no entries when newsEnabled is off', async () => {
-      siteSettings.get.mockResolvedValue({ featureFlags: { newsEnabled: false } });
+      siteSettings.get.mockResolvedValue({
+        featureFlags: { newsEnabled: false },
+      });
 
       service.onModuleInit();
       const provider = sitemap.register.mock.calls[0][0];
@@ -62,16 +78,14 @@ describe('NewsService', () => {
 
     it('withholds a published article whose publishAt is still in the future', async () => {
       const future = new Date(Date.now() + 86_400_000);
-      jest
-        .spyOn(service, 'findAll')
-        .mockResolvedValue([
-          {
-            id: 'a1',
-            slug: 'future-article',
-            publishAt: future,
-            updatedAt: new Date(),
-          } as any,
-        ]);
+      jest.spyOn(service, 'findAll').mockResolvedValue([
+        {
+          id: 'a1',
+          slug: 'future-article',
+          publishAt: future,
+          updatedAt: new Date(),
+        } as any,
+      ]);
 
       service.onModuleInit();
       const provider = sitemap.register.mock.calls[0][0];
@@ -83,7 +97,12 @@ describe('NewsService', () => {
     it('includes a published article once publishAt has passed', async () => {
       const past = new Date(Date.now() - 86_400_000);
       jest.spyOn(service, 'findAll').mockResolvedValue([
-        { id: 'a1', slug: 'past-article', publishAt: past, updatedAt: past } as any,
+        {
+          id: 'a1',
+          slug: 'past-article',
+          publishAt: past,
+          updatedAt: past,
+        } as any,
       ]);
 
       service.onModuleInit();
@@ -95,7 +114,12 @@ describe('NewsService', () => {
 
     it('includes a published article with no schedule at all', async () => {
       jest.spyOn(service, 'findAll').mockResolvedValue([
-        { id: 'a1', slug: 'evergreen', publishAt: undefined, updatedAt: new Date() } as any,
+        {
+          id: 'a1',
+          slug: 'evergreen',
+          publishAt: undefined,
+          updatedAt: new Date(),
+        } as any,
       ]);
 
       service.onModuleInit();
@@ -120,7 +144,11 @@ describe('NewsService', () => {
 
       expect(article.status).toBe(PublishStatus.DRAFT);
       expect(article.siteId).toBe(siteId);
-      expect(media.attach).toHaveBeenCalledWith('media-1', 'news_article', 'article-1');
+      expect(media.attach).toHaveBeenCalledWith(
+        'media-1',
+        'news_article',
+        'article-1',
+      );
       expect(revisions.record).toHaveBeenCalledWith(
         'news_article',
         'article-1',
@@ -179,10 +207,22 @@ describe('NewsService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      await service.update('article-1', { featuredImageMediaId: 'media-new' }, 'author-1');
+      await service.update(
+        'article-1',
+        { featuredImageMediaId: 'media-new' },
+        'author-1',
+      );
 
-      expect(media.detach).toHaveBeenCalledWith('media-old', 'news_article', 'article-1');
-      expect(media.attach).toHaveBeenCalledWith('media-new', 'news_article', 'article-1');
+      expect(media.detach).toHaveBeenCalledWith(
+        'media-old',
+        'news_article',
+        'article-1',
+      );
+      expect(media.attach).toHaveBeenCalledWith(
+        'media-new',
+        'news_article',
+        'article-1',
+      );
     });
   });
 
@@ -196,7 +236,11 @@ describe('NewsService', () => {
 
       await service.remove('article-1');
 
-      expect(media.detach).toHaveBeenCalledWith('media-1', 'news_article', 'article-1');
+      expect(media.detach).toHaveBeenCalledWith(
+        'media-1',
+        'news_article',
+        'article-1',
+      );
       expect(repo.delete).toHaveBeenCalledWith({ id: 'article-1' });
     });
   });
@@ -209,7 +253,10 @@ describe('NewsService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      const result = await service.updateStatus('article-1', PublishStatus.PUBLISHED);
+      const result = await service.updateStatus(
+        'article-1',
+        PublishStatus.PUBLISHED,
+      );
 
       expect(publishing.transition).toHaveBeenCalledWith({
         from: PublishStatus.DRAFT,

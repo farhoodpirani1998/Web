@@ -20,7 +20,7 @@ export function SelectAllCheckbox({
   indeterminate,
   onChange,
   disabled,
-  "aria-label": ariaLabel = "Select all rows",
+  "aria-label": ariaLabel = "انتخاب همه ردیف‌ها",
 }: SelectAllCheckboxProps) {
   const ref = useRef<HTMLInputElement>(null);
 

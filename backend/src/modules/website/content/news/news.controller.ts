@@ -33,7 +33,10 @@ export class NewsController {
 
   @Get()
   @RequireCmsPermission(WebsitePermission.CONTENT_READ)
-  findAll(@Query('status') status?: PublishStatus, @Query('category') category?: string) {
+  findAll(
+    @Query('status') status?: PublishStatus,
+    @Query('category') category?: string,
+  ) {
     return this.newsService.findAll(status, category);
   }
 

@@ -16,6 +16,8 @@ import hpp from 'hpp';
 import { json, urlencoded } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { JsonLogger } from './modules/website/core/common/json-logger';
+import { createRequestLogger } from './modules/website/core/common/request-logger.middleware';
 
 /**
  * Translates TRUST_PROXY (see .env.example) into whatever shape express's
@@ -53,8 +55,9 @@ async function bootstrap() {
   // integrations enabled — capture-only, to keep this a small,
   // dependency-light addition rather than a full APM setup. Skipped
   // entirely when SENTRY_DSN is unset (local/dev without a Sentry
-  // project) — Sentry.captureException calls elsewhere are always
-  // safe no-ops in that case.
+  // project). Production startup refuses a missing DSN in
+  // validateEnvironment — Sentry.captureException calls elsewhere are
+  // always safe no-ops when init was skipped.
   if (process.env.SENTRY_DSN) {
     Sentry.init({
       dsn: process.env.SENTRY_DSN,
@@ -72,6 +75,19 @@ async function bootstrap() {
   });
 
   const config = app.get(ConfigService);
+
+  // Machine-readable logs when LOG_FORMAT=json (production/aggregators);
+  // otherwise Nest's human-readable default for local dev. Either way,
+  // `createRequestLogger()` below emits the per-request structured line.
+  if (config.get<string>('LOG_FORMAT', 'pretty') === 'json') {
+    app.useLogger(new JsonLogger());
+  }
+
+  // Per-request structured log line + correlation id. Registered first
+  // (before helmet, parsers, throttling) so every request — including
+  // ones rejected early (oversized body, CORS, throttle) — still gets an
+  // id and a completion log line with a real duration.
+  app.use(createRequestLogger());
 
   // Security headers (X-Content-Type-Options, X-Frame-Options, HSTS,
   // a default Content-Security-Policy, etc). crossOriginResourcePolicy is
@@ -92,7 +108,10 @@ async function bootstrap() {
       crossOriginResourcePolicy: { policy: 'cross-origin' },
       hsts: {
         maxAge: config.get<number>('HSTS_MAX_AGE_SECONDS', 15_552_000),
-        includeSubDomains: parseBool(config.get<string>('HSTS_INCLUDE_SUBDOMAINS'), true),
+        includeSubDomains: parseBool(
+          config.get<string>('HSTS_INCLUDE_SUBDOMAINS'),
+          true,
+        ),
         preload: parseBool(config.get<string>('HSTS_PRELOAD'), false),
       },
     }),
@@ -123,7 +142,9 @@ async function bootstrap() {
   // BODY_LIMIT_URLENCODED_BYTES (see .env.example); falls back to 1 MiB
   // for each when unset (more generous than express's own built-in
   // 100kb default, but still bounded).
-  app.use(json({ limit: config.get<number>('BODY_LIMIT_JSON_BYTES', 1_048_576) }));
+  app.use(
+    json({ limit: config.get<number>('BODY_LIMIT_JSON_BYTES', 1_048_576) }),
+  );
   app.use(
     urlencoded({
       extended: true,
@@ -181,7 +202,10 @@ async function bootstrap() {
   // are served directly from the S3 endpoint/CDN instead, and this
   // directory may not even exist.
   if (config.get<string>('STORAGE_DRIVER', 'local') !== 's3') {
-    const localStoragePath = config.get<string>('LOCAL_STORAGE_PATH', './uploads');
+    const localStoragePath = config.get<string>(
+      'LOCAL_STORAGE_PATH',
+      './uploads',
+    );
     app.useStaticAssets(resolve(localStoragePath), {
       prefix: '/uploads',
       index: false,
@@ -236,7 +260,8 @@ async function bootstrap() {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
-          description: 'SMS-issued JWT (RS256), verified against SMS_JWT_PUBLIC_KEY_PATH',
+          description:
+            'SMS-issued JWT (RS256), verified against SMS_JWT_PUBLIC_KEY_PATH',
         },
         'sms-jwt',
       )

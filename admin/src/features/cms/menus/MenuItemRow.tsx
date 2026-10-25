@@ -84,7 +84,7 @@ export function MenuItemRow({
         <div className="flex shrink-0 flex-col items-center gap-1 pt-0.5">
           <span
             aria-hidden="true"
-            title="Drag to reorder"
+            title="برای مرتب‌سازی بکشید"
             className={`cursor-grab select-none text-slate-400 ${isReordering ? "opacity-50" : ""}`}
           >
             ⠿
@@ -94,7 +94,7 @@ export function MenuItemRow({
               type="button"
               disabled={isReordering || index === 0}
               onClick={() => onReorder(index, index - 1)}
-              aria-label="Move up"
+              aria-label="انتقال به بالا"
               className="text-xs leading-none text-slate-500 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-30"
             >
               ▲
@@ -103,7 +103,7 @@ export function MenuItemRow({
               type="button"
               disabled={isReordering || index === siblingCount - 1}
               onClick={() => onReorder(index, index + 1)}
-              aria-label="Move down"
+              aria-label="انتقال به پایین"
               className="text-xs leading-none text-slate-500 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-30"
             >
               ▼
@@ -131,7 +131,7 @@ export function MenuItemRow({
               item.visible ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"
             }`}
           >
-            {item.visible ? "Visible" : "Hidden"}
+            {item.visible ? "نمایش" : "پنهان"}
           </span>
         }
       >
@@ -143,7 +143,7 @@ export function MenuItemRow({
             item.visible ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"
           }`}
         >
-          {isTogglingVisible ? "…" : item.visible ? "Visible" : "Hidden"}
+          {isTogglingVisible ? "…" : item.visible ? "نمایش" : "پنهان"}
         </button>
       </PermissionGate>
 
@@ -154,7 +154,7 @@ export function MenuItemRow({
             onClick={() => onAddChild(item)}
             className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
           >
-            Add child
+            افزودن زیرمجموعه
           </button>
         </PermissionGate>
         <div className="flex gap-2">
@@ -164,7 +164,7 @@ export function MenuItemRow({
               onClick={() => onEdit(item)}
               className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
-              Edit
+              ویرایش
             </button>
           </PermissionGate>
           <PermissionGate permission="website.content:write">
@@ -173,7 +173,7 @@ export function MenuItemRow({
               onClick={() => onDeleteRequest(item)}
               className="rounded-md border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
             >
-              Delete
+              حذف
             </button>
           </PermissionGate>
         </div>

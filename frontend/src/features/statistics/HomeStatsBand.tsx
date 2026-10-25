@@ -5,6 +5,8 @@ import { Container } from "@/shared/design-system/components";
 import { useCountUp } from "@/shared/hooks/useCountUp";
 import { toPersianDigits } from "@/shared/utils/toPersianDigits";
 
+import { useStatistics } from "./useStatistics";
+
 /**
  * Homepage "Stats" band (Website Frontend Architecture §4, §10
  * "Section Architecture", §11 "Component Hierarchy") — shown directly
@@ -28,15 +30,18 @@ import { toPersianDigits } from "@/shared/utils/toPersianDigits";
  * only from the existing `Container` primitive plus the shared
  * `useCountUp` hook — no new dependency, no new shared component.
  *
- * Real figures are ultimately Statistics content-module data (§4,
- * §8); this renders frontend-owned Persian placeholder figures in the
- * meantime, the same convention already used by `StatisticsGrid`.
+ * Backed by `useStatistics()` (`GET /public/statistics`, §4, §8) — takes
+ * the first four published statistics in admin order, and falls back to
+ * the local four-figure literal while the request is loading / errors /
+ * returns empty, the same convention `StatisticsGrid` uses. Icons are
+ * still frontend chrome (the backend `icon` key maps to a lucide name
+ * but this band keeps its own compact icon set for layout stability).
  *
  * Rendered full-bleed *outside* `HomePage`'s `PageLayout` so the
  * overlap margin can reach up into `Hero`, the same reasoning as
  * `Hero` itself (see `HomePage.tsx`).
  */
-const stats: ReadonlyArray<{
+const fallbackBand: ReadonlyArray<{
   id: string;
   value: number;
   suffix: string;
@@ -49,12 +54,27 @@ const stats: ReadonlyArray<{
   { id: "staff", value: 45, suffix: "+", label: "استاد مجرب", icon: Building2 },
 ];
 
+const BAND_ICONS: readonly LucideIcon[] = [Smile, Users, GraduationCap, Building2];
+
 export function HomeStatsBand() {
+  const { data } = useStatistics();
+
+  const band =
+    data && data.length > 0
+      ? data.slice(0, 4).map((stat, index) => ({
+          id: stat.id,
+          value: stat.value,
+          suffix: stat.suffix ?? '',
+          label: stat.label.fa,
+          icon: BAND_ICONS[index % BAND_ICONS.length],
+        }))
+      : fallbackBand;
+
   return (
     <section aria-label="آمار مجموعه" className="relative z-10 bg-transparent">
       <Container size="xl" className="-mt-10 sm:-mt-14">
         <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-border/70 shadow-lg ring-1 ring-border/60 md:grid-cols-4">
-          {stats.map((stat) => (
+          {band.map((stat) => (
             <StatItem
               key={stat.id}
               icon={stat.icon}

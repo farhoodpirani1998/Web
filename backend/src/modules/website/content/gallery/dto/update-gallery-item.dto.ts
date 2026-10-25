@@ -16,6 +16,11 @@ export class UpdateGalleryItemDto {
   caption?: TranslatableTextDto;
 
   @IsOptional()
+  @ValidateNested()
+  @Type(() => TranslatableTextDto)
+  description?: TranslatableTextDto;
+
+  @IsOptional()
   @IsString()
   category?: string;
 }

@@ -102,6 +102,15 @@ class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   @MinLength(32)
+  // Length on its own is not entropy: a 32-digit secret satisfies @MinLength(32)
+  // while sitting well inside a plausible keyspace for offline HMAC cracking.
+  // Requiring both a letter and a non-letter rules out single-alphabet values
+  // (all-digits, all-letters) without rejecting `openssl rand -hex/base64`
+  // output, which is what .env.example and setup.sh actually generate.
+  @Matches(/^(?=.*[A-Za-z])(?=.*[^A-Za-z]).{32,}$/, {
+    message:
+      'CMS_JWT_SECRET must be at least 32 characters and mix letters with at least one digit or symbol. Generate one with `openssl rand -hex 32`.',
+  })
   CMS_JWT_SECRET!: string;
 
   // Embedded as the `iss` claim and checked by CmsAuthGuard. Optional;
@@ -188,17 +197,23 @@ class EnvironmentVariables {
   @IsEnum(StorageDriver)
   STORAGE_DRIVER: StorageDriver = StorageDriver.Local;
 
-  @ValidateIf((env: EnvironmentVariables) => env.STORAGE_DRIVER === StorageDriver.S3)
+  @ValidateIf(
+    (env: EnvironmentVariables) => env.STORAGE_DRIVER === StorageDriver.S3,
+  )
   @IsString()
   @IsNotEmpty()
   S3_BUCKET?: string;
 
-  @ValidateIf((env: EnvironmentVariables) => env.STORAGE_DRIVER === StorageDriver.S3)
+  @ValidateIf(
+    (env: EnvironmentVariables) => env.STORAGE_DRIVER === StorageDriver.S3,
+  )
   @IsString()
   @IsNotEmpty()
   S3_ACCESS_KEY_ID?: string;
 
-  @ValidateIf((env: EnvironmentVariables) => env.STORAGE_DRIVER === StorageDriver.S3)
+  @ValidateIf(
+    (env: EnvironmentVariables) => env.STORAGE_DRIVER === StorageDriver.S3,
+  )
   @IsString()
   @IsNotEmpty()
   S3_SECRET_ACCESS_KEY?: string;
@@ -246,11 +261,23 @@ class EnvironmentVariables {
 
   // --- Trust proxy (see main.ts) ---
   // "true"/"false", a hop count (e.g. "1"), or a comma-separated list of
-  // specific IPs/CIDR ranges/keywords (e.g. "loopback,linklocal"). Left
-  // unset, main.ts falls back to `false` (express's own default,
-  // unchanged).
-  @IsOptional()
+  // specific IPs/CIDR ranges/keywords (e.g. "loopback,linklocal").
+  //
+  // Required in production, for two opposite reasons: unset, express keeps
+  // req.socket.remoteAddress as the client identity, so every admin behind
+  // Caddy shares a single throttler bucket and five failed logins lock the
+  // whole deployment out; set to a blanket `true`, the reverse happens and any
+  // client can forge X-Forwarded-For. Caddy is the only proxy in front of this
+  // app (see docker-compose.yml), so a hop count of 1 is the correct value —
+  // which is what the Compose file already passes.
+  @ValidateIf(
+    (env: EnvironmentVariables) => env.NODE_ENV === NodeEnvironment.Production,
+  )
   @IsString()
+  @IsNotEmpty({
+    message:
+      'TRUST_PROXY is required when NODE_ENV=production. Behind Caddy, use "1" (one trusted hop); leaving it unset collapses all clients into one rate-limit bucket.',
+  })
   TRUST_PROXY?: string;
 
   // --- HSTS (see main.ts) ---
@@ -278,7 +305,9 @@ class EnvironmentVariables {
   // admin responses, so it's required there — see the @ValidateIf below,
   // same pattern as DATABASE_SYNCHRONIZE's production-only enforcement
   // in database-synchronize.config.ts.
-  @ValidateIf((env: EnvironmentVariables) => env.NODE_ENV === NodeEnvironment.Production)
+  @ValidateIf(
+    (env: EnvironmentVariables) => env.NODE_ENV === NodeEnvironment.Production,
+  )
   @IsString()
   @IsNotEmpty({
     message:
@@ -315,11 +344,16 @@ class EnvironmentVariables {
   // --- Error reporting (see main.ts) ---
   // DSN for the Sentry project to report unexpected (5xx) server errors
   // to — see GlobalExceptionFilter, which is the only place that calls
-  // Sentry.captureException. Left unset, Sentry.init() in main.ts is
-  // never called: no DSN means no reporting, not a crash, so this stays
-  // fully optional for local/dev environments without a Sentry project.
-  @IsOptional()
+  // Sentry.captureException. Required in production so a live deployment
+  // cannot silently skip error reporting. Optional in development/test.
+  @ValidateIf(
+    (env: EnvironmentVariables) => env.NODE_ENV === NodeEnvironment.Production,
+  )
   @IsString()
+  @IsNotEmpty({
+    message:
+      'SENTRY_DSN is required when NODE_ENV=production. Set it to the Sentry project DSN or do not run this process as production.',
+  })
   SENTRY_DSN?: string;
 
   // Tags events with which deployment they came from (e.g.
@@ -414,14 +448,20 @@ export function validateEnvironment(
     enableImplicitConversion: true,
   });
 
-  const errors = validateSync(validatedConfig, { skipMissingProperties: false });
-  const messages = errors.flatMap((error) => Object.values(error.constraints ?? {}));
+  const errors = validateSync(validatedConfig, {
+    skipMissingProperties: false,
+  });
+  const messages = errors.flatMap((error) =>
+    Object.values(error.constraints ?? {}),
+  );
 
   // Shape is valid at this point; confirming the JWT public key actually
   // exists and looks like a PEM key needs the filesystem, not a
   // class-validator decorator, so it runs as a separate step.
   if (messages.length === 0) {
-    messages.push(...validateSmsPublicKey(validatedConfig.SMS_JWT_PUBLIC_KEY_PATH));
+    messages.push(
+      ...validateSmsPublicKey(validatedConfig.SMS_JWT_PUBLIC_KEY_PATH),
+    );
   }
 
   if (messages.length > 0) {
@@ -435,12 +475,19 @@ export function validateEnvironment(
 
 function validateSmsPublicKey(keyPath: string): string[] {
   if (!existsSync(keyPath)) {
-    return [`SMS_JWT_PUBLIC_KEY_PATH does not point to an existing file: "${keyPath}"`];
+    return [
+      `SMS_JWT_PUBLIC_KEY_PATH does not point to an existing file: "${keyPath}"`,
+    ];
   }
   try {
     const contents = readFileSync(keyPath, 'utf8');
-    if (!contents.includes('BEGIN PUBLIC KEY') && !contents.includes('BEGIN RSA PUBLIC KEY')) {
-      return [`SMS_JWT_PUBLIC_KEY_PATH ("${keyPath}") does not look like a PEM public key`];
+    if (
+      !contents.includes('BEGIN PUBLIC KEY') &&
+      !contents.includes('BEGIN RSA PUBLIC KEY')
+    ) {
+      return [
+        `SMS_JWT_PUBLIC_KEY_PATH ("${keyPath}") does not look like a PEM public key`,
+      ];
     }
   } catch (err) {
     return [

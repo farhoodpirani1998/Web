@@ -10,6 +10,22 @@
  * their data source, not their markup.
  */
 
+/** Local mirror of the backend's `Translatable<string>` shape. */
+export interface TranslatableText {
+  fa: string;
+  en?: string;
+}
+
+/** Wire shape returned by `GET /public/faq`. */
+export interface PublicFaqItemDto {
+  id: string;
+  question: TranslatableText;
+  answer: TranslatableText;
+  category?: string;
+  position: number;
+}
+
+/** Component-facing FAQ item, with localized text resolved to strings. */
 export interface FaqItem {
   /** Stable identifier, also usable as the React list key and the
    *  `<details>` disclosure's anchor id. */
@@ -19,6 +35,7 @@ export interface FaqItem {
 }
 
 /**
- * Full shape returned by `GET {publicApiBaseUrl}/faq`.
+ * Component-facing shape returned by `fetchFaq` after the wire DTO's
+ * translatable question/answer values have been resolved to Persian text.
  */
 export type Faq = readonly FaqItem[];

@@ -9,6 +9,7 @@ import { MediaModule } from '../../core/media/media.module';
 import { SeoModule } from '../../core/seo/seo.module';
 import { RevisionsModule } from '../../core/revisions/revisions.module';
 import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
+import { RedisModule } from '../../core/redis/redis.module';
 
 /**
  * Kernel pieces used: site scoping, publishing, media (page image
@@ -26,6 +27,7 @@ import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
     SeoModule,
     RevisionsModule,
     CmsAuthModule,
+    RedisModule,
   ],
   providers: [AboutService],
   controllers: [AboutController],

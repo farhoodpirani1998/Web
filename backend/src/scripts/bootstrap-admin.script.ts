@@ -45,7 +45,9 @@ async function main(): Promise<void> {
     );
   }
   if (password.length < 12) {
-    throw new Error('CMS_BOOTSTRAP_ADMIN_PASSWORD must be at least 12 characters.');
+    throw new Error(
+      'CMS_BOOTSTRAP_ADMIN_PASSWORD must be at least 12 characters.',
+    );
   }
 
   const dataSource = new DataSource({

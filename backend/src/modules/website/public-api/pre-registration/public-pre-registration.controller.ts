@@ -26,7 +26,9 @@ import { PUBLIC_FORM_THROTTLE } from '../common/public-rate-limit.constants';
 @Throttle(PUBLIC_FORM_THROTTLE)
 @Controller('public/pre-registration')
 export class PublicPreRegistrationController {
-  constructor(private readonly preRegistrationsService: PreRegistrationsService) {}
+  constructor(
+    private readonly preRegistrationsService: PreRegistrationsService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

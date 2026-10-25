@@ -73,7 +73,7 @@ export function GalleryPage() {
       setItems((current) => current.map((row) => (row.id === updated.id ? updated : row)));
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingStatusId(null);
@@ -101,7 +101,7 @@ export function GalleryPage() {
     } catch (err) {
       setItems(previous);
       setActionError(
-        err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setIsReordering(false);
@@ -110,25 +110,25 @@ export function GalleryPage() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={[{ label: "Dashboard" }, { label: "Gallery" }]} />
+      <Breadcrumb items={[{ label: "داشبورد" }, { label: "گالری" }]} />
 
       <PermissionGate
         permission="website.content:read"
         fallback={
           <>
-            <PageHeader title="Gallery" />
+            <PageHeader title="گالری" />
             <Section>
               <EmptyState
-                title="You don't have access to the gallery"
-                description="Viewing the gallery requires the Content permission. Contact an admin if you need access."
+                title="به گالری دسترسی ندارید"
+                description="مشاهده گالری نیازمند دسترسی محتوا است. در صورت نیاز با مدیر تماس بگیرید."
               />
             </Section>
           </>
         }
       >
         <PageHeader
-          title="Gallery"
-          description="Manage the photos shown in the public gallery."
+          title="گالری"
+          description="مدیریت تصاویر نمایش‌داده‌شده در گالری سایت."
         >
           <PermissionGate permission="website.content:write">
             <button
@@ -136,7 +136,7 @@ export function GalleryPage() {
               onClick={handleCreate}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
             >
-              New gallery item
+              تصویر گالری جدید
             </button>
           </PermissionGate>
         </PageHeader>
