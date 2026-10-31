@@ -7,6 +7,7 @@ import { MediaPicker, useMediaById } from "@/features/cms/media";
 import { useIsDirty, useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { ApiError } from "@/lib/apiError";
 import { createCampus, updateCampus } from "./api";
+import { CampusMapEmbed } from "./CampusMap";
 import { campusFormSchema, formDataToCreatePayload, formDataToUpdatePayload, type CampusFormData, campusToFormData } from "./schema";
 import type { CmsCampus } from "./types";
 
@@ -59,7 +60,9 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
         <input placeholder="canonicalUrl" {...register("canonicalUrl")} className="w-full border rounded px-3 py-2 text-sm" />
       </div><label className="flex items-center gap-2 text-sm"><input type="checkbox" {...register("noindex")} /> noindex</label></div>
       {saveError && <p className="text-red-600 text-sm">{saveError}</p>}
-      <div className="flex gap-2 justify-end"><button type="button" onClick={onCancel} className="px-4 py-2 border rounded text-sm">لغو</button><button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-indigo-600 text-white rounded text-sm">{isEdit ? "ذخیره تغییرات" : "ایجاد"}</button></div>
+      <div className="flex gap-2 justify-end"><button type="button" onClick={onCancel} className="px-4 py-2 border rounded text-sm">لغو</button><button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-indigo-600 text-white rounded text-sm">{isEdit ? "ذخیره تغییرات" : "ایجاد"}</button>
+          {mapUrl ? <CampusMapEmbed mapUrl={mapUrl} title="موقعیت پردیس" /> : null}
+        </div>
       <UnsavedChangesDialog open={isConfirmOpen} onConfirm={guardedAction} onCancel={cancelLeave} />
     </form>
   );
