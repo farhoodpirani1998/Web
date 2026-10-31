@@ -115,7 +115,7 @@ export function TeacherList({
               onError={(e) => { (e.target as HTMLImageElement).src = "/avatar-placeholder.svg"; }}
             />
             <div>
-              <div className="font-medium text-slate-900">{row.original.fullName}</div>
+              <button type="button" onClick={() => onEdit(row.original)} className="font-medium text-slate-900 hover:text-brand-gold hover:underline text-left w-full">{row.original.fullName}</button>
               <div className="text-xs text-slate-500">{row.original.slug}</div>
             </div>
           </div>
