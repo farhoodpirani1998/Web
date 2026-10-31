@@ -26,7 +26,7 @@ export {
   fetchNewsRevisions,
   restoreNewsRevision,
 } from "./api";
-export { useNews, type UseNewsResult } from "./hooks/useNews";
+export { useNewsList, type UseNewsListResult } from "./hooks/useNews";
 
 export {
   newsFormSchema,
