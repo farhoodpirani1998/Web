@@ -253,7 +253,15 @@ function MediaPickerDialog({ selectedId, onSelect, onCancel }: { selectedId: str
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
       <div className="flex max-h-[80vh] w-full max-w-2xl flex-col gap-4 overflow-y-auto rounded-lg border border-slate-200 bg-white p-6">
         <div className="flex items-center justify-between"><h2 className="text-lg font-semibold text-slate-900">انتخاب رسانه</h2><button type="button" onClick={onCancel} className="text-sm font-medium text-slate-500 hover:text-slate-900">بستن</button></div>
-        <MediaPicker selectedId={selectedId} onSelect={onSelect} fallback={<p className="text-sm text-slate-600">انتخاب رسانه نیازمند دسترسی «رسانه» است.</p>} />
+        <MediaPicker selectedId={selectedId} onSelect={(media) => {
+          /* Client-side upload guard: only UUID references allowed; actual validation server-side */
+          if (media.id && typeof media.id === "string" && /^[0-9a-f-]{36}$/.test(media.id)) {
+            onSelect(media);
+            setIsPickerOpen(false);
+          } else {
+            alert("فایل نامعتبر است. لطفاً مجدداً انتخاب کنید.");
+          }
+        }} fallback={<p className="text-sm text-slate-600">انتخاب رسانه نیازمند دسترسی «رسانه» است.</p>} />
       </div>
     </div>
   );
