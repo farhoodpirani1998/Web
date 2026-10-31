@@ -4,6 +4,7 @@ import { useState } from "react";
 /**
  * TanStack Query v5 hooks for CMS Gallery.
  */
+export const galleryKeys = {
   all: ["gallery"] as const,
   list: (status?: CmsGalleryStatus) => [...galleryKeys.all, "list", status ?? "all"] as const,
   detail: (id: string) => [...galleryKeys.all, "detail", id] as const,
