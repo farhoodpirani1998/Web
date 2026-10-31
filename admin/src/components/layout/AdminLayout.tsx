@@ -12,13 +12,14 @@
  * (mounting the Command Palette + Ctrl/Cmd+K), `<main>` handles overflow
  * only, and `PageContainer` owns page padding/width.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Outlet } from "react-router-dom";
 
 import { cn } from "@/lib/cn";
 import { AdminHeader } from "@/components/layout/AdminHeader";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { GlobalSearchProvider } from "@/features/cms/global-search";
+import { Toast } from "@/components/ui/Toast";
 
 const COLLAPSE_STORAGE_KEY = "admin:sidebar-collapsed";
 
@@ -30,6 +31,7 @@ function readInitialCollapsed(): boolean {
 export function AdminLayout() {
   const [collapsed, setCollapsed] = useState(readInitialCollapsed);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const drawerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.localStorage.setItem(COLLAPSE_STORAGE_KEY, String(collapsed));
@@ -45,13 +47,43 @@ export function AdminLayout() {
     };
   }, [mobileOpen]);
 
+  // Focus-trap inside mobile drawer (tab indexing).
+  useEffect(() => {
+    if (!mobileOpen || !drawerRef.current) return;
+    const drawer = drawerRef.current;
+    const focusable = drawer.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    first.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    drawer.addEventListener("keydown", onKey);
+    return () => drawer.removeEventListener("keydown", onKey);
+  }, [mobileOpen]);
+
   return (
     <GlobalSearchProvider>
+      <a href="#main-content" className="skip-link">محتوای اصلی</a>
       <div className="flex h-screen overflow-hidden bg-background">
         {/* Desktop sidebar — persistent at lg+, rail or full per `collapsed`. */}
         <aside
           className={cn(
-            "hidden shrink-0 transition-[width] duration-200 ease-out lg:block",
+            "hidden shrink-0 transition-[width] duration-300 ease-in-out lg:block",
             collapsed ? "w-[4.75rem]" : "w-64",
           )}
         >
@@ -75,13 +107,14 @@ export function AdminLayout() {
             tabIndex={mobileOpen ? 0 : -1}
             aria-label="بستن منوی ناوبری"
             className={cn(
-              "absolute inset-0 bg-primary/40 backdrop-blur-sm transition-opacity duration-200",
+              "absolute inset-0 bg-primary/40 backdrop-blur-sm transition-opacity duration-300 ease-in-out",
               mobileOpen ? "opacity-100" : "opacity-0",
             )}
           />
           <div
+            ref={drawerRef}
             className={cn(
-              "absolute inset-y-0 start-0 w-64 shadow-2xl transition-transform duration-200 ease-out",
+              "absolute inset-y-0 start-0 w-64 shadow-2xl transition-transform duration-300 ease-in-out",
               mobileOpen ? "translate-x-0" : "translate-x-full",
             )}
           >
@@ -92,7 +125,7 @@ export function AdminLayout() {
         <div className="flex min-w-0 flex-1 flex-col">
           <AdminHeader onOpenMenu={() => setMobileOpen(true)} />
 
-          <main className="min-w-0 flex-1 overflow-y-auto">
+          <main id="main-content" className="min-w-0 flex-1 overflow-y-auto">
             <Outlet />
           </main>
         </div>

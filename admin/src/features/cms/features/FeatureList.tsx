@@ -3,6 +3,7 @@
  */
 import { useReactTable, getCoreRowModel, getSortedRowModel, flexRender } from "@tanstack/react-table";
 import { useMemo } from "react";
+import { Skeleton } from "@/components/ui/Skeleton";
 import type { CmsFeature } from "./types";
 
 export interface FeatureListProps {
@@ -51,13 +52,17 @@ export function FeatureList({ features, onEdit, onDelete }: FeatureListProps) {
         ))}
       </thead>
       <tbody>
-        {table.getRowModel().rows.map((row) => (
+        {features.length === 0 ? (
+          <tr><td colSpan={columns.length} className="border p-4"><Skeleton className="h-8 w-full" /></td></tr>
+        ) : (
+          table.getRowModel().rows.map((row) => (
           <tr key={row.id}>
             {row.getVisibleCells().map((cell) => (
               <td key={cell.id} className="border p-2">{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
             ))}
           </tr>
         ))}
+        )}
       </tbody>
     </table>
   );

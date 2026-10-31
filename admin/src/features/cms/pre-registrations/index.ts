@@ -5,3 +5,4 @@ export { fetchPreRegistrationList, fetchPreRegistrationById, updatePreRegistrati
 export { usePreRegistrationList, usePreRegistration, usePreRegistrationMutations, preRegistrationKeys } from "./hooks/usePreRegistrations";
 export { PreRegistrationsPage } from "./PreRegistrationsPage";
 export { PreRegistrationList } from "./PreRegistrationList";
+export { PreRegistrationForm } from "./PreRegistrationForm";

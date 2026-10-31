@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, getPaginationRowModel, flexRender, type ColumnDef, type SortingState } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronLeft, ChevronRight, Edit3, Trash2 } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton } from "@/components/ui/Skeleton";
 import type { ApiError } from "@/lib/apiError";
 import type { CmsCalendarEvent, CmsEventStatus } from "./types";
 
@@ -22,7 +23,7 @@ export function EventList({ events, isLoading, error, onEdit, onDeleteRequest }:
     ) },
   ], [onEdit, onDeleteRequest]);
   const table = useReactTable({ data: events, columns, state: { sorting }, onSortingChange: setSorting, getCoreRowModel: getCoreRowModel(), getSortedRowModel: getSortedRowModel(), getFilteredRowModel: getFilteredRowModel(), getPaginationRowModel: getPaginationRowModel() });
-  if (isLoading) return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری رویدادها…</p>;
+  if (isLoading) return <div className="py-8 space-y-3"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div>;
   if (error) return <p className="py-8 text-center text-sm text-red-600">{error.message}</p>;
   if (events.length === 0) return <EmptyState title="هنوز رویدادی نیست" description="برای شروع یک رویداد اضافه کنید." />;
   return (

@@ -1,3 +1,5 @@
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 /**
  * Application root component.
  *
@@ -10,11 +12,22 @@ import { RouterProvider } from "react-router-dom";
 
 import { AuthProvider } from "@/features/auth";
 import { router } from "@/routes";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ToastProvider, triggerToast } from "@/components/ui/Toast";
 
 export function App() {
   return (
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
+    <div dir="rtl" lang="fa">
+      <ErrorBoundary>
+        <ErrorBoundary>
+      <AuthProvider>
+          <ToastProvider>
+      <ToastContainer />
+            <RouterProvider router={router} />
+          </ToastProvider>
+        </AuthProvider>
+    </ErrorBoundary>
+      </ErrorBoundary>
+    </div>
   );
 }

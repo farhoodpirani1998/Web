@@ -1,3 +1,4 @@
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useState } from "react";
 import { useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table";
 import { useNewsList } from "../hooks/useNews";
@@ -34,7 +35,7 @@ export default function NewsList() {
         placeholder="جستجو..."
         className="w-full md:w-96 border rounded px-3 py-1 mb-3"
       />
-      {isLoading ? <p>در حال بارگذاری...</p> : (
+      {isLoading ? <div className="space-y-3 py-4"><Skeleton className="h-8 w-full" /><Skeleton className="h-8 w-full" /><Skeleton className="h-8 w-full" /></div> : (
         <table className="w-full border-collapse border text-sm">
           <thead className="bg-brand-50">
             {table.getHeaderGroups().map(hg => (

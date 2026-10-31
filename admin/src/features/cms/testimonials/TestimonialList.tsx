@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useReactTable, getCoreRowModel, getSortedRowModel, flexRender, type ColumnDef } from "@tanstack/react-table";
 
+import { Skeleton } from "@/components/ui/Skeleton";
 import type { CmsTestimonial, CmsTestimonialStatus } from "./types";
 
 export interface TestimonialListProps {
@@ -28,7 +29,7 @@ export function TestimonialList({ testimonials, isLoading, error, onEdit, onDele
 
   const table = useReactTable({ data: testimonials ?? [], columns, getCoreRowModel: getCoreRowModel(), getSortedRowModel: getSortedRowModel() });
 
-  if (isLoading) return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری نظرات…</p>;
+  if (isLoading) return <div className="py-8 space-y-3"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div>;
   if (error) return <p className="py-8 text-center text-sm text-red-600">خطا: {error.message}</p>;
 
   return (

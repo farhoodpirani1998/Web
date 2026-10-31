@@ -22,6 +22,7 @@ import {
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronLeft, ChevronRight, Edit3, Trash2, Clock, Eye, MoveVertical } from "lucide-react";
 
+import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PermissionGate } from "@/components/ui/PermissionGate";
 import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
@@ -228,7 +229,7 @@ export function TeacherList({
   });
 
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری اساتید…</p>;
+    return <div className="py-8 flex items-center justify-center gap-3"><div className="h-4 w-4 animate-pulse rounded-full bg-brand-gold"></div><div className="h-4 w-4 animate-pulse rounded-full bg-brand-navy" style={{animationDelay:"0.15s"}></div><span className="text-sm text-slate-500">در حال بارگذاری اساتید…</span></div>;
   }
 
   if (error) {
@@ -255,7 +256,7 @@ export function TeacherList({
         </thead>
         <tbody className="divide-y divide-slate-200 bg-white">
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="hover:bg-slate-50 transition-colors">
+            <tr key={row.id} className="hover:bg-gradient-to-r hover:from-brand-navy/[0.03] hover:to-transparent hover:shadow-sm hover:-translate-y-px transition-all duration-150">
               {row.getVisibleCells().map((cell) => (
                 <td key={cell.id} className="px-3 py-2 whitespace-nowrap" style={{ width: cell.column.getSize() }}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
