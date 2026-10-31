@@ -38,7 +38,7 @@ export {
   formDataToCreatePayload,
   formDataToUpdatePayload,
   teacherToFormData,
-  SLUG_PATTERN,
+  
   type TeacherFormData,
   type SeoMetadataInput,
   type CreateTeacherPayload as CreateTeacherPayloadSchema,
