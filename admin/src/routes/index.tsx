@@ -254,6 +254,10 @@ export const router = createBrowserRouter([
           },
           {
             path: "campuses",
+          {
+            path: "campuses-map",
+            element: withPageLoading(<CampusPage />),
+          },
             element: withPageLoading(<CampusesPage />),
           },
           {
