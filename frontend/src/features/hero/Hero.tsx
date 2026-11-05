@@ -130,6 +130,7 @@ export function Hero() {
             src={hero.image.src}
             alt={hero.image.alt}
             loading="eager"
+            fetchPriority="high"
             fit="cover"
             ratio={4 / 3}
             containerClassName="overflow-hidden rounded-3xl"
