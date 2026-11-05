@@ -65,7 +65,7 @@ export function GalleryDetails() {
               className="overflow-hidden transition-colors hover:border-brand-gold/40"
             >
               <details id={`gallery-${item.id}`} className="group px-6 py-4">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rtl:flex-row-reverse">
                   <Stack gap="xs">
                     <Text as="span" variant="body" weight="semibold" className="font-heading">
                       {item.title}

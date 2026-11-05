@@ -5,6 +5,9 @@ import {
   SectionHeader,
   Stack,
   Text,
+  ErrorState,
+  EmptyState,
+  LoadingState,
 } from "@/shared/design-system/components";
 import { toPersianDigits } from "@/shared/utils/toPersianDigits";
 import { useStatistics } from "./useStatistics";
@@ -19,11 +22,11 @@ import type { StatisticItem } from "./types";
  * `CampusList`.
  *
  * Backed by `useStatistics()` (the Public API's Statistics content
- * module, §4, §8): lays out `data` when the query has resolved with
- * at least one item, and falls back to the local `fallbackStats`
- * literal while the query is loading, has errored, or the CMS has
- * nothing published yet — never both at once, so a published CMS
- * dataset fully replaces the placeholder rather than merging with it.
+ * module, §4, §8): lays out `data` with explicit loading, error, and
+ * empty states (Phase 2) rather than silently falling back to
+ * placeholder data when the query is loading, has errored, or returns
+ * empty — never both at once, so a published CMS dataset fully replaces
+ * the placeholder rather than merging with it.
  *
  * `StatisticItem` (real API shape: translatable `label`, numeric
  * `value` + optional `suffix`) and `fallbackStats` (a pre-formatted
@@ -73,9 +76,8 @@ function toDisplayStat(stat: StatisticItem): DisplayStat {
 }
 
 export function StatisticsGrid() {
-  const { data } = useStatistics();
-  const stats: readonly DisplayStat[] =
-    data && data.length > 0 ? data.map(toDisplayStat) : fallbackStats;
+  const { data, isPending, isError } = useStatistics();
+  const stats: readonly DisplayStat[] = data && data.length > 0 ? data.map(toDisplayStat) : [];
 
   return (
     <Section
@@ -94,29 +96,45 @@ export function StatisticsGrid() {
           title="مجموعه در یک نگاه"
         />
 
-        <Grid cols="4" gap="md">
-          {stats.map((stat) => (
-            <Card
-              key={stat.id}
-              variant="elevated"
-              padding="lg"
-              className="bg-background text-center transition-shadow duration-300 hover:shadow-lg"
-            >
-              <Stack gap="xs" align="center">
-                <Text as="span" variant="lead" weight="bold" className="text-brand-navy">
-                  {stat.value}
-                </Text>
-                <span
-                  aria-hidden="true"
-                  className="block h-0.5 w-8 rounded-full bg-brand-gold"
-                />
-                <Text variant="bodySm" color="muted">
-                  {stat.label}
-                </Text>
-              </Stack>
-            </Card>
-          ))}
-        </Grid>
+        {isPending ? (
+          <LoadingState label="درحال دریافت آمار…" />
+        ) : isError ? (
+          <ErrorState
+            title="دریافت آمار ناموفق بود"
+            description="لطفاً بعداً دوباره تلاش کنید."
+            onRetry={() => window.location.reload()}
+            retryLabel="تلاش مجدد"
+          />
+        ) : stats.length > 0 ? (
+          <Grid cols="4" gap="md">
+            {stats.map((stat) => (
+              <Card
+                key={stat.id}
+                variant="elevated"
+                padding="lg"
+                className="bg-background text-center transition-shadow duration-300 hover:shadow-lg"
+              >
+                <Stack gap="xs" align="center">
+                  <Text as="span" variant="lead" weight="bold" className="text-brand-navy">
+                    {stat.value}
+                  </Text>
+                  <span
+                    aria-hidden="true"
+                    className="block h-0.5 w-8 rounded-full bg-brand-gold"
+                  />
+                  <Text variant="bodySm" color="muted">
+                    {stat.label}
+                  </Text>
+                </Stack>
+              </Card>
+            ))}
+          </Grid>
+        ) : (
+          <EmptyState
+            title="آماری برای نمایش وجود ندارد"
+            description="در حال حاضر آماری منتشرشده‌ای موجود نیست."
+          />
+        )}
       </Stack>
     </Section>
   );

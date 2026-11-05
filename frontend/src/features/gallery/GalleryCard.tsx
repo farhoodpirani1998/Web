@@ -81,7 +81,7 @@ export function GalleryCard({ item }: GalleryCardProps) {
             aria-hidden="true"
             className="transition-transform duration-200 group-hover/link:-translate-x-0.5 rtl:group-hover/link:translate-x-0.5"
           >
-            ‹
+            ›
           </span>
         </Link>
       </Stack>

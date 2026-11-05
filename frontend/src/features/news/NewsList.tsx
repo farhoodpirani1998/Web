@@ -1,6 +1,5 @@
-import { Grid, Section, SectionHeader, Stack } from "@/shared/design-system/components";
+import { Grid, Section, SectionHeader, Stack, ErrorState, EmptyState, LoadingState } from "@/shared/design-system/components";
 import { NewsCard } from "./NewsCard";
-import { newsItems } from "./data";
 import { useNews } from "./useNews";
 
 /**
@@ -11,18 +10,15 @@ import { useNews } from "./useNews";
  * `TeacherGrid`, and `@/features/gallery`'s `GalleryGrid`.
  *
  * Backed by `useNews()` (the Public API's News content module, §4,
- * §8): lays out `data.news` (assumed newest-first) when the query has
- * resolved with at least one item, and falls back to the local
- * `newsItems` placeholder array (`./data`) while the query is loading,
- * has errored, or the CMS has nothing published yet.
+ * §8): lays out `data.news` (assumed newest-first) with explicit
+ * loading, error, and empty states (Phase 2). Shows one editorial
+ * lead story (full-width) followed by remaining items in a 3-column
+ * grid — the same "one lead + regular grid" hierarchy premium news
+ * pages use.
  *
  * Visual refresh: the heading now carries the same gold-badge/
  * underline eyebrow treatment the homepage `Features` section and
- * `GalleryGrid` already use, and the items are split into a "lead
- * story" (the first/most recent item, rendered full-width via
- * `NewsCard`'s `featured` layout) followed by the remaining items in a
- * 3-column grid — the same "one editorial lead + regular grid"
- * hierarchy premium news pages use, rather than uniform tiles.
+ * `GalleryGrid` already use.
  *
  * There is deliberately no per-article route/link here (§7 — no
  * generic catch-all "render whatever this slug points to" route):
@@ -31,8 +27,8 @@ import { useNews } from "./useNews";
  * route.
  */
 export function NewsList() {
-  const { data } = useNews();
-  const items = data && data.length > 0 ? data : newsItems;
+  const { data, isPending, isError } = useNews();
+  const items = data ?? [];
   const [leadStory, ...restStories] = items;
 
   return (
@@ -46,17 +42,33 @@ export function NewsList() {
           description="تازه‌ترین اطلاعیه‌ها، رویدادها و دستاوردهای مجموعه را اینجا دنبال کنید."
         />
 
-        <Stack gap="lg">
-          {leadStory && <NewsCard item={leadStory} featured />}
+        {isPending ? (
+          <LoadingState label="درحال دریافت اخبار…" />
+        ) : isError ? (
+          <ErrorState
+            title="دریافت اخبار ناموفق بود"
+            description="لطفاً بعداً دوباره تلاش کنید."
+            onRetry={() => window.location.reload()}
+            retryLabel="تلاش مجدد"
+          />
+        ) : items.length > 0 ? (
+          <Stack gap="lg">
+            {leadStory && <NewsCard item={leadStory} featured />}
 
-          {restStories.length > 0 && (
-            <Grid cols="3" gap="md">
-              {restStories.map((item) => (
-                <NewsCard key={item.id} item={item} />
-              ))}
-            </Grid>
-          )}
-        </Stack>
+            {restStories.length > 0 && (
+              <Grid cols="3" gap="md">
+                {restStories.map((item) => (
+                  <NewsCard key={item.id} item={item} />
+                ))}
+              </Grid>
+            )}
+          </Stack>
+        ) : (
+          <EmptyState
+            title="خبری برای نمایش وجود ندارد"
+            description="در حال حاضر خبری منتشرشده‌ای موجود نیست."
+          />
+        )}
       </Stack>
     </Section>
   );

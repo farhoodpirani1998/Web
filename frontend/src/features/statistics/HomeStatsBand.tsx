@@ -1,7 +1,7 @@
 import { Building2, GraduationCap, Smile, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { Container } from "@/shared/design-system/components";
+import { Container, Grid } from "@/shared/design-system/components";
 import { useCountUp } from "@/shared/hooks/useCountUp";
 import { toPersianDigits } from "@/shared/utils/toPersianDigits";
 
@@ -73,7 +73,11 @@ export function HomeStatsBand() {
   return (
     <section aria-label="آمار مجموعه" className="relative z-10 bg-transparent">
       <Container size="xl" className="-mt-10 sm:-mt-14">
-        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-border/70 shadow-lg ring-1 ring-border/60 md:grid-cols-4">
+        <Grid
+          cols="4"
+          gap="none"
+          className="overflow-hidden rounded-2xl bg-border/70 shadow-lg ring-1 ring-border/60"
+        >
           {band.map((stat) => (
             <StatItem
               key={stat.id}
@@ -83,7 +87,7 @@ export function HomeStatsBand() {
               label={stat.label}
             />
           ))}
-        </div>
+        </Grid>
       </Container>
     </section>
   );
@@ -103,7 +107,7 @@ function StatItem({
   const { count, ref } = useCountUp(value);
 
   return (
-    <div ref={ref} className="flex items-center gap-3 bg-card px-5 py-6 sm:gap-4 sm:px-7">
+    <div ref={ref} className="flex items-center gap-3 bg-card px-5 py-6 sm:gap-4 sm:px-7 rtl:flex-row-reverse">
       <span
         aria-hidden="true"
         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-gold/15 text-brand-gold sm:h-12 sm:w-12"

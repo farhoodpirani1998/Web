@@ -1,4 +1,4 @@
-import { Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { Grid, Heading, Section, Stack, Text, EmptyState, ErrorState, LoadingState } from "@/shared/design-system/components";
 import { CampusCard } from "./CampusCard";
 import { useCampuses } from "./useCampuses";
 
@@ -11,7 +11,7 @@ import { useCampuses } from "./useCampuses";
  *
  * Backed by `useCampuses()` (the Public API's Campuses content
  * module, §4, §8): lays out only published API data, with explicit
- * loading, error, and empty states rather than local placeholder
+ * loading, error, and empty states (Phase 2) rather than local placeholder
  * records.
  *
  * Visual refresh: adds a short lead paragraph under the heading (the
@@ -36,11 +36,14 @@ export function CampusList() {
           </Text>
         </Stack>
         {isPending ? (
-          <Text role="status" variant="bodySm" color="muted">در حال دریافت پردیس‌ها…</Text>
+          <LoadingState label="درحال دریافت پردیس‌ها…" />
         ) : isError ? (
-          <Text role="alert" variant="bodySm" color="muted">
-            دریافت اطلاعات پردیس‌ها ممکن نشد. لطفاً کمی بعد دوباره تلاش کنید.
-          </Text>
+          <ErrorState
+            title="دریافت اطلاعات پردیس‌ها ناموفق بود"
+            description="لطفاً بعداً دوباره تلاش کنید."
+            onRetry={() => window.location.reload()}
+            retryLabel="تلاش مجدد"
+          />
         ) : campuses.length > 0 ? (
           <Grid cols="3" gap="lg">
             {campuses.map((campus) => (
@@ -48,11 +51,13 @@ export function CampusList() {
             ))}
           </Grid>
         ) : (
-          <Text variant="bodySm" color="muted">
-            در حال حاضر پردیس منتشرشده‌ای برای نمایش وجود ندارد.
-          </Text>
+          <EmptyState
+            title="پردیسی برای نمایش وجود ندارد"
+            description="در حال حاضر پردیس منتشرشده‌ای موجود نیست."
+          />
         )}
       </Stack>
     </Section>
   );
 }
+
