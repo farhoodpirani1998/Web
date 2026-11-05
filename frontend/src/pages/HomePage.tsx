@@ -10,7 +10,7 @@ import { HomeNews } from "@/features/news";
 import { HomeGallery } from "@/features/gallery";
 import { Testimonials } from "@/features/testimonials";
 import { CTA } from "@/features/cta";
-import { useHomepage } from "@/features/static-pages";
+import { useHomepage, useHomepageAggregate } from "@/features/static-pages";
 
 /**
  * Root-route page.
@@ -53,6 +53,7 @@ import { useHomepage } from "@/features/static-pages";
  */
 export function HomePage() {
   const { data } = useHomepage();
+  useHomepageAggregate(); // Warm React Query cache with parallel fetch
 
   return (
     <>
