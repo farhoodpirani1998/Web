@@ -1,5 +1,6 @@
-import { Grid, Heading, Section, Stack, Text, ErrorState, EmptyState, LoadingState } from "@/shared/design-system/components";
+import { Grid, Heading, Section, Stack, Text, ErrorState, EmptyState } from "@/shared/design-system/components";
 import { TeacherCard } from "./TeacherCard";
+import { TeacherCardSkeleton } from "./TeacherCardSkeleton";
 import { useTeachers } from "./useTeachers";
 
 /**
@@ -34,7 +35,11 @@ export function TeacherGrid() {
           </Text>
         </Stack>
         {isPending ? (
-          <LoadingState label="درحال دریافت مدرسان…" />
+          <Grid cols="4" gap="lg">
+            {[...Array(8)].map((_, i) => (
+              <TeacherCardSkeleton key={i} />
+            ))}
+          </Grid>
         ) : isError ? (
           <ErrorState
             title="دریافت اطلاعات مدرسان ناموفق بود"

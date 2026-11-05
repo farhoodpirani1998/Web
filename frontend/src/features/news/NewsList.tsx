@@ -1,5 +1,6 @@
-import { Grid, Section, SectionHeader, Stack, ErrorState, EmptyState, LoadingState } from "@/shared/design-system/components";
+import { Grid, Section, SectionHeader, Stack, ErrorState, EmptyState } from "@/shared/design-system/components";
 import { NewsCard } from "./NewsCard";
+import { NewsCardSkeleton } from "./NewsCardSkeleton";
 import { useNews } from "./useNews";
 
 /**
@@ -43,7 +44,14 @@ export function NewsList() {
         />
 
         {isPending ? (
-          <LoadingState label="درحال دریافت اخبار…" />
+          <Stack gap="lg">
+            <NewsCardSkeleton featured />
+            <Grid cols="3" gap="md">
+              {[...Array(5)].map((_, i) => (
+                <NewsCardSkeleton key={i} />
+              ))}
+            </Grid>
+          </Stack>
         ) : isError ? (
           <ErrorState
             title="دریافت اخبار ناموفق بود"

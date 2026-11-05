@@ -1,5 +1,6 @@
-import { Badge, Grid, Heading, Section, Stack, Text, ErrorState, EmptyState, LoadingState } from "@/shared/design-system/components";
+import { Badge, Grid, Heading, Section, Stack, Text, ErrorState, EmptyState } from "@/shared/design-system/components";
 import { GalleryCard } from "./GalleryCard";
+import { GalleryCardSkeleton } from "./GalleryCardSkeleton";
 import { useGallery } from "./useGallery";
 
 /**

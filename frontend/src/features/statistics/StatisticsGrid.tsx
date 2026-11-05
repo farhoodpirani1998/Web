@@ -56,17 +56,6 @@ interface DisplayStat {
   label: string;
 }
 
-const fallbackStats: readonly DisplayStat[] = [
-  { id: "founded", value: "۱۳۷۸", label: "سال تأسیس" },
-  { id: "students", value: "+۱۲٬۰۰۰", label: "دانش‌آموز و دانشجو" },
-  { id: "campuses", value: "۶", label: "شعبه فعال" },
-  { id: "staff", value: "+۴۰۰", label: "مدرس و کارشناس" },
-  { id: "graduates", value: "+۸٬۵۰۰", label: "فارغ‌التحصیل" },
-  { id: "courses", value: "+۶۰", label: "دوره آموزشی" },
-  { id: "satisfaction", value: "٪۹۶", label: "رضایت خانواده‌ها" },
-  { id: "top-rank", value: "+۲۰۰", label: "رتبه برتر کنکور" },
-];
-
 function toDisplayStat(stat: StatisticItem): DisplayStat {
   return {
     id: stat.id,

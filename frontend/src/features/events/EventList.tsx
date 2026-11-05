@@ -1,5 +1,6 @@
-import { Grid, Heading, Section, Stack, Text, ErrorState, EmptyState, LoadingState } from "@/shared/design-system/components";
+import { Grid, Heading, Section, Stack, Text, ErrorState, EmptyState } from "@/shared/design-system/components";
 import { EventCard } from "./EventCard";
+import { EventCardSkeleton } from "./EventCardSkeleton";
 import { useEvents } from "./useEvents";
 
 /**
@@ -30,7 +31,11 @@ export function EventList() {
           </Text>
         </Stack>
         {isPending ? (
-          <LoadingState label="درحال دریافت رویدادها…" />
+          <Grid cols="3" gap="lg">
+            {[...Array(6)].map((_, i) => (
+              <EventCardSkeleton key={i} />
+            ))}
+          </Grid>
         ) : isError ? (
           <ErrorState
             title="دریافت رویدادها ناموفق بود"
