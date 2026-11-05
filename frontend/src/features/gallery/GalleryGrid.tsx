@@ -39,7 +39,11 @@ export function GalleryGrid() {
         </Stack>
 
         {isPending ? (
-          <LoadingState label="درحال دریافت تصاویر…" />
+          <Grid cols="4" gap="lg">
+            {[...Array(8)].map((_, i) => (
+              <GalleryCardSkeleton key={i} />
+            ))}
+          </Grid>
         ) : isError ? (
           <ErrorState
             title="دریافت تصاویر ناموفق بود"
