@@ -208,7 +208,14 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
       </div>
 
       {isPickerOpen ? (
-        <MediaPickerDialog selectedId={avatarMediaId} onSelect={(media) => { setValue("avatarMediaId", media.id); setIsPickerOpen(false); }} onCancel={() => setIsPickerOpen(false)} />
+        <MediaPickerDialog
+          selectedId={avatarMediaId}
+          onSelect={(media) => {
+            setValue("avatarMediaId", media.id);
+            setIsPickerOpen(false);
+          }}
+          onCancel={() => setIsPickerOpen(false)}
+        />
       ) : null}
 
       {isConfirmOpen ? <UnsavedChangesDialog onDiscard={confirmLeave} onKeepEditing={cancelLeave} /> : null}
@@ -257,7 +264,6 @@ function MediaPickerDialog({ selectedId, onSelect, onCancel }: { selectedId: str
           /* Client-side upload guard: only UUID references allowed; actual validation server-side */
           if (media.id && typeof media.id === "string" && /^[0-9a-f-]{36}$/.test(media.id)) {
             onSelect(media);
-            setIsPickerOpen(false);
           } else {
             alert("فایل نامعتبر است. لطفاً مجدداً انتخاب کنید.");
           }

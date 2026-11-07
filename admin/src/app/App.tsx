@@ -1,5 +1,10 @@
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
-import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { RouterProvider } from "react-router-dom";
+import { AuthProvider } from "@/features/auth";
+import { router } from "@/routes";
+import { ToastProvider } from "@/components/ui/Toast";
+import { ToastContainer } from "@/components/ui/Toast";
+
 /**
  * Application root component.
  *
@@ -8,25 +13,17 @@ import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
  * once, above the router, before any route (including the guards
  * wrapping `/login` and `/admin`) renders.
  */
-import { RouterProvider } from "react-router-dom";
-
-import { AuthProvider } from "@/features/auth";
-import { router } from "@/routes";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { ToastProvider, triggerToast } from "@/components/ui/Toast";
 
 export function App() {
   return (
     <div dir="rtl" lang="fa">
       <ErrorBoundary>
-        <ErrorBoundary>
-      <AuthProvider>
+        <AuthProvider>
           <ToastProvider>
-      <ToastContainer />
+            <ToastContainer />
             <RouterProvider router={router} />
           </ToastProvider>
         </AuthProvider>
-    </ErrorBoundary>
       </ErrorBoundary>
     </div>
   );

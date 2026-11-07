@@ -229,7 +229,13 @@ export function TeacherList({
   });
 
   if (isLoading) {
-    return <div className="py-8 flex items-center justify-center gap-3"><div className="h-4 w-4 animate-pulse rounded-full bg-brand-gold"></div><div className="h-4 w-4 animate-pulse rounded-full bg-brand-navy" style={{animationDelay:"0.15s"}></div><span className="text-sm text-slate-500">در حال بارگذاری اساتید…</span></div>;
+    return (
+      <div className="py-8 flex items-center justify-center gap-3">
+        <div className="h-4 w-4 animate-pulse rounded-full bg-brand-gold" />
+        <div className="h-4 w-4 animate-pulse rounded-full bg-brand-navy" style={{ animationDelay: "0.15s" }} />
+        <span className="text-sm text-slate-500">در حال بارگذاری اساتید…</span>
+      </div>
+    );
   }
 
   if (error) {
