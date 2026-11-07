@@ -82,7 +82,7 @@ export function AdminLayout() {
           <div
             className={cn(
               "absolute inset-y-0 start-0 w-64 shadow-2xl transition-transform duration-200 ease-out",
-              mobileOpen ? "translate-x-0" : "-translate-x-full",
+              mobileOpen ? "translate-x-0" : "translate-x-full",
             )}
           >
             <AdminSidebar collapsed={false} onNavigate={() => setMobileOpen(false)} />
