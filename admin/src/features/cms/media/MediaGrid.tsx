@@ -79,7 +79,6 @@ export function MediaGrid({
             aria-label="انتخاب همه رسانه‌ها"
           />
           انتخاب همه
-          <span>انتخاب همه</span>
         </div>
       </PermissionGate>
 
