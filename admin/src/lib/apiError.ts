@@ -104,7 +104,7 @@ export function normalizeApiError(error: unknown): ApiError {
     // generic fallback when present.
     return new ApiError(
       "unknown",
-      extractBackendMessage(axiosError) ?? "Something went wrong. Please try again.",
+      extractBackendMessage(axiosError) ?? "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       status,
     );
   }

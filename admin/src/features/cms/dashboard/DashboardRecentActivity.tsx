@@ -35,7 +35,7 @@ export function DashboardRecentActivity() {
       })
       .catch((err) => {
         if (!cancelled) {
-          setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+          setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
         }
       })
       .finally(() => {
