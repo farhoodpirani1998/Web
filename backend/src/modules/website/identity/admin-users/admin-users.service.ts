@@ -129,19 +129,22 @@ export class AdminUsersService {
    * Throws unless there is at least one *other* active super-admin besides
    * `excludeId`. Called before any change that would remove `excludeId`
    * from the active-super-admin pool.
+   *
+   * Uses a SELECT FOR UPDATE lock to prevent concurrent removals of the last
+   * active super-admin between the count check and the actual update.
    */
   private async assertNotLastActiveSuperAdmin(
     excludeId: string,
     verb: string,
   ): Promise<void> {
-    // Count active super-admins *other than* the row we're about to change.
-    // Zero means the target is the only one left — removing it would strand
-    // the CMS with nobody able to manage content or admins.
+    // Lock all active super-admins to prevent concurrent modifications
+    // while we verify at least one other remains after our change.
     const othersExcludingTarget = await this.adminRepo
       .createQueryBuilder('a')
       .where('a.role = :role', { role: WebsiteRole.SUPER_ADMIN })
       .andWhere('a.isActive = true')
       .andWhere('a.id != :id', { id: excludeId })
+      .setLock('pessimistic_write')
       .getCount();
     if (othersExcludingTarget === 0) {
       throw new ConflictException(
