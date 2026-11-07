@@ -116,7 +116,7 @@ export class AboutService implements OnModuleInit {
 
   async updateStatus(to: PublishStatus): Promise<AboutPage> {
     const page = await this.get();
-    this.publishing.transition({
+    await this.publishing.transition({
       from: page.status,
       to,
       entityType: ENTITY_TYPE,

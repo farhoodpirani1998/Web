@@ -100,7 +100,7 @@ export class AcademicCalendarService {
     to: PublishStatus,
   ): Promise<AcademicCalendarEntry> {
     const entry = await this.findOne(id);
-    this.publishing.transition({
+    await this.publishing.transition({
       from: entry.status,
       to,
       entityType: ENTITY_TYPE,

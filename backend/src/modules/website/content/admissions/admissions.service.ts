@@ -96,7 +96,7 @@ export class AdmissionsService {
 
   async updateStatus(id: string, to: PublishStatus): Promise<AdmissionEntry> {
     const entry = await this.findOne(id);
-    this.publishing.transition({
+    await this.publishing.transition({
       from: entry.status,
       to,
       entityType: ENTITY_TYPE,

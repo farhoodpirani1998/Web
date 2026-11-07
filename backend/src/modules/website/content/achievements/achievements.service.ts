@@ -76,7 +76,7 @@ export class AchievementsService {
 
   async updateStatus(id: string, to: PublishStatus): Promise<Achievement> {
     const achievement = await this.findOne(id);
-    this.publishing.transition({
+    await this.publishing.transition({
       from: achievement.status,
       to,
       entityType: ENTITY_TYPE,

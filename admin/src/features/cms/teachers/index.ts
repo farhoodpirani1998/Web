@@ -29,7 +29,7 @@ export {
 } from "./api";
 export { useTeachers, type UseTeachersResult } from "./hooks/useTeachers";
 
-/* Modern stack exports *//
+/* Modern stack exports */
 export {
   teacherFormSchema,
   createTeacherPayloadSchema,

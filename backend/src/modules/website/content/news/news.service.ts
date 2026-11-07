@@ -241,7 +241,7 @@ export class NewsService implements OnModuleInit {
 
   async updateStatus(id: string, to: PublishStatus): Promise<NewsArticle> {
     const article = await this.findOne(id);
-    this.publishing.transition({
+    await this.publishing.transition({
       from: article.status,
       to,
       entityType: ENTITY_TYPE,

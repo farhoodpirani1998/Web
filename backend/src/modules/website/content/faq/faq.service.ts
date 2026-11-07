@@ -74,7 +74,7 @@ export class FaqService {
 
   async updateStatus(id: string, to: PublishStatus): Promise<Faq> {
     const faq = await this.findOne(id);
-    this.publishing.transition({
+    await this.publishing.transition({
       from: faq.status,
       to,
       entityType: ENTITY_TYPE,

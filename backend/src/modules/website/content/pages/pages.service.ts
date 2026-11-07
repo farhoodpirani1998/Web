@@ -296,7 +296,7 @@ export class PagesService implements OnModuleInit {
 
   async updateStatus(id: string, to: PublishStatus): Promise<StaticPage> {
     const page = await this.findOne(id);
-    this.publishing.transition({
+    await this.publishing.transition({
       from: page.status,
       to,
       entityType: ENTITY_TYPE,

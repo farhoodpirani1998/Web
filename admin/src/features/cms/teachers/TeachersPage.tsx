@@ -53,6 +53,27 @@ export function TeachersPage() {
   const [updatingScheduleId, setUpdatingScheduleId] = useState<string | null>(null);
   const [isReordering, setIsReordering] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  function handleToggleSelect(teacher: CmsTeacher) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(teacher.id)) {
+        next.delete(teacher.id);
+      } else {
+        next.add(teacher.id);
+      }
+      return next;
+    });
+  }
+
+  function handleToggleSelectAll() {
+    if (selectedIds.size === teachers.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(teachers.map((t: CmsTeacher) => t.id)));
+    }
+  }
 
   function handleCreate() {
     setEditingTeacher(null);
@@ -102,7 +123,7 @@ export function TeachersPage() {
 
     try {
       const updated = await scheduleTeacher(teacher.id, { publishAt });
-      setTeachers((current) => current.map((item) => (item.id === updated.id ? updated : item)));
+      setTeachers((current: CmsTeacher[]) => current.map((item: CmsTeacher) => (item.id === updated.id ? updated : item)));
     } catch (err) {
       setActionError(
         err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
@@ -192,6 +213,9 @@ export function TeachersPage() {
               updatingStatusId={updatingStatusId}
               updatingScheduleId={updatingScheduleId}
               isReordering={isReordering}
+              selectedIds={selectedIds}
+              onToggleSelect={handleToggleSelect}
+              onToggleSelectAll={handleToggleSelectAll}
               onEdit={handleEdit}
               onDeleteRequest={setPendingDelete}
               onChangeStatus={handleChangeStatus}

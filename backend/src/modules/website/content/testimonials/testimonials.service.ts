@@ -117,7 +117,7 @@ export class TestimonialsService {
 
   async updateStatus(id: string, to: PublishStatus): Promise<Testimonial> {
     const testimonial = await this.findOne(id);
-    this.publishing.transition({
+    await this.publishing.transition({
       from: testimonial.status,
       to,
       entityType: ENTITY_TYPE,

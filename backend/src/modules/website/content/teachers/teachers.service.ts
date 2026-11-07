@@ -237,7 +237,7 @@ export class TeachersService implements OnModuleInit {
 
   async updateStatus(id: string, to: PublishStatus): Promise<Teacher> {
     const teacher = await this.findOne(id);
-    this.publishing.transition({
+    await this.publishing.transition({
       from: teacher.status,
       to,
       entityType: ENTITY_TYPE,

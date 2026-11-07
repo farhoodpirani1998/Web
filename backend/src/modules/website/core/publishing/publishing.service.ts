@@ -25,7 +25,7 @@ export class PublishingService {
     }
   }
 
-  transition(params: {
+  async transition(params: {
     from: PublishStatus;
     to: PublishStatus;
     entityType: string;
@@ -40,14 +40,14 @@ export class PublishingService {
       siteId: params.siteId,
       status: params.to,
     };
-    this.events.emit(WEBSITE_EVENTS.CONTENT_UPDATED, updatedPayload);
+    await this.events.emitAsync(WEBSITE_EVENTS.CONTENT_UPDATED, updatedPayload);
 
     if (params.to === PublishStatus.PUBLISHED) {
       const publishedPayload: ContentPublishedPayload = {
         ...updatedPayload,
         publishedAt: new Date(),
       };
-      this.events.emit(WEBSITE_EVENTS.CONTENT_PUBLISHED, publishedPayload);
+      await this.events.emitAsync(WEBSITE_EVENTS.CONTENT_PUBLISHED, publishedPayload);
     }
 
     return params.to;

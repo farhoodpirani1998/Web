@@ -75,7 +75,7 @@ export class FeaturesService {
 
   async updateStatus(id: string, to: PublishStatus): Promise<Feature> {
     const feature = await this.findOne(id);
-    this.publishing.transition({
+    await this.publishing.transition({
       from: feature.status,
       to,
       entityType: ENTITY_TYPE,

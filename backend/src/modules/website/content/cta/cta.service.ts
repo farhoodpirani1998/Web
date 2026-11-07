@@ -104,7 +104,7 @@ export class CtaService implements OnModuleInit {
 
   async updateStatus(to: PublishStatus): Promise<CtaBanner> {
     const cta = await this.get();
-    this.publishing.transition({
+    await this.publishing.transition({
       from: cta.status,
       to,
       entityType: ENTITY_TYPE,

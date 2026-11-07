@@ -99,7 +99,7 @@ export class GalleryService {
 
   async updateStatus(id: string, to: PublishStatus): Promise<GalleryItem> {
     const item = await this.findOne(id);
-    this.publishing.transition({
+    await this.publishing.transition({
       from: item.status,
       to,
       entityType: ENTITY_TYPE,

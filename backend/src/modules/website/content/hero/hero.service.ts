@@ -147,7 +147,7 @@ export class HeroService {
 
   async updateStatus(id: string, to: PublishStatus): Promise<HeroSlide> {
     const slide = await this.findOne(id);
-    this.publishing.transition({
+    await this.publishing.transition({
       from: slide.status,
       to,
       entityType: ENTITY_TYPE,

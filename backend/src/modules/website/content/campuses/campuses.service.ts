@@ -250,7 +250,7 @@ export class CampusesService implements OnModuleInit {
 
   async updateStatus(id: string, to: PublishStatus): Promise<Campus> {
     const campus = await this.findOne(id);
-    this.publishing.transition({
+    await this.publishing.transition({
       from: campus.status,
       to,
       entityType: ENTITY_TYPE,
