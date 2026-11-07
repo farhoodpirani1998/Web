@@ -51,7 +51,7 @@ export function DashboardRecentActivity() {
     return (
       <ul className="flex flex-col gap-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <li key={index} className="flex items-center gap-3">
+          <li key={`skeleton-${index}`} className="flex items-center gap-3">
             <Skeleton shape="circle" className="h-8 w-8" />
             <div className="flex flex-1 flex-col gap-1.5">
               <Skeleton className="h-4 w-3/5" />
