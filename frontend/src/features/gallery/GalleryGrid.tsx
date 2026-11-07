@@ -1,6 +1,6 @@
-import { Badge, Grid, Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { Badge, Grid, Heading, Section, Stack, Text, ErrorState, EmptyState } from "@/shared/design-system/components";
 import { GalleryCard } from "./GalleryCard";
-import { galleryItems } from "./data";
+import { GalleryCardSkeleton } from "./GalleryCardSkeleton";
 import { useGallery } from "./useGallery";
 
 /**
@@ -11,14 +11,13 @@ import { useGallery } from "./useGallery";
  * `TeacherGrid`.
  *
  * Backed by `useGallery()` (the Public API's Gallery/Media content
- * module, §4, §8): lays out `data.gallery` when the query has resolved
- * with at least one item, and falls back to the local `galleryItems`
- * placeholder array (`./data`) while the query is loading, has
- * errored, or the CMS has nothing published yet.
+ * module, §4, §8): lays out `data.gallery` with explicit loading, error,
+ * and empty states (Phase 2) rather than silently falling back to
+ * placeholder data.
  */
 export function GalleryGrid() {
-  const { data } = useGallery();
-  const items = data && data.length > 0 ? data : galleryItems;
+  const { data, isPending, isError } = useGallery();
+  const items = data ?? [];
 
   return (
     <Section spacing="lg" aria-labelledby="gallery-grid-heading">
@@ -39,11 +38,31 @@ export function GalleryGrid() {
           </Text>
         </Stack>
 
-        <Grid cols="4" gap="lg">
-          {items.map((item) => (
-            <GalleryCard key={item.id} item={item} />
-          ))}
-        </Grid>
+        {isPending ? (
+          <Grid cols="4" gap="lg">
+            {[...Array(8)].map((_, i) => (
+              <GalleryCardSkeleton key={i} />
+            ))}
+          </Grid>
+        ) : isError ? (
+          <ErrorState
+            title="دریافت تصاویر ناموفق بود"
+            description="لطفاً بعداً دوباره تلاش کنید."
+            onRetry={() => window.location.reload()}
+            retryLabel="تلاش مجدد"
+          />
+        ) : items.length > 0 ? (
+          <Grid cols="4" gap="lg">
+            {items.map((item) => (
+              <GalleryCard key={item.id} item={item} />
+            ))}
+          </Grid>
+        ) : (
+          <EmptyState
+            title="تصویری برای نمایش وجود ندارد"
+            description="در حال حاضر تصویری منتشرشده‌ای موجود نیست."
+          />
+        )}
       </Stack>
     </Section>
   );

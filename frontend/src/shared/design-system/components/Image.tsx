@@ -35,7 +35,8 @@ export interface ImageProps
  * primitives instead of reimplementing them: `AspectRatio` for the box,
  * `Skeleton` for the loading placeholder. Always `loading="lazy"` and
  * `decoding="async"` unless the caller overrides them (e.g. an
- * above-the-fold hero image supplying `loading="eager"`).
+ * above-the-fold hero image supplying `loading="eager"` +
+ * `fetchPriority="high"`).
  */
 const Image = React.forwardRef<HTMLImageElement, ImageProps>(
   (

@@ -103,9 +103,9 @@ export function HomeNews() {
                   </span>
                 </div>
 
-                <Heading level={3} className="mb-2 line-clamp-2 text-base">
+                <div className="mb-2 line-clamp-2 text-base font-semibold text-foreground">
                   {item.title}
-                </Heading>
+                </div>
                 <Text variant="bodySm" color="muted" className="mb-4 line-clamp-3">
                   {item.excerpt}
                 </Text>

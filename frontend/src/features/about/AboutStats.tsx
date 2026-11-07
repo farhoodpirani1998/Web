@@ -50,7 +50,7 @@ export function AboutStats() {
       <Stack gap="md">
         <SectionHeader
           headingId="about-stats-heading"
-          headingLevel={3}
+          headingLevel={2}
           eyebrow="آمار مجموعه"
           title="مجموعه در یک نگاه"
         />

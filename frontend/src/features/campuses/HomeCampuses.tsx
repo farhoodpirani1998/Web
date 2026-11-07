@@ -88,9 +88,9 @@ export function HomeCampuses() {
                   </div>
                 )}
 
-                <Heading level={3} className="mb-1 text-base">
+                <div className="mb-1 text-base font-semibold text-foreground">
                   {campus.name}
-                </Heading>
+                </div>
                 <Text variant="bodySm" color="muted" className="mb-4">
                   {campus.description}
                 </Text>

@@ -1,97 +1,174 @@
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+/**
+ * TanStack Query hooks for the Pages module.
+ * Replaces manual useState/useEffect with server-state management.
+ */
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseMutateFunction,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 
 import type { ApiError } from "@/lib/apiError";
 
-import { fetchPagesList } from "../api";
+import {
+  createPage,
+  deletePage,
+  fetchPageById,
+  fetchPagesList,
+  updatePage,
+  updatePageStatus,
+  schedulePage,
+  setPageHomepage,
+  type CreatePagePayload,
+  type UpdatePagePayload,
+  type SchedulePagePayload,
+  type SetPageHomepagePayload,
+} from "../api";
 import type { CmsPage, CmsPageStatus } from "../types";
 
-/**
- * Fetches the pages list (optionally filtered by status and/or
- * parent), for `PagesPage`. Same shape as
- * `features/cms/news/hooks/useNews.ts` — see that file's top comment
- * for why `setPages` (not just `refetch`) is exposed.
- */
+export const pageKeys = {
+  all: ["pages"] as const,
+  list: (status?: CmsPageStatus, parentId?: string) =>
+    [...pageKeys.all, "list", status ?? "all", parentId ?? "all"] as const,
+  detail: (id: string) => [...pageKeys.all, "detail", id] as const,
+  options: ["pages", "options"] as const,
+};
+
 export interface UsePagesResult {
-  pages: CmsPage[];
+  data: CmsPage[] | undefined;
   isLoading: boolean;
+  isError: boolean;
   error: ApiError | null;
-  refetch: () => void;
-  setPages: Dispatch<SetStateAction<CmsPage[]>>;
+  refetch: UseQueryResult<CmsPage[], ApiError>["refetch"];
+  setData: (updater: CmsPage[] | ((old: CmsPage[] | undefined) => CmsPage[])) => void;
 }
 
 export function usePages(status?: CmsPageStatus, parentId?: string): UsePagesResult {
-  const [pages, setPages] = useState<CmsPage[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<ApiError | null>(null);
-  const [refetchToken, setRefetchToken] = useState(0);
-
-  useEffect(() => {
-    let cancelled = false;
-    setIsLoading(true);
-    setError(null);
-
-    fetchPagesList(status, parentId)
-      .then((list) => {
-        if (!cancelled) setPages(list);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err as ApiError);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [status, parentId, refetchToken]);
-
-  const refetch = useCallback(() => setRefetchToken((token) => token + 1), []);
-
-  return { pages, isLoading, error, refetch, setPages };
+  const queryClient = useQueryClient();
+  const query = useQuery({
+    queryKey: pageKeys.list(status, parentId),
+    queryFn: () => fetchPagesList(status, parentId),
+    staleTime: 30_000,
+  });
+  const setData = (updater: CmsPage[] | ((old: CmsPage[] | undefined) => CmsPage[])) => {
+    queryClient.setQueryData<CmsPage[]>(pageKeys.list(status, parentId), updater);
+  };
+  return {
+    data: query.data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error as ApiError | null,
+    refetch: query.refetch,
+    setData,
+  };
 }
 
-/**
- * Fetches the complete, unfiltered page list once — used to populate
- * "parent page" `<select>` options in `PageForm` (and the parent
- * filter in `PageStatusFilter`). A separate hook from `usePages` (not
- * a shared cache) because it deliberately ignores whatever
- * status/parent filter the page list view currently has active: a
- * parent picker needs to offer every page, not just the ones passing
- * the current filter. This is the same `GET /admin/pages` endpoint
- * with no query params — not a separate endpoint.
- */
+export function usePage(id: string | null) {
+  return useQuery({
+    queryKey: id ? pageKeys.detail(id) : ["pages", "detail", "null"],
+    queryFn: () => fetchPageById(id!),
+    enabled: !!id,
+    staleTime: 30_000,
+  });
+}
+
 export interface UsePageOptionsResult {
-  options: CmsPage[];
+  data: CmsPage[] | undefined;
   isLoading: boolean;
 }
 
 export function usePageOptions(): UsePageOptionsResult {
-  const [options, setOptions] = useState<CmsPage[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const query = useQuery({
+    queryKey: pageKeys.options,
+    queryFn: () => fetchPagesList(),
+    staleTime: 60_000,
+  });
+  return { data: query.data, isLoading: query.isLoading };
+}
 
-  useEffect(() => {
-    let cancelled = false;
-    setIsLoading(true);
+export interface UsePageMutations {
+  create: UseMutateFunction<CmsPage, ApiError, CreatePagePayload>;
+  update: UseMutateFunction<CmsPage, ApiError, { id: string; payload: UpdatePagePayload }>;
+  delete: UseMutateFunction<void, ApiError, string>;
+  updateStatus: UseMutateFunction<CmsPage, ApiError, { id: string; status: CmsPageStatus }>;
+  schedule: UseMutateFunction<CmsPage, ApiError, { id: string; payload: SchedulePagePayload }>;
+  setHomepage: UseMutateFunction<CmsPage, ApiError, { id: string; payload: SetPageHomepagePayload }>;
+}
 
-    fetchPagesList()
-      .then((list) => {
-        if (!cancelled) setOptions(list);
-      })
-      .catch(() => {
-        // A failed parent-options fetch shouldn't block the rest of the
-        // page/form from working — the picker just falls back to "no
-        // parent options available" rather than surfacing its own error UI.
-        if (!cancelled) setOptions([]);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
+export function usePageMutations(): UsePageMutations {
+  const queryClient = useQueryClient();
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const create = useMutation({
+    mutationFn: createPage,
+    onSuccess: (newPage) => {
+      queryClient.setQueryData<CmsPage[]>(pageKeys.list(), (old) =>
+        old ? [newPage, ...old] : [newPage],
+      );
+      queryClient.invalidateQueries({ queryKey: pageKeys.all, exact: false });
+    },
+  });
 
-  return { options, isLoading };
+  const update = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdatePagePayload }) => updatePage(id, payload),
+    onSuccess: (updated) => {
+      queryClient.setQueryData<CmsPage[]>(pageKeys.list(), (old) =>
+        old?.map((p) => (p.id === updated.id ? updated : p)) ?? [],
+      );
+      queryClient.invalidateQueries({ queryKey: pageKeys.all, exact: false });
+      queryClient.setQueryData(pageKeys.detail(updated.id), updated);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deletePage,
+    onSuccess: (_data, deletedId) => {
+      queryClient.setQueryData<CmsPage[]>(pageKeys.list(), (old) => old?.filter((p) => p.id !== deletedId) ?? []);
+      queryClient.invalidateQueries({ queryKey: pageKeys.all, exact: false });
+      queryClient.removeQueries({ queryKey: pageKeys.detail(deletedId) });
+    },
+  });
+
+  const updateStatus = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: CmsPageStatus }) => updatePageStatus(id, status),
+    onSuccess: (updated) => {
+      queryClient.setQueryData<CmsPage[]>(pageKeys.list(), (old) =>
+        old?.map((p) => (p.id === updated.id ? updated : p)) ?? [],
+      );
+      queryClient.invalidateQueries({ queryKey: pageKeys.all, exact: false });
+      queryClient.setQueryData(pageKeys.detail(updated.id), updated);
+    },
+  });
+
+  const schedule = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: SchedulePagePayload }) => schedulePage(id, payload),
+    onSuccess: (updated) => {
+      queryClient.setQueryData<CmsPage[]>(pageKeys.list(), (old) =>
+        old?.map((p) => (p.id === updated.id ? updated : p)) ?? [],
+      );
+      queryClient.invalidateQueries({ queryKey: pageKeys.all, exact: false });
+      queryClient.setQueryData(pageKeys.detail(updated.id), updated);
+    },
+  });
+
+  const setHomepage = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: SetPageHomepagePayload }) => setPageHomepage(id, payload),
+    onSuccess: (updated) => {
+      queryClient.setQueryData<CmsPage[]>(pageKeys.list(), (old) =>
+        old?.map((p) => (p.id === updated.id ? { ...p, isHomepage: updated.isHomepage } : { ...p, isHomepage: false })) ?? [],
+      );
+      queryClient.invalidateQueries({ queryKey: pageKeys.all, exact: false });
+      queryClient.setQueryData(pageKeys.detail(updated.id), updated);
+    },
+  });
+
+  return {
+    create,
+    update,
+    delete: deleteMutation,
+    updateStatus,
+    schedule,
+    setHomepage,
+  };
 }

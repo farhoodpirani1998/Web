@@ -1,6 +1,6 @@
 import type { SVGProps } from "react";
 
-import { Badge, Heading, Image, Section, Stack, Text } from "@/shared/design-system/components";
+import { Badge, Grid, Heading, Image, Section, Stack, Text } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
 import { galleryItems } from "./data";
 import { useGallery } from "./useGallery";
@@ -67,7 +67,11 @@ export function HomeGallery() {
           </Text>
         </Stack>
 
-        <div className="grid grid-cols-2 gap-3 [grid-auto-rows:200px] sm:gap-4 md:grid-cols-3">
+        <Grid
+          cols="3"
+          gap="none"
+          className="[grid-auto-rows:200px] gap-3 sm:gap-4"
+        >
           {homeGalleryItems.map((item, index) => (
             <div
               key={item.id}
@@ -98,7 +102,7 @@ export function HomeGallery() {
               />
             </div>
           ))}
-        </div>
+        </Grid>
       </Stack>
     </Section>
   );

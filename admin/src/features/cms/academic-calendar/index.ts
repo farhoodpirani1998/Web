@@ -1,26 +1,8 @@
-/**
- * Public surface of the `cms/academic-calendar` feature.
- */
-export type {
-  AcademicCalendarEntryKind,
-  CmsAcademicCalendarEntry,
-  CmsAcademicCalendarStatus,
-  CreateAcademicCalendarEntryPayload,
-  UpdateAcademicCalendarEntryPayload,
-} from "./types";
-export { ACADEMIC_CALENDAR_KIND_LABELS } from "./types";
-export {
-  fetchAcademicCalendarEntryList,
-  fetchAcademicCalendarEntryById,
-  createAcademicCalendarEntry,
-  updateAcademicCalendarEntry,
-  deleteAcademicCalendarEntry,
-  updateAcademicCalendarEntryStatus,
-  reorderAcademicCalendarEntries,
-} from "./api";
-export {
-  useAcademicCalendar,
-  type UseAcademicCalendarResult,
-} from "./hooks/useAcademicCalendar";
-
+export type { CmsAcademicCalendarEntry, CmsAcademicCalendarStatus, AcademicCalendarEntryKind, CreateAcademicCalendarEntryPayload, UpdateAcademicCalendarEntryPayload, ACADEMIC_CALENDAR_KIND_LABELS } from "./types";
+export type { CreateAcademicCalendarPayloadInput, UpdateAcademicCalendarPayloadInput } from "./schema";
+export { createAcademicCalendarPayloadSchema, updateAcademicCalendarPayloadSchema } from "./schema";
+export { fetchAcademicCalendarEntryList, fetchAcademicCalendarEntryById, createAcademicCalendarEntry, updateAcademicCalendarEntry, deleteAcademicCalendarEntry, updateAcademicCalendarEntryStatus, reorderAcademicCalendarEntries } from "./api";
+export { useAcademicCalendarEntryList, useAcademicCalendarEntry, useAcademicCalendarMutations, academicCalendarKeys } from "./hooks/useAcademicCalendar";
 export { AcademicCalendarPage } from "./AcademicCalendarPage";
+export { AcademicCalendarForm } from "./AcademicCalendarForm";
+export { AcademicCalendarList } from "./AcademicCalendarList";

@@ -1,9 +1,5 @@
 /**
  * Public surface of the `cms/pages` feature.
- *
- * Other layers (pages, other CMS modules) should import from here
- * rather than reaching into `./api`, `./hooks/usePages`, etc. directly
- * — same convention as `features/cms/news/index.ts`.
  */
 export type {
   CmsPage,
@@ -30,7 +26,23 @@ export {
   fetchPageRevisions,
   restorePageRevision,
 } from "./api";
-export { usePages, type UsePagesResult, usePageOptions, type UsePageOptionsResult } from "./hooks/usePages";
+export { usePages, type UsePagesResult, usePageOptions, type UsePageOptionsResult, usePage, usePageMutations, type UsePageMutations } from "./hooks/usePages";
+
+export {
+  pageFormSchema,
+  createPagePayloadSchema,
+  updatePagePayloadSchema,
+  schedulePagePayloadSchema,
+  formDataToCreatePayload,
+  formDataToUpdatePayload,
+  pageToFormData,
+  SLUG_PATTERN,
+  type PageFormData,
+  type SeoMetadataInput,
+  type CreatePagePayload as CreatePagePayloadSchema,
+  type UpdatePagePayload as UpdatePagePayloadSchema,
+  type SchedulePagePayload as SchedulePagePayloadSchema,
+} from "./schema";
 
 export { PagesPage } from "./PagesPage";
 export { PageList, type PageListProps } from "./PageList";

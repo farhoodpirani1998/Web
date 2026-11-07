@@ -1,286 +1,154 @@
-import { useId, useState, type FormEvent } from "react";
+/**
+ * Modern create/edit form for Academic Calendar using React Hook Form + Zod.
+ */
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { z } from "zod";
 
 import { UnsavedChangesDialog } from "@/components/ui/UnsavedChangesDialog";
 import { useIsDirty, useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { ApiError } from "@/lib/apiError";
 
 import { createAcademicCalendarEntry, updateAcademicCalendarEntry } from "./api";
-import {
-  ACADEMIC_CALENDAR_KIND_LABELS,
-  type AcademicCalendarEntryKind,
-  type CmsAcademicCalendarEntry,
-} from "./types";
+import { kindSchema, translatableSchema, createAcademicCalendarPayloadSchema, updateAcademicCalendarPayloadSchema } from "./schema";
+import { ACADEMIC_CALENDAR_KIND_LABELS, type CmsAcademicCalendarEntry, type AcademicCalendarEntryKind } from "./types";
 
-/** Create/edit dialog for `POST/PATCH /admin/academic-calendar-entries`. */
 export interface AcademicCalendarFormProps {
   entry: CmsAcademicCalendarEntry | null;
   onCancel: () => void;
   onSaved: (entry: CmsAcademicCalendarEntry) => void;
 }
 
-const KIND_OPTIONS = Object.entries(ACADEMIC_CALENDAR_KIND_LABELS) as [
-  AcademicCalendarEntryKind,
-  string,
-][];
+const formSchema = z.object({
+  kind: kindSchema,
+  titleFa: z.string().min(1, "عنوان فارسی الزامی است"),
+  titleEn: z.string().optional(),
+  value: z.string().optional(),
+  dateRange: z.string().optional(),
+  date: z.string().optional(),
+  descriptionFa: z.string().optional(),
+  descriptionEn: z.string().optional(),
+});
 
-/**
- * Which extra fields each kind uses — mirrors the backend entity's
- * field roles. Only the fields relevant to the selected kind are shown
- * (and sent), so the form stays understandable despite the kinds
- * sharing one entity.
- */
-const KIND_FIELDS: Record<
-  AcademicCalendarEntryKind,
-  { value: boolean; dateRange: boolean; date: boolean; description: boolean }
-> = {
-  year_stat: { value: true, dateRange: false, date: false, description: false },
-  term: { value: true, dateRange: true, date: false, description: true },
-  holiday: { value: false, dateRange: false, date: true, description: true },
-  exam_period: { value: false, dateRange: true, date: false, description: true },
-  important_date: { value: false, dateRange: false, date: true, description: true },
-};
+type FormData = z.infer<typeof formSchema>;
 
-const VALUE_LABEL: Record<AcademicCalendarEntryKind, string> = {
-  year_stat: "مقدار",
-  term: "ترتیب",
-  holiday: "",
-  exam_period: "",
-  important_date: "",
-};
+const KIND_OPTIONS = Object.entries(ACADEMIC_CALENDAR_KIND_LABELS) as [AcademicCalendarEntryKind, string][];
 
 export function AcademicCalendarForm({ entry, onCancel, onSaved }: AcademicCalendarFormProps) {
   const isEdit = entry !== null;
 
-  const kindId = useId();
-  const titleFaId = useId();
-  const titleEnId = useId();
-  const valueId = useId();
-  const dateRangeId = useId();
-  const dateId = useId();
-  const descriptionFaId = useId();
-
-  const [kind, setKind] = useState<AcademicCalendarEntryKind>(entry?.kind ?? "term");
-  const [titleFa, setTitleFa] = useState(entry?.title.fa ?? "");
-  const [titleEn, setTitleEn] = useState(entry?.title.en ?? "");
-  const [value, setValue] = useState(entry?.value ?? "");
-  const [dateRange, setDateRange] = useState(entry?.dateRange ?? "");
-  const [date, setDate] = useState(entry?.date ?? "");
-  const [descriptionFa, setDescriptionFa] = useState(entry?.description?.fa ?? "");
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fields = KIND_FIELDS[kind];
-
-  const { isDirty } = useIsDirty({
-    kind,
-    titleFa,
-    titleEn,
-    value,
-    dateRange,
-    date,
-    descriptionFa,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty, isSubmitting },
+    reset,
+    setValue,
+  } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: entry
+      ? {
+          kind: entry.kind,
+          titleFa: entry.title.fa ?? "",
+          titleEn: entry.title.en ?? "",
+          value: entry.value ?? "",
+          dateRange: entry.dateRange ?? "",
+          date: entry.date ?? "",
+          descriptionFa: entry.description?.fa ?? "",
+          descriptionEn: entry.description?.en ?? "",
+        }
+      : {
+          kind: "important_date",
+          titleFa: "",
+          titleEn: "",
+          value: "",
+          dateRange: "",
+          date: "",
+          descriptionFa: "",
+          descriptionEn: "",
+        },
   });
-  const { isConfirmOpen, guardedAction, confirmLeave, cancelLeave } =
-    useUnsavedChangesGuard(isDirty);
 
-  const canSubmit = titleFa.trim().length > 0 && !isSaving;
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const { isConfirmOpen, guardedAction, confirmLeave, cancelLeave } = useUnsavedChangesGuard(isDirty);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!canSubmit) return;
-
-    setError(null);
-    setIsSaving(true);
-
-    const trimmedTitleEn = titleEn.trim();
-    const trimmedDescription = descriptionFa.trim();
-
-    const payload = {
-      kind,
-      title: { fa: titleFa.trim(), ...(trimmedTitleEn ? { en: trimmedTitleEn } : {}) },
-      value: fields.value ? value.trim() : undefined,
-      dateRange: fields.dateRange ? dateRange.trim() : undefined,
-      date: fields.date ? date.trim() : undefined,
-      description: fields.description
-        ? { fa: trimmedDescription }
-        : undefined,
-    };
-
+  async function onSubmit(data: FormData) {
+    setSaveError(null);
     try {
-      const saved = isEdit
-        ? await updateAcademicCalendarEntry(entry.id, payload)
-        : await createAcademicCalendarEntry(payload);
-      onSaved(saved);
+      if (isEdit && entry) {
+        const saved = await updateAcademicCalendarEntry(entry.id, {
+          kind: data.kind,
+          title: { fa: data.titleFa, en: data.titleEn || undefined },
+          value: data.value || undefined,
+          dateRange: data.dateRange || undefined,
+          date: data.date || undefined,
+          description: (data.descriptionFa || data.descriptionEn) ? { fa: data.descriptionFa || undefined, en: data.descriptionEn || undefined } : undefined,
+        });
+        onSaved(saved);
+      } else {
+        const saved = await createAcademicCalendarEntry({
+          kind: data.kind,
+          title: { fa: data.titleFa, en: data.titleEn || undefined },
+          value: data.value || undefined,
+          dateRange: data.dateRange || undefined,
+          date: data.date || undefined,
+          description: (data.descriptionFa || data.descriptionEn) ? { fa: data.descriptionFa || undefined, en: data.descriptionEn || undefined } : undefined,
+        });
+        onSaved(saved);
+      }
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
-      setIsSaving(false);
+      setSaveError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
     }
   }
 
-  const inputClass =
-    "rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100";
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="text-lg font-semibold text-slate-900">
-          {isEdit ? "ویرایش ورودی تقویم" : "ورودی جدید تقویم"}
-        </h2>
-
-        <form
-          className="mt-4 flex max-h-[70vh] flex-col gap-4 overflow-y-auto"
-          onSubmit={handleSubmit}
-          noValidate
-        >
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor={kindId} className="text-sm font-medium text-slate-900">
-              نوع (بخش صفحه)
-            </label>
-            <select
-              id={kindId}
-              value={kind}
-              onChange={(event) => setKind(event.target.value as AcademicCalendarEntryKind)}
-              disabled={isSaving}
-              className={inputClass}
-            >
-              {KIND_OPTIONS.map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor={titleFaId} className="text-sm font-medium text-slate-900">
-              عنوان (فارسی)
-            </label>
-            <input
-              id={titleFaId}
-              type="text"
-              dir="rtl"
-              required
-              value={titleFa}
-              onChange={(event) => setTitleFa(event.target.value)}
-              disabled={isSaving}
-              className={inputClass}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor={titleEnId} className="text-sm font-medium text-slate-900">
-              عنوان (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
-            </label>
-            <input
-              id={titleEnId}
-              type="text"
-              value={titleEn}
-              onChange={(event) => setTitleEn(event.target.value)}
-              disabled={isSaving}
-              className={inputClass}
-            />
-          </div>
-
-          {fields.value ? (
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor={valueId} className="text-sm font-medium text-slate-900">
-                {VALUE_LABEL[kind]}{" "}
-                <span className="font-normal text-slate-400">— اختیاری</span>
-              </label>
-              <input
-                id={valueId}
-                type="text"
-                dir="rtl"
-                value={value}
-                onChange={(event) => setValue(event.target.value)}
-                disabled={isSaving}
-                className={inputClass}
-              />
-            </div>
-          ) : null}
-
-          {fields.dateRange ? (
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor={dateRangeId} className="text-sm font-medium text-slate-900">
-                بازه تاریخ <span className="font-normal text-slate-400">— اختیاری</span>
-              </label>
-              <input
-                id={dateRangeId}
-                type="text"
-                dir="rtl"
-                value={dateRange}
-                onChange={(event) => setDateRange(event.target.value)}
-                disabled={isSaving}
-                placeholder="مثلاً ۱۵ شهریور تا ۳۰ دی ۱۴۰۴"
-                className={inputClass}
-              />
-            </div>
-          ) : null}
-
-          {fields.date ? (
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor={dateId} className="text-sm font-medium text-slate-900">
-                تاریخ <span className="font-normal text-slate-400">— اختیاری</span>
-              </label>
-              <input
-                id={dateId}
-                type="text"
-                dir="rtl"
-                value={date}
-                onChange={(event) => setDate(event.target.value)}
-                disabled={isSaving}
-                placeholder="مثلاً ۱۰ مهر ۱۴۰۴"
-                className={inputClass}
-              />
-            </div>
-          ) : null}
-
-          {fields.description ? (
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor={descriptionFaId} className="text-sm font-medium text-slate-900">
-                توضیحات (فارسی) <span className="font-normal text-slate-400">— اختیاری</span>
-              </label>
-              <textarea
-                id={descriptionFaId}
-                dir="rtl"
-                rows={3}
-                value={descriptionFa}
-                onChange={(event) => setDescriptionFa(event.target.value)}
-                disabled={isSaving}
-                className={inputClass}
-              />
-            </div>
-          ) : null}
-
-          {error ? (
-            <p role="alert" className="text-sm text-red-600">
-              {error}
-            </p>
-          ) : null}
-
-          <div className="mt-2 flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => guardedAction(onCancel)}
-              disabled={isSaving}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              انصراف
-            </button>
-            <button
-              type="submit"
-              disabled={!canSubmit}
-              className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
-            >
-              {isSaving ? "در حال ذخیره…" : isEdit ? "ذخیره تغییرات" : "ایجاد"}
-            </button>
-          </div>
-        </form>
+    <form dir="rtl" onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <label htmlFor="kind" className="block text-sm font-medium">نوع</label>
+          <select id="kind" {...register("kind")} className="mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+            {KIND_OPTIONS.map(([k, label]) => (
+              <option key={k} value={k}>{label}</option>
+            ))}
+          </select>
+          {errors.kind && <p className="mt-1 text-xs text-red-600">{errors.kind.message}</p>}
+        </div>
+        <div>
+          <label htmlFor="titleFa" className="block text-sm font-medium">عنوان فارسی</label>
+          <input id="titleFa" {...register("titleFa")} className="mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+          {errors.titleFa && <p className="mt-1 text-xs text-red-600">{errors.titleFa.message}</p>}
+        </div>
+        <div>
+          <label htmlFor="titleEn" className="block text-sm font-medium">عنوان انگلیسی</label>
+          <input id="titleEn" {...register("titleEn")} className="mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+        </div>
+        <div>
+          <label htmlFor="date" className="block text-sm font-medium">تاریخ</label>
+          <input id="date" type="date" {...register("date")} className="mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+        </div>
+        <div>
+          <label htmlFor="dateRange" className="block text-sm font-medium">بازه زمانی</label>
+          <input id="dateRange" {...register("dateRange")} placeholder="مثلاً 1403/01/01 تا 1403/06/30" className="mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+        </div>
+        <div>
+          <label htmlFor="value" className="block text-sm font-medium">مقدار</label>
+          <input id="value" {...register("value")} placeholder="مثلاً 20 ساعت" className="mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+        </div>
       </div>
-
-      {isConfirmOpen ? (
-        <UnsavedChangesDialog onDiscard={confirmLeave} onKeepEditing={cancelLeave} />
-      ) : null}
-    </div>
+      <div>
+        <label htmlFor="descriptionFa" className="block text-sm font-medium">توضیحات فارسی</label>
+        <textarea id="descriptionFa" rows={3} {...register("descriptionFa")} className="mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+      </div>
+      <div>
+        <label htmlFor="descriptionEn" className="block text-sm font-medium">توضیحات انگلیسی</label>
+        <textarea id="descriptionEn" rows={3} {...register("descriptionEn")} className="mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+      </div>
+      {saveError && <p className="text-sm text-red-600">{saveError}</p>}
+      <div className="flex gap-3">
+        <button type="submit" disabled={isSubmitting} className="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60">{isEdit ? "ذخیره" : "ایجاد"}</button>
+        <button type="button" onClick={onCancel} className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-gray-50">لغو</button>
+      </div>
+      <UnsavedChangesDialog open={isConfirmOpen} onConfirm={confirmLeave} onCancel={cancelLeave} />
+    </form>
   );
 }

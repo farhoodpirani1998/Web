@@ -1,31 +1,27 @@
-import { useId, useState, type FormEvent } from "react";
+/**
+ * Modern create/edit form for FAQs using React Hook Form + Zod.
+ * Replaces old useState-heavy form with typed validation, automatic
+ * dirty-check, and Persian RTL layout.
+ */
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
 
 import { UnsavedChangesDialog } from "@/components/ui/UnsavedChangesDialog";
 import { useIsDirty, useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { ApiError } from "@/lib/apiError";
 
 import { createFaq, updateFaq } from "./api";
+import {
+  faqFormSchema,
+  formDataToCreatePayload,
+  formDataToUpdatePayload,
+  faqToFormData,
+  type FaqFormData,
+} from "./schema";
 import type { CmsFaq } from "./types";
 
-/**
- * Create/edit dialog for `POST /admin/faqs` and `PATCH /admin/faqs/:id`.
- * Same plain fixed-overlay modal shape as
- * `features/cms/media/MediaUploadDialog.tsx` (see that file's comment
- * on why there's no shared `Dialog` primitive yet).
- *
- * `question.fa`/`answer.fa` are the only required fields, matching
- * `TranslatableTextDto` (`fa` mandatory, `en` optional) — `Locale.FA` is
- * `DEFAULT_LOCALE` server-side. The `en` fields are sent only when
- * non-empty so an update can still clear a previously-set `en` value:
- * `FaqService.update` replaces the whole `question`/`answer` object
- * rather than merging keys, so omitting `en` here correctly drops it.
- *
- * `category` is a flat (non-translatable) field, always sent as typed
- * — including empty, so clearing it in edit mode actually clears it,
- * rather than being silently dropped like the `en` fields above.
- */
 export interface FaqFormProps {
-  /** `null` for create mode; an existing FAQ for edit mode. */
   faq: CmsFaq | null;
   onCancel: () => void;
   onSaved: (faq: CmsFaq) => void;
@@ -34,165 +30,147 @@ export interface FaqFormProps {
 export function FaqForm({ faq, onCancel, onSaved }: FaqFormProps) {
   const isEdit = faq !== null;
 
-  const questionFaId = useId();
-  const questionEnId = useId();
-  const answerFaId = useId();
-  const answerEnId = useId();
-  const categoryId = useId();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty, isSubmitting },
+    reset,
+  } = useForm<FaqFormData>({
+    resolver: zodResolver(faqFormSchema),
+    defaultValues: faq ? faqToFormData(faq) : {
+      questionFa: "",
+      questionEn: "",
+      answerFa: "",
+      answerEn: "",
+      category: "",
+    },
+  });
 
-  const [questionFa, setQuestionFa] = useState(faq?.question.fa ?? "");
-  const [questionEn, setQuestionEn] = useState(faq?.question.en ?? "");
-  const [answerFa, setAnswerFa] = useState(faq?.answer.fa ?? "");
-  const [answerEn, setAnswerEn] = useState(faq?.answer.en ?? "");
-  const [category, setCategory] = useState(faq?.category ?? "");
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  const { isDirty } = useIsDirty({ questionFa, questionEn, answerFa, answerEn, category });
-  const { isConfirmOpen, guardedAction, confirmLeave, cancelLeave } =
-    useUnsavedChangesGuard(isDirty);
+  const { isConfirmOpen, guardedAction, confirmLeave, cancelLeave } = useUnsavedChangesGuard(isDirty);
 
-  const canSubmit = questionFa.trim().length > 0 && answerFa.trim().length > 0 && !isSaving;
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!canSubmit) return;
-
-    setError(null);
-    setIsSaving(true);
-
-    const trimmedQuestionEn = questionEn.trim();
-    const trimmedAnswerEn = answerEn.trim();
-
-    const payload = {
-      question: {
-        fa: questionFa.trim(),
-        ...(trimmedQuestionEn ? { en: trimmedQuestionEn } : {}),
-      },
-      answer: {
-        fa: answerFa.trim(),
-        ...(trimmedAnswerEn ? { en: trimmedAnswerEn } : {}),
-      },
-      category: category.trim(),
-    };
-
+  async function onSubmit(data: FaqFormData) {
+    setSaveError(null);
     try {
-      const saved = isEdit ? await updateFaq(faq.id, payload) : await createFaq(payload);
-      onSaved(saved);
+      if (isEdit && faq) {
+        const payload = formDataToUpdatePayload(data);
+        const saved = await updateFaq(faq.id, payload);
+        onSaved(saved);
+      } else {
+        const payload = formDataToCreatePayload(data);
+        const saved = await createFaq(payload);
+        onSaved(saved);
+      }
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "خطایی رخ داد. دوباره تلاش کنید.");
-      setIsSaving(false);
+      setSaveError(err instanceof ApiError ? err.message : "خطایی رخ داد. دوباره تلاش کنید.");
     }
-    // No `finally` resetting isSaving on success: the dialog is about
-    // to be unmounted by the parent (`onSaved` closes it), same
-    // reasoning as `MediaUploadDialog`'s submit handler.
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" dir="rtl">
+      <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-6 shadow-xl">
         <h2 className="text-lg font-semibold text-slate-900">
           {isEdit ? "ویرایش پرسش متداول" : "پرسش متداول جدید"}
         </h2>
 
-        <form className="mt-4 flex max-h-[70vh] flex-col gap-4 overflow-y-auto" onSubmit={handleSubmit} noValidate>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="mt-4 flex max-h-[70vh] flex-col gap-4 overflow-y-auto"
+          noValidate
+        >
           <div className="flex flex-col gap-1.5">
-            <label htmlFor={questionFaId} className="text-sm font-medium text-slate-900">
-              پرسش (فارسی)
+            <label htmlFor="questionFa" className="text-sm font-medium text-slate-900">
+              پرسش (فارسی) <span className="text-red-600">*</span>
             </label>
             <input
-              id={questionFaId}
-              type="text"
+              id="questionFa"
               dir="rtl"
-              required
-              value={questionFa}
-              onChange={(event) => setQuestionFa(event.target.value)}
-              disabled={isSaving}
+              {...register("questionFa")}
+              disabled={isSubmitting}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
             />
+            {errors.questionFa ? (
+              <p className="text-xs text-red-600">{errors.questionFa.message}</p>
+            ) : null}
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor={questionEnId} className="text-sm font-medium text-slate-900">
+            <label htmlFor="questionEn" className="text-sm font-medium text-slate-900">
               پرسش (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <input
-              id={questionEnId}
-              type="text"
-              value={questionEn}
-              onChange={(event) => setQuestionEn(event.target.value)}
-              disabled={isSaving}
+              id="questionEn"
+              {...register("questionEn")}
+              disabled={isSubmitting}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor={answerFaId} className="text-sm font-medium text-slate-900">
-              پاسخ (فارسی)
+            <label htmlFor="answerFa" className="text-sm font-medium text-slate-900">
+              پاسخ (فارسی) <span className="text-red-600">*</span>
             </label>
             <textarea
-              id={answerFaId}
+              id="answerFa"
               dir="rtl"
               rows={4}
-              required
-              value={answerFa}
-              onChange={(event) => setAnswerFa(event.target.value)}
-              disabled={isSaving}
+              {...register("answerFa")}
+              disabled={isSubmitting}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
             />
+            {errors.answerFa ? (
+              <p className="text-xs text-red-600">{errors.answerFa.message}</p>
+            ) : null}
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor={answerEnId} className="text-sm font-medium text-slate-900">
+            <label htmlFor="answerEn" className="text-sm font-medium text-slate-900">
               پاسخ (انگلیسی) <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <textarea
-              id={answerEnId}
+              id="answerEn"
               rows={4}
-              value={answerEn}
-              onChange={(event) => setAnswerEn(event.target.value)}
-              disabled={isSaving}
+              {...register("answerEn")}
+              disabled={isSubmitting}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor={categoryId} className="text-sm font-medium text-slate-900">
+            <label htmlFor="category" className="text-sm font-medium text-slate-900">
               دسته‌بندی <span className="font-normal text-slate-400">— اختیاری</span>
             </label>
             <input
-              id={categoryId}
+              id="category"
               type="text"
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-              disabled={isSaving}
-              placeholder="مثلاً پذیرش، شهریه"
               dir="rtl"
+              placeholder="مثلاً پذیرش، شهریه"
+              {...register("category")}
+              disabled={isSubmitting}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
             />
           </div>
 
-          {error ? (
-            <p role="alert" className="text-sm text-red-600">
-              {error}
-            </p>
+          {saveError ? (
+            <p role="alert" className="text-sm text-red-600">{saveError}</p>
           ) : null}
 
           <div className="mt-2 flex justify-end gap-2">
             <button
               type="button"
               onClick={() => guardedAction(onCancel)}
-              disabled={isSaving}
+              disabled={isSubmitting}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               انصراف
             </button>
             <button
               type="submit"
-              disabled={!canSubmit}
+              disabled={isSubmitting}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              {isSaving ? "در حال ذخیره…" : isEdit ? "ذخیره تغییرات" : "ایجاد پرسش متداول"}
+              {isSubmitting ? "در حال ذخیره…" : isEdit ? "ذخیره تغییرات" : "ایجاد پرسش متداول"}
             </button>
           </div>
         </form>

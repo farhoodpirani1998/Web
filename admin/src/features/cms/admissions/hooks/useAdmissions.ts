@@ -1,56 +1,43 @@
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
-
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiError } from "@/lib/apiError";
+import {
+  fetchAdmissionList,
+  fetchAdmissionById,
+  createAdmission,
+  updateAdmission,
+  deleteAdmission,
+  updateAdmissionStatus,
+  reorderAdmissions,
+} from "../api";
+import type { CmsAdmissionEntry, CmsAcademicCalendarStatus, AdmissionEntryKind } from "../types";
 
-import { fetchAdmissionEntryList } from "../api";
-import type { AdmissionEntryKind, CmsAdmissionEntry, CmsAdmissionStatus } from "../types";
+export const admissionKeys = {
+  all: ["admissions"] as const,
+  list: (status?: CmsAcademicCalendarStatus, kind?: AdmissionEntryKind) => [...admissionKeys.all, "list", status ?? "all", kind ?? "all"] as const,
+  detail: (id: string) => [...admissionKeys.all, "detail", id] as const,
+};
 
-/**
- * Fetches the admissions entry list, optionally filtered by status
- * and/or kind. Same shape as `features/cms/faq/hooks/useFaqs`.
- */
-export interface UseAdmissionsResult {
-  entries: CmsAdmissionEntry[];
-  isLoading: boolean;
-  error: ApiError | null;
-  refetch: () => void;
-  setEntries: Dispatch<SetStateAction<CmsAdmissionEntry[]>>;
+export function useAdmissionList(params?: { status?: CmsAcademicCalendarStatus; kind?: AdmissionEntryKind }) {
+  return useQuery<CmsAdmissionEntry[], ApiError>({
+    queryKey: admissionKeys.list(params?.status, params?.kind),
+    queryFn: () => fetchAdmissionList(params),
+  });
 }
 
-export function useAdmissions(params?: {
-  status?: CmsAdmissionStatus;
-  kind?: AdmissionEntryKind;
-}): UseAdmissionsResult {
-  const [entries, setEntries] = useState<CmsAdmissionEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<ApiError | null>(null);
-  const [refetchToken, setRefetchToken] = useState(0);
+export function useAdmission(id: string | null) {
+  return useQuery<CmsAdmissionEntry, ApiError>({
+    queryKey: id ? admissionKeys.detail(id) : ["admissions", "detail", "null"],
+    queryFn: () => (id ? fetchAdmissionById(id) : Promise.reject(new Error("no id"))),
+    enabled: !!id,
+  });
+}
 
-  const status = params?.status;
-  const kind = params?.kind;
-
-  useEffect(() => {
-    let cancelled = false;
-    setIsLoading(true);
-    setError(null);
-
-    fetchAdmissionEntryList({ status, kind })
-      .then((list) => {
-        if (!cancelled) setEntries(list);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err as ApiError);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [status, kind, refetchToken]);
-
-  const refetch = useCallback(() => setRefetchToken((token) => token + 1), []);
-
-  return { entries, isLoading, error, refetch, setEntries };
+export function useAdmissionMutations() {
+  const qc = useQueryClient();
+  const create = useMutation({ mutationFn: createAdmission, onSuccess: () => qc.invalidateQueries({ queryKey: admissionKeys.all }) });
+  const update = useMutation({ mutationFn: ({ id, payload }: { id: string; payload: any }) => updateAdmission(id, payload), onSuccess: () => qc.invalidateQueries({ queryKey: admissionKeys.all }) });
+  const del = useMutation({ mutationFn: deleteAdmission, onSuccess: () => qc.invalidateQueries({ queryKey: admissionKeys.all }) });
+  const statusMut = useMutation({ mutationFn: ({ id, status }: { id: string; status: CmsAcademicCalendarStatus }) => updateAdmissionStatus(id, status), onSuccess: () => qc.invalidateQueries({ queryKey: admissionKeys.all }) });
+  const reorder = useMutation({ mutationFn: reorderAdmissions, onSuccess: () => qc.invalidateQueries({ queryKey: admissionKeys.all }) });
+  return { create, update, del, statusMut, reorder };
 }

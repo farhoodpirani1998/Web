@@ -20,8 +20,18 @@ export {
   updateTestimonialStatus,
   reorderTestimonials,
 } from "./api";
-export { useTestimonials, type UseTestimonialsResult } from "./hooks/useTestimonials";
+export {
+  testimonialFormSchema,
+  translatableSchema,
+  createTestimonialPayloadSchema,
+  updateTestimonialPayloadSchema,
+  type TestimonialFormData,
+  formDataToCreatePayload,
+  formDataToUpdatePayload,
+  testimonialToFormData,
+} from "./schema";
 
+export { useTestimonials, type UseTestimonialsResult, testimonialKeys, useTestimonialList, useTestimonialById, useTestimonialMutations, type UseTestimonialListResult, type UseTestimonialMutations } from "./hooks/useTestimonials";
 export { TestimonialsPage } from "./TestimonialsPage";
 export { TestimonialList, type TestimonialListProps } from "./TestimonialList";
 export { TestimonialRow, type TestimonialRowProps } from "./TestimonialRow";

@@ -1,31 +1,23 @@
+import { useMemo } from "react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  flexRender,
+  type ColumnDef,
+} from "@tanstack/react-table";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PermissionGate } from "@/components/ui/PermissionGate";
-import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
 import type { ApiError } from "@/lib/apiError";
-
-import { PageRow } from "./PageRow";
+import { CmsPageStatus } from "./types";
 import type { CmsPage, CmsPageStatus } from "./types";
 
-/**
- * Renders `usePages`'s result — `PagesPage` owns the hook (and the
- * status/parent filters driving it); this component only knows how to
- * display whatever list/loading/error state it's handed, same split
- * as `features/cms/news/NewsList.tsx`.
- *
- * `parentTitle` for each row is resolved from `pages` itself (a lookup
- * by `parentId` within the currently-loaded list) rather than a
- * separate fetch per row — good enough for admin display purposes;
- * if the parent isn't in the current filtered view (e.g. it has a
- * different status than the active filter), the row just shows no
- * parent label rather than issuing an extra request for it.
- *
- * No reorder controls: same reasoning as `NewsList`.
- */
 export interface PageListProps {
   pages: CmsPage[];
   isLoading: boolean;
   error: ApiError | null;
-  status: CmsPageStatus | undefined;
+  status?: CmsPageStatus;
   updatingStatusId: string | null;
   updatingScheduleId: string | null;
   updatingHomepageId: string | null;
@@ -46,100 +38,93 @@ export function PageList({
   pages,
   isLoading,
   error,
-  status,
-  updatingStatusId,
-  updatingScheduleId,
-  updatingHomepageId,
-  isSelected,
-  isAllSelected,
-  isSelectionIndeterminate,
-  onToggleSelect,
-  onToggleSelectAll,
   onEdit,
   onDeleteRequest,
   onChangeStatus,
-  onSchedule,
   onSetHomepage,
   onViewHistory,
 }: PageListProps) {
-  if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری صفحات…</p>;
-  }
+  const columns = useMemo<ColumnDef<CmsPage>[]>(() => [
+    {
+      accessorKey: "title",
+      header: () => <span dir="rtl">عنوان</span>,
+      cell: ({ row }) => <span dir="rtl">{row.original.title.fa}</span>,
+    },
+    {
+      accessorKey: "slug",
+      header: () => <span dir="rtl">نامک</span>,
+    },
+    {
+      accessorKey: "status",
+      header: () => <span dir="rtl">وضعیت</span>,
+      cell: ({ row }) => <span dir="rtl">{row.original.status}</span>,
+    },
+    {
+      accessorKey: "template",
+      header: () => <span dir="rtl">قالب</span>,
+      cell: ({ row }) => <span dir="rtl">{row.original.template}</span>,
+    },
+    {
+      id: "actions",
+      header: () => <span dir="rtl">عملیات</span>,
+      cell: ({ row }) => (
+        <div className="flex gap-2" dir="rtl">
+          <button onClick={() => onEdit(row.original)} className="text-blue-600 text-xs">ویرایش</button>
+          <button onClick={() => onChangeStatus(row.original, row.original.status === "published" ? "draft" : "published")} className="text-amber-600 text-xs">تغییر وضعیت</button>
+          <button onClick={() => onSetHomepage(row.original, !row.original.isHomepage)} className="text-purple-600 text-xs">{row.original.isHomepage ? "برداشتن از صفحه اصلی" : "صفحه اصلی"}</button>
+          <button onClick={() => onViewHistory(row.original)} className="text-green-600 text-xs">تاریخچه</button>
+          <button onClick={() => onDeleteRequest(row.original)} className="text-red-600 text-xs">حذف</button>
+        </div>
+      ),
+    },
+  ], [onEdit, onChangeStatus, onSetHomepage, onViewHistory, onDeleteRequest]);
 
-  if (error) {
-    return <p className="py-8 text-center text-sm text-red-600">{error.message}</p>;
-  }
+  const table = useReactTable({
+    data: pages,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: { pagination: { pageSize: 10 } },
+  });
 
-  if (pages.length === 0) {
-    return (
-      <EmptyState
-        title={status ? "صفحه‌ای با این وضعیت یافت نشد" : "صفحه‌ای یافت نشد"}
-        description="برای شروع یک صفحه اضافه کنید."
-      />
-    );
-  }
-
-  const titleById = new Map(pages.map((page) => [page.id, page.title.fa]));
+  if (isLoading) return <div dir="rtl" className="p-6 text-center">در حال بارگذاری...</div>;
+  if (error) return <div dir="rtl" className="p-6 text-red-500">{error.message}</div>;
+  if (!pages.length) return <EmptyState title="صفحه‌ای یافت نشد" />;
 
   return (
-    <div className="overflow-x-auto rounded-md border border-slate-200">
-      <table className="min-w-full divide-y divide-slate-200 text-sm">
-        <thead className="bg-slate-50">
-          <tr>
-            <th scope="col" className="w-10 px-3 py-2 text-left font-medium text-slate-500">
-              <PermissionGate permission="website.content:write">
-                <SelectAllCheckbox
-                  checked={isAllSelected}
-                  indeterminate={isSelectionIndeterminate}
-                  onChange={onToggleSelectAll}
-                  aria-label="انتخاب همه صفحات"
-                />
-              </PermissionGate>
-            </th>
-            <th scope="col" className="w-16 px-3 py-2 text-left font-medium text-slate-500">
-              <span className="sr-only">تصویر</span>
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              عنوان
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              قالب
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              وضعیت
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              زمان انتشار
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              صفحه اصلی
-            </th>
-            <th scope="col" className="px-3 py-2 text-right font-medium text-slate-500">
-              <span className="sr-only">اقدامات</span>
-            </th>
-          </tr>
+    <div dir="rtl" className="overflow-auto rounded-md border shadow-sm">
+      <table className="w-full text-sm text-right">
+        <thead className="bg-gray-50">
+          {table.getHeaderGroups().map((hg) => (
+            <tr key={hg.id}>
+              {hg.headers.map((h) => (
+                <th key={h.id} className="px-3 py-2 font-semibold text-xs whitespace-nowrap">
+                  {flexRender(h.column.columnDef.header, h.getContext())}
+                </th>
+              ))}
+            </tr>
+          ))}
         </thead>
-        <tbody className="divide-y divide-slate-200 bg-white">
-          {pages.map((page) => (
-            <PageRow
-              key={page.id}
-              page={page}
-              parentTitle={page.parentId ? titleById.get(page.parentId) : undefined}
-              isUpdatingStatus={updatingStatusId === page.id}
-              isUpdatingSchedule={updatingScheduleId === page.id}
-              isUpdatingHomepage={updatingHomepageId === page.id}
-              selected={isSelected(page)}
-              onToggleSelect={onToggleSelect}
-              onEdit={onEdit}
-              onDeleteRequest={onDeleteRequest}
-              onChangeStatus={onChangeStatus}
-              onSchedule={onSchedule}
-              onSetHomepage={onSetHomepage}
-              onViewHistory={onViewHistory}
-            />
+        <tbody>
+          {table.getRowModel().rows.map((row) => (
+            <tr key={row.id} className="border-b hover:bg-gray-50">
+              {row.getVisibleCells().map((cell) => (
+                <td key={cell.id} className="px-3 py-2 whitespace-nowrap">
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </td>
+              ))}
+            </tr>
           ))}
         </tbody>
       </table>
+      <div className="flex items-center justify-between px-3 py-2 text-xs border-t">
+        <span>صفحه {table.getState().pagination.pageIndex + 1} از {table.getPageCount()}</span>
+        <div className="flex gap-2">
+          <button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} className="px-2 py-1 border rounded">قبلی</button>
+          <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} className="px-2 py-1 border rounded">بعدی</button>
+        </div>
+      </div>
     </div>
   );
 }

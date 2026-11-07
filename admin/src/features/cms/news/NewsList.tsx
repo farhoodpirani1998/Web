@@ -1,134 +1,70 @@
-import { EmptyState } from "@/components/ui/EmptyState";
-import { PermissionGate } from "@/components/ui/PermissionGate";
-import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
-import type { ApiError } from "@/lib/apiError";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { useState } from "react";
+import { useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table";
+import { useNewsList } from "../hooks/useNews";
+import type { CmsNewsArticle, CmsNewsStatus } from "../types";
 
-import { NewsRow } from "./NewsRow";
-import type { CmsNewsArticle, CmsNewsStatus } from "./types";
+export default function NewsList() {
+  const { data = [], isLoading } = useNewsList();
+  const [globalFilter, setGlobalFilter] = useState("");
 
-/**
- * Renders `useNews`'s result — `NewsPage` owns the hook (and the
- * status/category filters driving it); this component only knows how
- * to display whatever list/loading/error state it's handed, same split
- * as `features/cms/hero-slides/HeroSlideList.tsx`.
- *
- * No reorder controls: News has no `position`/`reorder` endpoint (see
- * `types.ts`'s top comment) — the list is always shown in the server's
- * reverse-chronological order (`publishAt`/`createdAt` DESC, per
- * `NewsService.findAll`).
- *
- * Selection state (`isSelected`/`onToggleSelect`/`onToggleSelectAll`)
- * is owned by `NewsPage` via `useRowSelection` — this component only
- * renders the checkboxes and wires their events, same "dumb display"
- * split the rest of the props already follow.
- */
-export interface NewsListProps {
-  articles: CmsNewsArticle[];
-  isLoading: boolean;
-  error: ApiError | null;
-  status: CmsNewsStatus | undefined;
-  updatingStatusId: string | null;
-  updatingScheduleId: string | null;
-  isSelected: (article: CmsNewsArticle) => boolean;
-  isAllSelected: boolean;
-  isSelectionIndeterminate: boolean;
-  onToggleSelect: (article: CmsNewsArticle) => void;
-  onToggleSelectAll: () => void;
-  onEdit: (article: CmsNewsArticle) => void;
-  onDeleteRequest: (article: CmsNewsArticle) => void;
-  onChangeStatus: (article: CmsNewsArticle, status: CmsNewsStatus) => void;
-  onSchedule: (article: CmsNewsArticle, publishAt: string | null) => void;
-  onViewHistory: (article: CmsNewsArticle) => void;
-}
+  const columns = [
+    { header: "عنوان", accessorFn: (r: CmsNewsArticle) => r.title.fa || r.title.en || "", id: "title" },
+    { header: "نامک", accessorKey: "slug" as const },
+    { header: "وضعیت", accessorKey: "status" as const },
+    { header: "تاریخ انتشار", accessorFn: (r: CmsNewsArticle) => r.publishAt ? new Date(r.publishAt).toLocaleDateString("fa-IR") : "—", id: "publishAt" },
+  ];
 
-export function NewsList({
-  articles,
-  isLoading,
-  error,
-  status,
-  updatingStatusId,
-  updatingScheduleId,
-  isSelected,
-  isAllSelected,
-  isSelectionIndeterminate,
-  onToggleSelect,
-  onToggleSelectAll,
-  onEdit,
-  onDeleteRequest,
-  onChangeStatus,
-  onSchedule,
-  onViewHistory,
-}: NewsListProps) {
-  if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری اخبار…</p>;
-  }
-
-  if (error) {
-    return <p className="py-8 text-center text-sm text-red-600">{error.message}</p>;
-  }
-
-  if (articles.length === 0) {
-    return (
-      <EmptyState
-        title={status ? "موردی با این وضعیت نیست" : "موردی ثبت نشده"}
-        description="برای شروع یک خبر اضافه کنید."
-      />
-    );
-  }
+  const table = useReactTable({
+    data,
+    columns,
+    state: { globalFilter },
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
 
   return (
-    <div className="overflow-x-auto rounded-md border border-slate-200">
-      <table className="min-w-full divide-y divide-slate-200 text-sm">
-        <thead className="bg-slate-50">
-          <tr>
-            <th scope="col" className="w-10 px-3 py-2 text-left font-medium text-slate-500">
-              <PermissionGate permission="website.content:write">
-                <SelectAllCheckbox
-                  checked={isAllSelected}
-                  indeterminate={isSelectionIndeterminate}
-                  onChange={onToggleSelectAll}
-                  aria-label="انتخاب همه اخبار"
-                />
-              </PermissionGate>
-            </th>
-            <th scope="col" className="w-16 px-3 py-2 text-left font-medium text-slate-500">
-              <span className="sr-only">تصویر</span>
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              عنوان
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              دسته‌بندی
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              وضعیت
-            </th>
-            <th scope="col" className="px-3 py-2 text-left font-medium text-slate-500">
-              زمان انتشار
-            </th>
-            <th scope="col" className="px-3 py-2 text-right font-medium text-slate-500">
-              <span className="sr-only">اقدامات</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-200 bg-white">
-          {articles.map((article) => (
-            <NewsRow
-              key={article.id}
-              article={article}
-              isUpdatingStatus={updatingStatusId === article.id}
-              isUpdatingSchedule={updatingScheduleId === article.id}
-              selected={isSelected(article)}
-              onToggleSelect={onToggleSelect}
-              onEdit={onEdit}
-              onDeleteRequest={onDeleteRequest}
-              onChangeStatus={onChangeStatus}
-              onSchedule={onSchedule}
-              onViewHistory={onViewHistory}
-            />
-          ))}
-        </tbody>
-      </table>
+    <div dir="rtl" className="p-4">
+      <h2 className="text-xl font-bold text-brand-900 mb-3">لیست اخبار</h2>
+      <input
+        value={globalFilter}
+        onChange={e => setGlobalFilter(e.target.value)}
+        placeholder="جستجو..."
+        className="w-full md:w-96 border rounded px-3 py-1 mb-3"
+      />
+      {isLoading ? <div className="space-y-3 py-4"><Skeleton className="h-8 w-full" /><Skeleton className="h-8 w-full" /><Skeleton className="h-8 w-full" /></div> : (
+        <table className="w-full border-collapse border text-sm">
+          <thead className="bg-brand-50">
+            {table.getHeaderGroups().map(hg => (
+              <tr key={hg.id}>
+                {hg.headers.map(h => (
+                  <th key={h.id} className="border px-2 py-1 text-right cursor-pointer" onClick={h.column.getToggleSortingHandler()}>
+                    {flexRender(h.column.columnDef.header, h.getContext())}
+                    {{ asc: " ▲", desc: " ▼" }[h.column.getIsSorted() as string] || null}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map(row => (
+              <tr key={row.id} className="hover:bg-gray-50">
+                {row.getVisibleCells().map(cell => (
+                  <td key={cell.id} className="border px-2 py-1">{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <div className="flex gap-2 mt-3">
+        <button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} className="px-3 py-1 border rounded">قبلی</button>
+        <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} className="px-3 py-1 border rounded">بعدی</button>
+        <span className="text-xs self-center">صفحه {table.getState().pagination.pageIndex + 1} از {table.getPageCount()}</span>
+      </div>
     </div>
   );
 }

@@ -1,56 +1,73 @@
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
-
+/**
+ * TanStack Query v5 hooks for CMS Features.
+ */
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiError } from "@/lib/apiError";
-
-import { fetchFeatureList } from "../api";
+import {
+  fetchFeatureList,
+  fetchFeatureById,
+  createFeature,
+  updateFeature,
+  deleteFeature,
+  reorderFeatures,
+} from "../api";
 import type { CmsFeature, CmsFeatureStatus } from "../types";
 
-/**
- * Fetches the Features list (optionally filtered by status), for
- * `FeaturesPage`. Same shape as `features/cms/faq/hooks/useFaqs`.
- *
- * `setFeatures` is exposed (unlike a plain `refetch`-only hook) because
- * `FeaturesPage` needs to update the visible order optimistically
- * during drag-reorder — `PATCH /features/reorder` returns void, so
- * there's no response body to reconcile the list against, and a full
- * `refetch()` on every drag would be a visible flash for no benefit.
- */
-export interface UseFeaturesResult {
-  features: CmsFeature[];
-  isLoading: boolean;
-  error: ApiError | null;
-  refetch: () => void;
-  setFeatures: Dispatch<SetStateAction<CmsFeature[]>>;
+export const featureKeys = {
+  all: ["features"] as const,
+  list: (status?: CmsFeatureStatus) => [...featureKeys.all, "list", status ?? "all"] as const,
+  detail: (id: string) => [...featureKeys.all, "detail", id] as const,
+};
+
+export function useFeatureList(status?: CmsFeatureStatus) {
+  const queryClient = useQueryClient();
+  const query = useQuery({
+    queryKey: featureKeys.list(status),
+    queryFn: () => fetchFeatureList(status),
+    staleTime: 30_000,
+  });
+  const setData = (updater: CmsFeature[] | ((old: CmsFeature[] | undefined) => CmsFeature[])) => {
+    queryClient.setQueryData(featureKeys.list(status), updater);
+  };
+  return {
+    data: query.data,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    error: query.error as ApiError | null,
+    refetch: query.refetch,
+    setData,
+  };
 }
 
-export function useFeatures(status?: CmsFeatureStatus): UseFeaturesResult {
-  const [features, setFeatures] = useState<CmsFeature[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<ApiError | null>(null);
-  const [refetchToken, setRefetchToken] = useState(0);
+export function useFeatureById(id: string | null) {
+  return useQuery({
+    queryKey: featureKeys.detail(id ?? ""),
+    queryFn: () => fetchFeatureById(id!),
+    enabled: !!id,
+    staleTime: 30_000,
+  });
+}
 
-  useEffect(() => {
-    let cancelled = false;
-    setIsLoading(true);
-    setError(null);
+export function useCreateFeature() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createFeature,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: featureKeys.all }),
+  });
+}
 
-    fetchFeatureList(status)
-      .then((list) => {
-        if (!cancelled) setFeatures(list);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err as ApiError);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
+export function useUpdateFeature() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: any }) => updateFeature(id, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: featureKeys.all }),
+  });
+}
 
-    return () => {
-      cancelled = true;
-    };
-  }, [status, refetchToken]);
-
-  const refetch = useCallback(() => setRefetchToken((token) => token + 1), []);
-
-  return { features, isLoading, error, refetch, setFeatures };
+export function useDeleteFeature() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteFeature(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: featureKeys.all }),
+  });
 }

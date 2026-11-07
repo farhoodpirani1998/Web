@@ -1,54 +1,43 @@
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
-
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiError } from "@/lib/apiError";
-
-import { fetchAchievementList } from "../api";
+import {
+  fetchAchievementList,
+  fetchAchievementById,
+  createAchievement,
+  updateAchievement,
+  deleteAchievement,
+  updateAchievementStatus,
+  reorderAchievements,
+} from "../api";
 import type { CmsAchievement, CmsAchievementStatus } from "../types";
 
-/**
- * Fetches the achievements list (optionally filtered by status), for
- * `AchievementsPage`. Same shape as `features/cms/faq/hooks/useFaqs`.
- *
- * `setAchievements` is exposed so the page can update the visible order
- * optimistically during drag-reorder — `PATCH /achievements/reorder`
- * returns void, so there's no response body to reconcile against.
- */
-export interface UseAchievementsResult {
-  achievements: CmsAchievement[];
-  isLoading: boolean;
-  error: ApiError | null;
-  refetch: () => void;
-  setAchievements: Dispatch<SetStateAction<CmsAchievement[]>>;
+export const achievementKeys = {
+  all: ["achievements"] as const,
+  list: (status?: CmsAchievementStatus) => [...achievementKeys.all, "list", status ?? "all"] as const,
+  detail: (id: string) => [...achievementKeys.all, "detail", id] as const,
+};
+
+export function useAchievementList(status?: CmsAchievementStatus) {
+  return useQuery<CmsAchievement[], ApiError>({
+    queryKey: achievementKeys.list(status),
+    queryFn: () => fetchAchievementList(status),
+  });
 }
 
-export function useAchievements(status?: CmsAchievementStatus): UseAchievementsResult {
-  const [achievements, setAchievements] = useState<CmsAchievement[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<ApiError | null>(null);
-  const [refetchToken, setRefetchToken] = useState(0);
+export function useAchievement(id: string | null) {
+  return useQuery<CmsAchievement, ApiError>({
+    queryKey: id ? achievementKeys.detail(id) : ["achievements", "detail", "null"],
+    queryFn: () => (id ? fetchAchievementById(id) : Promise.reject(new Error("no id"))),
+    enabled: !!id,
+  });
+}
 
-  useEffect(() => {
-    let cancelled = false;
-    setIsLoading(true);
-    setError(null);
-
-    fetchAchievementList(status)
-      .then((list) => {
-        if (!cancelled) setAchievements(list);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err as ApiError);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [status, refetchToken]);
-
-  const refetch = useCallback(() => setRefetchToken((token) => token + 1), []);
-
-  return { achievements, isLoading, error, refetch, setAchievements };
+export function useAchievementMutations() {
+  const qc = useQueryClient();
+  const create = useMutation({ mutationFn: createAchievement, onSuccess: () => qc.invalidateQueries({ queryKey: achievementKeys.all }) });
+  const update = useMutation({ mutationFn: ({ id, payload }: { id: string; payload: any }) => updateAchievement(id, payload), onSuccess: () => qc.invalidateQueries({ queryKey: achievementKeys.all }) });
+  const del = useMutation({ mutationFn: deleteAchievement, onSuccess: () => qc.invalidateQueries({ queryKey: achievementKeys.all }) });
+  const statusMut = useMutation({ mutationFn: ({ id, status }: { id: string; status: CmsAchievementStatus }) => updateAchievementStatus(id, status), onSuccess: () => qc.invalidateQueries({ queryKey: achievementKeys.all }) });
+  const reorder = useMutation({ mutationFn: reorderAchievements, onSuccess: () => qc.invalidateQueries({ queryKey: achievementKeys.all }) });
+  return { create, update, del, statusMut, reorder };
 }

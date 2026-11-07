@@ -85,7 +85,7 @@ export function FAQ() {
                   className={cn(
                     "cursor-pointer list-none font-medium text-foreground",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                    "flex items-center justify-between gap-4",
+                    "flex items-center justify-between gap-4 rtl:flex-row-reverse",
                   )}
                 >
                   <Text as="span" variant="body" weight="medium">

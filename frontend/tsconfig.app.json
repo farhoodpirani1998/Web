@@ -26,15 +26,14 @@
     "allowSyntheticDefaultImports": true,
 
     /* Path aliases — mirror the feature-first folder structure */
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@/app/*": ["src/app/*"],
-      "@/pages/*": ["src/pages/*"],
-      "@/features/*": ["src/features/*"],
-      "@/shared/*": ["src/shared/*"],
-      "@/i18n/*": ["src/i18n/*"],
-      "@/assets/*": ["src/assets/*"]
+      "@/*": ["./*"],
+      "@/app/*": ["./src/app/*"],
+      "@/pages/*": ["./src/pages/*"],
+      "@/features/*": ["./src/features/*"],
+      "@/shared/*": ["./src/shared/*"],
+      "@/i18n/*": ["./src/i18n/*"],
+      "@/assets/*": ["./src/assets/*"]
     }
   },
   "include": ["src"]
