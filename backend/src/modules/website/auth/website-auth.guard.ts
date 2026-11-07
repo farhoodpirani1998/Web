@@ -51,13 +51,10 @@ export class WebsiteAuthGuard implements CanActivate {
       payload = await this.jwt.verifyAsync<SmsJwtPayload>(token, {
         publicKey: this.publicKey,
         algorithms: ['RS256'],
+        issuer: this.expectedIssuer,
       });
     } catch {
       throw new UnauthorizedException('Invalid or expired token');
-    }
-
-    if (payload.iss !== this.expectedIssuer) {
-      throw new UnauthorizedException('Unexpected token issuer');
     }
 
     request.user = {
