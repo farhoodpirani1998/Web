@@ -12,7 +12,10 @@ import { cn } from "@/shared/utils/cn";
 import { APP_NAME, APP_NAME_EN } from "@/shared/config/app";
 import { NAV_ITEMS } from "@/app/shell/nav-data";
 import { useSiteSettings } from "@/features/site";
-import { toTelephoneHref } from "@/shared/config/contact";
+import { getContactPhones, toTelephoneHref } from "@/shared/config/contact";
+import { toPersianDigits } from "@/shared/utils/toPersianDigits";
+import { useTrustBadges } from "@/features/trust-badges";
+import { useCampuses } from "@/features/campuses";
 
 /**
  * Persistent footer chrome (§8 "Layout Architecture"), mounted once in
@@ -22,9 +25,8 @@ import { toTelephoneHref } from "@/shared/config/contact";
  * Rebuilt to match the approved Figma design's `Footer` (Figma Design
  * Reference §4.13): four columns — brand+description | quick links |
  * schools list | contact info — replacing the earlier two-way NAV_ITEMS
- * split. `Contact` details now come from the shared
- * `shared/config/contact` constants (also used by `TopBar`) instead of
- * duplicating them locally.
+ * split. Contact details now come from Site Settings, including all
+ * configured telephone numbers.
  *
  * Resolved open decisions from the reference doc (§5):
  * - §5.3 footer color: a dedicated `--footer-bg` token
@@ -37,15 +39,9 @@ import { toTelephoneHref } from "@/shared/config/contact";
  *   rather than wired to `#`. Once those routes exist, adding the row
  *   back is additive.
  *
- * "Schools list" keeps its own small local `FOOTER_SCHOOLS` literal
- * (`id`/`name` only) rather than importing `@/features/campuses`
- * directly — footer chrome living in `app/shell` staying independent
- * of feature internals, the same "home band owns its own placeholder
- * content" convention `HomeCampuses` already follows for the same
- * reason. `id`s are kept aligned with the real `campuses` records
- * (`central`/`west`/`isfahan`/`mashhad`) so the two don't visibly
- * disagree, and each link points at the same `/campuses#campus-{id}`
- * in-page anchor `HomeCampuses`/`CampusCard` already use.
+ * The schools list uses the public `useCampuses` feature hook so links
+ * always target live campus IDs and match the anchors rendered by
+ * `CampusDetails`.
  *
  * Presentation only: composed from existing design-system primitives
  * (`Container`, `Grid`, `Stack`, `Heading`, `Text`, `Link`) plus local,
@@ -65,14 +61,6 @@ const FOOTER_QUICK_LINKS = NAV_ITEMS.filter((item) =>
   ["/", "/schools", "/about", "/news", "/pre-registration", "/contact"].includes(item.href),
 );
 
-/** Footer-owned schools list — see the doc comment above for why this isn't `campuses/data.ts`. */
-const FOOTER_SCHOOLS: readonly { id: string; name: string }[] = [
-  { id: "central", name: "پردیس مرکزی" },
-  { id: "west", name: "پردیس غرب تهران" },
-  { id: "isfahan", name: "پردیس اصفهان" },
-  { id: "mashhad", name: "پردیس مشهد" },
-];
-
 /** Shared on-navy link treatment for every footer link (nav + contact). */
 const FOOTER_LINK_CLASSNAME = cn(
   "inline-block text-white/70 transition-colors hover:text-brand-gold",
@@ -82,12 +70,14 @@ const FOOTER_LINK_CLASSNAME = cn(
 export function Footer() {
   const year = new Date().getFullYear();
   const { data } = useSiteSettings();
+  const { data: trustBadges = [] } = useTrustBadges();
+  const { data: campuses = [] } = useCampuses();
   const siteName = data?.siteName.fa ?? APP_NAME;
   const siteNameEn = data?.siteName.en ?? APP_NAME_EN;
-  const phone = data?.contactPhone;
+  const phones = getContactPhones(data?.contactPhones, data?.contactPhone);
   const email = data?.contactEmail;
   const address = data?.address?.fa;
-  const socialLinks = data?.socialLinks ?? [];
+  const socialLinks = data?.socialLinks.filter((social) => social.active !== false) ?? [];
 
   return (
     <footer className="border-t border-brand-gold/20 bg-footer text-white">
@@ -146,14 +136,14 @@ export function Footer() {
                 مدارس ما
               </Text>
               <Stack gap="xs" as="ul" className="list-none p-0 m-0">
-                {FOOTER_SCHOOLS.map((school) => (
-                  <li key={school.id}>
+                {campuses.map((campus) => (
+                  <li key={campus.id}>
                     <Link
-                      href={`/campuses#campus-${school.id}`}
+                      href={`/campuses#campus-${campus.id}`}
                       variant="muted"
                       className={FOOTER_LINK_CLASSNAME}
                     >
-                      {school.name}
+                      {campus.name}
                     </Link>
                   </li>
                 ))}
@@ -175,17 +165,28 @@ export function Footer() {
                     <Text variant="bodySm" className="text-white/70">{address}</Text>
                   )}
                 </Stack> : null}
-                {phone ? <Stack direction="row" gap="sm" align="center">
-                  <PhoneIcon className="h-4 w-4 shrink-0 text-brand-gold" />
-                  <Link
-                    href={toTelephoneHref(phone)}
-                    variant="muted"
-                    className={FOOTER_LINK_CLASSNAME}
-                    dir="ltr"
-                  >
-                    {phone}
-                  </Link>
-                </Stack> : null}
+                {data?.mapLatitude != null && data.mapLongitude != null ? (
+                  <iframe
+                    title="موقعیت گروه آموزشی ندای حقیقت روی نقشه"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="h-36 w-full rounded-md border border-white/15"
+                    src={`https://www.google.com/maps?q=${encodeURIComponent(`${data.mapLatitude},${data.mapLongitude}`)}&output=embed`}
+                  />
+                ) : null}
+                {phones.map((phone, index) => (
+                  <Stack key={`${phone}-${index}`} direction="row" gap="sm" align="center">
+                    <PhoneIcon className="h-4 w-4 shrink-0 text-brand-gold" />
+                    <Link
+                      href={toTelephoneHref(phone)}
+                      variant="muted"
+                      className={FOOTER_LINK_CLASSNAME}
+                      dir="ltr"
+                    >
+                      {toPersianDigits(phone)}
+                    </Link>
+                  </Stack>
+                ))}
                 {email ? <Stack direction="row" gap="sm" align="center">
                   <MailIcon className="h-4 w-4 shrink-0 text-brand-gold" />
                   <Link
@@ -215,6 +216,46 @@ export function Footer() {
               </Stack>
             </Stack>
           </Grid>
+
+          {trustBadges.length > 0 ? (
+            <Stack
+              gap="sm"
+              className="mt-8 border-t border-white/10 pt-6"
+              aria-label="نشان‌های اعتماد"
+            >
+              <Text variant="overline" as="span" className="text-brand-gold">
+                نشان‌های اعتماد
+              </Text>
+              <Stack direction="row" wrap align="center" gap="md">
+                {trustBadges.map((badge) => {
+                  const image = (
+                    <img
+                      src={badge.image.url}
+                      alt={badge.image.altText || badge.name.fa}
+                      loading="lazy"
+                      className="h-16 w-16 rounded bg-white object-contain p-1"
+                    />
+                  );
+                  return badge.url ? (
+                    <a
+                      key={badge.id}
+                      href={badge.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={badge.name.fa}
+                      className={FOOTER_LINK_CLASSNAME}
+                    >
+                      {image}
+                    </a>
+                  ) : (
+                    <span key={badge.id} aria-label={badge.name.fa}>
+                      {image}
+                    </span>
+                  );
+                })}
+              </Stack>
+            </Stack>
+          ) : null}
 
           <Stack
             direction="row"

@@ -15,9 +15,9 @@ export const newsQueryKey = ["news"] as const;
  * `@/shared/api` (§14, §18) — callers branch on `error.kind` rather
  * than parsing raw HTTP status codes.
  */
-export function useNews(): UseQueryResult<readonly NewsItem[]> {
+export function useNews(campusId?: string): UseQueryResult<readonly NewsItem[]> {
   return useQuery({
-    queryKey: newsQueryKey,
-    queryFn: fetchNews,
+    queryKey: campusId ? [...newsQueryKey, campusId] : newsQueryKey,
+    queryFn: () => fetchNews(campusId),
   });
 }

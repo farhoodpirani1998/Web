@@ -6,6 +6,7 @@ import {
   NotFoundException,
   Param,
   ParseIntPipe,
+  ParseUUIDPipe,
   Query,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,6 +14,7 @@ import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { CalendarEvent } from '../../content/events/entities/calendar-event.entity';
+import { CampusScopeService } from '../../content/common/campus-scope.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
 import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
@@ -44,6 +46,7 @@ interface PublicEventListItemDto {
   excerpt?: CalendarEvent['excerpt'];
   category?: string;
   tags?: string[];
+  campusId?: string | null;
   location?: CalendarEvent['location'];
   locationUrl?: string;
   startAt: Date;
@@ -78,6 +81,7 @@ export class PublicEventsController {
     private readonly seo: SeoService,
     private readonly config: ConfigService,
     private readonly redis: RedisService,
+    private readonly campusScope: CampusScopeService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -85,6 +89,7 @@ export class PublicEventsController {
   async findAll(
     @Query('category') category?: string,
     @Query('tag') tag?: string,
+    @Query('campusId', new ParseUUIDPipe({ optional: true })) campusId?: string,
     // 'upcoming' (default) shows events that haven't finished yet —
     // the normal "what's happening" reading of an events list; 'past'
     // and 'all' exist for archive/history views. Distinct from News,
@@ -100,6 +105,7 @@ export class PublicEventsController {
       'list',
       category,
       tag,
+      campusId,
       when,
       page,
       limit,
@@ -130,6 +136,7 @@ export class PublicEventsController {
       });
     if (category) qb.andWhere('event.category = :category', { category });
     if (tag) qb.andWhere(':tag = ANY(event.tags)', { tag });
+    this.campusScope.applyPublicFilter(qb, 'event', campusId);
 
     // An event is "over" once its end (or, lacking one, its start) has
     // passed — the same rule used for 'past' below, inverted.
@@ -227,6 +234,7 @@ export class PublicEventsController {
       excerpt: event.excerpt,
       category: event.category,
       tags: event.tags,
+      campusId: event.campusId,
       location: event.location,
       locationUrl: event.locationUrl,
       startAt: event.startAt,

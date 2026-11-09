@@ -61,7 +61,7 @@ export function MenuItemForm({
   const parentId = useId();
   const visibleId = useId();
 
-  const { options: pageOptions, isLoading: isLoadingPages } = usePageOptions();
+  const { data: pageOptions = [], isLoading: isLoadingPages } = usePageOptions();
 
   const [labelFa, setLabelFa] = useState(item?.label.fa ?? "");
   const [labelEn, setLabelEn] = useState(item?.label.en ?? "");

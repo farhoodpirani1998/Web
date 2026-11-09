@@ -15,7 +15,9 @@ import type { Testimonials } from "./types";
  * disabled section simply renders nothing rather than needing a
  * client-side flag check.
  */
-export async function fetchTestimonials(): Promise<Testimonials> {
-  const response = await apiClient.get<Testimonials>("/testimonials");
+export async function fetchTestimonials(featuredOnly = false): Promise<Testimonials> {
+  const response = await apiClient.get<Testimonials>("/testimonials", {
+    params: featuredOnly ? { featuredOnly: true } : undefined,
+  });
   return response.data;
 }

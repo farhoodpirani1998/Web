@@ -78,8 +78,9 @@ export class Teacher extends BaseSiteScopedEntity {
 
   // Optional reference to the Campus this teacher is based at — plain
   // uuid, not a relation; see class comment.
+  @Index('IDX_teachers_campusId')
   @Column({ type: 'uuid', nullable: true })
-  campusId?: string;
+  campusId?: string | null;
 
   @Column({ nullable: true })
   phone?: string;

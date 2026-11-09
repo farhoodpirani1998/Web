@@ -7,6 +7,9 @@ import {
   IsString,
   IsUUID,
   IsUrl,
+  IsNumber,
+  Max,
+  Min,
   Matches,
   MaxLength,
   ValidateNested,
@@ -51,6 +54,18 @@ export class CreateCampusDto {
   mapUrl?: string;
 
   @IsOptional()
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  latitude?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  longitude?: number;
+
+  @IsOptional()
   @IsString()
   phone?: string;
 
@@ -68,6 +83,12 @@ export class CreateCampusDto {
   @ArrayUnique()
   @IsString({ each: true })
   features?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsString({ each: true })
+  gradeLevels?: string[];
 
   @IsOptional()
   @IsUUID()

@@ -1,4 +1,3 @@
-import { PageLayout } from "@/shared/design-system/components";
 import { Seo } from "@/shared/seo";
 import { Hero } from "@/features/hero";
 import { HomeStatsBand } from "@/features/statistics";
@@ -10,7 +9,7 @@ import { HomeNews } from "@/features/news";
 import { HomeGallery } from "@/features/gallery";
 import { Testimonials } from "@/features/testimonials";
 import { CTA } from "@/features/cta";
-import { useHomepage, useHomepageAggregate } from "@/features/static-pages";
+import { useHomepage } from "@/features/static-pages";
 
 /**
  * Root-route page.
@@ -32,16 +31,11 @@ import { useHomepage, useHomepageAggregate } from "@/features/static-pages";
  * the meantime.
  *
  * `Hero`, `HomeStatsBand`, `HomeAchievements`, and `CTA` render
- * outside `PageLayout` (unlike `Features`/`HomeAbout`/`HomeCampuses`/
- * `HomeNews`/`HomeGallery`) because all four are full-bleed `bg-primary`
- * sections per the approved Figma design — they need to span the full
- * viewport width, not sit inside `PageLayout`'s `Container` gutters.
- * Each opens its own `Container` internally for its own content
- * column. `HomeAbout`/`HomeCampuses`/`Features` share one `PageLayout`,
- * and `HomeNews`/`HomeGallery` share a second one after the full-bleed
- * `HomeAchievements` band splits them — matching Figma's canonical
- * render order (Figma Design Reference §3): Hero → Stats → About →
- * Campuses → WhyChoose → Achievements → News → Gallery → CTA.
+ * Homepage sections own their full-width backgrounds and constrain
+ * their content internally, so each section reaches the viewport edges.
+ * Render order matches Figma's canonical order (Figma Design Reference
+ * §3): Hero → Stats → About → Campuses → WhyChoose → Achievements →
+ * News → Gallery → CTA.
  *
  * `useHomepage()` (`@/features/static-pages`, backed by
  * `GET /pages/homepage`) supplies this page's `seo`/`structuredData`
@@ -53,28 +47,30 @@ import { useHomepage, useHomepageAggregate } from "@/features/static-pages";
  */
 export function HomePage() {
   const { data } = useHomepage();
-  useHomepageAggregate(); // Warm React Query cache with parallel fetch
 
   return (
     <>
       <Seo seo={data?.seo} structuredData={data?.structuredData} />
 
       <Hero />
-      <HomeStatsBand />
-
-      <PageLayout>
+      <div className="relative isolate">
+        <div
+          data-aifx="blocky"
+          className="pointer-events-none absolute inset-0 -z-10"
+          aria-hidden="true"
+        />
+        <HomeStatsBand />
         <HomeAbout />
-        <HomeCampuses />
-        <Features />
-      </PageLayout>
+      </div>
+
+      <HomeCampuses />
+      <Features />
 
       <HomeAchievements />
 
-      <PageLayout>
-        <HomeNews />
-        <HomeGallery />
-        <Testimonials />
-      </PageLayout>
+      <HomeNews />
+      <HomeGallery />
+      <Testimonials />
 
       <CTA />
     </>

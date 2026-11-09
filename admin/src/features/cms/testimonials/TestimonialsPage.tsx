@@ -12,7 +12,7 @@ import { BulkPublishArchiveDeleteActions } from "@/features/cms/components/BulkP
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { ApiError } from "@/lib/apiError";
 
-import { deleteTestimonial, reorderTestimonials, updateTestimonialStatus } from "./api";
+import { deleteTestimonial, reorderTestimonials, updateTestimonial, updateTestimonialStatus } from "./api";
 import { TestimonialDeleteConfirm } from "./TestimonialDeleteConfirm";
 import { TestimonialForm } from "./TestimonialForm";
 import { TestimonialList } from "./TestimonialList";
@@ -99,6 +99,25 @@ export function TestimonialsPage() {
     }
   }
 
+  async function handleToggleFeatured(testimonial: CmsTestimonial) {
+    setActionError(null);
+    setUpdatingStatusId(testimonial.id);
+    try {
+      const updated = await updateTestimonial(testimonial.id, {
+        isFeatured: !testimonial.isFeatured,
+      });
+      setTestimonials((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      );
+    } catch (err) {
+      setActionError(
+        err instanceof ApiError ? err.message : "تغییر وضعیت برجسته انجام نشد.",
+      );
+    } finally {
+      setUpdatingStatusId(null);
+    }
+  }
+
   async function handleReorder(fromIndex: number, toIndex: number) {
     if (fromIndex === toIndex || toIndex < 0 || toIndex >= testimonials.length) return;
 
@@ -152,9 +171,7 @@ export function TestimonialsPage() {
     const failedCount = targets.length - succeededIds.length;
     if (failedCount > 0) {
       setActionError(
-        `Updated ${succeededIds.length} of ${targets.length} selected testimonial${
-          targets.length === 1 ? "" : "s"
-        }. ${failedCount} failed — please try again.`,
+        `${succeededIds.length} مورد از ${targets.length} نظر انتخاب‌شده به‌روزرسانی شد. ${failedCount} مورد ناموفق بود؛ لطفاً دوباره تلاش کنید.`,
       );
     }
 
@@ -200,7 +217,7 @@ export function TestimonialsPage() {
 
     if (failedCount > 0) {
       setBulkDeleteError(
-        `Deleted ${succeededIds.length} of ${targets.length}. ${failedCount} failed — please try again.`,
+        `${succeededIds.length} مورد از ${targets.length} نظر حذف شد. ${failedCount} مورد ناموفق بود؛ لطفاً دوباره تلاش کنید.`,
       );
     } else {
       setIsBulkDeleteConfirmOpen(false);
@@ -275,6 +292,7 @@ export function TestimonialsPage() {
               onEdit={handleEdit}
               onDeleteRequest={setPendingDelete}
               onChangeStatus={handleChangeStatus}
+              onToggleFeatured={handleToggleFeatured}
               onReorder={handleReorder}
             />
           </div>
@@ -299,7 +317,7 @@ export function TestimonialsPage() {
         {isBulkDeleteConfirmOpen ? (
           <BulkDeleteConfirm
             count={selection.selectedCount}
-            itemLabel="testimonial"
+            itemLabel="نظر"
             isDeleting={isBulkDeleting}
             error={bulkDeleteError}
             onCancel={() => {

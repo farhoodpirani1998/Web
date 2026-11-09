@@ -50,7 +50,7 @@ export function MenusPage() {
     setItems,
   } = useMenuItems(selectedMenuId);
 
-  const { options: pageOptions } = usePageOptions();
+  const { data: pageOptions = [] } = usePageOptions();
   const pageLabelsById = useMemo(() => {
     const map = new Map<string, string>();
     for (const page of pageOptions) {

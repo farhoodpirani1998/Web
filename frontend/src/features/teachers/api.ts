@@ -15,8 +15,10 @@ import type { PublicTeacherDetailDto, PublicTeacherListItemDto, Teacher } from "
  * of teachers, not a growing feed"), so this stays a single request
  * with no page-size params, same shape this file already had.
  */
-export async function fetchTeachers(): Promise<readonly Teacher[]> {
-  const response = await apiClient.get<PublicTeacherListItemDto[]>("/teachers");
+export async function fetchTeachers(campusId?: string): Promise<readonly Teacher[]> {
+  const response = campusId
+    ? await apiClient.get<PublicTeacherListItemDto[]>("/teachers", { params: { campusId } })
+    : await apiClient.get<PublicTeacherListItemDto[]>("/teachers");
   return response.data.map(toTeacher);
 }
 

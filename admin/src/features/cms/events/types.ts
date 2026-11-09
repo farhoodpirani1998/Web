@@ -70,6 +70,7 @@ export interface CmsCalendarEvent extends CmsEntityMeta {
   body: Translatable<string>;
   category?: string;
   tags?: string[];
+  campusId?: string | null;
   location?: Translatable<string>;
   locationUrl?: string;
   /** ISO 8601 timestamp — when the event happens. Always present. */
@@ -92,6 +93,7 @@ export interface CreateCalendarEventPayload {
   body: Translatable<string>;
   category?: string;
   tags?: string[];
+  campusId?: string;
   location?: Translatable<string>;
   locationUrl?: string;
   startAt: string;
@@ -115,6 +117,7 @@ export interface UpdateCalendarEventPayload {
   body?: Translatable<string>;
   category?: string;
   tags?: string[];
+  campusId?: string | null;
   location?: Translatable<string>;
   locationUrl?: string | null;
   startAt?: string;
@@ -157,6 +160,7 @@ export interface CmsEventRevision {
     body: Translatable<string>;
     category?: string;
     tags?: string[];
+    campusId?: string | null;
     location?: Translatable<string>;
     locationUrl?: string;
     startAt: string;

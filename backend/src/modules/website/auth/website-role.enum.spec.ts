@@ -34,4 +34,14 @@ describe('ROLE_PERMISSIONS', () => {
       expect(ROLE_PERMISSIONS[role]).toContain(WebsitePermission.CONTENT_READ);
     }
   });
+
+  it('reserves newsletter subscriber access for super admins', () => {
+    const rolesWithNewsletterAccess = Object.entries(ROLE_PERMISSIONS)
+      .filter(([, permissions]) =>
+        permissions.includes(WebsitePermission.NEWSLETTER_MANAGE),
+      )
+      .map(([role]) => role);
+
+    expect(rolesWithNewsletterAccess).toEqual([WebsiteRole.SUPER_ADMIN]);
+  });
 });

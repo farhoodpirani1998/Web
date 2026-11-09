@@ -2,7 +2,7 @@ export type { CmsAcademicCalendarEntry, CmsAcademicCalendarStatus, AcademicCalen
 export type { CreateAcademicCalendarPayloadInput, UpdateAcademicCalendarPayloadInput } from "./schema";
 export { createAcademicCalendarPayloadSchema, updateAcademicCalendarPayloadSchema } from "./schema";
 export { fetchAcademicCalendarEntryList, fetchAcademicCalendarEntryById, createAcademicCalendarEntry, updateAcademicCalendarEntry, deleteAcademicCalendarEntry, updateAcademicCalendarEntryStatus, reorderAcademicCalendarEntries } from "./api";
-export { useAcademicCalendarEntryList, useAcademicCalendarEntry, useAcademicCalendarMutations, academicCalendarKeys } from "./hooks/useAcademicCalendar";
+export { useAcademicCalendarEntryList, useAcademicCalendar, useAcademicCalendarEntry, useAcademicCalendarMutations, academicCalendarKeys } from "./hooks/useAcademicCalendar";
 export { AcademicCalendarPage } from "./AcademicCalendarPage";
 export { AcademicCalendarForm } from "./AcademicCalendarForm";
 export { AcademicCalendarList } from "./AcademicCalendarList";

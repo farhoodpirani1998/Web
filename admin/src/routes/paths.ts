@@ -28,10 +28,10 @@
  *
  * Sprint 3.19 note: ADMIN_CTA is new (see `pages/CtaPage.tsx`).
  *
- * Sprint — CMS Navigation Admin: ADMIN_MENUS is new (see
+ * Sprint â€” CMS Navigation Admin: ADMIN_MENUS is new (see
  * `pages/MenusPage.tsx`).
  *
- * Sprint — Pre-Registration Form: ADMIN_PRE_REGISTRATIONS is new (see
+ * Sprint â€” Pre-Registration Form: ADMIN_PRE_REGISTRATIONS is new (see
  * `pages/PreRegistrationsPage.tsx`).
  */
 
@@ -55,13 +55,17 @@ export const ROUTE_PATHS = {
   ADMIN_PAGES: "/admin/pages",
   ADMIN_EVENTS: "/admin/events",
   ADMIN_TEACHERS: "/admin/teachers",
+  ADMIN_TEXTBOOKS: "/admin/textbooks",
   ADMIN_CAMPUSES: "/admin/campuses",
   ADMIN_TESTIMONIALS: "/admin/testimonials",
+  ADMIN_TRUST_BADGES: "/admin/trust-badges",
   ADMIN_FEATURES: "/admin/features",
   ADMIN_STATISTICS: "/admin/statistics",
   ADMIN_ABOUT: "/admin/about",
   ADMIN_CTA: "/admin/cta",
   ADMIN_MENUS: "/admin/menus",
   ADMIN_PRE_REGISTRATIONS: "/admin/pre-registrations",
+  ADMIN_CONTACT_MESSAGES: "/admin/contact-messages",
+  ADMIN_NEWSLETTER: "/admin/newsletter",
   ADMIN_SETTINGS: "/admin/settings",
 } as const;

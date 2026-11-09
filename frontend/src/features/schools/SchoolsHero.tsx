@@ -15,21 +15,20 @@ import { cn } from "@/shared/utils/cn";
  * `PageLayout`, which is why `SchoolsPage` keeps `<SchoolsHero />` out
  * of its container).
  *
- * Presentation only: no data fetching. Campus data is owned by
- * `SchoolsList` via `useCampuses()`; the hero's media slot stays empty
- * until the Campuses content module publishes a banner image.
+ * The school directory is a visitor-friendly view of existing campus
+ * data; campuses are the group's physical schools.
  */
 export function SchoolsHero() {
   return (
     <PageHero
       headingId="schools-hero-heading"
-      eyebrow="شعب و مدارس"
-      title={`شعب ${APP_NAME}`}
-      description="فهرست کامل شعب به‌همراه آدرس و شماره تماس هر شعبه. اطلاعات تکمیلی هر شعبه پس از انتشار در سامانه مدیریت محتوا در همین صفحه نمایش داده می‌شود."
+      eyebrow="مدارس و پردیس‌ها"
+      title={`مدارس ${APP_NAME}`}
+      description="با مدارس گروه آموزشی آشنا شوید و اطلاعات هر مدرسه را در صفحه اختصاصی آن ببینید."
       media={
         <MediaFrame
           ratio={4 / 3}
-          label="تصویر شعبه به‌زودی"
+          label="تصویر مدارس"
           icon={Building2}
           className="rounded-3xl shadow-xl shadow-brand-navy/5 ring-1 ring-border/60"
         />
@@ -52,7 +51,7 @@ export function SchoolsHero() {
               "border-brand-navy/20 hover:bg-transparent",
             )}
           >
-            تماس با ما
+            مشاوره و پذیرش
           </Link>
         </>
       }

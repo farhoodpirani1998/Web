@@ -33,6 +33,11 @@ export type CmsPreRegistrationStatus = "new" | "contacted" | "archived";
  * labels `createdAt` "Submitted" for display, see `PreRegistrationRow`).
  */
 export interface CmsPreRegistration extends CmsEntityMeta {
+  /** Public confirmation identifier, when included by the admin DTO. */
+  referenceCode?: string;
+  campusId?: string | null;
+  assignedAdminId?: string | null;
+  followUpAt?: string | null;
   studentFirstName: string;
   studentLastName: string;
   studentNationalId: string;
@@ -48,4 +53,10 @@ export interface CmsPreRegistration extends CmsEntityMeta {
 /** Body for `PATCH /admin/pre-registrations/:id/status`. Mirrors `UpdatePreRegistrationStatusDto`. */
 export interface UpdatePreRegistrationStatusPayload {
   status: CmsPreRegistrationStatus;
+}
+
+/** Body for `PATCH /admin/pre-registrations/:id/assignment`. */
+export interface UpdatePreRegistrationAssignmentPayload {
+  assignedAdminId?: string | null;
+  followUpAt?: string | null;
 }

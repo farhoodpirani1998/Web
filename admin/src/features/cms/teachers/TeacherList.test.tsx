@@ -4,7 +4,7 @@ import { TeacherList } from "./TeacherList";
 
 describe("TeacherList", () => {
   it("renders list", () => {
-    render(<TeacherList teachers={[]} isLoading={false} error={null} status={undefined} updatingStatusId={null} updatingScheduleId={null} isReordering={false} selectedIds={new Set()} onEdit={() => {}} onDelete={() => {}} onStatusChange={() => {}} onToggleSelection={() => {}} onToggleSelectAll={() => {}} onReorder={() => {}} />);
-    expect(screen.getByText(/معلم/i) || screen.getByRole("table")).toBeInTheDocument();
+    render(<TeacherList teachers={[]} isLoading={false} error={null} status={undefined} updatingStatusId={null} updatingScheduleId={null} isReordering={false} selectedIds={new Set()} onToggleSelect={() => {}} onEdit={() => {}} onDeleteRequest={() => {}} onChangeStatus={() => {}} onSchedule={() => {}} onViewHistory={() => {}} onToggleSelectAll={() => {}} onReorder={() => {}} />);
+    expect(screen.getByText(/استادی/)).toBeInTheDocument();
   });
 });

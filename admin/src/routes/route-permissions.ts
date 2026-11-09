@@ -32,6 +32,7 @@ import type { AdminPermission, AdminUser } from "@/types/auth";
 export const ROUTE_PERMISSIONS: Record<string, AdminPermission> = {
   [ROUTE_PATHS.ADMIN_MEDIA]: "website.media:manage",
   [ROUTE_PATHS.ADMIN_ADMIN_USERS]: "website.admins:manage",
+  [ROUTE_PATHS.ADMIN_NEWSLETTER]: "website.newsletter:manage",
 };
 
 /**

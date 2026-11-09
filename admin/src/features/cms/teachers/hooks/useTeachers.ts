@@ -13,7 +13,6 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
-  type UseMutateFunction,
   type UseQueryResult,
 } from "@tanstack/react-query";
 
@@ -23,14 +22,13 @@ import {
   createTeacher,
   deleteTeacher,
   fetchTeacherById,
-  fetchTeacherList,
+  fetchTeachersList,
   reorderTeachers,
-  type ScheduleTeacherPayload,
-  type UpdateTeacherPayload,
+  scheduleTeacher,
   updateTeacher,
   updateTeacherStatus,
 } from "../api";
-import type { CmsTeacher, CmsTeacherStatus } from "../types";
+import type { CmsTeacher, CmsTeacherStatus, CreateTeacherPayload, ScheduleTeacherPayload, UpdateTeacherPayload } from "../types";
 
 /** Query key factory for consistent, type-safe query keys. */
 export const teacherKeys = {
@@ -42,12 +40,14 @@ export const teacherKeys = {
 /** Shape returned by `useTeacherList` — mirrors the old `UseTeachersResult` but with TanStack Query types. */
 export interface UseTeacherListResult {
   data: CmsTeacher[] | undefined;
+  teachers: CmsTeacher[];
   isLoading: boolean;
   isError: boolean;
   error: ApiError | null;
-  refetch: UseQueryResult<CmsTeacher[], ApiError>["refetch"];
+  refetch: UseQueryResult<CmsTeacher[], Error>["refetch"];
   /** Direct cache setter for optimistic updates (reorder, status change, etc.). */
   setData: (updater: CmsTeacher[] | ((old: CmsTeacher[] | undefined) => CmsTeacher[])) => void;
+  setTeachers: (updater: CmsTeacher[] | ((old: CmsTeacher[]) => CmsTeacher[])) => void;
 }
 
 /**
@@ -59,21 +59,29 @@ export function useTeacherList(status?: CmsTeacherStatus): UseTeacherListResult 
 
   const query = useQuery({
     queryKey: teacherKeys.list(status),
-    queryFn: () => fetchTeacherList(status),
+    queryFn: () => fetchTeachersList(status),
     staleTime: 30_000, // 30s fresh, then background refetch on window focus
   });
 
   const setData = (updater: CmsTeacher[] | ((old: CmsTeacher[] | undefined) => CmsTeacher[])) => {
     queryClient.setQueryData<CmsTeacher[]>(teacherKeys.list(status), updater);
   };
+  const setTeachers = (updater: CmsTeacher[] | ((old: CmsTeacher[]) => CmsTeacher[])) => {
+    queryClient.setQueryData<CmsTeacher[]>(teacherKeys.list(status), (old) => {
+      const teachers = old ?? [];
+      return typeof updater === "function" ? updater(teachers) : updater;
+    });
+  };
 
   return {
     data: query.data,
+    teachers: query.data ?? [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error as ApiError | null,
     refetch: query.refetch,
     setData,
+    setTeachers,
   };
 }
 
@@ -87,14 +95,17 @@ export function useTeacher(id: string | null) {
   });
 }
 
+export type UseTeachersResult = UseTeacherListResult;
+export const useTeachers = useTeacherList;
+
 /** Mutation result type for create/update/delete/status/schedule/reorder. */
 export interface UseTeacherMutations {
-  create: UseMutateFunction<CmsTeacher, ApiError, Parameters<typeof createTeacher>[0]>;
-  update: UseMutateFunction<CmsTeacher, ApiError, { id: string; payload: UpdateTeacherPayload }>;
-  delete: UseMutateFunction<void, ApiError, string>;
-  updateStatus: UseMutateFunction<CmsTeacher, ApiError, { id: string; status: CmsTeacherStatus }>;
-  schedule: UseMutateFunction<CmsTeacher, ApiError, { id: string; payload: ScheduleTeacherPayload }>;
-  reorder: UseMutateFunction<void, ApiError, string[]>;
+  create: (payload: CreateTeacherPayload) => void;
+  update: (variables: { id: string; payload: UpdateTeacherPayload }) => void;
+  delete: (id: string) => void;
+  updateStatus: (variables: { id: string; status: CmsTeacherStatus }) => void;
+  schedule: (variables: { id: string; payload: ScheduleTeacherPayload }) => void;
+  reorder: (orderedIds: string[]) => void;
 }
 
 /**
@@ -174,8 +185,7 @@ export function useTeacherMutations(): UseTeacherMutations {
 
   const schedule = useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: ScheduleTeacherPayload }) => {
-      // Import dynamically to avoid circular dependency
-      return import("../api").then(({ scheduleTeacher }) => scheduleTeacher(id, payload));
+      return scheduleTeacher(id, payload);
     },
     onMutate: async ({ id, payload }) => {
       await queryClient.cancelQueries({ queryKey: teacherKeys.all });
@@ -185,7 +195,7 @@ export function useTeacherMutations(): UseTeacherMutations {
 
       const publishAt = payload.publishAt;
       queryClient.setQueryData<CmsTeacher[]>(teacherKeys.list(undefined), (old) =>
-        old?.map((t) => (t.id === id ? { ...t, publishAt } : t)) ?? [],
+        old?.map((t) => (t.id === id ? { ...t, publishAt: publishAt ?? undefined } : t)) ?? [],
       );
       queryClient.setQueryData(teacherKeys.detail(id), (old: CmsTeacher | undefined) =>
         old ? { ...old, publishAt } : old,

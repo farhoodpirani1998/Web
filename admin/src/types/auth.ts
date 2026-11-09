@@ -32,7 +32,8 @@ export type AdminPermission =
   | "website.feature_flags:manage"
   | "website.revisions:view"
   | "website.revisions:restore"
-  | "website.admins:manage";
+  | "website.admins:manage"
+  | "website.newsletter:manage";
 
 /**
  * The authenticated admin's identity as returned by the CMS backend.

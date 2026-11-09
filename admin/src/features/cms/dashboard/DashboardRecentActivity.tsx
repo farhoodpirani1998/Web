@@ -19,6 +19,13 @@ import type { CmsAuditLogEntry } from "@/features/cms/audit-log";
  * one implementation. No author is shown: today's events carry none.
  */
 
+const ACTIVITY_SKELETON_KEYS = [
+  "activity-skeleton-1",
+  "activity-skeleton-2",
+  "activity-skeleton-3",
+  "activity-skeleton-4",
+] as const;
+
 export function DashboardRecentActivity() {
   const [entries, setEntries] = useState<CmsAuditLogEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,8 +57,8 @@ export function DashboardRecentActivity() {
   if (isLoading) {
     return (
       <ul className="flex flex-col gap-4">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <li key={`skeleton-${index}`} className="flex items-center gap-3">
+        {ACTIVITY_SKELETON_KEYS.map((key) => (
+          <li key={key} className="flex items-center gap-3">
             <Skeleton shape="circle" className="h-8 w-8" />
             <div className="flex flex-1 flex-col gap-1.5">
               <Skeleton className="h-4 w-3/5" />

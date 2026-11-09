@@ -14,7 +14,7 @@ import { TeacherForm } from "./TeacherForm";
 import { TeacherList } from "./TeacherList";
 import { TeacherRevisionsPanel } from "./TeacherRevisionsPanel";
 import { TeacherStatusFilter } from "./TeacherStatusFilter";
-import { useTeachers } from "./hooks/useTeachers";
+import { useTeachers } from "../hooks/useTeachers";
 import type { CmsTeacher, CmsTeacherStatus } from "./types";
 
 /**

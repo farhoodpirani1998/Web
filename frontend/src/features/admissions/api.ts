@@ -25,8 +25,10 @@ export interface Admissions {
   tuitionPlans: readonly TuitionPlan[];
 }
 
-export async function fetchAdmissions(): Promise<Admissions> {
-  const response = await apiClient.get<PublicAdmissionEntryDto[]>("/admissions");
+export async function fetchAdmissions(campusId?: string): Promise<Admissions> {
+  const response = campusId
+    ? await apiClient.get<PublicAdmissionEntryDto[]>("/admissions", { params: { campusId } })
+    : await apiClient.get<PublicAdmissionEntryDto[]>("/admissions");
   const entries = response.data;
 
   const byKind = (kind: string) => entries.filter((entry) => entry.kind === kind);

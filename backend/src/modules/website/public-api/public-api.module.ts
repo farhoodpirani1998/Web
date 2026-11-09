@@ -16,6 +16,7 @@ import { Achievement } from '../content/achievements/entities/achievement.entity
 import { AcademicCalendarEntry } from '../content/academic-calendar/entities/academic-calendar-entry.entity';
 import { AdmissionEntry } from '../content/admissions/entities/admission-entry.entity';
 import { Testimonial } from '../content/testimonials/entities/testimonial.entity';
+import { TrustBadge } from '../content/trust-badges/entities/trust-badge.entity';
 import { Menu } from '../content/navigation/entities/menu.entity';
 import { MenuItem } from '../content/navigation/entities/menu-item.entity';
 import { PortalLink } from '../content/site-settings/entities/portal-link.entity';
@@ -25,6 +26,8 @@ import { SeoModule } from '../core/seo/seo.module';
 import { RedisModule } from '../core/redis/redis.module';
 import { SiteSettingsModule } from '../content/site-settings/site-settings.module';
 import { PreRegistrationsModule } from '../content/pre-registrations/pre-registrations.module';
+import { NewsletterModule } from '../content/newsletter/newsletter.module';
+import { CampusScopeModule } from '../content/common/campus-scope.module';
 import { PublicVisibilityService } from './common/public-visibility.service';
 import { PublicMediaService } from './common/public-media.service';
 import { PublicSitemapController } from './sitemap/public-sitemap.controller';
@@ -44,12 +47,16 @@ import { PublicAchievementsController } from './achievements/public-achievements
 import { PublicAcademicCalendarController } from './academic-calendar/public-academic-calendar.controller';
 import { PublicAdmissionsController } from './admissions/public-admissions.controller';
 import { PublicTestimonialsController } from './testimonials/public-testimonials.controller';
+import { PublicTrustBadgesController } from './trust-badges/public-trust-badges.controller';
 import { PublicNavigationController } from './navigation/public-navigation.controller';
 import {
   PublicSiteSettingsController,
   PublicPortalLinksController,
 } from './site-settings/public-site-settings.controller';
 import { PublicPreRegistrationController } from './pre-registration/public-pre-registration.controller';
+import { PublicNewsletterController } from './newsletter/public-newsletter.controller';
+import { PublicContactMessagesController } from './contact-messages/public-contact-messages.controller';
+import { ContactMessagesModule } from '../content/contact-messages/contact-messages.module';
 
 /**
  * Phase 6 — the public, unauthenticated read layer (see app.module.ts's
@@ -76,16 +83,11 @@ import { PublicPreRegistrationController } from './pre-registration/public-pre-r
  * likewise handled per-controller, not here — RedisModule is imported
  * so every controller in this module can inject RedisService.
  *
- * `PublicPreRegistrationController` (Pre-Registration sprint) is this
- * layer's first write: a `POST`, not a cached read, so it carries
- * neither `Cache-Control` nor Redis read-through, and uses
- * `PUBLIC_FORM_THROTTLE` instead of `PUBLIC_THROTTLE`. It's also the
- * only controller here that delegates to a content module's own
- * service (`PreRegistrationsService`, imported via
- * `PreRegistrationsModule`) rather than reading through a local
- * repository — a plain insert has none of the public-shape mismatch
- * (status/publishAt gating, slug lookups) that keeps every read
- * endpoint above on its own repository instead.
+ * Public write controllers (pre-registration, contact messages, and
+ * newsletter subscription) are uncached POSTs that use
+ * `PUBLIC_FORM_THROTTLE`.
+ * They delegate inserts to the content modules' services rather than
+ * duplicating persistence and normalization logic.
  */
 @Module({
   imports: [
@@ -106,6 +108,7 @@ import { PublicPreRegistrationController } from './pre-registration/public-pre-r
       AcademicCalendarEntry,
       AdmissionEntry,
       Testimonial,
+      TrustBadge,
       Menu,
       MenuItem,
       PortalLink,
@@ -116,6 +119,9 @@ import { PublicPreRegistrationController } from './pre-registration/public-pre-r
     RedisModule,
     SiteSettingsModule,
     PreRegistrationsModule,
+    NewsletterModule,
+    ContactMessagesModule,
+    CampusScopeModule,
   ],
   providers: [PublicVisibilityService, PublicMediaService],
   controllers: [
@@ -136,10 +142,13 @@ import { PublicPreRegistrationController } from './pre-registration/public-pre-r
     PublicAcademicCalendarController,
     PublicAdmissionsController,
     PublicTestimonialsController,
+    PublicTrustBadgesController,
     PublicNavigationController,
     PublicSiteSettingsController,
     PublicPortalLinksController,
     PublicPreRegistrationController,
+    PublicNewsletterController,
+    PublicContactMessagesController,
   ],
 })
 export class PublicApiModule {}

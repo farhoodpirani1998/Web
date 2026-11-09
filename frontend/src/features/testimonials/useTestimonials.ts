@@ -14,9 +14,9 @@ export const testimonialsQueryKey = ["testimonials"] as const;
  * (`GET /testimonials`). Errors surface as the normalized `ApiError`
  * from `@/shared/api` (§14, §18).
  */
-export function useTestimonials(): UseQueryResult<Testimonials> {
+export function useTestimonials(featuredOnly = false): UseQueryResult<Testimonials> {
   return useQuery({
-    queryKey: testimonialsQueryKey,
-    queryFn: fetchTestimonials,
+    queryKey: [...testimonialsQueryKey, featuredOnly ? "featured" : "all"],
+    queryFn: () => fetchTestimonials(featuredOnly),
   });
 }

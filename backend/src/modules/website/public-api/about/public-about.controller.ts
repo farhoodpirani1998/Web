@@ -4,6 +4,12 @@ import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { AboutPage } from '../../content/about/entities/about.entity';
+import {
+  AboutStatItem,
+  AboutTeamMember,
+  AboutTimelineItem,
+  AboutValueItem,
+} from '../../content/about/entities/about-sections.types';
 import { SiteService } from '../../core/site/site.service';
 import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
 import { RedisService } from '../../core/redis/redis.service';
@@ -25,9 +31,31 @@ interface PublicAboutDto {
   title: AboutPage['title'];
   body: AboutPage['body'];
   image: PublicMediaRef | null;
+  sections: PublicAboutSections;
   seo: PublicSeoDto;
   structuredData: Record<string, unknown>[];
   updatedAt: Date;
+}
+
+interface PublicAboutSection<TItem> {
+  title?: AboutPage['title'];
+  description?: AboutPage['body'];
+  items: TItem[];
+}
+
+interface PublicAboutTeamMember extends Omit<AboutTeamMember, 'avatarMediaId'> {
+  avatar: PublicMediaRef | null;
+}
+
+interface PublicAboutSections {
+  stats: PublicAboutSection<AboutStatItem>;
+  values: PublicAboutSection<AboutValueItem>;
+  timeline: PublicAboutSection<AboutTimelineItem>;
+  team: PublicAboutSection<PublicAboutTeamMember>;
+  faq?: {
+    title?: AboutPage['title'];
+    description?: AboutPage['body'];
+  };
 }
 
 /** Core section, singleton per site — same shape as PublicSiteSettingsController. */
@@ -60,13 +88,35 @@ export class PublicAboutController {
       throw new NotFoundException('About page is not published');
     }
 
-    const image = await this.media.resolveOne(page.imageMediaId);
+    const sections = page.sections ?? {};
+    const teamItems = sections.team?.items ?? [];
+    const [image, teamMedia] = await Promise.all([
+      this.media.resolveOne(page.imageMediaId),
+      this.media.resolveMany(teamItems.map((member) => member.avatarMediaId)),
+    ]);
+    const publicTeam = teamItems.map((member) => {
+      const { avatarMediaId, ...content } = member;
+      return {
+        ...content,
+        avatar: avatarMediaId ? (teamMedia.get(avatarMediaId) ?? null) : null,
+      };
+    });
     const baseUrl = this.seo.resolveBaseUrl(this.config);
     const title = SeoService.resolveTranslatable(page.title) ?? 'About';
     const dto: PublicAboutDto = {
       title: page.title,
       body: page.body,
       image,
+      sections: {
+        stats: { ...sections.stats, items: sections.stats?.items ?? [] },
+        values: { ...sections.values, items: sections.values?.items ?? [] },
+        timeline: {
+          ...sections.timeline,
+          items: sections.timeline?.items ?? [],
+        },
+        team: { ...sections.team, items: publicTeam },
+        faq: sections.faq,
+      },
       seo: this.seo.resolvePublicSeo(page.seo, title, '/about', baseUrl),
       structuredData: [
         this.seo.buildBreadcrumbSchema([

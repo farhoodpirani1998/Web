@@ -15,6 +15,9 @@ import type { PublicSeoDto, StructuredDataItem } from "@/shared/seo";
  *   already render — `./api.ts`'s `toCampus` adapts each DTO into
  *   this shape so no section component needs to change shape.
  *
+ * The `gradeLevels` field mirrors the public Campus field and is
+ * shared by the visitor-facing school and campus detail routes.
+ *
  * Contract gaps vs. the original frontend-only `Campus` type:
  * - The backend has no `area` or `features` concept at all (the
  *   Campus entity carries `title`/`excerpt`/`body`/`address`/`mapUrl`/
@@ -53,8 +56,11 @@ export interface PublicCampusListItemDto {
   excerpt?: Translatable<string>;
   address?: Translatable<string>;
   mapUrl?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   phone?: string;
   email?: string;
+  gradeLevels?: readonly string[];
   area?: Translatable<string>;
   features?: readonly string[];
   position: number;
@@ -108,9 +114,13 @@ export interface Campus {
   description: string;
   /** Longer copy shown on `CampusDetails` (expanded context). */
   detailedDescription: string;
+  gradeLevels?: readonly string[];
   /** Not modeled on the backend today — optional, rendered conditionally. */
   area?: string;
   address?: string;
+  mapUrl?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   contact: CampusContact;
   image: CampusImage;
   /** Not modeled on the backend today — optional, rendered conditionally. */

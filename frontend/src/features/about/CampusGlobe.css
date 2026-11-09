@@ -1,0 +1,432 @@
+.campus-globe {
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.75rem;
+  background: hsl(var(--background));
+  box-shadow: 0 24px 70px -38px hsl(var(--brand-navy) / 0.45);
+}
+
+.campus-globe__scene {
+  position: relative;
+  isolation: isolate;
+  min-height: 23rem;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 63%, hsl(var(--brand-gold) / 0.16), transparent 34%),
+    radial-gradient(ellipse at 50% 45%, hsl(var(--brand-navy) / 0.7), transparent 65%),
+    linear-gradient(145deg, #06182f, #102d50 58%, #071a31);
+  color: #fff;
+}
+
+.campus-globe__scene::before,
+.campus-globe__scene::after {
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  background: #fff;
+  content: "";
+}
+
+.campus-globe__scene::before {
+  top: 14%;
+  left: 18%;
+  width: 3px;
+  height: 3px;
+  box-shadow:
+    86px 22px 0 1px rgb(255 255 255 / 55%),
+    225px 16px 0 0 rgb(255 255 255 / 65%),
+    275px 75px 0 1px rgb(255 255 255 / 50%),
+    44px 129px 0 0 rgb(255 255 255 / 65%),
+    214px 184px 0 1px rgb(255 255 255 / 45%),
+    318px 142px 0 0 rgb(255 255 255 / 65%);
+  opacity: 0.65;
+}
+
+.campus-globe__scene::after {
+  right: 15%;
+  bottom: 17%;
+  width: 2px;
+  height: 2px;
+  box-shadow:
+    -185px -70px 0 1px rgb(255 255 255 / 45%),
+    -95px 5px 0 0 rgb(255 255 255 / 65%),
+    40px -125px 0 1px rgb(255 255 255 / 50%),
+    98px -18px 0 0 rgb(255 255 255 / 65%);
+}
+
+.campus-globe__eyebrow,
+.campus-globe__destination,
+.campus-globe__caption {
+  position: absolute;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.campus-globe__eyebrow {
+  top: 1.25rem;
+  right: 1.25rem;
+  color: rgb(255 255 255 / 77%);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.campus-globe__eyebrow-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: hsl(var(--brand-gold));
+  box-shadow: 0 0 14px hsl(var(--brand-gold) / 0.8);
+}
+
+.campus-globe__orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(78%, 21rem);
+  aspect-ratio: 1;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(-24deg) scaleY(0.35);
+}
+
+.campus-globe__orbit--two {
+  width: min(93%, 25rem);
+  transform: translate(-50%, -50%) rotate(43deg) scaleY(0.28);
+}
+
+.campus-globe__planet {
+  position: absolute;
+  top: 53%;
+  left: 50%;
+  width: clamp(13.5rem, 67%, 18.5rem);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid rgb(173 220 255 / 65%);
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 31% 29%, rgb(115 194 255 / 95%) 0, transparent 22%),
+    radial-gradient(ellipse at 64% 68%, #081d38 0, #0d5c94 41%, #2487bd 65%, #103658 100%);
+  box-shadow:
+    inset -26px -16px 42px rgb(0 9 23 / 65%),
+    inset 10px 8px 26px rgb(189 229 255 / 23%),
+    0 0 46px rgb(50 156 229 / 28%);
+  transform: translate(-50%, -50%);
+}
+
+.campus-globe__land {
+  position: absolute;
+  top: 14%;
+  left: -13%;
+  width: 126%;
+  height: 73%;
+  opacity: 0.85;
+  animation: campus-globe-turn 24s linear infinite alternate;
+}
+
+.campus-globe__land svg {
+  width: 100%;
+  height: 100%;
+  fill: #83b98e;
+  filter: drop-shadow(0 1px 3px rgb(0 19 24 / 50%));
+}
+
+.campus-globe__latitude,
+.campus-globe__longitude {
+  position: absolute;
+  inset: 14% 0;
+  border: 1px solid rgb(205 240 255 / 24%);
+  border-radius: 50%;
+}
+
+.campus-globe__latitude {
+  inset: 33% -3%;
+}
+
+.campus-globe__longitude {
+  inset: 0 27%;
+}
+
+.campus-globe__shine {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    115deg,
+    rgb(255 255 255 / 17%),
+    transparent 40% 72%,
+    rgb(0 8 24 / 42%)
+  );
+}
+
+.campus-globe__destination {
+  top: 64%;
+  left: 50%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 9999px;
+  background: rgb(5 26 49 / 74%);
+  color: #ffe28c;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  transform: translate(-50%, -50%);
+}
+
+.campus-globe__caption {
+  right: 1.25rem;
+  bottom: 1.25rem;
+  color: rgb(255 255 255 / 70%);
+  font-size: 0.7rem;
+}
+
+.campus-globe__caption-line {
+  width: 1.5rem;
+  height: 1px;
+  background: hsl(var(--brand-gold));
+}
+
+.campus-globe__marker {
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #ffe28c;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+}
+
+.campus-globe__marker-pulse,
+.campus-globe__marker-dot {
+  grid-area: 1 / 1;
+  border-radius: 50%;
+}
+
+.campus-globe__marker-pulse {
+  width: 1.1rem;
+  height: 1.1rem;
+  background: hsl(var(--brand-gold) / 0.34);
+  animation: campus-marker-pulse 2s ease-out infinite;
+}
+
+.campus-globe__marker-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border: 2px solid #fff;
+  background: hsl(var(--brand-gold));
+  box-shadow: 0 0 14px hsl(var(--brand-gold) / 0.9);
+}
+
+.campus-globe__marker[aria-pressed="true"] .campus-globe__marker-dot {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.campus-globe__marker:focus-visible,
+.campus-globe__campus-chip:focus-visible,
+.campus-globe__map-link:focus-visible {
+  outline: 3px solid hsl(var(--brand-gold));
+  outline-offset: 3px;
+}
+
+.campus-globe__content {
+  padding: 1.1rem;
+}
+
+.campus-globe__campus-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+
+.campus-globe__campus-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 9999px;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.campus-globe__campus-chip:hover,
+.campus-globe__campus-chip[aria-pressed="true"] {
+  border-color: hsl(var(--brand-gold) / 0.7);
+  background: hsl(var(--brand-gold) / 0.1);
+  color: hsl(var(--brand-navy));
+}
+
+.campus-globe__hint {
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+  line-height: 1.8;
+}
+
+.campus-globe__card {
+  display: grid;
+  grid-template-columns: 5.25rem minmax(0, 1fr);
+  gap: 0.9rem;
+  padding: 0.85rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  background: hsl(var(--muted) / 0.35);
+  animation: campus-card-in 220ms ease-out both;
+}
+
+.campus-globe__card-image {
+  position: relative;
+  display: grid;
+  min-height: 5.25rem;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 0.75rem;
+  background:
+    radial-gradient(circle at 30% 25%, hsl(var(--brand-gold) / 0.25), transparent 36%),
+    linear-gradient(145deg, hsl(var(--brand-navy) / 0.18), hsl(var(--brand-gold) / 0.12));
+}
+
+.campus-globe__card-body {
+  min-width: 0;
+}
+
+.campus-globe__card-pin {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: hsl(var(--brand-gold) / 0.15);
+  color: hsl(var(--brand-navy));
+}
+
+.campus-globe__map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.55rem;
+  background: hsl(var(--brand-navy));
+  color: #fff !important;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-decoration: none !important;
+  transition: background-color 180ms ease;
+}
+
+.campus-globe__map-link:hover {
+  background: hsl(var(--brand-navy) / 0.85);
+}
+
+.campus-globe__map-link--secondary {
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  color: hsl(var(--brand-navy)) !important;
+}
+
+.campus-globe__map-link--secondary:hover {
+  background: hsl(var(--muted));
+}
+
+@keyframes campus-globe-turn {
+  from {
+    transform: translateX(-3%);
+  }
+
+  to {
+    transform: translateX(3%);
+  }
+}
+
+@keyframes campus-marker-pulse {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.7);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+
+@keyframes campus-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@supports (animation-timeline: view()) and (animation-range: entry 0% exit 100%) {
+  .campus-globe__scene {
+    view-timeline-name: --campus-globe-timeline;
+    view-timeline-axis: block;
+  }
+
+  .campus-globe__planet {
+    animation: campus-globe-approach 1s linear both;
+    animation-timeline: --campus-globe-timeline;
+    animation-range: entry 0% exit 100%;
+  }
+
+  @keyframes campus-globe-approach {
+    from {
+      transform: translate(-50%, -50%) scale(0.78);
+    }
+
+    to {
+      transform: translate(-50%, -50%) scale(1.12);
+    }
+  }
+}
+
+@media (max-width: 639px) {
+  .campus-globe__scene {
+    min-height: 19rem;
+  }
+
+  .campus-globe__planet {
+    width: clamp(12.5rem, 72%, 16rem);
+  }
+
+  .campus-globe__card {
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+    gap: 0.65rem;
+    padding: 0.7rem;
+  }
+
+  .campus-globe__card-image {
+    min-height: 4.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .campus-globe__land,
+  .campus-globe__marker-pulse,
+  .campus-globe__card,
+  .campus-globe__planet {
+    animation: none !important;
+  }
+}

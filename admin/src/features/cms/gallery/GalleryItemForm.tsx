@@ -49,11 +49,12 @@ export function GalleryItemForm({ item, onCancel, onSaved }: GalleryItemFormProp
   const [captionFa, setCaptionFa] = useState(item?.caption?.fa ?? "");
   const [captionEn, setCaptionEn] = useState(item?.caption?.en ?? "");
   const [category, setCategory] = useState(item?.category ?? "");
+  const [isFeatured, setIsFeatured] = useState(item?.isFeatured ?? false);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { isDirty } = useIsDirty({ imageMediaId, captionFa, captionEn, category });
+  const { isDirty } = useIsDirty({ imageMediaId, captionFa, captionEn, category, isFeatured });
   const { isConfirmOpen, guardedAction, confirmLeave, cancelLeave } =
     useUnsavedChangesGuard(isDirty);
 
@@ -75,6 +76,7 @@ export function GalleryItemForm({ item, onCancel, onSaved }: GalleryItemFormProp
         ? { caption: { fa: trimmedCaptionFa, ...(trimmedCaptionEn ? { en: trimmedCaptionEn } : {}) } }
         : {}),
       category: category.trim(),
+      isFeatured,
     };
 
     try {
@@ -150,6 +152,16 @@ export function GalleryItemForm({ item, onCancel, onSaved }: GalleryItemFormProp
               className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
             />
           </div>
+
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={isFeatured}
+              onChange={(event) => setIsFeatured(event.target.checked)}
+              disabled={isSaving}
+            />
+            نمایش در اسلایدر برجسته‌ی سایت
+          </label>
 
           {error ? (
             <p role="alert" className="text-sm text-red-600">

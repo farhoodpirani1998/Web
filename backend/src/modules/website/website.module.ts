@@ -19,6 +19,7 @@ import { AchievementsModule } from './content/achievements/achievements.module';
 import { AcademicCalendarModule } from './content/academic-calendar/academic-calendar.module';
 import { AdmissionsModule } from './content/admissions/admissions.module';
 import { TestimonialsModule } from './content/testimonials/testimonials.module';
+import { TrustBadgesModule } from './content/trust-badges/trust-badges.module';
 import { HeroModule } from './content/hero/hero.module';
 import { AboutModule } from './content/about/about.module';
 import { FeaturesModule } from './content/features/features.module';
@@ -33,6 +34,9 @@ import { TeachersModule } from './content/teachers/teachers.module';
 import { NavigationModule } from './content/navigation/navigation.module';
 import { SiteSettingsModule } from './content/site-settings/site-settings.module';
 import { PreRegistrationsModule } from './content/pre-registrations/pre-registrations.module';
+import { NewsletterModule } from './content/newsletter/newsletter.module';
+import { ContactMessagesModule } from './content/contact-messages/contact-messages.module';
+import { TextbooksModule } from './content/textbooks/textbooks.module';
 import { PublicApiModule } from './public-api/public-api.module';
 
 /**
@@ -64,6 +68,7 @@ import { PublicApiModule } from './public-api/public-api.module';
     AcademicCalendarModule,
     AdmissionsModule,
     TestimonialsModule,
+    TrustBadgesModule,
     HeroModule,
     AboutModule,
     FeaturesModule,
@@ -78,6 +83,9 @@ import { PublicApiModule } from './public-api/public-api.module';
     NavigationModule,
     SiteSettingsModule,
     PreRegistrationsModule,
+    NewsletterModule,
+    ContactMessagesModule,
+    TextbooksModule,
     PublicApiModule,
     // Phase 2+ remaining: Achievements, ...
   ],

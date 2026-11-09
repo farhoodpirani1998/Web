@@ -7,7 +7,6 @@ import {
   useQuery,
   useQueryClient,
   type UseMutateFunction,
-  type UseQueryResult,
 } from "@tanstack/react-query";
 
 import type { ApiError } from "@/lib/apiError";
@@ -34,7 +33,7 @@ export interface UseFaqsResult {
   isLoading: boolean;
   error: ApiError | null;
   refetch: () => void;
-  setFaqs: (updater: CmsFaq[] | ((old: CmsFaq[] | undefined) => CmsFaq[])) => void;
+  setFaqs: (updater: CmsFaq[] | ((old: CmsFaq[]) => CmsFaq[])) => void;
 }
 
 export function useFaqs(status?: CmsFaqStatus): UseFaqsResult {
@@ -46,8 +45,11 @@ export function useFaqs(status?: CmsFaqStatus): UseFaqsResult {
     staleTime: 30_000,
   });
 
-  const setFaqs = (updater: CmsFaq[] | ((old: CmsFaq[] | undefined) => CmsFaq[])) => {
-    queryClient.setQueryData<CmsFaq[]>(faqKeys.list(status), updater);
+  const setFaqs = (updater: CmsFaq[] | ((old: CmsFaq[]) => CmsFaq[])) => {
+    queryClient.setQueryData<CmsFaq[]>(
+      faqKeys.list(status),
+      typeof updater === "function" ? (old) => updater(old ?? []) : updater,
+    );
   };
 
   return {
@@ -79,7 +81,7 @@ export interface UseFaqMutations {
 export function useFaqMutations(): UseFaqMutations {
   const queryClient = useQueryClient();
 
-  const create = useMutation({
+  const create = useMutation<CmsFaq, ApiError, CreateFaqPayload>({
     mutationFn: createFaq,
     onSuccess: (newFaq) => {
       queryClient.setQueryData<CmsFaq[]>(faqKeys.list(undefined), (old) =>
@@ -89,7 +91,7 @@ export function useFaqMutations(): UseFaqMutations {
     },
   });
 
-  const update = useMutation({
+  const update = useMutation<CmsFaq, ApiError, { id: string; payload: UpdateFaqPayload }>({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateFaqPayload }) => updateFaq(id, payload),
     onSuccess: (updated) => {
       queryClient.setQueryData<CmsFaq[]>(faqKeys.list(undefined), (old) =>
@@ -100,7 +102,7 @@ export function useFaqMutations(): UseFaqMutations {
     },
   });
 
-  const deleteFaqMutation = useMutation({
+  const deleteFaqMutation = useMutation<void, ApiError, string>({
     mutationFn: deleteFaq,
     onSuccess: (_data, deletedId) => {
       queryClient.setQueryData<CmsFaq[]>(faqKeys.list(undefined), (old) =>
@@ -111,7 +113,12 @@ export function useFaqMutations(): UseFaqMutations {
     },
   });
 
-  const updateStatus = useMutation({
+  const updateStatus = useMutation<
+    CmsFaq,
+    ApiError,
+    { id: string; status: CmsFaqStatus },
+    { snapshots: (readonly [readonly unknown[], unknown])[] }
+  >({
     mutationFn: ({ id, status }: { id: string; status: CmsFaqStatus }) => updateFaqStatus(id, status),
     onMutate: async ({ id, status }) => {
       await queryClient.cancelQueries({ queryKey: faqKeys.all });
@@ -136,7 +143,12 @@ export function useFaqMutations(): UseFaqMutations {
     },
   });
 
-  const reorder = useMutation({
+  const reorder = useMutation<
+    void,
+    ApiError,
+    string[],
+    { snapshots: (readonly [readonly unknown[], unknown])[] }
+  >({
     mutationFn: reorderFaqs,
     onMutate: async (orderedIds) => {
       await queryClient.cancelQueries({ queryKey: faqKeys.all });

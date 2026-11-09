@@ -58,12 +58,6 @@ vi.mock("@/features/cta", () => ({
   CTA: () => <div data-testid="cta">CTA</div>,
 }));
 
-vi.mock("@/shared/design-system/components", () => ({
-  PageLayout: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="page-layout">{children}</div>
-  ),
-}));
-
 vi.mock("@/shared/seo", () => ({
   Seo: () => <div data-testid="seo" />,
 }));
@@ -109,9 +103,10 @@ describe("HomePage", () => {
     expect(screen.getByTestId("seo")).toBeInTheDocument();
   });
 
-  it("renders PageLayout containers", () => {
+  it("renders homepage sections without constrained page wrappers", () => {
     renderHomePage();
-    const layouts = screen.getAllByTestId("page-layout");
-    expect(layouts.length).toBeGreaterThanOrEqual(2);
+    const hero = screen.getByTestId("hero");
+    expect(screen.getByTestId("home-campuses").parentElement).toBe(hero.parentElement);
+    expect(screen.getByTestId("home-news").parentElement).toBe(hero.parentElement);
   });
 });

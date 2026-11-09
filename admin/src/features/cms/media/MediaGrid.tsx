@@ -31,6 +31,8 @@ export interface MediaGridProps {
   isAllSelected: boolean;
   isSelectionIndeterminate: boolean;
   onToggleSelect: (media: CmsMedia) => void;
+  onEdit: (media: CmsMedia) => void;
+  onTransform: (media: CmsMedia) => void;
   onToggleSelectAll: () => void;
   onArchive: (media: CmsMedia) => void;
   onDeleteRequest: (media: CmsMedia) => void;
@@ -46,13 +48,17 @@ export function MediaGrid({
   isAllSelected,
   isSelectionIndeterminate,
   onToggleSelect,
+  onEdit,
+  onTransform,
   onToggleSelectAll,
   onArchive,
   onDeleteRequest,
   onViewUsage,
 }: MediaGridProps) {
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری رسانه…</p>;
+    return (
+      <p className="py-8 text-center text-sm text-slate-500">در حال بارگذاری رسانه…</p>
+    );
   }
 
   if (error) {
@@ -90,6 +96,8 @@ export function MediaGrid({
             isArchiving={archivingId === item.id}
             selected={isSelected(item)}
             onToggleSelect={onToggleSelect}
+            onEdit={onEdit}
+            onTransform={onTransform}
             onArchive={onArchive}
             onDeleteRequest={onDeleteRequest}
             onViewUsage={onViewUsage}

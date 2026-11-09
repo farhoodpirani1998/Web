@@ -8,10 +8,12 @@ import { OrderingModule } from '../../core/ordering/ordering.module';
 import { PublishingModule } from '../../core/publishing/publishing.module';
 import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
 import { RedisModule } from '../../core/redis/redis.module';
+import { CampusScopeModule } from '../common/campus-scope.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([AdmissionEntry]),
+    CampusScopeModule,
     SiteModule,
     OrderingModule,
     PublishingModule,

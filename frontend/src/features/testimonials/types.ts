@@ -33,6 +33,7 @@ export interface TestimonialItem {
   rating?: number;
   avatar: PublicMediaRef | null;
   position: number;
+  isFeatured: boolean;
 }
 
 /** Full shape returned by `GET {publicApiBaseUrl}/testimonials`. */

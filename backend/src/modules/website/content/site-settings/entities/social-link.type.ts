@@ -12,6 +12,9 @@ export enum SocialPlatform {
   TELEGRAM = 'telegram',
   WHATSAPP = 'whatsapp',
   EITAA = 'eitaa',
+  BALE = 'bale',
+  RUBIKA = 'rubika',
+  APARAT = 'aparat',
   YOUTUBE = 'youtube',
   LINKEDIN = 'linkedin',
   TWITTER = 'twitter',
@@ -29,4 +32,5 @@ export enum SocialPlatform {
 export interface SocialLink {
   platform: SocialPlatform;
   url: string;
+  active?: boolean;
 }

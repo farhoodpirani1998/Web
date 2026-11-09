@@ -54,6 +54,52 @@ export interface CmsAboutSeoMetadata {
 /** Body shape for the nested `seo` field on the update payload. Mirrors `SeoMetadataDto` — every field optional. */
 export type CmsAboutSeoMetadataInput = Partial<CmsAboutSeoMetadata>;
 
+export interface CmsAboutSection<TItem> {
+  title?: Translatable<string>;
+  description?: Translatable<string>;
+  items?: TItem[];
+}
+
+export interface CmsAboutSectionMetadata {
+  title?: Translatable<string>;
+  description?: Translatable<string>;
+}
+
+export interface CmsAboutStatItem {
+  id: string;
+  value: string;
+  suffix?: string;
+  label: Translatable<string>;
+}
+
+export interface CmsAboutValueItem {
+  id: string;
+  title: Translatable<string>;
+  description: Translatable<string>;
+}
+
+export interface CmsAboutTimelineItem {
+  id: string;
+  year: string;
+  title: Translatable<string>;
+  description: Translatable<string>;
+}
+
+export interface CmsAboutTeamMember {
+  id: string;
+  name: Translatable<string>;
+  role: Translatable<string>;
+  avatarMediaId?: string;
+}
+
+export interface CmsAboutSections {
+  stats?: CmsAboutSection<CmsAboutStatItem>;
+  values?: CmsAboutSection<CmsAboutValueItem>;
+  timeline?: CmsAboutSection<CmsAboutTimelineItem>;
+  team?: CmsAboutSection<CmsAboutTeamMember>;
+  faq?: CmsAboutSectionMetadata;
+}
+
 /**
  * The singleton About page row. Extends `CmsEntityMeta` for
  * `id`/`createdAt`/`updatedAt` rather than redeclaring them, per the
@@ -65,6 +111,7 @@ export interface CmsAbout extends CmsEntityMeta {
   body: Translatable<string>;
   /** Reference into core/media, tracked via MediaUsage — never an embedded copy. */
   imageMediaId?: string;
+  sections: CmsAboutSections;
   seo: CmsAboutSeoMetadata;
   status: CmsAboutStatus;
 }
@@ -80,6 +127,7 @@ export interface UpdateAboutPayload {
   title?: Translatable<string>;
   body?: Translatable<string>;
   imageMediaId?: string | null;
+  sections?: CmsAboutSections;
   seo?: CmsAboutSeoMetadataInput;
 }
 
@@ -103,6 +151,7 @@ export interface CmsAboutRevision {
     title: Translatable<string>;
     body: Translatable<string>;
     imageMediaId?: string;
+    sections?: CmsAboutSections;
     seo?: CmsAboutSeoMetadata;
   };
 }

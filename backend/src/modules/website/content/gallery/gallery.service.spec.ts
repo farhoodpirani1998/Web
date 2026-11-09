@@ -48,6 +48,15 @@ describe('GalleryService', () => {
   });
 
   describe('create', () => {
+    it('persists the featured flag', async () => {
+      const item = await service.create({
+        imageMediaId: 'media-1',
+        isFeatured: true,
+      });
+
+      expect(item.isFeatured).toBe(true);
+    });
+
     it('attaches the image media usage unconditionally', async () => {
       const item = await service.create({ imageMediaId: 'media-1' });
 
@@ -61,6 +70,20 @@ describe('GalleryService', () => {
   });
 
   describe('update', () => {
+    it('updates the featured flag', async () => {
+      repo.findOneByOrFail.mockResolvedValue({
+        id: 'gallery-item-1',
+        siteId,
+        imageMediaId: 'media-1',
+        isFeatured: false,
+        status: PublishStatus.DRAFT,
+      });
+
+      const item = await service.update('gallery-item-1', { isFeatured: true });
+
+      expect(item.isFeatured).toBe(true);
+    });
+
     it('detaches the old image and attaches the new one when it changes', async () => {
       repo.findOneByOrFail.mockResolvedValue({
         id: 'gallery-item-1',

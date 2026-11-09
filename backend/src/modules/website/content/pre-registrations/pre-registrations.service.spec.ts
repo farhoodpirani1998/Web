@@ -5,6 +5,7 @@ describe('PreRegistrationsService', () => {
   const siteId = 'site-1';
   let repo: any;
   let siteService: any;
+  let campusScope: any;
   let service: PreRegistrationsService;
 
   const baseDto = {
@@ -26,7 +27,10 @@ describe('PreRegistrationsService', () => {
       delete: jest.fn(),
     };
     siteService = { getDefaultSiteId: jest.fn().mockReturnValue(siteId) };
-    service = new PreRegistrationsService(repo, siteService);
+    campusScope = {
+      assertCampusBelongsToSite: jest.fn().mockResolvedValue(undefined),
+    };
+    service = new PreRegistrationsService(repo, siteService, campusScope);
   });
 
   describe('create', () => {
@@ -36,6 +40,20 @@ describe('PreRegistrationsService', () => {
       expect(preRegistration.siteId).toBe(siteId);
       expect(preRegistration.status).toBe(PreRegistrationStatus.NEW);
       expect(preRegistration.studentFirstName).toBe(baseDto.studentFirstName);
+      expect(preRegistration.referenceCode).toMatch(/^NH-[A-F0-9]{32}$/);
+    });
+
+    it('persists an optional campus selection', async () => {
+      const preRegistration = await service.create({
+        ...baseDto,
+        campusId: 'campus-1',
+      });
+
+      expect(preRegistration.campusId).toBe('campus-1');
+      expect(campusScope.assertCampusBelongsToSite).toHaveBeenCalledWith(
+        siteId,
+        'campus-1',
+      );
     });
   });
 
@@ -73,6 +91,44 @@ describe('PreRegistrationsService', () => {
       );
 
       expect(result.status).toBe(PreRegistrationStatus.CONTACTED);
+    });
+  });
+
+  describe('updateAssignment', () => {
+    it('updates the assigned admin and follow-up date without changing status', async () => {
+      repo.findOneByOrFail.mockResolvedValue({
+        id: 'pre-reg-1',
+        status: PreRegistrationStatus.NEW,
+      });
+
+      const result = await service.updateAssignment('pre-reg-1', {
+        assignedAdminId: '2a1e2e60-0ed5-4db4-b826-20f592b0878e',
+        followUpAt: '2026-12-01T10:00:00.000Z',
+      });
+
+      expect(result.assignedAdminId).toBe(
+        '2a1e2e60-0ed5-4db4-b826-20f592b0878e',
+      );
+      expect(result.followUpAt).toEqual(
+        new Date('2026-12-01T10:00:00.000Z'),
+      );
+      expect(result.status).toBe(PreRegistrationStatus.NEW);
+    });
+
+    it('clears the assigned admin and follow-up date when null is submitted', async () => {
+      repo.findOneByOrFail.mockResolvedValue({
+        id: 'pre-reg-1',
+        assignedAdminId: '2a1e2e60-0ed5-4db4-b826-20f592b0878e',
+        followUpAt: new Date('2026-12-01T10:00:00.000Z'),
+      });
+
+      const result = await service.updateAssignment('pre-reg-1', {
+        assignedAdminId: null,
+        followUpAt: null,
+      });
+
+      expect(result.assignedAdminId).toBeNull();
+      expect(result.followUpAt).toBeNull();
     });
   });
 

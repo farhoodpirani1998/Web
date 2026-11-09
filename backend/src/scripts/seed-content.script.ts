@@ -950,6 +950,13 @@ async function seed(): Promise<void> {
     },
   ]);
 
+  await seedList('trust-badges', '/trust-badges', [
+    {
+      name: fa('نشان اعتماد'),
+      imageMediaId: imgLogo,
+    },
+  ]);
+
   // --- navigation (header menu) ---------------------------------------------
   const menus = await existingRows('/menus');
   if (menus.length > 0) {
@@ -1030,12 +1037,23 @@ async function seed(): Promise<void> {
     contactPhone: '۰۲۱-۱۲۳۴۵۶۷۸',
     address: fa('تهران، خیابان انقلاب، نرسیده به میدان فردوسی، پلاک ۱۲'),
     mapUrl: 'https://maps.google.com/?q=35.7000,51.4200',
+    mapLatitude: 35.7,
+    mapLongitude: 51.42,
+    workingHours: [
+      { day: 'saturday', openTime: '08:00', closeTime: '16:00', isClosed: false },
+      { day: 'sunday', openTime: '08:00', closeTime: '16:00', isClosed: false },
+      { day: 'monday', openTime: '08:00', closeTime: '16:00', isClosed: false },
+      { day: 'tuesday', openTime: '08:00', closeTime: '16:00', isClosed: false },
+      { day: 'wednesday', openTime: '08:00', closeTime: '16:00', isClosed: false },
+      { day: 'thursday', openTime: '08:00', closeTime: '12:00', isClosed: false },
+      { day: 'friday', openTime: '00:00', closeTime: '00:00', isClosed: true },
+    ],
   });
   await api('PATCH', '/site-settings/social', {
     socialLinks: [
-      { platform: 'instagram', url: 'https://instagram.com/example' },
-      { platform: 'telegram', url: 'https://t.me/example' },
-      { platform: 'whatsapp', url: 'https://wa.me/989120000000' },
+      { platform: 'instagram', url: 'https://instagram.com/example', active: true },
+      { platform: 'telegram', url: 'https://t.me/example', active: true },
+      { platform: 'whatsapp', url: 'https://wa.me/989120000000', active: true },
     ],
   });
   console.log('  ✓ site-settings updated (general, contact, social)');

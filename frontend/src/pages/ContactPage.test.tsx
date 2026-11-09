@@ -8,6 +8,8 @@ import { ContactPage } from "./ContactPage";
 vi.mock("@/features/contact", () => ({
   ContactIntro: () => <div data-testid="contact-intro">Intro</div>,
   ContactInfo: () => <div data-testid="contact-info">Info</div>,
+  ContactForm: () => <div data-testid="contact-form">Form</div>,
+  ContactSocial: () => <div data-testid="contact-social">Social</div>,
 }));
 
 vi.mock("@/shared/design-system/components", () => ({
@@ -45,6 +47,8 @@ describe("ContactPage", () => {
     renderContactPage();
     expect(screen.getByTestId("contact-intro")).toBeInTheDocument();
     expect(screen.getByTestId("contact-info")).toBeInTheDocument();
+    expect(screen.getByTestId("contact-form")).toBeInTheDocument();
+    expect(screen.getByTestId("contact-social")).toBeInTheDocument();
   });
 
   it("renders PageLayout container", () => {

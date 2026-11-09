@@ -1,5 +1,27 @@
 import type { Dispatch, SetStateAction } from "react";
-import { useState } from "react";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseMutateFunction,
+  type UseQueryResult,
+} from "@tanstack/react-query";
+import type { ApiError } from "@/lib/apiError";
+import {
+  createGalleryItem,
+  deleteGalleryItem,
+  fetchGalleryItemById,
+  fetchGalleryList,
+  reorderGalleryItems,
+  updateGalleryItem,
+  updateGalleryItemStatus,
+} from "../api";
+import type {
+  CmsGalleryItem,
+  CmsGalleryStatus,
+  CreateGalleryItemPayload,
+  UpdateGalleryItemPayload,
+} from "../types";
 
 /**
  * TanStack Query v5 hooks for CMS Gallery.
@@ -21,7 +43,7 @@ export interface UseGalleryListResult {
 
 export function useGalleryList(status?: CmsGalleryStatus): UseGalleryListResult {
   const queryClient = useQueryClient();
-  const query = useQuery({
+  const query = useQuery<CmsGalleryItem[], ApiError>({
     queryKey: galleryKeys.list(status),
     queryFn: () => fetchGalleryList(status),
     staleTime: 30_000,
@@ -59,7 +81,7 @@ export interface UseGalleryMutations {
 export function useGalleryMutations(): UseGalleryMutations {
   const queryClient = useQueryClient();
 
-  const create = useMutation({
+  const create = useMutation<CmsGalleryItem, ApiError, CreateGalleryItemPayload>({
     mutationFn: createGalleryItem,
     onSuccess: (newItem) => {
       queryClient.setQueryData<CmsGalleryItem[]>(galleryKeys.list(undefined), (old) =>
@@ -69,7 +91,11 @@ export function useGalleryMutations(): UseGalleryMutations {
     },
   });
 
-  const update = useMutation({
+  const update = useMutation<
+    CmsGalleryItem,
+    ApiError,
+    { id: string; payload: UpdateGalleryItemPayload }
+  >({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateGalleryItemPayload }) => updateGalleryItem(id, payload),
     onSuccess: (updated) => {
       queryClient.setQueryData<CmsGalleryItem[]>(galleryKeys.list(undefined), (old) =>
@@ -80,7 +106,7 @@ export function useGalleryMutations(): UseGalleryMutations {
     },
   });
 
-  const deleteMutation = useMutation({
+  const deleteMutation = useMutation<void, ApiError, string>({
     mutationFn: deleteGalleryItem,
     onSuccess: (_data, deletedId) => {
       queryClient.setQueryData<CmsGalleryItem[]>(galleryKeys.list(undefined), (old) =>
@@ -91,7 +117,12 @@ export function useGalleryMutations(): UseGalleryMutations {
     },
   });
 
-  const updateStatus = useMutation({
+  const updateStatus = useMutation<
+    CmsGalleryItem,
+    ApiError,
+    { id: string; status: CmsGalleryStatus },
+    { snapshots: (readonly [readonly unknown[], unknown])[] }
+  >({
     mutationFn: ({ id, status }: { id: string; status: CmsGalleryStatus }) => updateGalleryItemStatus(id, status),
     onMutate: async ({ id, status }) => {
       await queryClient.cancelQueries({ queryKey: galleryKeys.all });
@@ -116,7 +147,12 @@ export function useGalleryMutations(): UseGalleryMutations {
     },
   });
 
-  const reorder = useMutation({
+  const reorder = useMutation<
+    void,
+    ApiError,
+    string[],
+    { snapshots: (readonly [readonly unknown[], unknown])[] }
+  >({
     mutationFn: reorderGalleryItems,
     onMutate: async (orderedIds) => {
       await queryClient.cancelQueries({ queryKey: galleryKeys.all });

@@ -1,50 +1,108 @@
-import { useMemo } from "react";
-import { useReactTable, getCoreRowModel, getSortedRowModel, flexRender, type ColumnDef } from "@tanstack/react-table";
-
 import { Skeleton } from "@/components/ui/Skeleton";
+import type { ApiError } from "@/lib/apiError";
+
+import { TestimonialRow } from "./TestimonialRow";
 import type { CmsTestimonial, CmsTestimonialStatus } from "./types";
+
+const TESTIMONIAL_SKELETON_KEYS = [
+  "testimonial-skeleton-1",
+  "testimonial-skeleton-2",
+  "testimonial-skeleton-3",
+] as const;
 
 export interface TestimonialListProps {
   testimonials: CmsTestimonial[];
   isLoading: boolean;
-  error: { message?: string } | null;
-  onEdit: (t: CmsTestimonial) => void;
-  onDeleteRequest: (t: CmsTestimonial) => void;
-  onChangeStatus: (t: CmsTestimonial, s: CmsTestimonialStatus) => void;
+  error: ApiError | null;
+  status: CmsTestimonialStatus | undefined;
+  updatingStatusId: string | null;
+  isReordering: boolean;
+  isSelected: (testimonial: CmsTestimonial) => boolean;
+  isAllSelected: boolean;
+  isSelectionIndeterminate: boolean;
+  onToggleSelect: (testimonial: CmsTestimonial) => void;
+  onToggleSelectAll: () => void;
+  onEdit: (testimonial: CmsTestimonial) => void;
+  onDeleteRequest: (testimonial: CmsTestimonial) => void;
+  onChangeStatus: (testimonial: CmsTestimonial, status: CmsTestimonialStatus) => void;
+  onToggleFeatured: (testimonial: CmsTestimonial) => void;
+  onReorder: (fromIndex: number, toIndex: number) => void;
 }
 
-export function TestimonialList({ testimonials, isLoading, error, onEdit, onDeleteRequest, onChangeStatus }: TestimonialListProps) {
-  const columns = useMemo<ColumnDef<CmsTestimonial>[]>(() => [
-    { accessorKey: "authorName", header: "نام نویسنده", size: 180 },
-    { accessorKey: "content.fa", header: "متن", cell: ({ row }) => <span dir="rtl">{row.original.content.fa}</span> },
-    { accessorKey: "rating", header: "امتیاز", size: 80 },
-    { accessorKey: "status", header: "وضعیت", size: 100 },
-    { id: "actions", header: "عملیات", cell: ({ row }) => (
-      <div className="flex gap-1">
-        <button onClick={() => onEdit(row.original)} className="rounded px-2 py-1 text-xs bg-slate-800 text-white">ویرایش</button>
-        <button onClick={() => onDeleteRequest(row.original)} className="rounded px-2 py-1 text-xs bg-red-600 text-white">حذف</button>
+export function TestimonialList({
+  testimonials,
+  isLoading,
+  error,
+  status,
+  updatingStatusId,
+  isReordering,
+  isSelected,
+  isAllSelected,
+  isSelectionIndeterminate,
+  onToggleSelect,
+  onToggleSelectAll,
+  onEdit,
+  onDeleteRequest,
+  onChangeStatus,
+  onToggleFeatured,
+  onReorder,
+}: TestimonialListProps) {
+  if (isLoading) {
+    return (
+      <div className="space-y-3 py-8">
+        {TESTIMONIAL_SKELETON_KEYS.map((key) => (
+          <Skeleton key={key} className="h-10 w-full" />
+        ))}
       </div>
-    ) },
-  ], [onEdit, onDeleteRequest, onChangeStatus]);
-
-  const table = useReactTable({ data: testimonials ?? [], columns, getCoreRowModel: getCoreRowModel(), getSortedRowModel: getSortedRowModel() });
-
-  if (isLoading) return <div className="py-8 space-y-3"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div>;
+    );
+  }
   if (error) return <p className="py-8 text-center text-sm text-red-600">خطا: {error.message}</p>;
+
+  const canReorder = status === undefined;
 
   return (
     <div dir="rtl" className="overflow-x-auto rounded-md border border-slate-200">
-      <table className="w-full text-sm text-right">
+      <table className="w-full text-right text-sm">
+        <caption className="sr-only">فهرست نظرات</caption>
         <thead className="bg-slate-50 text-slate-700">
-          {table.getHeaderGroups().map((hg) => (
-            <tr key={hg.id}>{hg.headers.map((h) => (<th key={h.id} className="px-3 py-2 font-medium">{flexRender(h.column.columnDef.header, h.getContext())}</th>))}</tr>
-          ))}
+          <tr>
+            <th className="px-3 py-2">
+              <input
+                type="checkbox"
+                checked={isAllSelected}
+                ref={(element) => {
+                  if (element) element.indeterminate = isSelectionIndeterminate;
+                }}
+                onChange={onToggleSelectAll}
+                aria-label="انتخاب همه نظرات"
+              />
+            </th>
+            {canReorder ? <th className="px-3 py-2">ترتیب</th> : null}
+            <th className="px-3 py-2 font-medium">نویسنده</th>
+            <th className="px-3 py-2 font-medium">متن</th>
+            <th className="px-3 py-2 font-medium">امتیاز</th>
+            <th className="px-3 py-2 font-medium">وضعیت</th>
+            <th className="px-3 py-2 font-medium">عملیات</th>
+          </tr>
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="border-t border-slate-100 hover:bg-slate-50">
-              {row.getVisibleCells().map((cell) => (<td key={cell.id} className="px-3 py-2">{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>))}
-            </tr>
+          {testimonials.map((testimonial, index) => (
+            <TestimonialRow
+              key={testimonial.id}
+              testimonial={testimonial}
+              index={index}
+              rowCount={testimonials.length}
+              canReorder={canReorder}
+              isReordering={isReordering}
+              isUpdatingStatus={updatingStatusId === testimonial.id}
+              selected={isSelected(testimonial)}
+              onToggleSelect={onToggleSelect}
+              onEdit={onEdit}
+              onDeleteRequest={onDeleteRequest}
+              onChangeStatus={onChangeStatus}
+              onToggleFeatured={onToggleFeatured}
+              onReorder={onReorder}
+            />
           ))}
         </tbody>
       </table>

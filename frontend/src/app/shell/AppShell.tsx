@@ -1,11 +1,13 @@
 import * as React from "react";
+import { useEffect } from "react";
 
 import { SkipLink } from "@/shared/design-system/components/SkipLink";
-import { TopBar } from "@/app/shell/TopBar";
 import { Header } from "@/app/shell/Header";
 import { ContentWrapper } from "@/app/shell/ContentWrapper";
 import { Footer } from "@/app/shell/Footer";
 import { SiteSettingsHead } from "@/features/site";
+
+const HOLO_FOIL_RUNTIME_URL = "https://cdn.aidesigner.ai/effects/runtime/v1.js";
 
 export interface AppShellProps {
   children: React.ReactNode;
@@ -29,21 +31,26 @@ export interface AppShellProps {
  * `Header` (§8) — it renders once, below the routed content, and is
  * never re-mounted on route changes.
  *
- * `TopBar` (Figma Design Reference §4.1) sits above `Header`, same
- * persistent/router-agnostic pattern, hidden below `sm` (its own
- * internal responsibility, not `AppShell`'s).
- *
  * Portal-selector modal (Figma Design Reference §4.3) is owned by
  * `Header` — see that file's doc comment — since its two triggers
  * (`Header`'s own button, `MobileNavigation`'s button) both live under
  * `Header`.
  */
 export function AppShell({ children }: AppShellProps) {
+  useEffect(() => {
+    if (document.querySelector(`script[src="${HOLO_FOIL_RUNTIME_URL}"]`)) return;
+
+    const script = document.createElement("script");
+    script.src = HOLO_FOIL_RUNTIME_URL;
+    script.async = true;
+    script.onerror = () => console.error("Failed to load the visual effects runtime.");
+    document.head.appendChild(script);
+  }, []);
+
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <SkipLink />
       <SiteSettingsHead />
-      <TopBar />
       <Header />
       <ContentWrapper>{children}</ContentWrapper>
       <Footer />

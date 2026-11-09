@@ -13,6 +13,7 @@ import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { RedisService } from '../../core/redis/redis.service';
 import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
+import { CampusScopeService } from '../common/campus-scope.service';
 
 const ENTITY_TYPE = 'admission_entry';
 const TABLE_NAME = 'admission_entries';
@@ -26,10 +27,12 @@ export class AdmissionsService {
     private readonly ordering: OrderingService,
     private readonly publishing: PublishingService,
     private readonly redis: RedisService,
+    private readonly campusScope: CampusScopeService,
   ) {}
 
   async create(dto: CreateAdmissionEntryDto): Promise<AdmissionEntry> {
     const siteId = this.siteService.getDefaultSiteId();
+    await this.campusScope.assertCampusBelongsToSite(siteId, dto.campusId);
     const maxPosition = await this.entriesRepo
       .createQueryBuilder('entry')
       .select('MAX(entry.position)', 'max')
@@ -40,6 +43,7 @@ export class AdmissionsService {
       this.entriesRepo.create({
         siteId,
         kind: dto.kind,
+        campusId: dto.campusId,
         title: dto.title,
         value: dto.value,
         description: dto.description,
@@ -57,6 +61,7 @@ export class AdmissionsService {
   async findAll(
     status?: PublishStatus,
     kind?: AdmissionEntryKind,
+    campusId?: string,
   ): Promise<AdmissionEntry[]> {
     const siteId = this.siteService.getDefaultSiteId();
     const qb = this.entriesRepo
@@ -64,6 +69,11 @@ export class AdmissionsService {
       .where('entry.siteId = :siteId', { siteId });
     if (status) qb.andWhere('entry.status = :status', { status });
     if (kind) qb.andWhere('entry.kind = :kind', { kind });
+    if (campusId) {
+      qb.andWhere('(entry.campusId = :campusId OR entry.campusId IS NULL)', {
+        campusId,
+      });
+    }
     return qb.addOrderBy('entry.position', 'ASC').getMany();
   }
 
@@ -76,6 +86,13 @@ export class AdmissionsService {
     dto: UpdateAdmissionEntryDto,
   ): Promise<AdmissionEntry> {
     const entry = await this.findOne(id);
+    if (dto.campusId !== undefined) {
+      await this.campusScope.assertCampusBelongsToSite(
+        entry.siteId,
+        dto.campusId,
+      );
+      entry.campusId = dto.campusId ?? null;
+    }
     if (dto.kind !== undefined) entry.kind = dto.kind;
     if (dto.title !== undefined) entry.title = dto.title;
     if (dto.value !== undefined) entry.value = dto.value ?? undefined;

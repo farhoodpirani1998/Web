@@ -12,7 +12,8 @@ import {
 } from "@/shared/design-system/components";
 
 import { useSiteSettings } from "./useSiteSettings";
-import { toTelephoneHref } from "@/shared/config/contact";
+import { getContactPhones, toTelephoneHref } from "@/shared/config/contact";
+import { toPersianDigits } from "@/shared/utils/toPersianDigits";
 
 type ContactField =
   | { id: string; label: string; type: "text"; value: string }
@@ -45,15 +46,16 @@ export function ContactInformation() {
         : { id: "address", label: "آدرس", type: "text", value: data.address.fa },
     );
   }
-  if (data?.contactPhone) {
+  const phones = getContactPhones(data?.contactPhones, data?.contactPhone);
+  phones.forEach((phone, index) => {
     contactFields.push({
-      id: "phone",
+      id: `phone-${index}`,
       label: "تلفن",
       type: "link",
-      value: data.contactPhone,
-      href: toTelephoneHref(data.contactPhone),
+      value: toPersianDigits(phone),
+      href: toTelephoneHref(phone),
     });
-  }
+  });
   if (data?.contactEmail) {
     contactFields.push({
       id: "email",

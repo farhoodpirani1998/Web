@@ -15,6 +15,7 @@ import type { Campus } from "./types";
 
 export interface CampusCardProps {
   campus: Campus;
+  hrefPrefix?: "campuses" | "schools";
 }
 
 /**
@@ -39,7 +40,7 @@ export interface CampusCardProps {
  * The card remains presentational and receives already-adapted API
  * data from `CampusList`.
  */
-export function CampusCard({ campus }: CampusCardProps) {
+export function CampusCard({ campus, hrefPrefix = "campuses" }: CampusCardProps) {
   return (
     <Card
       variant="elevated"
@@ -123,7 +124,7 @@ export function CampusCard({ campus }: CampusCardProps) {
           )}
 
           <Link
-            href={`/campuses/${campus.slug}`}
+            href={`/${hrefPrefix}/${encodeURIComponent(campus.slug)}`}
             variant="subtle"
             className="group/link inline-flex w-fit items-center gap-1 text-brand-navy"
           >

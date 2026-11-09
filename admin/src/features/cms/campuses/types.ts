@@ -73,8 +73,11 @@ export interface CmsCampus extends CmsEntityMeta {
   body: Translatable<string>;
   address?: Translatable<string>;
   mapUrl?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   phone?: string;
   email?: string;
+  gradeLevels?: string[] | null;
   /** Manual admin ordering — primary sort key for both admin and public listings. */
   position: number;
   /** Reference into core/media, tracked via MediaUsage — never an embedded copy. */
@@ -93,8 +96,11 @@ export interface CreateCampusPayload {
   body: Translatable<string>;
   address?: Translatable<string>;
   mapUrl?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   phone?: string;
   email?: string;
+  gradeLevels?: string[];
   featuredImageMediaId?: string;
   seo?: CmsCampusSeoMetadataInput;
 }
@@ -115,8 +121,11 @@ export interface UpdateCampusPayload {
   body?: Translatable<string>;
   address?: Translatable<string> | null;
   mapUrl?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   phone?: string | null;
   email?: string | null;
+  gradeLevels?: string[] | null;
   featuredImageMediaId?: string | null;
   seo?: CmsCampusSeoMetadataInput;
 }
@@ -156,6 +165,7 @@ export interface CmsCampusRevision {
     mapUrl?: string;
     phone?: string;
     email?: string;
+    gradeLevels?: string[] | null;
     featuredImageMediaId?: string;
     seo?: CmsCampusSeoMetadata;
   };

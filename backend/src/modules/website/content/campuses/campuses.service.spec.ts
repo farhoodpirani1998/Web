@@ -151,6 +151,28 @@ describe('CampusesService', () => {
       expect(campus.position).toBe(0);
     });
 
+    it('stores campus coordinates in the record and revision snapshot', async () => {
+      const campus = await service.create(
+        {
+          title: { fa: 'پردیس' },
+          slug: 'map-campus',
+          body: { fa: 'توضیحات' },
+          latitude: 35.7,
+          longitude: 51.42,
+        },
+        'author-1',
+      );
+
+      expect(campus.latitude).toBe(35.7);
+      expect(campus.longitude).toBe(51.42);
+      expect(revisions.record).toHaveBeenCalledWith(
+        'campus',
+        'campus-1',
+        expect.objectContaining({ latitude: 35.7, longitude: 51.42 }),
+        'author-1',
+      );
+    });
+
     it('rejects a slug already used on this site', async () => {
       repo.findOne.mockResolvedValue({ id: 'other-campus' });
 
@@ -168,6 +190,30 @@ describe('CampusesService', () => {
   });
 
   describe('update', () => {
+    it('updates coordinates and invalidates the public campus list and detail cache', async () => {
+      repo.findOneByOrFail.mockResolvedValue({
+        id: 'campus-1',
+        siteId,
+        slug: 'map-campus',
+        latitude: 36,
+        longitude: 52,
+        status: PublishStatus.DRAFT,
+      });
+
+      const result = await service.update(
+        'campus-1',
+        { latitude: 35.7, longitude: 51.42 },
+        'author-1',
+      );
+
+      expect(result.latitude).toBe(35.7);
+      expect(result.longitude).toBe(51.42);
+      expect(redis.delete).toHaveBeenCalledWith(
+        'public-api:campuses:detail:map-campus',
+      );
+      expect(redis.delete).toHaveBeenCalledWith('public-api:campuses:list');
+    });
+
     it('re-checks slug uniqueness only when the slug actually changes', async () => {
       repo.findOneByOrFail.mockResolvedValue({
         id: 'campus-1',

@@ -4,7 +4,20 @@ import { FeatureList } from "./FeatureList";
 
 describe("FeatureList", () => {
   it("renders list", () => {
-    render(<FeatureList features={[]} onEdit={() => {}} />);
+    render(
+      <FeatureList
+        features={[]}
+        isLoading={false}
+        error={null}
+        status={undefined}
+        updatingStatusId={null}
+        isReordering={false}
+        onEdit={() => {}}
+        onDeleteRequest={() => {}}
+        onChangeStatus={() => {}}
+        onReorder={() => {}}
+      />,
+    );
     expect(screen.getByRole("table")).toBeInTheDocument();
   });
 });

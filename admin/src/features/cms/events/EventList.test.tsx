@@ -4,7 +4,20 @@ import { EventList } from "./EventList";
 
 describe("EventList", () => {
   it("renders list", () => {
-    render(<EventList events={[]} isLoading={false} error={null} onEdit={() => {}} onDeleteRequest={() => {}} />);
+    render(
+      <EventList
+        events={[]}
+        isLoading={false}
+        error={null}
+        updatingStatusId={null}
+        updatingScheduleId={null}
+        onEdit={() => {}}
+        onDeleteRequest={() => {}}
+        onChangeStatus={() => {}}
+        onSchedule={() => {}}
+        onViewHistory={() => {}}
+      />,
+    );
     expect(screen.getByText(/هنوز رویدادی نیست/)).toBeInTheDocument();
   });
 });

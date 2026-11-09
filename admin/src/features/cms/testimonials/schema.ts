@@ -18,6 +18,7 @@ export const testimonialFormSchema = z.object({
   contentEn: z.string().optional(),
   rating: z.string().optional().or(z.literal("")),
   avatarMediaId: z.string().uuid().nullable().optional().or(z.literal("")),
+  isFeatured: z.boolean(),
 });
 
 export type TestimonialFormData = z.infer<typeof testimonialFormSchema>;
@@ -28,6 +29,7 @@ export const createTestimonialPayloadSchema = z.object({
   content: translatableSchema,
   rating: z.number().min(1).max(5).optional(),
   avatarMediaId: z.string().uuid().optional(),
+  isFeatured: z.boolean().optional(),
 });
 
 export const updateTestimonialPayloadSchema = z.object({
@@ -36,6 +38,7 @@ export const updateTestimonialPayloadSchema = z.object({
   content: translatableSchema.partial().optional(),
   rating: z.number().min(1).max(5).optional(),
   avatarMediaId: z.string().uuid().nullable().optional(),
+  isFeatured: z.boolean().optional(),
 });
 
 export function formDataToCreatePayload(data: TestimonialFormData) {
@@ -47,6 +50,7 @@ export function formDataToCreatePayload(data: TestimonialFormData) {
     content: { fa: data.contentFa.trim(), ...(trimmedContentEn ? { en: trimmedContentEn } : {}) },
     ...(data.rating?.trim() ? { rating: Number(data.rating.trim()) } : {}),
     ...(data.avatarMediaId ? { avatarMediaId: data.avatarMediaId } : {}),
+    isFeatured: data.isFeatured,
   };
 }
 
@@ -59,10 +63,11 @@ export function formDataToUpdatePayload(data: TestimonialFormData) {
     ...(data.contentFa?.trim() ? { content: { fa: data.contentFa.trim(), ...(trimmedContentEn ? { en: trimmedContentEn } : {}) } } : {}),
     ...(data.rating?.trim() ? { rating: Number(data.rating.trim()) } : {}),
     avatarMediaId: data.avatarMediaId?.trim() || null,
+    isFeatured: data.isFeatured,
   };
 }
 
-export function testimonialToFormData(t: { authorName: string; authorRole?: Translatable<string>; content: Translatable<string>; rating?: number; avatarMediaId?: string }) {
+export function testimonialToFormData(t: { authorName: string; authorRole?: Translatable<string>; content: Translatable<string>; rating?: number; avatarMediaId?: string; isFeatured?: boolean }) {
   return {
     authorName: t.authorName,
     authorRoleFa: t.authorRole?.fa ?? "",
@@ -71,5 +76,6 @@ export function testimonialToFormData(t: { authorName: string; authorRole?: Tran
     contentEn: t.content.en ?? "",
     rating: t.rating !== undefined ? String(t.rating) : "",
     avatarMediaId: t.avatarMediaId ?? null,
+    isFeatured: t.isFeatured ?? false,
   };
 }

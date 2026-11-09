@@ -9,12 +9,19 @@
  * an implementation detail of `useMediaById`/`useMediaList`, not a
  * surface other modules should read or write directly.
  */
-export type { CmsMedia, CmsMediaStatus, CmsMediaUsage, UploadMediaPayload } from "./types";
+export type {
+  CmsMedia,
+  CmsMediaStatus,
+  CmsMediaUsage,
+  UpdateMediaPayload,
+  UploadMediaPayload,
+} from "./types";
 export {
   fetchMediaList,
   fetchMediaById,
   fetchMediaUsage,
   uploadMedia,
+  updateMedia,
   archiveMedia,
   deleteMedia,
 } from "./api";
@@ -27,6 +34,7 @@ export { MediaPage } from "./MediaPage";
 export { MediaGrid, type MediaGridProps } from "./MediaGrid";
 export { MediaCard, type MediaCardProps } from "./MediaCard";
 export { MediaUploadDialog, type MediaUploadDialogProps } from "./MediaUploadDialog";
+export { MediaEditDialog, type MediaEditDialogProps } from "./MediaEditDialog";
 export { MediaDeleteConfirm, type MediaDeleteConfirmProps } from "./MediaDeleteConfirm";
 export { MediaUsageDialog, type MediaUsageDialogProps } from "./MediaUsageDialog";
 export { MediaStatusFilter, type MediaStatusFilterProps } from "./MediaStatusFilter";

@@ -6,11 +6,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import type { z } from "zod";
 
 import { UnsavedChangesDialog } from "@/components/ui/UnsavedChangesDialog";
 import { MediaPicker, useMediaById } from "@/features/cms/media";
-import { useIsDirty, useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
-import { ApiError } from "@/lib/apiError";
+import { CampusSelect } from "@/features/cms/campuses";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
+import type { ApiError } from "@/lib/apiError";
 
 import { createNewsArticle, updateNewsArticle } from "./api";
 import {
@@ -39,20 +41,20 @@ export function NewsForm({ article, onCancel, onSaved }: NewsFormProps) {
     setValue,
     watch,
     reset,
-  } = useForm<NewsFormData>({
+  } = useForm<z.input<typeof newsFormSchema>, unknown, NewsFormData>({
     resolver: zodResolver(newsFormSchema),
     defaultValues: article ? newsToFormData(article) : {
       titleFa: "", titleEn: "", slug: "", excerptFa: "", excerptEn: "",
       bodyFa: "", bodyEn: "", category: "", tags: "", featuredImageMediaId: null,
-      metaTitle: "", metaDescription: "", ogImageUrl: "", canonicalUrl: "", noindex: false,
+      campusId: "", metaTitle: "", metaDescription: "", ogImageUrl: "", canonicalUrl: "", noindex: false,
     },
   });
 
-  useIsDirty(isDirty);
-  useUnsavedChangesGuard(isDirty);
+  const { isConfirmOpen, guardedAction, confirmLeave, cancelLeave } = useUnsavedChangesGuard(isDirty);
 
   const featuredImageId = watch("featuredImageMediaId");
-  const { data: media } = useMediaById(featuredImageId ?? undefined);
+  const campusId = watch("campusId") ?? "";
+  const { media } = useMediaById(featuredImageId ?? undefined);
 
   const onSubmit = handleSubmit(async (data) => {
     setSubmitError(null);
@@ -127,12 +129,19 @@ export function NewsForm({ article, onCancel, onSaved }: NewsFormProps) {
         <div>
           <label htmlFor="featuredImageMediaId" className="block text-sm font-medium">تصویر شاخص</label>
           <MediaPicker
-            value={featuredImageId}
-            onChange={(id) => setValue("featuredImageMediaId", id, { shouldDirty: true })}
+            selectedId={featuredImageId}
+            onSelect={(selectedMedia) => setValue("featuredImageMediaId", selectedMedia.id, { shouldDirty: true })}
           />
-          {media && <div className="text-xs text-gray-500 mt-1">{media.fileName}</div>}
+          {media && <div className="text-xs text-gray-500 mt-1">{media.altText}</div>}
         </div>
       </div>
+
+      <CampusSelect
+        id="news-campus"
+        label="پردیس"
+        value={campusId}
+        onChange={(value) => setValue("campusId", value, { shouldDirty: true })}
+      />
 
       <div className="border-t pt-4">
         <h3 className="font-medium mb-2">SEO</h3>
@@ -168,10 +177,10 @@ export function NewsForm({ article, onCancel, onSaved }: NewsFormProps) {
         <button type="submit" disabled={isSubmitting} className="px-4 py-2 rounded bg-brand text-white disabled:opacity-50">
           {isSubmitting ? "در حال ذخیره..." : isEdit ? "به‌روزرسانی" : "ایجاد"}
         </button>
-        <button type="button" onClick={onCancel} className="px-4 py-2 rounded border">لغو</button>
+        <button type="button" onClick={() => guardedAction(onCancel)} className="px-4 py-2 rounded border">لغو</button>
       </div>
 
-      <UnsavedChangesDialog open={isDirty} onConfirm={onCancel} />
+      {isConfirmOpen && <UnsavedChangesDialog onDiscard={confirmLeave} onKeepEditing={cancelLeave} />}
     </form>
   );
 }

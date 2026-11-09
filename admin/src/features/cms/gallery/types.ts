@@ -32,6 +32,7 @@ export interface CmsGalleryItem extends CmsEntityMeta {
   caption?: Translatable<string>;
   category?: string;
   position: number;
+  isFeatured: boolean;
   status: CmsGalleryStatus;
 }
 
@@ -40,6 +41,7 @@ export interface CreateGalleryItemPayload {
   imageMediaId: string;
   caption?: Translatable<string>;
   category?: string;
+  isFeatured?: boolean;
 }
 
 /**
@@ -50,6 +52,7 @@ export interface CreateGalleryItemPayload {
  */
 export interface UpdateGalleryItemPayload {
   imageMediaId?: string;
-  caption?: Translatable<string>;
+  caption?: Partial<Translatable<string>>;
   category?: string;
+  isFeatured?: boolean;
 }

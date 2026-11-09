@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AboutPage } from './entities/about.entity';
 import { UpdateAboutDto } from './dto/update-about.dto';
+import { AboutContentSections } from './entities/about-sections.types';
 import { SiteService } from '../../core/site/site.service';
 import { PublishingService } from '../../core/publishing/publishing.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
@@ -25,6 +26,7 @@ function snapshotOf(page: AboutPage): Record<string, unknown> {
     title: page.title,
     body: page.body,
     imageMediaId: page.imageMediaId,
+    sections: page.sections,
     seo: page.seo,
   };
 }
@@ -57,6 +59,7 @@ export class AboutService implements OnModuleInit {
           siteId,
           title: { fa: 'درباره ما' },
           body: { fa: '' },
+          sections: {},
           seo: {},
           status: PublishStatus.DRAFT,
         }),
@@ -81,36 +84,29 @@ export class AboutService implements OnModuleInit {
 
   async update(dto: UpdateAboutDto, authorId: string): Promise<AboutPage> {
     const page = await this.get();
-    const previousImageMediaId = page.imageMediaId;
+    const previousMediaIds = this.mediaIdsFor(page);
 
     if (dto.title !== undefined) page.title = dto.title;
     if (dto.body !== undefined)
       page.body = sanitizeTranslatableRichText(dto.body);
     if (dto.imageMediaId !== undefined)
       page.imageMediaId = dto.imageMediaId ?? undefined;
+    if (dto.sections !== undefined) {
+      page.sections = this.normalizeSections(dto.sections);
+    }
     if (dto.seo !== undefined) page.seo = { ...page.seo, ...dto.seo };
 
     const saved = await this.aboutRepo.save(page);
 
-    if (
-      dto.imageMediaId !== undefined &&
-      dto.imageMediaId !== previousImageMediaId
-    ) {
-      if (previousImageMediaId) {
-        await this.media.detach(previousImageMediaId, ENTITY_TYPE, saved.id);
-      }
-      if (saved.imageMediaId) {
-        await this.media.attach(saved.imageMediaId, ENTITY_TYPE, saved.id);
-      }
-    }
+    await this.syncMediaUsages(previousMediaIds, this.mediaIdsFor(saved), saved.id);
 
+    await this.invalidatePublicCache();
     await this.revisions.record(
       ENTITY_TYPE,
       saved.id,
       snapshotOf(saved),
       authorId,
     );
-    await this.invalidatePublicCache();
     return saved;
   }
 
@@ -148,6 +144,7 @@ export class AboutService implements OnModuleInit {
       title: AboutPage['title'];
       body: AboutPage['body'];
       imageMediaId?: AboutPage['imageMediaId'];
+      sections?: AboutPage['sections'];
       seo?: AboutPage['seo'];
     };
     return this.update(
@@ -155,10 +152,53 @@ export class AboutService implements OnModuleInit {
         title: snapshot.title,
         body: snapshot.body,
         imageMediaId: snapshot.imageMediaId ?? null,
+        sections: snapshot.sections ?? {},
         seo: snapshot.seo,
       },
       authorId,
     );
+  }
+
+  private normalizeSections(update: UpdateAboutDto['sections']): AboutContentSections {
+    if (!update) return {};
+    return {
+      ...update,
+      team: update.team
+        ? {
+            ...update.team,
+            items: update.team.items?.map((member) => ({
+              ...member,
+              avatarMediaId: member.avatarMediaId ?? undefined,
+            })),
+          }
+        : undefined,
+    };
+  }
+
+  private mediaIdsFor(
+    page: Pick<AboutPage, 'imageMediaId' | 'sections'>,
+  ): Set<string> {
+    return new Set(
+      [
+        page.imageMediaId,
+        ...(page.sections?.team?.items ?? []).map(
+          (member) => member.avatarMediaId,
+        ),
+      ].filter((mediaId): mediaId is string => !!mediaId),
+    );
+  }
+
+  private async syncMediaUsages(
+    previousIds: Set<string>,
+    nextIds: Set<string>,
+    aboutId: string,
+  ): Promise<void> {
+    const detached = [...previousIds].filter((id) => !nextIds.has(id));
+    const attached = [...nextIds].filter((id) => !previousIds.has(id));
+    await Promise.all([
+      ...detached.map((id) => this.media.detach(id, ENTITY_TYPE, aboutId)),
+      ...attached.map((id) => this.media.attach(id, ENTITY_TYPE, aboutId)),
+    ]);
   }
 
   /** Clears the cached public About singleton after a write. */

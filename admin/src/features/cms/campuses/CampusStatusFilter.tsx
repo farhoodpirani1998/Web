@@ -32,7 +32,7 @@ const OPTIONS: { label: string; value: CmsCampusStatus | undefined }[] = [
 export function CampusStatusFilter({ value, onChange }: CampusStatusFilterProps) {
   return (
     <div
-      role="tablist"
+      role="group"
       aria-label="فیلتر پردیس‌ها بر اساس وضعیت"
       className="inline-flex w-fit rounded-md border border-slate-200 bg-slate-50 p-0.5"
     >
@@ -42,10 +42,9 @@ export function CampusStatusFilter({ value, onChange }: CampusStatusFilterProps)
           <button
             key={option.label}
             type="button"
-            role="tab"
-            aria-selected={isActive}
+            aria-pressed={isActive}
             onClick={() => onChange(option.value)}
-            className={`rounded px-3 py-1.5 text-sm font-medium transition ${
+            className={`min-h-11 rounded px-3 py-1.5 text-sm font-medium transition ${
               isActive
                 ? "bg-white text-slate-900 shadow-sm"
                 : "text-slate-600 hover:text-slate-900"

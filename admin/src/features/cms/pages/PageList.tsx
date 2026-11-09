@@ -1,16 +1,14 @@
 import { useMemo } from "react";
 import {
-  useReactTable,
+  useLegacyTable,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  flexRender,
-  type ColumnDef,
-} from "@tanstack/react-table";
+  type LegacyColumnDef as ColumnDef,
+} from "@tanstack/react-table/legacy";
+import { flexRender } from "@tanstack/react-table";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { PermissionGate } from "@/components/ui/PermissionGate";
 import type { ApiError } from "@/lib/apiError";
-import { CmsPageStatus } from "./types";
 import type { CmsPage, CmsPageStatus } from "./types";
 
 export interface PageListProps {
@@ -79,13 +77,13 @@ export function PageList({
     },
   ], [onEdit, onChangeStatus, onSetHomepage, onViewHistory, onDeleteRequest]);
 
-  const table = useReactTable({
+  const table = useLegacyTable({
     data: pages,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: { pagination: { pageSize: 10 } },
+    initialState: { pagination: { pageIndex: 0, pageSize: 10 } },
   });
 
   if (isLoading) return <div dir="rtl" className="p-6 text-center">در حال بارگذاری...</div>;

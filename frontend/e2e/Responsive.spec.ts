@@ -251,10 +251,6 @@ test.describe('Responsive Design — Mobile, Tablet, Desktop', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    // Check if display: none elements are not taking space
-    const hiddenElements = page.locator('[style*="display: none"], [class*="hidden"]');
-    const count = await hiddenElements.count();
-
     // Page should render even on very small screens
     const mainContent = page.locator('main');
     await expect(mainContent).toBeVisible();

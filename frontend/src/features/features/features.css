@@ -1,0 +1,151 @@
+@property --feature-orbit-turn {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+.features-orbit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 1.5rem;
+}
+
+.features-orbit__track {
+  display: contents;
+}
+
+.features-orbit__card {
+  position: relative;
+  display: flex;
+  min-height: 14rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+  background: hsl(var(--background) / 0.8);
+  box-shadow: 0 4px 16px hsl(var(--foreground) / 0.08);
+}
+
+.features-orbit__card::before {
+  position: absolute;
+  z-index: 0;
+  background: hsl(var(--background) / 0.72);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+}
+
+.features-orbit__card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.features-orbit__card-icon {
+  display: flex;
+  width: 3.5rem;
+  height: 3.5rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.08);
+}
+
+.features-orbit__card h3 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.features-orbit__card p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+@supports (animation-timeline: view()) and (rotate: 1deg) and (width: calc(1px * 2)) and
+  (opacity: mod(1, 1)) and (left: calc(50% + cos(0deg) * 1px)) and
+  (animation-range: entry 0% exit 100%) {
+  .features-orbit {
+    --feature-card-width: clamp(84px, min(32vw, calc((100vw - 32px) / 2.8)), 220px);
+    --feature-card-height: calc(var(--feature-card-width) * 1.5);
+    --feature-orbit-radius: calc(
+      var(--feature-card-width) * var(--feature-card-count) / 6.2832
+    );
+
+    position: relative;
+    display: block;
+    width: 100%;
+    min-height: calc(
+      var(--feature-orbit-radius) + var(--feature-orbit-radius) +
+        var(--feature-card-height)
+    );
+    overflow: hidden;
+    view-timeline-name: --feature-orbit-timeline;
+    view-timeline-axis: block;
+  }
+
+  .features-orbit__track {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(
+      var(--feature-orbit-radius) + var(--feature-orbit-radius) +
+        var(--feature-card-width)
+    );
+    height: calc(
+      var(--feature-orbit-radius) + var(--feature-orbit-radius) +
+        var(--feature-card-height)
+    );
+    transform: translate(-50%, -50%) rotate(calc(var(--feature-orbit-turn) * -1turn));
+    animation: feature-orbit-scroll 1s linear both;
+    animation-timeline: --feature-orbit-timeline;
+    animation-range: entry 0% exit 100%;
+  }
+
+  .features-orbit__card {
+    --feature-card-phase: mod(
+      calc(
+        var(--feature-card-index) / var(--feature-card-count) - var(--feature-orbit-turn)
+      ),
+      1
+    );
+    --feature-card-distance: min(
+      var(--feature-card-phase),
+      calc(1 - var(--feature-card-phase))
+    );
+
+    position: absolute;
+    top: calc(50% + sin(var(--feature-card-angle)) * var(--feature-orbit-radius));
+    left: calc(50% + cos(var(--feature-card-angle)) * var(--feature-orbit-radius));
+    width: var(--feature-card-width);
+    min-height: auto;
+    aspect-ratio: 4 / 6;
+    gap: clamp(0.5rem, 2vw, 1rem);
+    padding: clamp(0.5rem, 2vw, 1.5rem);
+    transform: translate(-50%, -50%);
+    rotate: calc(var(--feature-orbit-turn) * 1turn);
+    filter: grayscale(clamp(0, calc(var(--feature-card-distance) * 6), 1));
+    opacity: clamp(0.18, calc(1 - var(--feature-card-distance) * 5), 1);
+  }
+
+  @keyframes feature-orbit-scroll {
+    to {
+      --feature-orbit-turn: 1;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .features-orbit__track,
+  .features-orbit__card {
+    animation: none !important;
+  }
+}

@@ -6,13 +6,13 @@ import {
   Grid,
   Link,
   Section,
-  SectionHeader,
   Stack,
   Text,
 } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
 import { useSiteSettings } from "@/features/site";
-import { PLACEHOLDER_CONTACT, toTelephoneHref } from "@/shared/config/contact";
+import { getContactPhones, toTelephoneHref } from "@/shared/config/contact";
+import { toPersianDigits } from "@/shared/utils/toPersianDigits";
 
 type ContactItem =
   | { id: string; label: string; type: "text"; value: string }
@@ -24,16 +24,8 @@ type ContactItem =
  * styling, following the same pattern as the `hero`/`features`/`cta`/
  * `about` features.
  *
- * Presentation only: composed entirely from existing design-system
- * primitives (`Section`, `Grid`, `Card`, `Link`, `Text`) — no data
- * fetching, no business logic. Contact items are grouped into a local
- * array literal rather than interleaved in JSX (Website Frontend
- * Architecture §4, §8), so the eventual swap to a `useSiteSettings()`-
- * style data hook is a matter of replacing this literal — the layout
- * and design-system wiring below do not need to change. Real
- * address/phone/email are ultimately Site Settings–derived content
- * (the same category of data the app-shell's `Footer` consumes); this
- * renders frontend-owned Persian placeholder copy in the meantime.
+ * Contact items are derived from Site Settings. Missing data is omitted
+ * rather than replaced with invented contact details.
  *
  * Visual refresh: now wraps its grid in a `Section` (own vertical
  * spacing, matching every other section on the site) and each card
@@ -48,76 +40,145 @@ type ContactItem =
 
 export function ContactInfo() {
   const { data } = useSiteSettings();
+  const workingHours =
+    data?.workingHours?.filter(
+      ({ isClosed, openTime, closeTime }) => isClosed || (openTime && closeTime),
+    ) ?? [];
 
-  // Per-field fallback, same "local literal while the CMS has nothing"
-  // convention `SchoolsList`/`NewsList` use — without it this section
-  // rendered nothing at all whenever Site Settings was unreachable,
-  // leaving `/contact` a hero band over an empty page.
-  const address = data?.address?.fa ?? PLACEHOLDER_CONTACT.address;
-  const phone = data?.contactPhone ?? PLACEHOLDER_CONTACT.phone;
-  const email = data?.contactEmail ?? PLACEHOLDER_CONTACT.email;
+  const phones = getContactPhones(data?.contactPhones, data?.contactPhone);
+  const contactItems: ContactItem[] = [];
 
-  const contactItems: ContactItem[] = [
-    data?.mapUrl
-      ? { id: "address", label: "آدرس", type: "link", value: address, href: data.mapUrl }
-      : { id: "address", label: "آدرس", type: "text", value: address },
-    {
-      id: "phone",
+  if (data?.address?.fa) {
+    contactItems.push(
+      data.mapUrl
+        ? {
+            id: "address",
+            label: "آدرس",
+            type: "link",
+            value: data.address.fa,
+            href: data.mapUrl,
+          }
+        : { id: "address", label: "آدرس", type: "text", value: data.address.fa },
+    );
+  }
+  phones.forEach((phone, index) => {
+    contactItems.push({
+      id: `phone-${index}`,
       label: "تلفن",
       type: "link",
-      value: phone,
+      value: toPersianDigits(phone),
       href: toTelephoneHref(phone),
-    },
-    { id: "email", label: "ایمیل", type: "link", value: email, href: `mailto:${email}` },
-  ];
+    });
+  });
+  if (data?.contactEmail) {
+    contactItems.push({
+      id: "email",
+      label: "ایمیل",
+      type: "link",
+      value: data.contactEmail,
+      href: `mailto:${data.contactEmail}`,
+    });
+  }
+
+  if (contactItems.length === 0 && workingHours.length === 0) return null;
 
   return (
-    <Section spacing="lg" aria-labelledby="contact-info-heading">
+    <Section
+      spacing="none"
+      aria-labelledby="contact-info-heading"
+      className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-8"
+    >
       <Stack gap="xl">
-        <SectionHeader
-          headingId="contact-info-heading"
-          eyebrow="راه‌های ارتباطی"
-          title="اطلاعات تماس"
-          description="نشانی، تلفن و ایمیل مجموعه پس از انتشار در تنظیمات سایت به‌روزرسانی می‌شود."
-        />
-        <Grid cols="3" gap="lg">
-          {contactItems.map((item) => {
-            const Icon = getContactIcon(item.id);
-            return (
-              <Card
-                key={item.id}
-                variant="elevated"
-                padding="lg"
-                className="group bg-background transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-              >
-                <CardHeader className="flex-row items-center gap-3 p-0">
-                  <span
-                    aria-hidden="true"
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-navy text-brand-gold"
-                  >
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <CardTitle className="font-heading">{item.label}</CardTitle>
-                </CardHeader>
-                <CardContent className="p-0 pt-3">
-                  {item.type === "link" ? (
-                    <Link href={item.href} variant="subtle" className="text-brand-navy">
-                      {item.value}
-                    </Link>
-                  ) : (
-                    <Text variant="bodySm" color="muted">
-                      {item.value}
-                    </Text>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
-        </Grid>
+        <div>
+          <p className="mb-2 text-sm font-medium text-sky-300">راه‌های ارتباط مستقیم</p>
+          <h2
+            id="contact-info-heading"
+            className="font-heading text-2xl font-bold text-white"
+          >
+            همراهت هستیم
+          </h2>
+        </div>
+        {contactItems.length > 0 ? (
+          <Grid cols="1" gap="md">
+            {contactItems.map((item) => {
+              const Icon = getContactIcon(item.id);
+              return (
+                <Card
+                  key={item.id}
+                  variant="outline"
+                  padding="md"
+                  className="border-white/10 bg-slate-900/40 text-white transition-colors hover:border-sky-200/30"
+                >
+                  <CardHeader className="flex-row items-center gap-3 p-0">
+                    <span
+                      aria-hidden="true"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-300/10 text-sky-200"
+                    >
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <CardTitle className="font-heading text-white">
+                      {item.label}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 pt-3">
+                    {item.type === "link" ? (
+                      <Link
+                        href={item.href}
+                        variant="subtle"
+                        dir={
+                          item.id.startsWith("phone-") || item.id === "email"
+                            ? "ltr"
+                            : undefined
+                        }
+                        className="inline-block break-all text-left text-sky-200"
+                      >
+                        {item.value}
+                      </Link>
+                    ) : (
+                      <Text variant="bodySm" className="break-words text-slate-300">
+                        {item.value}
+                      </Text>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </Grid>
+        ) : null}
+        {workingHours.length > 0 ? (
+          <div className="rounded-2xl border border-white/10 bg-slate-900/40 p-5">
+            <h3 className="font-heading text-base font-semibold text-white">
+              ساعات پاسخ‌گویی
+            </h3>
+            <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+              {workingHours.map(({ day, openTime, closeTime, isClosed }) => (
+                <div
+                  key={day}
+                  className="flex items-center justify-between gap-4 text-sm"
+                >
+                  <dt className="font-medium text-slate-200">{DAY_LABELS[day]}</dt>
+                  <dd className="text-slate-300">
+                    {isClosed ? "تعطیل" : `${openTime} تا ${closeTime}`}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ) : null}
       </Stack>
     </Section>
   );
 }
+
+const DAY_LABELS = {
+  saturday: "شنبه",
+  sunday: "یکشنبه",
+  monday: "دوشنبه",
+  tuesday: "سه‌شنبه",
+  wednesday: "چهارشنبه",
+  thursday: "پنجشنبه",
+  friday: "جمعه",
+} as const;
 
 /**
  * Maps a `contactItems` entry's `id` to a decorative icon for its
@@ -125,7 +186,7 @@ export function ContactInfo() {
  * neutral pin glyph rather than throwing.
  */
 function getContactIcon(id: string) {
-  if (id === "phone") return PhoneIcon;
+  if (id === "phone" || id.startsWith("phone-")) return PhoneIcon;
   if (id === "email") return MailIcon;
   return PinIcon;
 }

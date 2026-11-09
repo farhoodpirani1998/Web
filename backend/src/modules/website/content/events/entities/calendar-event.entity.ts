@@ -59,6 +59,10 @@ export class CalendarEvent extends BaseSiteScopedEntity {
   @Column({ type: 'text', array: true, nullable: true })
   tags?: string[];
 
+  @Index('IDX_calendar_events_campusId')
+  @Column({ type: 'uuid', nullable: true })
+  campusId?: string | null;
+
   // Free-text venue/address, translatable like any other editor-authored
   // prose field on this entity.
   @Column({ type: 'jsonb', nullable: true })

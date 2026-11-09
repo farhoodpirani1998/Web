@@ -19,6 +19,7 @@ export interface CmsAdmissionEntry extends CmsEntityMeta {
   price?: string;
   period?: string;
   includes?: string[];
+  campusId?: string | null;
   position: number;
   status: CmsAdmissionStatus;
 }
@@ -31,6 +32,7 @@ export interface CreateAdmissionEntryPayload {
   price?: string;
   period?: string;
   includes?: string[];
+  campusId?: string;
 }
 
 export interface UpdateAdmissionEntryPayload {
@@ -41,6 +43,7 @@ export interface UpdateAdmissionEntryPayload {
   price?: string | null;
   period?: string | null;
   includes?: string[] | null;
+  campusId?: string | null;
 }
 
 export const ADMISSION_KIND_LABELS: Record<AdmissionEntryKind, string> = {

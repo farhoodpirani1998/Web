@@ -19,6 +19,7 @@ import { SiteSettingsService } from '../site-settings/site-settings.service';
 import { RedisService } from '../../core/redis/redis.service';
 import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
+import { CampusScopeService } from '../common/campus-scope.service';
 import {
   RevisionsService,
   RevisionEnabledType,
@@ -37,6 +38,7 @@ function snapshotOf(event: CalendarEvent): Record<string, unknown> {
     body: event.body,
     category: event.category,
     tags: event.tags,
+    campusId: event.campusId,
     location: event.location,
     locationUrl: event.locationUrl,
     startAt: event.startAt,
@@ -59,6 +61,7 @@ export class EventsService implements OnModuleInit {
     private readonly siteSettings: SiteSettingsService,
     private readonly revisions: RevisionsService,
     private readonly redis: RedisService,
+    private readonly campusScope: CampusScopeService,
   ) {}
 
   /** Same reasoning as NewsService.invalidatePublicCache. */
@@ -123,6 +126,7 @@ export class EventsService implements OnModuleInit {
   ): Promise<CalendarEvent> {
     const siteId = this.siteService.getDefaultSiteId();
     await this.assertSlugAvailable(siteId, dto.slug);
+    await this.campusScope.assertCampusBelongsToSite(siteId, dto.campusId);
 
     const startAt = new Date(dto.startAt);
     const endAt = dto.endAt ? new Date(dto.endAt) : undefined;
@@ -137,6 +141,7 @@ export class EventsService implements OnModuleInit {
         body: sanitizeTranslatableRichText(dto.body),
         category: dto.category,
         tags: dto.tags,
+        campusId: dto.campusId,
         location: dto.location,
         locationUrl: dto.locationUrl,
         startAt,
@@ -155,19 +160,20 @@ export class EventsService implements OnModuleInit {
         event.id,
       );
     }
+    await this.invalidatePublicCache(event.slug);
     await this.revisions.record(
       ENTITY_TYPE,
       event.id,
       snapshotOf(event),
       authorId,
     );
-    await this.invalidatePublicCache(event.slug);
     return event;
   }
 
   async findAll(
     status?: PublishStatus,
     category?: string,
+    campusId?: string,
   ): Promise<CalendarEvent[]> {
     const siteId = this.siteService.getDefaultSiteId();
     const qb = this.eventsRepo
@@ -176,6 +182,11 @@ export class EventsService implements OnModuleInit {
 
     if (status) qb.andWhere('event.status = :status', { status });
     if (category) qb.andWhere('event.category = :category', { category });
+    if (campusId) {
+      qb.andWhere('(event.campusId = :campusId OR event.campusId IS NULL)', {
+        campusId,
+      });
+    }
 
     // Chronological by when the event happens, not manual position —
     // see entity comment. Soonest-first, both for drafts and published.
@@ -192,6 +203,12 @@ export class EventsService implements OnModuleInit {
     authorId: string,
   ): Promise<CalendarEvent> {
     const event = await this.findOne(id);
+    if (dto.campusId !== undefined) {
+      await this.campusScope.assertCampusBelongsToSite(
+        event.siteId,
+        dto.campusId,
+      );
+    }
     const previousSlug = event.slug;
     const previousFeaturedImageMediaId = event.featuredImageMediaId;
 
@@ -205,6 +222,7 @@ export class EventsService implements OnModuleInit {
       event.body = sanitizeTranslatableRichText(dto.body);
     if (dto.category !== undefined) event.category = dto.category;
     if (dto.tags !== undefined) event.tags = dto.tags;
+    if (dto.campusId !== undefined) event.campusId = dto.campusId ?? null;
     if (dto.location !== undefined) event.location = dto.location;
     if (dto.locationUrl !== undefined)
       event.locationUrl = dto.locationUrl ?? undefined;
@@ -241,13 +259,13 @@ export class EventsService implements OnModuleInit {
       }
     }
 
+    await this.invalidatePublicCache(previousSlug, saved.slug);
     await this.revisions.record(
       ENTITY_TYPE,
       saved.id,
       snapshotOf(saved),
       authorId,
     );
-    await this.invalidatePublicCache(previousSlug, saved.slug);
     return saved;
   }
 
@@ -266,7 +284,7 @@ export class EventsService implements OnModuleInit {
 
   async updateStatus(id: string, to: PublishStatus): Promise<CalendarEvent> {
     const event = await this.findOne(id);
-    this.publishing.transition({
+    await this.publishing.transition({
       from: event.status,
       to,
       entityType: ENTITY_TYPE,

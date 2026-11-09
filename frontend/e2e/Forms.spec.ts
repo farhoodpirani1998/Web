@@ -162,8 +162,9 @@ test.describe('Forms — Pre-Registration & Contact', () => {
       await emailInput.fill('invalid-email');
 
       // Check for validation message or error state
-      const validationMessage = await emailInput.evaluate((el: any) => {
-        return el.validationMessage || el.getAttribute('aria-invalid');
+      const validationMessage = await emailInput.evaluate((element) => {
+        const input = element as HTMLInputElement;
+        return input.validationMessage || input.getAttribute('aria-invalid');
       });
 
       // Either HTML5 validation or custom validation should exist
@@ -212,11 +213,6 @@ test.describe('Forms — Pre-Registration & Contact', () => {
         if (nameVisible) {
           await nameInput.fill('Test User');
         }
-
-        // Listen for response
-        const responsePromise = page.waitForResponse(
-          (response) => response.status() < 500
-        ).catch(() => null);
 
         const submitVisible = await submitButton.isVisible().catch(() => false);
         if (submitVisible) {

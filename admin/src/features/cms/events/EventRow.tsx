@@ -39,15 +39,15 @@ function formatWhen(event: CmsCalendarEvent): string {
   const timeFormat: Intl.DateTimeFormatOptions = { hour: "numeric", minute: "2-digit" };
 
   const start = event.allDay
-    ? startDate.toLocaleDateString(undefined, dateFormat)
-    : startDate.toLocaleString(undefined, { ...dateFormat, ...timeFormat });
+    ? startDate.toLocaleDateString("fa-IR", dateFormat)
+    : startDate.toLocaleString("fa-IR", { ...dateFormat, ...timeFormat });
 
   if (!event.endAt) return start;
 
   const endDate = new Date(event.endAt);
   const end = event.allDay
-    ? endDate.toLocaleDateString(undefined, dateFormat)
-    : endDate.toLocaleString(undefined, { ...dateFormat, ...timeFormat });
+    ? endDate.toLocaleDateString("fa-IR", dateFormat)
+    : endDate.toLocaleString("fa-IR", { ...dateFormat, ...timeFormat });
 
   return `${start} – ${end}`;
 }
@@ -87,9 +87,9 @@ export function EventRow({
           {event.title.fa}
         </p>
         {event.title.en ? (
-          <p className="mt-0.5 line-clamp-2 text-xs text-slate-500">{event.title.en}</p>
+          <p className="mt-0.5 line-clamp-2 text-xs text-slate-500" dir="ltr">{event.title.en}</p>
         ) : null}
-        <p className="mt-0.5 text-xs text-slate-400">/events/{event.slug}</p>
+        <p className="mt-0.5 text-xs text-slate-400" dir="ltr">/events/{event.slug}</p>
       </td>
 
       <td className="px-3 py-3 align-top text-slate-600">

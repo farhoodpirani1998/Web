@@ -68,6 +68,33 @@
   --font-heading: "Estedad", "Vazirmatn", system-ui, sans-serif;
 }
 
+.dark {
+  color-scheme: dark;
+
+  --background: 222 34% 10%;
+  --foreground: 210 25% 94%;
+  --card: 221 30% 14%;
+  --card-foreground: 210 25% 94%;
+  --popover: 221 30% 14%;
+  --popover-foreground: 210 25% 94%;
+  --primary: 213 62% 62%;
+  --primary-foreground: 222 34% 10%;
+  --secondary: 220 25% 20%;
+  --secondary-foreground: 210 25% 94%;
+  --muted: 220 25% 20%;
+  --muted-foreground: 215 16% 68%;
+  --accent: 46 68% 55%;
+  --accent-foreground: 222 34% 10%;
+  --destructive: 0 62% 48%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 152 52% 43%;
+  --success-foreground: 0 0% 100%;
+  --border: 220 20% 25%;
+  --input: 220 20% 25%;
+  --ring: 46 68% 55%;
+  --shadow-color: 0 0% 0%;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -176,6 +203,7 @@
 [dir="rtl"] .skip-link:focus {
   left: auto;
   right: 0.75rem;
+}
 }
 
 @layer utilities {

@@ -1,46 +1,33 @@
 import { PageLayout, Stack } from "@/shared/design-system/components";
-import { ContactIntro, ContactInfo } from "@/features/contact";
+import {
+  ContactIntro,
+  ContactInfo,
+  ContactForm,
+  ContactSocial,
+} from "@/features/contact";
 
-/**
- * Static "Contact" page (Sprint 3B "Website Pages Foundation").
- *
- * Fixed singular page, route `/contact`. Contact details (address,
- * phone, email, working hours) are ultimately Site Settings–derived
- * content (Website Frontend Architecture §8 "Layout Architecture" —
- * the same category of data the app-shell's `Footer` consumes).
- *
- * The intro and contact-info sections are now extracted feature
- * modules (`@/features/contact`), following the same pattern as the
- * homepage's `hero`/`features`/`cta` features and the `about` page's
- * sections — `ContactPage` only composes `<ContactIntro />` and
- * `<ContactInfo />`; it no longer owns either section's markup/copy.
- * Swapping either for a `useSiteSettings()`-style data hook later is
- * additive and stays entirely inside that section's own feature file.
- *
- * Both sections now wrap themselves in a `Section` primitive (their
- * own vertical spacing, matching `AboutHero`/`AboutStats`/etc.), so
- * this page's outer `Stack` uses `gap="none"` — the same convention
- * `AboutPage` already uses — to avoid doubling up spacing on top of
- * what each `Section` already provides.
- *
- * A contact **form** is a distinct, unbuilt backend capability (no
- * public form-submission endpoint exists in the Public API contract).
- * Per the architecture's working rules ("never mock or assume the
- * shape of an undocumented capability"), this page deliberately does
- * not include a form, submit handler, or any client-side validation —
- * it is named here only as a future extension point.
- */
 export function ContactPage() {
   return (
     <>
-      {/* Full-bleed hero band, outside PageLayout (which is a Container). */}
       <ContactIntro />
 
-      <PageLayout>
-        <Stack gap="none">
-          <ContactInfo />
-        </Stack>
-      </PageLayout>
+      <main dir="rtl" className="relative overflow-hidden bg-[#071b34] text-white">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -end-24 top-1/4 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl"
+        />
+        <div className="relative">
+          <PageLayout>
+            <Stack gap="none">
+              <div className="grid gap-6 py-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] lg:items-start lg:gap-8 lg:py-14">
+                <ContactForm />
+                <ContactInfo />
+              </div>
+              <ContactSocial />
+            </Stack>
+          </PageLayout>
+        </div>
+      </main>
     </>
   );
 }

@@ -240,10 +240,6 @@ test.describe('Page Views — Filtering & Search', () => {
     await page.goto('/events');
     await page.waitForLoadState('networkidle');
 
-    // Look for filter/sort controls
-    const controls = page.locator('select, [role="combobox"]');
-    const controlCount = await controls.count();
-
     // Controls may or may not exist, just verify page loads
     const mainContent = page.locator('main');
     await expect(mainContent).toBeVisible();
@@ -254,8 +250,6 @@ test.describe('Page Views — Filtering & Search', () => {
     await page.waitForLoadState('networkidle');
 
     const gallery = page.locator('main');
-    const initialBox = await gallery.boundingBox();
-
     // Scroll down to load more images
     await page.evaluate(() => window.scrollBy(0, 500));
     await page.waitForTimeout(500);

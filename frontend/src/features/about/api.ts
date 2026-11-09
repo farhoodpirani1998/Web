@@ -1,6 +1,16 @@
 import { apiClient } from "@/shared/api";
+import { toPersianDigits } from "@/shared/utils/toPersianDigits";
 
+import { parseAboutBody } from "./markdown";
 import type { AboutPageContent, PublicAboutDto } from "./types";
+
+const numberFormatter = new Intl.NumberFormat("fa-IR", {
+  maximumFractionDigits: 2,
+});
+const indexFormatter = new Intl.NumberFormat("fa-IR", {
+  minimumIntegerDigits: 2,
+  useGrouping: false,
+});
 
 /**
  * Request functions for the `about` feature's Public API endpoint.
@@ -10,7 +20,7 @@ import type { AboutPageContent, PublicAboutDto } from "./types";
  * `fetchAboutPage`, never `apiClient` directly.
  *
  * The real endpoint (`GET /public/about`) returns a singleton object
- * (`{ title, body, image, seo, structuredData, updatedAt }`), not the
+ * (`{ title, body, image, sections, seo, structuredData, updatedAt }`), not the
  * `AboutPageContent` section shape the page's components render — see
  * `./types.ts`'s doc comment — so, same as `campuses`'s `fetchCampuses`
  * and `teachers`'s `fetchTeachers`, the response is adapted via
@@ -23,31 +33,14 @@ export async function fetchAboutPage(): Promise<AboutPageContent> {
 
 /**
  * Adapts the wire `PublicAboutDto` into the `AboutPageContent` shape
- * `AboutHero`/`AboutStats`/`AboutStory`/`AboutValues`/`AboutTimeline`/
- * `AboutTeam` already render.
+ * the About page and homepage sections render.
  *
  * Locale: Phase 1 ships Persian-only (§28), so every `Translatable`
  * field resolves `.fa` directly, same as `campuses`'s `toCampus` and
  * `teachers`'s `toTeacher`.
  *
- * Known contract gap: the backend's `AboutPage` entity only carries
- * `title`/`body` (see `./types.ts`'s doc comment) — no `stats`/
- * `values`/`timeline`/`team` concept exists at all, so those map to
- * `[]` rather than inventing entries. Each section component already
- * treats an empty/absent list as "fall back to local placeholder
- * copy" (`data.stats.length > 0 ? data.stats : fallbackStats`, and
- * so on), so this degrades to the existing placeholder UI rather than
- * rendering an empty section. `faq` is likewise always `[]` — flagged
- * only for shape-completeness, since `AboutFAQ` reads from the
- * separate `@/features/faq`'s `useFaq()` hook, not this field.
- *
- * `hero.description` and `story.paragraphs` both have to be derived
- * from the single `body` field the backend does provide: `body` is
- * split on blank lines into paragraphs, and the first paragraph does
- * double duty as the Hero's short lead-in text — same "degrade
- * gracefully rather than fabricate data" approach `campuses`'s
- * `toCampus` uses for its own `body`-vs-`excerpt` gap. This is flagged
- * as a remaining risk, not silently papered over.
+ * `hero.description` and `story.blocks` are derived from the `body`
+ * field; Markdown headings and emphasis are parsed as text-only blocks.
  *
  * `seo`/`structuredData` are the one pair of fields copied straight
  * through unchanged — `AboutPage` passes them to the shared `<Seo />`
@@ -56,25 +49,66 @@ export async function fetchAboutPage(): Promise<AboutPageContent> {
  */
 function toAboutPageContent(dto: PublicAboutDto): AboutPageContent {
   const title = dto.title.fa;
-  const paragraphs = (dto.body?.fa ?? "")
-    .split(/\r?\n\s*\r?\n|\r?\n/)
-    .map((paragraph) => paragraph.trim())
-    .filter((paragraph) => paragraph.length > 0);
+  const storyBlocks = parseAboutBody(dto.body?.fa ?? "");
+  const leadParagraph =
+    storyBlocks.find((block) => block.type === "paragraph")?.text ?? "";
 
   return {
     hero: {
       title,
-      description: paragraphs[0] ?? "",
+      description: leadParagraph,
     },
-    stats: [],
+    image: dto.image,
+    stats: {
+      title: dto.sections.stats.title?.fa,
+      description: dto.sections.stats.description?.fa,
+      items: dto.sections.stats.items.map((item) => ({
+        id: item.id,
+        value: numberFormatter.format(Number(item.value)),
+        suffix: item.suffix,
+        label: item.label.fa,
+      })),
+    },
     story: {
       title,
-      paragraphs,
+      blocks: storyBlocks,
     },
-    values: [],
-    timeline: [],
-    team: [],
+    values: {
+      title: dto.sections.values.title?.fa,
+      description: dto.sections.values.description?.fa,
+      items: dto.sections.values.items.map((item, index) => ({
+        id: item.id,
+        index: indexFormatter.format(index + 1),
+        title: item.title.fa,
+        description: item.description.fa,
+      })),
+    },
+    timeline: {
+      title: dto.sections.timeline.title?.fa,
+      description: dto.sections.timeline.description?.fa,
+      items: dto.sections.timeline.items.map((item) => ({
+        id: item.id,
+        year: toPersianDigits(item.year),
+        title: item.title.fa,
+        description: item.description.fa,
+      })),
+    },
+    team: {
+      title: dto.sections.team.title?.fa,
+      description: dto.sections.team.description?.fa,
+      items: dto.sections.team.items.map((item) => ({
+        id: item.id,
+        name: item.name.fa,
+        role: item.role.fa,
+        avatarUrl: item.avatar?.url,
+        avatarAlt: item.avatar?.altText,
+      })),
+    },
     faq: [],
+    faqSection: {
+      title: dto.sections.faq?.title?.fa,
+      description: dto.sections.faq?.description?.fa,
+    },
     seo: dto.seo,
     structuredData: dto.structuredData,
   };

@@ -27,8 +27,8 @@ import { useNews } from "./useNews";
  * so cards link to `NewsDetails`'s on-page anchor, not a separate
  * route.
  */
-export function NewsList() {
-  const { data, isPending, isError } = useNews();
+export function NewsList({ campusId }: { campusId?: string }) {
+  const { data, isPending, isError } = useNews(campusId);
   const items = data ?? [];
   const [leadStory, ...restStories] = items;
 
@@ -39,8 +39,12 @@ export function NewsList() {
           headingId="news-list-heading"
           align="center"
           eyebrow="آخرین مطالب"
-          title="فهرست اخبار"
-          description="تازه‌ترین اطلاعیه‌ها، رویدادها و دستاوردهای مجموعه را اینجا دنبال کنید."
+          title={campusId ? "اخبار این مدرسه" : "فهرست اخبار"}
+          description={
+            campusId
+              ? undefined
+              : "تازه‌ترین اطلاعیه‌ها، رویدادها و دستاوردهای مجموعه را اینجا دنبال کنید."
+          }
         />
 
         {isPending ? (

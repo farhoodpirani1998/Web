@@ -32,10 +32,15 @@ import { useAdmissions } from "./useAdmissions";
  * content-module data; every value here is frontend-owned Persian
  * placeholder copy, not a real figure.
  */
-export function TuitionOverview() {
-  const { data } = useAdmissions();
-  const tuitionPlans =
-    data && data.tuitionPlans.length > 0 ? data.tuitionPlans : fallbackTuitionPlans;
+export function TuitionOverview({ campusId }: { campusId?: string }) {
+  const { data } = useAdmissions(campusId);
+  const tuitionPlans = campusId
+    ? data?.tuitionPlans ?? []
+    : data && data.tuitionPlans.length > 0
+      ? data.tuitionPlans
+      : fallbackTuitionPlans;
+
+  if (campusId && tuitionPlans.length === 0) return null;
 
   return (
     <Section spacing="lg" tone="muted" className="rounded-lg" aria-labelledby="admissions-tuition-heading">
@@ -44,10 +49,10 @@ export function TuitionOverview() {
           <Heading id="admissions-tuition-heading" level={2}>
             نمای کلی شهریه
           </Heading>
-          <Text variant="lead" className="max-w-2xl">
+          {!campusId ? <Text variant="lead" className="max-w-2xl">
             متن نمونه برای معرفی کلی شهریه دوره‌های مختلف. مبالغ دقیق و شرایط پرداخت
             نهایی از طریق واحد پذیرش هر پردیس اعلام خواهد شد.
-          </Text>
+          </Text> : null}
         </Stack>
 
         <Grid cols="3" gap="md">

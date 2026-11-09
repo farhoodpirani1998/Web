@@ -1,69 +1,75 @@
 /**
  * Modern CMS Features list using TanStack Table v8.
  */
-import { useReactTable, getCoreRowModel, getSortedRowModel, flexRender } from "@tanstack/react-table";
-import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/Skeleton";
-import type { CmsFeature } from "./types";
+import type { ApiError } from "@/lib/apiError";
+import type { CmsFeature, CmsFeatureStatus } from "./types";
+import { FeatureRow } from "./FeatureRow";
 
 export interface FeatureListProps {
   features: CmsFeature[];
-  onEdit: (f: CmsFeature) => void;
-  onDelete: (id: string) => void;
+  isLoading: boolean;
+  error: ApiError | null;
+  status: CmsFeatureStatus | undefined;
+  updatingStatusId: string | null;
+  isReordering: boolean;
+  onEdit: (feature: CmsFeature) => void;
+  onDeleteRequest: (feature: CmsFeature) => void;
+  onChangeStatus: (feature: CmsFeature, status: CmsFeatureStatus) => void;
+  onReorder: (fromIndex: number, toIndex: number) => void;
 }
 
-export function FeatureList({ features, onEdit, onDelete }: FeatureListProps) {
-  const columns = useMemo(
-    () => [
-      { header: "عنوان فارسی", accessorKey: "title.fa" },
-      { header: "توضیح", accessorKey: "description.fa" },
-      { header: "آیکون", accessorKey: "icon" },
-      { header: "وضعیت", accessorKey: "status" },
-      { header: "ترتیب", accessorKey: "position" },
-      {
-        header: "عملیات",
-        cell: ({ row }: any) => (
-          <div className="flex gap-2">
-            <button onClick={() => onEdit(row.original)} className="text-blue-600">ویرایش</button>
-            <button onClick={() => onDelete(row.original.id)} className="text-red-600">حذف</button>
-          </div>
-        ),
-      },
-    ],
-    [onEdit, onDelete]
-  );
+export function FeatureList({
+  features,
+  isLoading,
+  error,
+  status,
+  updatingStatusId,
+  isReordering,
+  onEdit,
+  onDeleteRequest,
+  onChangeStatus,
+  onReorder,
+}: FeatureListProps) {
+  const canReorder = status === undefined;
 
-  const table = useReactTable({
-    data: features,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
-
+  if (isLoading) {
+    return <div className="space-y-3 py-8"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div>;
+  }
+  if (error) return <p className="py-8 text-center text-sm text-red-600">{error.message}</p>;
   return (
-    <table dir="rtl" className="w-full border-collapse border">
-      <thead>
-        {table.getHeaderGroups().map((hg) => (
-          <tr key={hg.id}>
-            {hg.headers.map((h) => (
-              <th key={h.id} className="border p-2 text-right bg-gray-100">{flexRender(h.column.columnDef.header, h.getContext())}</th>
-            ))}
+    <div className="overflow-x-auto rounded-md border border-slate-200" dir="rtl">
+      <table className="min-w-full divide-y divide-slate-200 text-sm">
+        <thead className="bg-slate-50">
+          <tr>
+            {canReorder ? <th className="w-10 px-3 py-2" /> : null}
+            <th className="px-3 py-2 text-right font-medium text-slate-500">عنوان</th>
+            <th className="px-3 py-2 text-right font-medium text-slate-500">توضیح</th>
+            <th className="px-3 py-2 text-right font-medium text-slate-500">آیکون</th>
+            <th className="px-3 py-2 text-right font-medium text-slate-500">وضعیت</th>
+            <th className="px-3 py-2 text-right font-medium text-slate-500">اقدامات</th>
           </tr>
-        ))}
-      </thead>
-      <tbody>
-        {features.length === 0 ? (
-          <tr><td colSpan={columns.length} className="border p-4"><Skeleton className="h-8 w-full" /></td></tr>
-        ) : (
-          table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="border p-2">{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-              ))}
-            </tr>
-          ))
-        )}
-      </tbody>
-    </table>
+        </thead>
+        <tbody className="divide-y divide-slate-200 bg-white">
+          {features.length === 0 ? (
+            <tr><td colSpan={canReorder ? 6 : 5} className="p-4"><Skeleton className="h-8 w-full" /></td></tr>
+          ) : features.map((feature, index) => (
+            <FeatureRow
+              key={feature.id}
+              feature={feature}
+              index={index}
+              rowCount={features.length}
+              canReorder={canReorder}
+              isReordering={isReordering}
+              isUpdatingStatus={updatingStatusId === feature.id}
+              onEdit={onEdit}
+              onDeleteRequest={onDeleteRequest}
+              onChangeStatus={onChangeStatus}
+              onReorder={onReorder}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

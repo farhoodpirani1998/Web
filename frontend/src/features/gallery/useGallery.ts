@@ -16,9 +16,9 @@ export const galleryQueryKey = ["gallery"] as const;
  * `@/shared/api` (§14, §18) — callers branch on `error.kind` rather
  * than parsing raw HTTP status codes.
  */
-export function useGallery(): UseQueryResult<readonly GalleryItem[]> {
+export function useGallery(featuredOnly = false): UseQueryResult<readonly GalleryItem[]> {
   return useQuery({
-    queryKey: galleryQueryKey,
-    queryFn: fetchGallery,
+    queryKey: [...galleryQueryKey, featuredOnly ? "featured" : "all"],
+    queryFn: () => fetchGallery(featuredOnly),
   });
 }

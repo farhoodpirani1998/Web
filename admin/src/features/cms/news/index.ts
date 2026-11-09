@@ -41,11 +41,10 @@ export {
   formDataToUpdatePayload,
   newsToFormData,
 } from "./schema";
-export { useNewsList, useNewsDetail, useCreateNews, useUpdateNews, useDeleteNews, useUpdateNewsStatus, newsKeys } from "./hooks/useNews";
+export { useNewsDetail, useCreateNews, useUpdateNews, useDeleteNews, useUpdateNewsStatus, newsKeys } from "./hooks/useNews";
 export { NewsPage } from "./NewsPage";
-export { default as NewsForm } from "./NewsForm";
+export { NewsForm } from "./NewsForm";
 export { default as NewsList } from "./NewsList";
-export { default as NewsForm } from "./NewsForm";
 export { NewsRow, type NewsRowProps } from "./NewsRow";
 export { NewsStatusControl, type NewsStatusControlProps } from "./NewsStatusControl";
 export { NewsStatusFilter, type NewsStatusFilterProps } from "./NewsStatusFilter";

@@ -27,12 +27,13 @@ export {
   fetchCampusRevisions,
   restoreCampusRevision,
 } from "./api";
-export { useCampuses, type UseCampusesResult } from "./hooks/useCampuses";
+export { useCampusList, useCampuses, type UseCampusListResult, type UseCampusesResult } from "./hooks/useCampuses";
 
 export { CampusesPage } from "./CampusesPage";
 export { CampusList, type CampusListProps } from "./CampusList";
 export { CampusRow, type CampusRowProps } from "./CampusRow";
 export { CampusForm, type CampusFormProps } from "./CampusForm";
+export { CampusSelect, type CampusSelectProps } from "./CampusSelect";
 export { CampusStatusControl, type CampusStatusControlProps } from "./CampusStatusControl";
 export { CampusStatusFilter, type CampusStatusFilterProps } from "./CampusStatusFilter";
 export { CampusScheduleControl, type CampusScheduleControlProps } from "./CampusScheduleControl";

@@ -1,25 +1,27 @@
 import { PageLayout } from "@/shared/design-system/components";
+import { CampusGlobe } from "@/features/about/CampusGlobe";
+import { useCampuses } from "@/features/campuses";
 import { SchoolsHero, SchoolsList } from "@/features/schools";
 
 /**
- * Static "Schools" page.
+ * Visitor-friendly "Schools" page backed by the existing Campuses
+ * resource; a physical campus is a school's detail record.
  *
- * Fixed singular page, route `/schools`, following the same "fixed
- * singular page, not a slug-addressed static page" shape as
+ * `/schools` and `/schools/:slug` remain available to visitors while
+ * the list and detail content comes from the Campus API. No separate
+ * School entity or endpoint is defined here.
+ *
+ * Fixed singular page, route `/schools`, following the same shape as
  * `AboutPage`/`ContactPage` (Website Frontend Architecture §20
- * "Routing Strategy"). Campus/branch data (name, address, phone) is
- * ultimately the backend's Campuses content module (§4, §8), but no
- * such endpoint exists on the Public API yet, so per the
- * architecture's working rules this page renders frontend-owned
- * placeholder copy only and fetches nothing.
+ * "Routing Strategy"). Campus records supply the school's published
+ * name, address, phone, imagery, grade levels, and other details.
  *
  * Each section is an extracted feature module (`@/features/schools`),
  * following the same pattern as the homepage's `hero`/`features`/`cta`
  * features and the `about`/`contact` pages — `SchoolsPage` only
  * composes `<SchoolsHero />` and `<SchoolsList />`; it owns no
- * section's markup/copy itself. Swapping either for a
- * `useSchools()`-style data hook later is additive and stays entirely
- * inside that section's own feature file.
+ * section's markup/copy itself. The campuses feature owns the API and
+ * query for this visitor-facing route.
  *
  * Persian-first: copy is authored directly in Persian (the site's
  * Phase 1 locale, §28) rather than as English placeholder text, and the
@@ -28,12 +30,22 @@ import { SchoolsHero, SchoolsList } from "@/features/schools";
  * (`index.html`) as well as a future `ltr` locale.
  */
 export function SchoolsPage() {
+  const { data, isPending, isError } = useCampuses();
+
   return (
     <>
       {/* Full-bleed hero band, outside PageLayout (which is a Container). */}
       <SchoolsHero />
 
       <PageLayout>
+        <div className="mb-8">
+          <CampusGlobe
+            campuses={data ?? []}
+            isLoading={isPending}
+            hasError={isError}
+          />
+        </div>
+
         <SchoolsList />
       </PageLayout>
     </>

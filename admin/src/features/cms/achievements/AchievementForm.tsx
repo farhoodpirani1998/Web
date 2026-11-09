@@ -1,10 +1,9 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useId } from "react";
 import { UnsavedChangesDialog } from "@/components/ui/UnsavedChangesDialog";
-import { useIsDirty, useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import type { CmsAchievement } from "./types";
-import { createAchievementPayloadSchema, updateAchievementPayloadSchema, type CreateAchievementPayloadInput, type UpdateAchievementPayloadInput } from "./schema";
+import { createAchievementPayloadSchema, type CreateAchievementPayloadInput } from "./schema";
 import { createAchievement, updateAchievement } from "./api";
 
 export interface AchievementFormProps {
@@ -15,9 +14,8 @@ export interface AchievementFormProps {
 
 export function AchievementForm({ achievement, onCancel, onSaved }: AchievementFormProps) {
   const isEdit = achievement !== null;
-  const schema = isEdit ? updateAchievementPayloadSchema : createAchievementPayloadSchema;
-  const { register, handleSubmit, formState: { errors, isDirty }, reset } = useForm<CreateAchievementPayloadInput | UpdateAchievementPayloadInput>({
-    resolver: zodResolver(schema),
+  const { register, handleSubmit, formState: { errors, isDirty, isSubmitting }, reset } = useForm<CreateAchievementPayloadInput>({
+    resolver: zodResolver(createAchievementPayloadSchema),
     defaultValues: {
       value: achievement?.value ?? "",
       label: { fa: achievement?.label?.fa ?? "", en: achievement?.label?.en ?? "" },
@@ -27,23 +25,23 @@ export function AchievementForm({ achievement, onCancel, onSaved }: AchievementF
 
   const { isConfirmOpen, guardedAction, confirmLeave, cancelLeave } = useUnsavedChangesGuard(isDirty);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: CreateAchievementPayloadInput) => {
     try {
       if (isEdit && achievement) {
         const res = await updateAchievement(achievement.id, data);
         onSaved(res);
       } else {
-        const res = await createAchievement(data as CreateAchievementPayloadInput);
+        const res = await createAchievement(data);
         onSaved(res);
       }
       reset();
-    } catch (e: any) {
+    } catch {
       // error handled by caller / page
     }
   };
 
   return (
-    <form dir="rtl" onSubmit={handleSubmit(guardedAction(onSubmit))} className="space-y-4">
+    <form dir="rtl" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
         <label htmlFor="value" className="block text-sm font-medium">مقدار</label>
         <input id="value" {...register("value")} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" />
@@ -52,7 +50,7 @@ export function AchievementForm({ achievement, onCancel, onSaved }: AchievementF
       <div>
         <label htmlFor="label.fa" className="block text-sm font-medium">برچسب (فارسی)</label>
         <input id="label.fa" {...register("label.fa")} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" />
-        {errors.label && (errors.label as any).fa && <span className="text-red-600 text-xs">{String((errors.label as any).fa.message)}</span>}
+        {errors.label?.fa?.message && <span className="text-red-600 text-xs">{String(errors.label.fa.message)}</span>}
       </div>
       <div>
         <label htmlFor="label.en" className="block text-sm font-medium">برچسب (انگلیسی)</label>
@@ -63,10 +61,10 @@ export function AchievementForm({ achievement, onCancel, onSaved }: AchievementF
         <input id="icon" {...register("icon")} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" />
       </div>
       <div className="flex gap-2">
-        <button type="submit" className="rounded-md bg-brand px-4 py-2 text-white">ذخیره</button>
-        <button type="button" onClick={onCancel} className="rounded-md bg-gray-200 px-4 py-2">لغو</button>
+        <button type="submit" disabled={isSubmitting} className="rounded-md bg-brand px-4 py-2 text-white disabled:opacity-60">ذخیره</button>
+        <button type="button" onClick={() => guardedAction(onCancel)} className="rounded-md bg-gray-200 px-4 py-2">لغو</button>
       </div>
-      <UnsavedChangesDialog open={isConfirmOpen} onConfirm={confirmLeave} onCancel={cancelLeave} />
+      {isConfirmOpen ? <UnsavedChangesDialog onDiscard={confirmLeave} onKeepEditing={cancelLeave} /> : null}
     </form>
   );
 }

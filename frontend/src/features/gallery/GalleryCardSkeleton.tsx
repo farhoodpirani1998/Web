@@ -2,7 +2,7 @@ import * as React from "react";
 import { Card, Skeleton } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
 
-export interface GalleryCardSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {}
+export type GalleryCardSkeletonProps = React.HTMLAttributes<HTMLDivElement>;
 
 /**
  * Skeleton placeholder for `GalleryCard` — sized to match the card's

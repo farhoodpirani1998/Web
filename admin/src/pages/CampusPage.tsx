@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 
 export function CampusPage() {
-  const { campuses, isLoading } = useCampuses();
+  const { campuses } = useCampuses();
   const active = campuses?.filter((c) => c.status === "published") ?? [];
 
   return (

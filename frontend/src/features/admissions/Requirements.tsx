@@ -28,10 +28,15 @@ import { useAdmissions } from "./useAdmissions";
  * content-module data; this renders frontend-owned Persian placeholder
  * copy in the meantime.
  */
-export function Requirements() {
-  const { data } = useAdmissions();
-  const requirements =
-    data && data.requirements.length > 0 ? data.requirements : fallbackRequirements;
+export function Requirements({ campusId }: { campusId?: string }) {
+  const { data } = useAdmissions(campusId);
+  const requirements = campusId
+    ? data?.requirements ?? []
+    : data && data.requirements.length > 0
+      ? data.requirements
+      : fallbackRequirements;
+
+  if (campusId && requirements.length === 0) return null;
 
   return (
     <Section spacing="lg" tone="muted" className="rounded-lg" aria-labelledby="admissions-requirements-heading">

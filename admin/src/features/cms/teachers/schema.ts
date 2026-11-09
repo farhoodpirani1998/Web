@@ -83,7 +83,7 @@ export const teacherFormSchema = z.object({
   bioEn: z.string().optional(),
   departmentFa: z.string().optional(),
   departmentEn: z.string().optional(),
-  campusId: z.string().uuid("شناسه پردیس معتبر نیست").optional(),
+  campusId: z.string().uuid("شناسه پردیس معتبر نیست").optional().or(z.literal("")),
   phone: z.string().optional(),
   email: z.string().email("ایمیل معتبر نیست").optional().or(z.literal("")),
   avatarMediaId: z.string().uuid().nullable().optional(),
@@ -221,7 +221,7 @@ export function teacherToFormData(teacher: {
   excerpt?: Translatable<string>;
   bio: Translatable<string>;
   department?: Translatable<string>;
-  campusId?: string;
+  campusId?: string | null;
   phone?: string;
   email?: string;
   avatarMediaId?: string;

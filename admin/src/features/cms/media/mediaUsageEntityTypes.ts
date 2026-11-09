@@ -25,6 +25,7 @@ export const MEDIA_USAGE_ENTITY_TYPES: Record<string, { label: string; route: st
   campus: { label: "Campus", route: ROUTE_PATHS.ADMIN_CAMPUSES },
   teacher: { label: "Teacher", route: ROUTE_PATHS.ADMIN_TEACHERS },
   testimonial: { label: "Testimonial", route: ROUTE_PATHS.ADMIN_TESTIMONIALS },
+  trust_badge: { label: "Trust badge", route: ROUTE_PATHS.ADMIN_TRUST_BADGES },
   site_settings: { label: "Site settings", route: ROUTE_PATHS.ADMIN_SETTINGS },
   cta: { label: "CTA banner", route: ROUTE_PATHS.ADMIN_CTA },
   faq: { label: "FAQ", route: ROUTE_PATHS.ADMIN_FAQS },

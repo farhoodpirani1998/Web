@@ -7,38 +7,11 @@ import {
   Text,
 } from "@/shared/design-system/components";
 import { useAboutPage } from "./useAboutPage";
-import type { AboutStatItem } from "./types";
-
-/**
- * About page "Stats" section, following the same pattern as the
- * homepage's `hero`/`features`/`cta` features and now (as of this
- * extension) also `@/features/news`'s `NewsList`.
- *
- * Backed by `useAboutPage()` (the Public API's Static Pages/About
- * content module, §4, §8): lays out `data.stats` once the query has
- * resolved with at least one item, and falls back to the local
- * `fallbackStats` literal while the query is loading, has errored, or
- * the CMS has nothing published yet.
- *
- * Visual refresh: cards move from the plain `outline` variant to
- * `elevated` with a hover lift (the same treatment `GalleryCard`/
- * `NewsCard` use) plus a thin gold top accent bar, and the stat value
- * is bumped to a larger, `brand-gold`-toned numeral so the numbers
- * read as the section's visual anchor — the same "big number, small
- * label" hierarchy premium stat bands use, rather than same-weight
- * value/label text.
- */
-
-const fallbackStats: readonly AboutStatItem[] = [
-  { id: "founded", value: "۱۳۷۸", label: "سال تأسیس" },
-  { id: "students", value: "+۱۲٬۰۰۰", label: "دانش‌آموز و دانشجو" },
-  { id: "campuses", value: "۶", label: "شعبه فعال" },
-  { id: "staff", value: "+۴۰۰", label: "مدرس و کارشناس" },
-];
 
 export function AboutStats() {
   const { data } = useAboutPage();
-  const stats = data && data.stats.length > 0 ? data.stats : fallbackStats;
+  if (!data || data.stats.items.length === 0) return null;
+  const stats = data.stats.items;
 
   return (
     <Section
@@ -52,8 +25,13 @@ export function AboutStats() {
           headingId="about-stats-heading"
           headingLevel={2}
           eyebrow="آمار مجموعه"
-          title="مجموعه در یک نگاه"
+          title={data.stats.title ?? "مجموعه در یک نگاه"}
         />
+        {data.stats.description ? (
+          <Text variant="lead" className="max-w-2xl">
+            {data.stats.description}
+          </Text>
+        ) : null}
         <Grid cols="4" gap="md">
           {stats.map((stat) => (
             <Card
@@ -74,6 +52,7 @@ export function AboutStats() {
                   className="font-heading text-3xl text-brand-gold lg:text-4xl"
                 >
                   {stat.value}
+                  {stat.suffix}
                 </Text>
                 <Text variant="bodySm" color="muted">
                   {stat.label}

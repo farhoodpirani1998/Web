@@ -74,44 +74,57 @@ export class AdminUsersService {
     dto: UpdateAdminUserDto,
     actingAdminId: string,
   ): Promise<AdminUserSummary> {
-    const admin = await this.getOrFail(id);
-
-    // Demoting the last active super-admin would strand the CMS.
-    if (
-      dto.role !== undefined &&
-      dto.role !== WebsiteRole.SUPER_ADMIN &&
-      admin.role === WebsiteRole.SUPER_ADMIN
-    ) {
-      await this.assertNotLastActiveSuperAdmin(id, 'change the role of');
-    }
-
-    // Deactivating the last active super-admin is the same lockout risk.
-    if (dto.isActive === false && admin.role === WebsiteRole.SUPER_ADMIN) {
-      await this.assertNotLastActiveSuperAdmin(id, 'deactivate');
-    }
-
     // Don't let an admin deactivate their own session out from under itself.
     if (dto.isActive === false && id === actingAdminId) {
       throw new BadRequestException('You cannot deactivate your own account');
     }
 
-    if (dto.role !== undefined) admin.role = dto.role;
-    if (dto.isActive !== undefined) admin.isActive = dto.isActive;
+    return this.withMutationLock(async (adminRepo) => {
+      const admin = await this.getOrFail(id, adminRepo);
 
-    return this.toSummary(await this.adminRepo.save(admin));
+      // Demoting the last active super-admin would strand the CMS.
+      if (
+        dto.role !== undefined &&
+        dto.role !== WebsiteRole.SUPER_ADMIN &&
+        admin.role === WebsiteRole.SUPER_ADMIN &&
+        admin.isActive
+      ) {
+        await this.assertNotLastActiveSuperAdmin(
+          id,
+          'change the role of',
+          adminRepo,
+        );
+      }
+
+      // Deactivating the last active super-admin is the same lockout risk.
+      if (
+        dto.isActive === false &&
+        admin.role === WebsiteRole.SUPER_ADMIN &&
+        admin.isActive
+      ) {
+        await this.assertNotLastActiveSuperAdmin(id, 'deactivate', adminRepo);
+      }
+
+      if (dto.role !== undefined) admin.role = dto.role;
+      if (dto.isActive !== undefined) admin.isActive = dto.isActive;
+
+      return this.toSummary(await adminRepo.save(admin));
+    });
   }
 
   async remove(id: string, actingAdminId: string): Promise<void> {
-    const admin = await this.getOrFail(id);
-
     if (id === actingAdminId) {
       throw new BadRequestException('You cannot delete your own account');
     }
-    if (admin.role === WebsiteRole.SUPER_ADMIN) {
-      await this.assertNotLastActiveSuperAdmin(id, 'delete');
-    }
 
-    await this.adminRepo.delete({ id });
+    await this.withMutationLock(async (adminRepo) => {
+      const admin = await this.getOrFail(id, adminRepo);
+      if (admin.role === WebsiteRole.SUPER_ADMIN && admin.isActive) {
+        await this.assertNotLastActiveSuperAdmin(id, 'delete', adminRepo);
+      }
+
+      await adminRepo.delete({ id });
+    });
   }
 
   /** Used by `CmsAuthService`-adjacent change-password flow; returns the fresh hash to persist. */
@@ -119,10 +132,27 @@ export class AdminUsersService {
     return this.passwordHasher.hash(plain);
   }
 
-  private async getOrFail(id: string): Promise<CmsAdminUser> {
-    const admin = await this.adminRepo.findOne({ where: { id } });
+  private async getOrFail(
+    id: string,
+    adminRepo: Repository<CmsAdminUser> = this.adminRepo,
+  ): Promise<CmsAdminUser> {
+    const admin = await adminRepo.findOne({ where: { id } });
     if (!admin) throw new NotFoundException('Admin not found');
     return admin;
+  }
+
+  private withMutationLock<T>(
+    operation: (adminRepo: Repository<CmsAdminUser>) => Promise<T>,
+  ): Promise<T> {
+    return this.adminRepo.manager.transaction(async (manager) => {
+      // Serialize admin mutations across processes without SELECT FOR UPDATE
+      // on COUNT(), which PostgreSQL rejects.
+      await manager.query('SELECT pg_advisory_xact_lock($1, $2)', [
+        1279345235,
+        1,
+      ]);
+      return operation(manager.getRepository(CmsAdminUser));
+    });
   }
 
   /**
@@ -130,21 +160,20 @@ export class AdminUsersService {
    * `excludeId`. Called before any change that would remove `excludeId`
    * from the active-super-admin pool.
    *
-   * Uses a SELECT FOR UPDATE lock to prevent concurrent removals of the last
-   * active super-admin between the count check and the actual update.
+   * A transaction-scoped advisory lock serializes admin mutations while the
+   * count check and actual update run in the same transaction.
    */
   private async assertNotLastActiveSuperAdmin(
     excludeId: string,
     verb: string,
+    adminRepo: Repository<CmsAdminUser>,
   ): Promise<void> {
-    // Lock all active super-admins to prevent concurrent modifications
-    // while we verify at least one other remains after our change.
-    const othersExcludingTarget = await this.adminRepo
+    // The transaction's advisory lock serializes every admin mutation.
+    const othersExcludingTarget = await adminRepo
       .createQueryBuilder('a')
       .where('a.role = :role', { role: WebsiteRole.SUPER_ADMIN })
       .andWhere('a.isActive = true')
       .andWhere('a.id != :id', { id: excludeId })
-      .setLock('pessimistic_write')
       .getCount();
     if (othersExcludingTarget === 0) {
       throw new ConflictException(

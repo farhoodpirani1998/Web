@@ -83,6 +83,16 @@ export function CampusDetails() {
                     {campus.detailedDescription}
                   </Text>
 
+                  {campus.gradeLevels && campus.gradeLevels.length > 0 && (
+                    <Stack direction="row" gap="xs" wrap aria-label="پایه‌های تحصیلی">
+                      {campus.gradeLevels.map((grade) => (
+                        <Badge key={grade} variant="secondary">
+                          {grade}
+                        </Badge>
+                      ))}
+                    </Stack>
+                  )}
+
                   {campus.features && campus.features.length > 0 && (
                     <Stack direction="row" gap="xs" wrap>
                       {campus.features.map((feature) => (

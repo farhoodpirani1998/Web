@@ -4,6 +4,7 @@ import { Translatable } from '../../../core/i18n/locale.enum';
 import { SeoMetadata } from '../../../core/seo/seo-metadata.embeddable';
 import { SiteFeatureFlags } from './feature-flags.embeddable';
 import { SocialLink } from './social-link.type';
+import { WorkingHoursEntry } from './working-hours.type';
 
 /**
  * Site Settings is a singleton per site (one row, unique siteId) —
@@ -53,6 +54,9 @@ export class SiteSettings extends BaseSiteScopedEntity {
   contactPhone?: string;
 
   @Column({ type: 'jsonb', nullable: true })
+  contactPhones?: string[];
+
+  @Column({ type: 'jsonb', nullable: true })
   address?: Translatable<string>;
 
   // Arbitrary absolute URL (a Google Maps embed/share link) — plain
@@ -60,6 +64,15 @@ export class SiteSettings extends BaseSiteScopedEntity {
   // reasoning as MenuItem.url.
   @Column({ nullable: true })
   mapUrl?: string;
+
+  @Column({ type: 'double precision', nullable: true })
+  mapLatitude?: number | null;
+
+  @Column({ type: 'double precision', nullable: true })
+  mapLongitude?: number | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  workingHours?: WorkingHoursEntry[] | null;
 
   // --- Social ---
   @Column({ type: 'jsonb', default: [] })

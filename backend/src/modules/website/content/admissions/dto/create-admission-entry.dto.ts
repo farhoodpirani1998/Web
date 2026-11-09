@@ -5,6 +5,7 @@ import {
   IsEnum,
   IsOptional,
   IsString,
+  IsUUID,
   MaxLength,
   ValidateNested,
 } from 'class-validator';
@@ -44,4 +45,8 @@ export class CreateAdmissionEntryDto {
   @ArrayUnique()
   @IsString({ each: true })
   includes?: string[];
+
+  @IsOptional()
+  @IsUUID()
+  campusId?: string;
 }

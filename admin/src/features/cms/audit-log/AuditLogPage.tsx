@@ -25,6 +25,15 @@ import type { CmsAuditLogEntry } from "./types";
  */
 
 /** How many entries to load per step. The server clamps to a max of 500; this is well within it. */
+const AUDIT_LOG_SKELETON_KEYS = [
+  "audit-log-skeleton-1",
+  "audit-log-skeleton-2",
+  "audit-log-skeleton-3",
+  "audit-log-skeleton-4",
+  "audit-log-skeleton-5",
+  "audit-log-skeleton-6",
+] as const;
+
 const PAGE_SIZE = 50;
 /** Absolute cap — matches the backend's `MAX_RECENT_LIMIT`. */
 const MAX_ENTRIES = 500;
@@ -106,8 +115,8 @@ function AuditLogTable({
   if (isLoading) {
     return (
       <ul className="flex flex-col gap-4">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <li key={`skeleton-${index}`} className="flex items-center gap-3">
+        {AUDIT_LOG_SKELETON_KEYS.map((key) => (
+          <li key={key} className="flex items-center gap-3">
             <Skeleton shape="circle" className="h-8 w-8" />
             <div className="flex flex-1 flex-col gap-1.5">
               <Skeleton className="h-4 w-2/5" />

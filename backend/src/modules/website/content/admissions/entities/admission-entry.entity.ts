@@ -43,6 +43,10 @@ export class AdmissionEntry extends BaseSiteScopedEntity {
   @Column({ type: 'jsonb', nullable: true })
   description?: Translatable<string>;
 
+  @Index('IDX_admission_entries_campusId')
+  @Column({ type: 'uuid', nullable: true })
+  campusId?: string | null;
+
   // Tuition-plan fields.
   @Column({ nullable: true })
   price?: string;

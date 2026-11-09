@@ -51,6 +51,7 @@ export interface CmsTestimonial extends CmsEntityMeta {
   avatarMediaId?: string;
   /** Manual admin ordering — primary sort key for both admin and public listings. */
   position: number;
+  isFeatured: boolean;
   status: CmsTestimonialStatus;
 }
 
@@ -61,6 +62,7 @@ export interface CreateTestimonialPayload {
   content: Translatable<string>;
   rating?: number;
   avatarMediaId?: string;
+  isFeatured?: boolean;
 }
 
 /**
@@ -78,4 +80,5 @@ export interface UpdateTestimonialPayload {
   content?: Translatable<string>;
   rating?: number;
   avatarMediaId?: string | null;
+  isFeatured?: boolean;
 }

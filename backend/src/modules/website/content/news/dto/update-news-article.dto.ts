@@ -54,6 +54,10 @@ export class UpdateNewsArticleDto {
   featuredImageMediaId?: string | null;
 
   @IsOptional()
+  @IsUUID()
+  campusId?: string | null;
+
+  @IsOptional()
   @ValidateNested()
   @Type(() => SeoMetadataDto)
   seo?: SeoMetadataDto;

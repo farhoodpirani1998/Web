@@ -12,6 +12,7 @@ describe('NewsService', () => {
   let siteSettings: any;
   let revisions: any;
   let redis: any;
+  let campusScope: any;
   let service: NewsService;
 
   beforeEach(() => {
@@ -46,6 +47,9 @@ describe('NewsService', () => {
       delete: jest.fn(),
       deleteByPrefix: jest.fn(),
     };
+    campusScope = {
+      assertCampusBelongsToSite: jest.fn().mockResolvedValue(undefined),
+    };
     service = new NewsService(
       repo,
       siteService,
@@ -55,6 +59,7 @@ describe('NewsService', () => {
       siteSettings,
       revisions,
       redis,
+      campusScope,
     );
   });
 
@@ -155,6 +160,30 @@ describe('NewsService', () => {
         expect.objectContaining({ slug: 'news-title' }),
         'author-1',
       );
+    });
+
+    describe('findAll', () => {
+      it('includes campus-specific and shared articles for a campus filter', async () => {
+        await service.findAll(undefined, undefined, 'campus-1');
+
+        expect(
+          repo.createQueryBuilder.mock.results[0].value.andWhere,
+        ).toHaveBeenCalledWith(
+          '(article.campusId = :campusId OR article.campusId IS NULL)',
+          { campusId: 'campus-1' },
+        );
+      });
+
+      it('does not constrain the group-level list when no campus is selected', async () => {
+        await service.findAll();
+
+        expect(
+          repo.createQueryBuilder.mock.results[0].value.andWhere,
+        ).not.toHaveBeenCalledWith(
+          expect.stringContaining('campusId'),
+          expect.anything(),
+        );
+      });
     });
 
     it('rejects a slug already used on this site', async () => {

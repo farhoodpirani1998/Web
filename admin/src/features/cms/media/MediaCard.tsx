@@ -38,6 +38,8 @@ export interface MediaCardProps {
   isArchiving: boolean;
   selected: boolean;
   onToggleSelect: (media: CmsMedia) => void;
+  onEdit: (media: CmsMedia) => void;
+  onTransform: (media: CmsMedia) => void;
   onArchive: (media: CmsMedia) => void;
   onDeleteRequest: (media: CmsMedia) => void;
   onViewUsage: (media: CmsMedia) => void;
@@ -48,6 +50,8 @@ export function MediaCard({
   isArchiving,
   selected,
   onToggleSelect,
+  onEdit,
+  onTransform,
   onArchive,
   onDeleteRequest,
   onViewUsage,
@@ -108,6 +112,23 @@ export function MediaCard({
         ) : null}
 
         <div className="mt-auto flex gap-2 pt-1">
+          <PermissionGate permission="website.media:manage">
+            <button
+              type="button"
+              onClick={() => onEdit(media)}
+              className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              ویرایش توضیح تصویر
+            </button>
+            <button
+              type="button"
+              onClick={() => onTransform(media)}
+              className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              برش / تغییر اندازه
+            </button>
+          </PermissionGate>
+
           {isActive ? (
             <PermissionGate permission="website.media:manage">
               <button

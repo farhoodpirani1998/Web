@@ -6,40 +6,40 @@
  * (content, media, settings) alongside dashboard.
  * Sprint 2.4B scope: wraps `/login` in `RedirectIfAuthenticated` and
  * `/admin` in `RequireAuth` (see `features/auth`). The route tree shape
- * itself is unchanged — these are guard wrappers around the existing
+ * itself is unchanged â€” these are guard wrappers around the existing
  * `element`s, not new routes.
  * Sprint 3.7 scope: registers `/admin/portal-links` (new) and rewires
- * `/admin/settings` to the real Site Settings page — the route tree
+ * `/admin/settings` to the real Site Settings page â€” the route tree
  * shape itself is otherwise unchanged.
- * Sprint 3.10 scope: registers `/admin/news` (new) — the route tree
+ * Sprint 3.10 scope: registers `/admin/news` (new) â€” the route tree
  * shape itself is otherwise unchanged.
- * Sprint 3.11 scope: registers `/admin/pages` (new) — the route tree
+ * Sprint 3.11 scope: registers `/admin/pages` (new) â€” the route tree
  * shape itself is otherwise unchanged.
- * Sprint 3.12 scope: registers `/admin/events` (new) — the route tree
+ * Sprint 3.12 scope: registers `/admin/events` (new) â€” the route tree
  * shape itself is otherwise unchanged.
- * Sprint 3.13 scope: registers `/admin/teachers` (new) — the route
+ * Sprint 3.13 scope: registers `/admin/teachers` (new) â€” the route
  * tree shape itself is otherwise unchanged.
- * Sprint 3.14 scope: registers `/admin/campuses` (new) — the route
+ * Sprint 3.14 scope: registers `/admin/campuses` (new) â€” the route
  * tree shape itself is otherwise unchanged.
- * Sprint 3.15 scope: registers `/admin/testimonials` (new) — the
+ * Sprint 3.15 scope: registers `/admin/testimonials` (new) â€” the
  * route tree shape itself is otherwise unchanged.
- * Sprint 3.16 scope: registers `/admin/features` (new) — the route
+ * Sprint 3.16 scope: registers `/admin/features` (new) â€” the route
  * tree shape itself is otherwise unchanged.
- * Sprint 3.17 scope: registers `/admin/statistics` (new) — the route
+ * Sprint 3.17 scope: registers `/admin/statistics` (new) â€” the route
  * tree shape itself is otherwise unchanged.
- * Sprint 3.18 scope: registers `/admin/about` (new) — the route tree
+ * Sprint 3.18 scope: registers `/admin/about` (new) â€” the route tree
  * shape itself is otherwise unchanged.
- * Sprint 3.19 scope: registers `/admin/cta` (new) — the route tree
+ * Sprint 3.19 scope: registers `/admin/cta` (new) â€” the route tree
  * shape itself is otherwise unchanged.
- * Sprint — CMS Navigation Admin scope: registers `/admin/menus` (new)
- * — the route tree shape itself is otherwise unchanged.
- * Sprint — Pre-Registration Form scope: registers
- * `/admin/pre-registrations` (new) — the route tree shape itself is
+ * Sprint â€” CMS Navigation Admin scope: registers `/admin/menus` (new)
+ * â€” the route tree shape itself is otherwise unchanged.
+ * Sprint â€” Pre-Registration Form scope: registers
+ * `/admin/pre-registrations` (new) â€” the route tree shape itself is
  * otherwise unchanged.
- * Sprint — Route Permissions scope: the admin pages move under a
+ * Sprint â€” Route Permissions scope: the admin pages move under a
  * pathless `RequireRouteAccess` layout route that hides sections the
  * signed-in admin's role cannot open. No route was added, renamed, or
- * removed — only the nesting depth changed.
+ * removed â€” only the nesting depth changed.
  */
 import { lazy, Suspense, type ReactNode } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
@@ -77,6 +77,9 @@ const AboutPage = lazy(() =>
 );
 const CampusesPage = lazy(() =>
   import("@/pages/CampusesPage").then((module) => ({ default: module.CampusesPage })),
+);
+const CampusPage = lazy(() =>
+  import("@/pages/CampusPage").then((module) => ({ default: module.CampusPage })),
 );
 const ContentPage = lazy(() =>
   import("@/pages/ContentPage").then((module) => ({ default: module.ContentPage })),
@@ -130,11 +133,26 @@ const PreRegistrationsPage = lazy(() =>
     default: module.PreRegistrationsPage,
   })),
 );
+const ContactMessagesPage = lazy(() =>
+  import("@/pages/ContactMessagesPage").then((module) => ({
+    default: module.ContactMessagesPage,
+  })),
+);
+const NewsletterPage = lazy(() =>
+  import("@/pages/NewsletterPage").then((module) => ({
+    default: module.NewsletterPage,
+  })),
+);
 const SettingsPage = lazy(() =>
   import("@/pages/SettingsPage").then((module) => ({ default: module.SettingsPage })),
 );
 const StatisticsPage = lazy(() =>
   import("@/pages/StatisticsPage").then((module) => ({ default: module.StatisticsPage })),
+);
+const TextbooksPage = lazy(() =>
+  import("@/features/cms/textbooks/TextbooksPage").then((module) => ({
+    default: module.TextbooksPage,
+  })),
 );
 const TeachersPage = lazy(() =>
   import("@/pages/TeachersPage").then((module) => ({ default: module.TeachersPage })),
@@ -144,13 +162,18 @@ const TestimonialsPage = lazy(() =>
     default: module.TestimonialsPage,
   })),
 );
+const TrustBadgesPage = lazy(() =>
+  import("@/pages/TrustBadgesPage").then((module) => ({
+    default: module.TrustBadgesPage,
+  })),
+);
 
 function withPageLoading(page: ReactNode) {
   return (
     <Suspense
       fallback={
         <div role="status" className="py-8 text-center text-sm text-slate-500">
-          در حال بارگذاری صفحه…
+          Ø¯Ø± Ø­Ø§Ù„ Ø¨Ø§Ø±Ú¯Ø°Ø§Ø±ÛŒ ØµÙØ­Ù‡â€¦
         </div>
       }
     >
@@ -184,7 +207,7 @@ export const router = createBrowserRouter([
       },
       {
         // Pathless layout route: puts one permission gate in front of
-        // every admin page — including ones added later — instead of
+        // every admin page â€” including ones added later â€” instead of
         // repeating a guard on each child. See RequireRouteAccess.
         element: <RequireRouteAccess />,
         children: [
@@ -249,6 +272,10 @@ export const router = createBrowserRouter([
             element: withPageLoading(<EventsPage />),
           },
           {
+            path: "textbooks",
+            element: withPageLoading(<TextbooksPage />),
+          },
+          {
             path: "teachers",
             element: withPageLoading(<TeachersPage />),
           },
@@ -263,6 +290,10 @@ export const router = createBrowserRouter([
           {
             path: "testimonials",
             element: withPageLoading(<TestimonialsPage />),
+          },
+          {
+            path: "trust-badges",
+            element: withPageLoading(<TrustBadgesPage />),
           },
           {
             path: "features",
@@ -287,6 +318,14 @@ export const router = createBrowserRouter([
           {
             path: "pre-registrations",
             element: withPageLoading(<PreRegistrationsPage />),
+          },
+          {
+            path: "contact-messages",
+            element: withPageLoading(<ContactMessagesPage />),
+          },
+          {
+            path: "newsletter",
+            element: withPageLoading(<NewsletterPage />),
           },
           {
             path: "settings",

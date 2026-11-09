@@ -24,6 +24,7 @@ export const galleryItems: readonly GalleryItem[] = [
     category: "فضای آموزشی",
     image: { alt: "فضای آموزشی شعبه مرکزی" },
     description: "متن نمونه توضیح تکمیلی درباره فضای آموزشی شعبه مرکزی و امکانات کلاس‌های آن.",
+    isFeatured: false,
   },
   {
     id: "g2",
@@ -31,6 +32,7 @@ export const galleryItems: readonly GalleryItem[] = [
     category: "رویداد",
     image: { alt: "کارگاه آموزشی ویژه اولیا" },
     description: "متن نمونه توضیح تکمیلی درباره کارگاه آموزشی برگزارشده ویژه اولیای دانش‌آموزان.",
+    isFeatured: false,
   },
   {
     id: "g3",
@@ -38,6 +40,7 @@ export const galleryItems: readonly GalleryItem[] = [
     category: "فضای آموزشی",
     image: { alt: "کلاس درس شعبه غرب تهران" },
     description: "متن نمونه توضیح تکمیلی درباره فضای کلاس درس و امکانات آموزشی شعبه غرب تهران.",
+    isFeatured: false,
   },
   {
     id: "g4",
@@ -45,6 +48,7 @@ export const galleryItems: readonly GalleryItem[] = [
     category: "رویداد",
     image: { alt: "نشست معرفی مسیرهای تحصیلی" },
     description: "متن نمونه توضیح تکمیلی درباره نشست معرفی مسیرهای تحصیلی برای دانش‌آموزان و خانواده‌ها.",
+    isFeatured: false,
   },
   {
     id: "g5",
@@ -52,6 +56,7 @@ export const galleryItems: readonly GalleryItem[] = [
     category: "فضای آموزشی",
     image: { alt: "کتابخانه و فضای مطالعه" },
     description: "متن نمونه توضیح تکمیلی درباره کتابخانه و فضای مطالعه در دسترس دانش‌آموزان.",
+    isFeatured: false,
   },
   {
     id: "g6",
@@ -59,6 +64,7 @@ export const galleryItems: readonly GalleryItem[] = [
     category: "رویداد",
     image: { alt: "جشن فارغ‌التحصیلی دانش‌آموزان" },
     description: "متن نمونه توضیح تکمیلی درباره مراسم جشن فارغ‌التحصیلی دانش‌آموزان مجموعه.",
+    isFeatured: false,
   },
   {
     id: "g7",
@@ -66,6 +72,7 @@ export const galleryItems: readonly GalleryItem[] = [
     category: "فضای آموزشی",
     image: { alt: "آزمایشگاه علوم شعبه اصفهان" },
     description: "متن نمونه توضیح تکمیلی درباره آزمایشگاه علوم و تجهیزات آموزشی شعبه اصفهان.",
+    isFeatured: false,
   },
   {
     id: "g8",
@@ -73,5 +80,6 @@ export const galleryItems: readonly GalleryItem[] = [
     category: "دستاورد",
     image: { alt: "مراسم اهدای جوایز برترین‌ها" },
     description: "متن نمونه توضیح تکمیلی درباره مراسم اهدای جوایز به دانش‌آموزان برتر مجموعه.",
+    isFeatured: false,
   },
 ] as const;

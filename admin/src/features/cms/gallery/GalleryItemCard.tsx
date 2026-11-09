@@ -32,6 +32,7 @@ export interface GalleryItemCardProps {
   onEdit: (item: CmsGalleryItem) => void;
   onDeleteRequest: (item: CmsGalleryItem) => void;
   onChangeStatus: (item: CmsGalleryItem, status: CmsGalleryStatus) => void;
+  onToggleFeatured: (item: CmsGalleryItem) => void;
   onReorder: (fromIndex: number, toIndex: number) => void;
 }
 
@@ -45,6 +46,7 @@ export function GalleryItemCard({
   onEdit,
   onDeleteRequest,
   onChangeStatus,
+  onToggleFeatured,
   onReorder,
 }: GalleryItemCardProps) {
   const { media, isLoading } = useMediaById(item.imageMediaId);
@@ -116,6 +118,17 @@ export function GalleryItemCard({
           isUpdating={isUpdatingStatus}
           onChangeStatus={(status) => onChangeStatus(item, status)}
         />
+        <PermissionGate permission="website.content:write">
+          <button
+            type="button"
+            onClick={() => onToggleFeatured(item)}
+            disabled={isUpdatingStatus}
+            aria-pressed={item.isFeatured}
+            className="w-fit rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+          >
+            {item.isFeatured ? "برجسته" : "عادی"}
+          </button>
+        </PermissionGate>
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-2">
           {canReorder ? (

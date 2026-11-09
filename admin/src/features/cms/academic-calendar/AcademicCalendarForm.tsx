@@ -7,11 +7,11 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { UnsavedChangesDialog } from "@/components/ui/UnsavedChangesDialog";
-import { useIsDirty, useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { ApiError } from "@/lib/apiError";
 
 import { createAcademicCalendarEntry, updateAcademicCalendarEntry } from "./api";
-import { kindSchema, translatableSchema, createAcademicCalendarPayloadSchema, updateAcademicCalendarPayloadSchema } from "./schema";
+import { kindSchema } from "./schema";
 import { ACADEMIC_CALENDAR_KIND_LABELS, type CmsAcademicCalendarEntry, type AcademicCalendarEntryKind } from "./types";
 
 export interface AcademicCalendarFormProps {
@@ -42,8 +42,6 @@ export function AcademicCalendarForm({ entry, onCancel, onSaved }: AcademicCalen
     register,
     handleSubmit,
     formState: { errors, isDirty, isSubmitting },
-    reset,
-    setValue,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: entry
@@ -82,7 +80,9 @@ export function AcademicCalendarForm({ entry, onCancel, onSaved }: AcademicCalen
           value: data.value || undefined,
           dateRange: data.dateRange || undefined,
           date: data.date || undefined,
-          description: (data.descriptionFa || data.descriptionEn) ? { fa: data.descriptionFa || undefined, en: data.descriptionEn || undefined } : undefined,
+          description: data.descriptionFa || data.descriptionEn
+            ? { fa: data.descriptionFa ?? "", en: data.descriptionEn || undefined }
+            : undefined,
         });
         onSaved(saved);
       } else {
@@ -92,7 +92,9 @@ export function AcademicCalendarForm({ entry, onCancel, onSaved }: AcademicCalen
           value: data.value || undefined,
           dateRange: data.dateRange || undefined,
           date: data.date || undefined,
-          description: (data.descriptionFa || data.descriptionEn) ? { fa: data.descriptionFa || undefined, en: data.descriptionEn || undefined } : undefined,
+          description: data.descriptionFa || data.descriptionEn
+            ? { fa: data.descriptionFa ?? "", en: data.descriptionEn || undefined }
+            : undefined,
         });
         onSaved(saved);
       }
@@ -146,9 +148,9 @@ export function AcademicCalendarForm({ entry, onCancel, onSaved }: AcademicCalen
       {saveError && <p className="text-sm text-red-600">{saveError}</p>}
       <div className="flex gap-3">
         <button type="submit" disabled={isSubmitting} className="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60">{isEdit ? "ذخیره" : "ایجاد"}</button>
-        <button type="button" onClick={onCancel} className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-gray-50">لغو</button>
+        <button type="button" onClick={() => guardedAction(onCancel)} className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-gray-50">لغو</button>
       </div>
-      <UnsavedChangesDialog open={isConfirmOpen} onConfirm={confirmLeave} onCancel={cancelLeave} />
+      {isConfirmOpen ? <UnsavedChangesDialog onDiscard={confirmLeave} onKeepEditing={cancelLeave} /> : null}
     </form>
   );
 }

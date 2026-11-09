@@ -66,6 +66,12 @@ export class Campus extends BaseSiteScopedEntity {
   @Column({ nullable: true })
   mapUrl?: string;
 
+  @Column({ type: 'double precision', nullable: true })
+  latitude?: number | null;
+
+  @Column({ type: 'double precision', nullable: true })
+  longitude?: number | null;
+
   // Campus-specific contact details, independent of SiteSettings'
   // site-wide contactPhone/contactEmail — a visitor calling "the
   // Downtown Campus" needs that campus's own number, not the
@@ -86,6 +92,9 @@ export class Campus extends BaseSiteScopedEntity {
   // not translatable prose.
   @Column({ type: 'text', array: true, nullable: true })
   features?: string[];
+
+  @Column({ type: 'text', array: true, nullable: true })
+  gradeLevels?: string[] | null;
 
   // Manual admin ordering — see class comment. Indexed since it's the
   // primary sort key for both admin and public listings.

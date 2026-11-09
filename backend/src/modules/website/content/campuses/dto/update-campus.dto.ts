@@ -7,6 +7,9 @@ import {
   IsString,
   IsUUID,
   IsUrl,
+  IsNumber,
+  Max,
+  Min,
   Matches,
   MaxLength,
   ValidateNested,
@@ -50,6 +53,18 @@ export class UpdateCampusDto {
   @IsUrl()
   mapUrl?: string | null;
 
+  @IsOptional()
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  latitude?: number | null;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  longitude?: number | null;
+
   // Explicit null clears the phone number; undefined leaves it unchanged.
   @IsOptional()
   @IsString()
@@ -72,6 +87,12 @@ export class UpdateCampusDto {
   @ArrayUnique()
   @IsString({ each: true })
   features?: string[] | null;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsString({ each: true })
+  gradeLevels?: string[] | null;
 
   // Explicit null clears the featured image; undefined leaves it unchanged.
   @IsOptional()

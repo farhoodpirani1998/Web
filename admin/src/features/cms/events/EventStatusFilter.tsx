@@ -57,7 +57,7 @@ export function EventStatusFilter({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div
-        role="tablist"
+        role="group"
         aria-label="فیلتر رویدادها بر اساس وضعیت"
         className="inline-flex w-fit rounded-md border border-slate-200 bg-slate-50 p-0.5"
       >
@@ -67,8 +67,7 @@ export function EventStatusFilter({
             <button
               key={option.label}
               type="button"
-              role="tab"
-              aria-selected={isActive}
+              aria-pressed={isActive}
               onClick={() => onStatusChange(option.value)}
               className={`rounded px-3 py-1.5 text-sm font-medium transition ${
                 isActive ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"

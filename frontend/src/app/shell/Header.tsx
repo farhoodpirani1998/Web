@@ -83,12 +83,27 @@ export function Header() {
   }, [data, isLoading, isError]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/75">
-      <Container className="flex h-20 items-center justify-between gap-4">
+    <header className="sticky top-0 isolate z-40 border-b border-border/70 bg-background/75 backdrop-blur supports-[backdrop-filter]:bg-background/65">
+      <div
+        data-aifx="fluted-glass"
+        data-aifx-colors="#1d3a37,#5b63de,#c9e76c,#3c55cb"
+        data-aifx-bg="#0e0f8d"
+        className="pointer-events-none absolute inset-0 -z-10"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute inset-0 z-0 bg-background/75"
+        aria-hidden="true"
+      />
+
+      <Container className="relative z-10 flex h-20 items-center justify-between gap-4">
         <Link
           href="/"
           variant="subtle"
-          className={cn("group flex items-center gap-3 no-underline", FOCUS_RING_CLASSNAME)}
+          className={cn(
+            "group flex items-center gap-3 no-underline",
+            FOCUS_RING_CLASSNAME,
+          )}
         >
           {siteSettings?.logo?.url ? (
             <Avatar
@@ -158,7 +173,13 @@ function BrandMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 40 40" className={className} aria-hidden="true" focusable="false">
       <circle cx="20" cy="20" r="19" className="fill-brand-navy" />
-      <circle cx="20" cy="20" r="19" className="fill-none stroke-brand-gold" strokeWidth="1.25" />
+      <circle
+        cx="20"
+        cy="20"
+        r="19"
+        className="fill-none stroke-brand-gold"
+        strokeWidth="1.25"
+      />
       <path
         d="M12 25.5V15.8L20 11l8 4.8v9.7"
         className="fill-none stroke-brand-gold"
@@ -166,7 +187,12 @@ function BrandMark({ className }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M20 11v14.5" className="stroke-brand-gold" strokeWidth="1.2" strokeLinecap="round" />
+      <path
+        d="M20 11v14.5"
+        className="stroke-brand-gold"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
       <circle cx="20" cy="27.5" r="1.4" className="fill-brand-gold" />
     </svg>
   );

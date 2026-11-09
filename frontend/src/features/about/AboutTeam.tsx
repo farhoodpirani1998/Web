@@ -8,50 +8,24 @@ import {
   Text,
 } from "@/shared/design-system/components";
 import { useAboutPage } from "./useAboutPage";
-import type { AboutTeamMember } from "./types";
-
-/**
- * About page "Team" section, following the same pattern as the
- * homepage's `hero`/`features`/`cta` features and now (as of this
- * extension) also `@/features/news`'s `NewsList`.
- *
- * Backed by `useAboutPage()` (the Public API's Static Pages/About
- * content module, §4, §8): lays out `data.team` once the query has
- * resolved with at least one item, and falls back to the local
- * `fallbackTeam` literal while the query is loading, has errored, or
- * the CMS has nothing published yet. `Avatar`'s own `src`/`fallback`
- * handling (§ its file's doc comment) covers members without a photo
- * — no extra branching needed here.
- *
- * Visual refresh: cards move from a compact horizontal row to a
- * centered, `elevated` profile-card layout — larger avatar with a gold
- * ring, name/role stacked underneath — the same "portrait card" shape
- * premium team sections use, plus the hover lift already established
- * by `GalleryCard`/`NewsCard`/`AboutStats`/`AboutValues` for a
- * consistent card language across the page.
- */
-
-const fallbackTeam: readonly AboutTeamMember[] = [
-  { id: "p1", name: "نام و نام‌خانوادگی نمونه", role: "مدیر آموزشی" },
-  { id: "p2", name: "نام و نام‌خانوادگی نمونه", role: "سرپرست گروه علمی" },
-  { id: "p3", name: "نام و نام‌خانوادگی نمونه", role: "مسئول امور دانش‌آموزی" },
-];
 
 export function AboutTeam() {
   const { data } = useAboutPage();
-  const team = data && data.team.length > 0 ? data.team : fallbackTeam;
+  if (!data || data.team.items.length === 0) return null;
+  const team = data.team.items;
 
   return (
     <Section spacing="lg" aria-labelledby="about-team-heading">
       <Stack gap="md">
         <Stack gap="sm">
           <Heading id="about-team-heading" level={2}>
-            اعضای تیم
+            {data.team.title ?? "اعضای تیم"}
           </Heading>
-          <Text variant="lead" className="max-w-2xl">
-            متن نمونه برای معرفی گروهی از افرادی که مسئولیت اداره مجموعه را بر عهده دارند.
-            اسامی و تصاویر واقعی از طریق سامانه مدیریت محتوا تکمیل خواهد شد.
-          </Text>
+          {data.team.description ? (
+            <Text variant="lead" className="max-w-2xl">
+              {data.team.description}
+            </Text>
+          ) : null}
         </Stack>
 
         <Grid cols="3" gap="lg">
@@ -66,7 +40,7 @@ export function AboutTeam() {
                 <span className="rounded-full p-1 ring-2 ring-brand-gold/40 transition-colors group-hover:ring-brand-gold">
                   <Avatar
                     src={member.avatarUrl}
-                    alt={member.name}
+                    alt={member.avatarAlt ?? member.name}
                     fallback={member.name.slice(0, 1)}
                     size="lg"
                   />

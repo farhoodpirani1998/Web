@@ -57,18 +57,16 @@ test.describe('Accessibility — Keyboard Navigation', () => {
     if (isVisible) {
       await button.focus();
 
-      let clicked = false;
       button.evaluate((el) => {
         el.addEventListener('click', () => {
-          window.__buttonClicked = true;
-        });
+          el.setAttribute('data-enter-clicked', 'true');
+        }, { once: true });
       });
 
       await page.keyboard.press('Enter');
       await page.waitForTimeout(100);
 
-      const wasClicked = await page.evaluate(() => (window as any).__buttonClicked);
-      expect(wasClicked || true).toBeTruthy(); // May not trigger depending on button type
+      await expect(button).toHaveAttribute('data-enter-clicked', 'true');
     }
   });
 
@@ -81,8 +79,6 @@ test.describe('Accessibility — Keyboard Navigation', () => {
 
     if (checkboxVisible) {
       await checkbox.focus();
-      const initialState = await checkbox.isChecked();
-
       await page.keyboard.press('Space');
       await page.waitForTimeout(100);
 
@@ -377,8 +373,6 @@ test.describe('Accessibility — Screen Reader & ARIA', () => {
 
     const nav = page.locator('nav');
     const main = page.locator('main');
-    const footer = page.locator('footer');
-
     // Should have main content area
     const mainVisible = await main.isVisible().catch(() => false);
     expect(mainVisible).toBeTruthy();
@@ -513,7 +507,7 @@ test.describe('Accessibility — Content & Structure', () => {
     }
   });
 
-  test('Resize text doesn't break layout', async ({ page }) => {
+  test("Resize text doesn't break layout", async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 

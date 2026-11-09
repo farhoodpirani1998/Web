@@ -88,6 +88,46 @@ export function PortalModal({ open, onClose }: PortalModalProps) {
   const dialogRef = React.useRef<HTMLDivElement>(null);
   const triggerRef = React.useRef<Element | null>(null);
 
+  function trapFocus(event: {
+    key: string;
+    shiftKey: boolean;
+    preventDefault: () => void;
+  }) {
+    if (event.key !== "Tab") return;
+
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const focusableElements = Array.from(
+      dialog.querySelectorAll<HTMLElement>(
+        'a[href]:not([aria-disabled="true"]), button:not([disabled]):not([aria-disabled="true"]), input:not([disabled]):not([aria-disabled="true"]), select:not([disabled]):not([aria-disabled="true"]), textarea:not([disabled]):not([aria-disabled="true"]), [tabindex]:not([tabindex="-1"]):not([aria-disabled="true"])',
+      ),
+    ).filter(
+      (element) =>
+        !element.closest('[aria-hidden="true"], [hidden], [inert]'),
+    );
+    const first = focusableElements[0];
+    const last = focusableElements[focusableElements.length - 1];
+    const activeElement = document.activeElement;
+
+    if (!first || !last) {
+      event.preventDefault();
+      dialog.focus();
+    } else if (
+      event.shiftKey &&
+      (activeElement === first || activeElement === dialog || !dialog.contains(activeElement))
+    ) {
+      event.preventDefault();
+      last.focus();
+    } else if (
+      !event.shiftKey &&
+      (activeElement === last || !dialog.contains(activeElement))
+    ) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
   React.useEffect(() => {
     if (!open) return;
 
@@ -98,6 +138,7 @@ export function PortalModal({ open, onClose }: PortalModalProps) {
       if (event.key === "Escape") {
         onClose();
       }
+      trapFocus(event);
     }
 
     document.addEventListener("keydown", handleKeyDown);

@@ -1,10 +1,25 @@
-import { BookOpen, Dumbbell, FlaskConical, Globe, Monitor, Music, Sparkles } from "lucide-react";
+import {
+  BookOpen,
+  Dumbbell,
+  FlaskConical,
+  Globe,
+  Monitor,
+  Music,
+  Sparkles,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import type { CSSProperties } from "react";
 
-import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
-import { cn } from "@/shared/utils/cn";
-
+import {
+  Badge,
+  Container,
+  Heading,
+  Section,
+  Stack,
+  Text,
+} from "@/shared/design-system/components";
 import { useFeatures } from "./useFeatures";
+import "./features.css";
 
 /**
  * Homepage "WhyChoose" section (Website Frontend Architecture §4, §10
@@ -60,11 +75,10 @@ const ICON_MAP: Record<string, LucideIcon> = {
 };
 const FALLBACK_ICON: LucideIcon = Sparkles;
 
-const FEATURES_EYEBROW_PLACEHOLDER = "چرا ما را انتخاب کنید";
-const FEATURES_HEADING_PLACEHOLDER = "ساخته‌شده برای تعالی آموزشی";
-const FEATURES_DESCRIPTION_PLACEHOLDER =
-  "متن معرفی نمونه برای بخش ویژگی‌ها. این متن جایگزین خلاصه‌ای است که در نهایت پس از " +
-  "پیاده‌سازی ماژول محتوایی ویژگی‌ها، از طریق Public API بک‌اند تأمین خواهد شد.";
+const FEATURES_EYEBROW = "چرا ما را انتخاب کنید";
+const FEATURES_HEADING = "زمینه‌ساز رشد و شکوفایی دانش‌آموزان";
+const FEATURES_DESCRIPTION =
+  "با آموزش هدفمند و فراهم‌کردن فرصت‌های متنوع یادگیری، مسیر رشد علمی و فردی دانش‌آموزان را هموار می‌کنیم.";
 
 const WHY_CHOOSE_ITEMS_PLACEHOLDER: WhyChooseItem[] = [
   {
@@ -109,71 +123,102 @@ export function Features() {
   const { data } = useFeatures();
 
   // The backend's Features module has no section-level eyebrow/
-  // heading/intro field (see ./types.ts) — that copy is this
-  // component's own static placeholder, not CMS content, so it's
+  // heading/intro field (see ./types.ts) — that copy is owned by this
+  // component, not CMS content, so it's
   // never read from `data`.
-  const eyebrow = FEATURES_EYEBROW_PLACEHOLDER;
-  const heading = FEATURES_HEADING_PLACEHOLDER;
-  const description = FEATURES_DESCRIPTION_PLACEHOLDER;
+  const eyebrow = FEATURES_EYEBROW;
+  const heading = FEATURES_HEADING;
+  const description = FEATURES_DESCRIPTION;
 
   const items: WhyChooseItem[] =
     data && data.length > 0
       ? data.map((item) => ({
           id: item.id,
-          icon: item.icon ? ICON_MAP[item.icon] ?? FALLBACK_ICON : FALLBACK_ICON,
+          icon: item.icon ? (ICON_MAP[item.icon] ?? FALLBACK_ICON) : FALLBACK_ICON,
           title: item.title.fa,
           description: item.description.fa,
         }))
       : WHY_CHOOSE_ITEMS_PLACEHOLDER;
 
   return (
-    <Section spacing="lg" tone="muted" aria-labelledby="home-features-heading">
-      <Stack gap="xl">
-        <Stack gap="sm" align="center" className="text-center">
-          <Badge
-            variant="outline"
-            className="rounded-full border-accent/40 bg-accent/10 text-primary"
-          >
-            {eyebrow}
-          </Badge>
-          <Heading id="home-features-heading" level={2}>
-            {heading}
-          </Heading>
-          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-accent" />
-          <Text variant="lead" className="max-w-2xl">
-            {description}
-          </Text>
-        </Stack>
+    <Section
+      spacing="lg"
+      tone="muted"
+      aria-labelledby="home-features-heading"
+      className="relative isolate overflow-hidden"
+    >
+      <div
+        data-aifx="blocky"
+        data-aifx-colors="#e9e3ff,#ae9cec,#8261e1,#5c15f6"
+        data-aifx-bg="#f7eaea"
+        data-aifx-bg-alpha="0.83"
+        data-aifx-speed="0.91"
+        data-aifx-block-size="47"
+        data-aifx-levels="8"
+        data-aifx-scale="1.73"
+        data-aifx-drift-angle="50"
+        data-aifx-glint="0.36"
+        data-aifx-contrast="1.06"
+        className="pointer-events-none absolute inset-0 -z-10"
+        aria-hidden="true"
+      />
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className={cn(
-                "group flex flex-col items-center gap-4 rounded-2xl border border-border bg-background p-6 text-center",
-                "shadow-sm transition-shadow duration-300 hover:shadow-lg",
-              )}
+      <Container size="xl" className="relative z-10">
+        <Stack gap="xl">
+          <Stack gap="sm" align="center" className="text-center">
+            <Badge
+              variant="outline"
+              className="rounded-full border-accent/40 bg-accent/10 text-primary"
             >
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/8 text-primary",
-                  "transition-colors duration-300 group-hover:bg-primary group-hover:text-accent",
-                )}
-              >
-                <item.icon className="h-6 w-6" strokeWidth={1.75} />
-              </span>
+              {eyebrow}
+            </Badge>
+            <Heading id="home-features-heading" level={2}>
+              {heading}
+            </Heading>
+            <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-accent" />
+            <Text variant="lead" className="max-w-2xl">
+              {description}
+            </Text>
+          </Stack>
 
-              <Heading level={3} className="text-base">
-                {item.title}
-              </Heading>
-              <Text variant="bodySm" color="muted">
-                {item.description}
-              </Text>
+          <div
+            className="features-orbit"
+            style={{ "--feature-card-count": items.length } as CSSProperties}
+            role="group"
+            aria-label="ویژگی‌های مجموعه؛ برای مشاهدهٔ کارت‌ها در صفحه پیمایش کنید"
+          >
+            <div className="features-orbit__track">
+              {items.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="features-orbit__card group relative isolate"
+                  style={
+                    {
+                      "--feature-card-index": index,
+                      "--feature-card-angle": `${(index / items.length) * 2 * Math.PI - Math.PI / 2}rad`,
+                    } as CSSProperties
+                  }
+                >
+                  <div
+                    data-aifx="aurora-flow"
+                    className="pointer-events-none absolute inset-0 -z-10"
+                    aria-hidden="true"
+                  />
+
+                  <span aria-hidden="true" className="features-orbit__card-icon">
+                    <item.icon className="h-6 w-6" strokeWidth={1.75} />
+                  </span>
+
+                  <Heading level={3}>{item.title}</Heading>
+                  <Text variant="bodySm" color="muted">
+                    {item.description}
+                  </Text>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </Stack>
+          </div>
+        </Stack>
+      </Container>
     </Section>
   );
 }

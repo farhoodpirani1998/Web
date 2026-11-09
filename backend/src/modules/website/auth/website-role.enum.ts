@@ -19,6 +19,7 @@ export enum WebsitePermission {
   // disable / delete). Held only by SUPER_ADMIN today (see ROLE_PERMISSIONS
   // below) — an account-management ability, distinct from any content one.
   ADMINS_MANAGE = 'website.admins:manage',
+  NEWSLETTER_MANAGE = 'website.newsletter:manage',
 }
 
 /**

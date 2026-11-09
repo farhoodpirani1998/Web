@@ -6,6 +6,7 @@ import {
   NotFoundException,
   Param,
   ParseIntPipe,
+  ParseUUIDPipe,
   Query,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,6 +15,7 @@ import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { NewsArticle } from '../../content/news/entities/news-article.entity';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
+import { CampusScopeService } from '../../content/common/campus-scope.service';
 import { SiteService } from '../../core/site/site.service';
 import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
 import { SiteSettingsService } from '../../content/site-settings/site-settings.service';
@@ -45,6 +47,7 @@ interface PublicNewsListItemDto {
   body: NewsArticle['body'];
   category?: string;
   tags?: string[];
+  campusId?: string | null;
   featuredImage: PublicMediaRef | null;
   publishAt?: Date;
 }
@@ -75,6 +78,7 @@ export class PublicNewsController {
     private readonly seo: SeoService,
     private readonly config: ConfigService,
     private readonly redis: RedisService,
+    private readonly campusScope: CampusScopeService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
@@ -82,6 +86,7 @@ export class PublicNewsController {
   async findAll(
     @Query('category') category?: string,
     @Query('tag') tag?: string,
+    @Query('campusId', new ParseUUIDPipe({ optional: true })) campusId?: string,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) rawPage = 1,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) rawLimit = 20,
   ): Promise<PaginatedResult<PublicNewsListItemDto>> {
@@ -91,6 +96,7 @@ export class PublicNewsController {
       'list',
       category,
       tag,
+      campusId,
       page,
       limit,
     );
@@ -119,6 +125,7 @@ export class PublicNewsController {
       });
     if (category) qb.andWhere('article.category = :category', { category });
     if (tag) qb.andWhere(':tag = ANY(article.tags)', { tag });
+    this.campusScope.applyPublicFilter(qb, 'article', campusId);
 
     // Same NULLS LAST reasoning as NewsService.findAll.
     const [articles, total] = await qb
@@ -212,6 +219,7 @@ export class PublicNewsController {
       body: article.body,
       category: article.category,
       tags: article.tags,
+      campusId: article.campusId,
       featuredImage: article.featuredImageMediaId
         ? (mediaMap.get(article.featuredImageMediaId) ?? null)
         : null,

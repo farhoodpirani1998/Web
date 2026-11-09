@@ -1,5 +1,6 @@
 import { FeaturesService } from './features.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
+import { FeatureIcon } from './feature-icon.enum';
 
 describe('FeaturesService', () => {
   const siteId = 'site-1';
@@ -47,7 +48,7 @@ describe('FeaturesService', () => {
       const feature = await service.create({
         title: { fa: 'برنامه دوزبانه' },
         description: { fa: 'توضیحات' },
-        icon: 'graduation-cap',
+        icon: FeatureIcon.MONITOR,
       });
 
       expect(feature.status).toBe(PublishStatus.DRAFT);
@@ -94,9 +95,11 @@ describe('FeaturesService', () => {
         status: PublishStatus.DRAFT,
       });
 
-      const updated = await service.update('feature-1', { icon: 'new-icon' });
+      const updated = await service.update('feature-1', {
+        icon: FeatureIcon.BOOK_OPEN,
+      });
 
-      expect(updated.icon).toBe('new-icon');
+      expect(updated.icon).toBe(FeatureIcon.BOOK_OPEN);
       expect(updated.title).toEqual({ fa: 'قدیمی' });
     });
   });

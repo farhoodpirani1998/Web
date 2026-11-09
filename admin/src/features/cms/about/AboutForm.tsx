@@ -4,8 +4,15 @@ import { MediaPicker, useMediaById } from "@/features/cms/media";
 import { PermissionGate } from "@/components/ui/PermissionGate";
 import { ApiError } from "@/lib/apiError";
 
+import { AboutSectionsEditor } from "./AboutSectionsEditor";
 import { updateAbout } from "./api";
-import type { CmsAbout, CmsAboutSeoMetadataInput } from "./types";
+import type {
+  CmsAbout,
+  CmsAboutSection,
+  CmsAboutSections,
+  CmsAboutSeoMetadataInput,
+} from "./types";
+import type { Translatable } from "../types";
 
 /**
  * Inline (non-modal) edit form for `PATCH /admin/about`. About is a
@@ -25,8 +32,9 @@ import type { CmsAbout, CmsAboutSeoMetadataInput } from "./types";
  * object rather than merging keys, so omitting `en` here correctly
  * drops it.
  *
- * `imageMediaId` and the `seo` fieldset are identical in shape and
- * behavior to `CampusForm`'s `featuredImageMediaId`/`seo`.
+ * `sections` is replaced as a complete value on save so omitted rows
+ * can be removed. Image references and SEO follow the existing CMS
+ * media/metadata patterns.
  */
 export interface AboutFormProps {
   about: CmsAbout;
@@ -49,7 +57,9 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
   const [bodyFa, setBodyFa] = useState(about.body.fa);
   const [bodyEn, setBodyEn] = useState(about.body.en ?? "");
   const [imageMediaId, setImageMediaId] = useState<string | null>(about.imageMediaId ?? null);
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [sections, setSections] = useState<CmsAboutSections>(about.sections ?? {});
+  const [activeMediaTarget, setActiveMediaTarget] =
+    useState<AboutMediaTarget | null>(null);
 
   const [metaTitle, setMetaTitle] = useState(about.seo.metaTitle ?? "");
   const [metaDescription, setMetaDescription] = useState(about.seo.metaDescription ?? "");
@@ -60,7 +70,11 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const canSubmit = titleFa.trim().length > 0 && bodyFa.trim().length > 0 && !isSaving;
+  const canSubmit =
+    titleFa.trim().length > 0 &&
+    bodyFa.trim().length > 0 &&
+    sectionsAreValid(sections) &&
+    !isSaving;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -95,8 +109,10 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
           ...(trimmedBodyEn ? { en: trimmedBodyEn } : {}),
         },
         imageMediaId,
+        sections: prepareSections(sections),
         seo,
       });
+      setSections(saved.sections ?? {});
       onSaved(saved);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
@@ -170,8 +186,30 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
       <AboutImageField
         mediaId={imageMediaId}
         disabled={isSaving}
-        onChoose={() => setIsPickerOpen(true)}
+        onChoose={() => setActiveMediaTarget({ type: "page" })}
         onClear={() => setImageMediaId(null)}
+      />
+
+      <AboutSectionsEditor
+        sections={sections}
+        disabled={isSaving}
+        onChange={setSections}
+        onChooseTeamImage={(memberId) =>
+          setActiveMediaTarget({ type: "team", memberId })
+        }
+        onClearTeamImage={(memberId) =>
+          setSections((current) => ({
+            ...current,
+            team: {
+              ...(current.team ?? {}),
+              items: (current.team?.items ?? []).map((member) =>
+                member.id === memberId
+                  ? { ...member, avatarMediaId: undefined }
+                  : member,
+              ),
+            },
+          }))
+        }
       />
 
       <fieldset className="flex flex-col gap-4 rounded-md border border-slate-200 p-3">
@@ -270,18 +308,125 @@ export function AboutForm({ about, onSaved }: AboutFormProps) {
         </PermissionGate>
       </div>
 
-      {isPickerOpen ? (
+      {activeMediaTarget ? (
         <AboutMediaPickerDialog
-          selectedId={imageMediaId}
+          selectedId={
+            activeMediaTarget.type === "page"
+              ? imageMediaId
+              : (sections.team?.items ?? []).find(
+                    (member) => member.id === activeMediaTarget.memberId,
+                  )?.avatarMediaId ?? null
+          }
           onSelect={(media) => {
-            setImageMediaId(media.id);
-            setIsPickerOpen(false);
+            if (activeMediaTarget.type === "page") {
+              setImageMediaId(media.id);
+            } else {
+              setSections((current) => ({
+                ...current,
+                team: {
+                  ...(current.team ?? {}),
+                  items: (current.team?.items ?? []).map((member) =>
+                    member.id === activeMediaTarget.memberId
+                      ? { ...member, avatarMediaId: media.id }
+                      : member,
+                  ),
+                },
+              }));
+            }
+            setActiveMediaTarget(null);
           }}
-          onCancel={() => setIsPickerOpen(false)}
+          onCancel={() => setActiveMediaTarget(null)}
         />
       ) : null}
     </form>
   );
+}
+
+type AboutMediaTarget =
+  | { type: "page" }
+  | { type: "team"; memberId: string };
+
+function sectionsAreValid(sections: CmsAboutSections): boolean {
+  return (
+    (sections.stats?.items ?? []).every(
+      (item) =>
+        /^[0-9]+(?:\.[0-9]{1,2})?$/.test(item.value.trim()) &&
+        item.label.fa.trim().length > 0,
+    ) &&
+    (sections.values?.items ?? []).every(
+      (item) =>
+        item.title.fa.trim().length > 0 &&
+        item.description.fa.trim().length > 0,
+    ) &&
+    (sections.timeline?.items ?? []).every(
+      (item) =>
+        /^[0-9]{1,4}$/.test(item.year.trim()) &&
+        item.title.fa.trim().length > 0 &&
+        item.description.fa.trim().length > 0,
+    ) &&
+    (sections.team?.items ?? []).every(
+      (item) => item.name.fa.trim().length > 0 && item.role.fa.trim().length > 0,
+    )
+  );
+}
+
+function prepareSections(sections: CmsAboutSections): CmsAboutSections {
+  return {
+    stats: prepareSection(sections.stats, (item) => ({
+      ...item,
+      value: item.value.trim(),
+      suffix: item.suffix?.trim() || undefined,
+      label: prepareTranslatable(item.label),
+    })),
+    values: prepareSection(sections.values, (item) => ({
+      ...item,
+      title: prepareTranslatable(item.title),
+      description: prepareTranslatable(item.description),
+    })),
+    timeline: prepareSection(sections.timeline, (item) => ({
+      ...item,
+      year: item.year.trim(),
+      title: prepareTranslatable(item.title),
+      description: prepareTranslatable(item.description),
+    })),
+    team: prepareSection(sections.team, (item) => ({
+      ...item,
+      name: prepareTranslatable(item.name),
+      role: prepareTranslatable(item.role),
+      avatarMediaId: item.avatarMediaId || undefined,
+    })),
+    faq: sections.faq
+      ? {
+          title: prepareOptionalTranslatable(sections.faq.title),
+          description: prepareOptionalTranslatable(sections.faq.description),
+        }
+      : undefined,
+  };
+}
+
+function prepareSection<TItem>(
+  section: CmsAboutSection<TItem> | undefined,
+  prepareItem: (item: TItem) => TItem,
+): CmsAboutSection<TItem> | undefined {
+  if (!section) return undefined;
+  return {
+    title: prepareOptionalTranslatable(section.title),
+    description: prepareOptionalTranslatable(section.description),
+    items: (section.items ?? []).map(prepareItem),
+  };
+}
+
+function prepareOptionalTranslatable(
+  value?: Translatable<string>,
+): Translatable<string> | undefined {
+  if (!value?.fa.trim()) return undefined;
+  return prepareTranslatable(value);
+}
+
+function prepareTranslatable(value: Translatable<string>): Translatable<string> {
+  const fa = value.fa.trim();
+  const en = value.en?.trim();
+  return { fa, ...(en ? { en } : {}) };
 }
 
 /**

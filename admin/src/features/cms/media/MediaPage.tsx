@@ -10,12 +10,15 @@ import { PermissionGate } from "@/components/ui/PermissionGate";
 import { Section } from "@/components/ui/Section";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { ApiError } from "@/lib/apiError";
+import { useToast } from "@/components/ui/ToastProvider";
 
 import { archiveMedia, deleteMedia } from "./api";
 import { evictCachedMedia, setCachedMedia } from "./mediaCache";
 import { MediaDeleteConfirm } from "./MediaDeleteConfirm";
+import { MediaEditDialog } from "./MediaEditDialog";
 import { MediaGrid } from "./MediaGrid";
 import { MediaStatusFilter } from "./MediaStatusFilter";
+import { MediaTransformDialog } from "./MediaTransformDialog";
 import { MediaUploadDialog } from "./MediaUploadDialog";
 import { MediaUsageDialog } from "./MediaUsageDialog";
 import type { CmsMedia, CmsMediaStatus } from "./types";
@@ -55,6 +58,7 @@ import { useMediaList } from "./useMediaList";
  *
  */
 export function MediaPage() {
+  const { showToast } = useToast();
   const [status, setStatus] = useState<CmsMediaStatus | undefined>(undefined);
   const { media, isLoading, error, refetch } = useMediaList(status);
   const selection = useRowSelection(media, (item) => item.id);
@@ -62,6 +66,8 @@ export function MediaPage() {
 
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<CmsMedia | null>(null);
+  const [editingMedia, setEditingMedia] = useState<CmsMedia | null>(null);
+  const [transformingMedia, setTransformingMedia] = useState<CmsMedia | null>(null);
   const [usageTarget, setUsageTarget] = useState<CmsMedia | null>(null);
   const [archivingId, setArchivingId] = useState<string | null>(null);
   const [archiveError, setArchiveError] = useState<string | null>(null);
@@ -93,11 +99,39 @@ export function MediaPage() {
   function handleUploaded() {
     setIsUploadOpen(false);
     refetch();
+    showToast({
+      title: "رسانه بارگذاری شد",
+      description: "فایل در کتابخانهٔ رسانه ذخیره شد و آمادهٔ انتخاب است.",
+      variant: "success",
+    });
   }
 
   function handleDeleted() {
     setPendingDelete(null);
     refetch();
+  }
+
+  function handleMediaSaved(media: CmsMedia) {
+    setEditingMedia(null);
+    setCachedMedia(media);
+    refetch();
+    showToast({
+      title: "متن جایگزین به‌روز شد",
+      description: "توضیح تصویر در کتابخانه رسانه و بخش‌های وابسته به‌روز شد.",
+      variant: "success",
+    });
+  }
+
+  function handleMediaTransformed(media: CmsMedia) {
+    setTransformingMedia(null);
+    setCachedMedia(media);
+    refetch();
+    showToast({
+      title: "نسخهٔ ویرایش‌شده ذخیره شد",
+      description:
+        "تصویر جدید به کتابخانه اضافه شد؛ فایل اصلی و استفاده‌های قبلی بدون تغییر ماندند.",
+      variant: "success",
+    });
   }
 
   async function handleBulkArchive() {
@@ -250,6 +284,8 @@ export function MediaPage() {
               isAllSelected={selection.isAllSelected}
               isSelectionIndeterminate={selection.isIndeterminate}
               onToggleSelect={selection.toggle}
+              onEdit={setEditingMedia}
+              onTransform={setTransformingMedia}
               onToggleSelectAll={selection.toggleAll}
               onArchive={handleArchive}
               onDeleteRequest={setPendingDelete}
@@ -270,6 +306,22 @@ export function MediaPage() {
             media={pendingDelete}
             onCancel={() => setPendingDelete(null)}
             onDeleted={handleDeleted}
+          />
+        ) : null}
+
+        {editingMedia ? (
+          <MediaEditDialog
+            media={editingMedia}
+            onCancel={() => setEditingMedia(null)}
+            onSaved={handleMediaSaved}
+          />
+        ) : null}
+
+        {transformingMedia ? (
+          <MediaTransformDialog
+            media={transformingMedia}
+            onCancel={() => setTransformingMedia(null)}
+            onTransformed={handleMediaTransformed}
           />
         ) : null}
 

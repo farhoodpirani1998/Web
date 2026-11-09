@@ -1,10 +1,10 @@
 import { useId } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { z } from "zod";
 import { UnsavedChangesDialog } from "@/components/ui/UnsavedChangesDialog";
-import { MediaPicker, useMediaById } from "@/features/cms/media";
-import { useIsDirty, useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
-import { ApiError } from "@/lib/apiError";
+import { MediaPicker } from "@/features/cms/media";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 
 import { createPage, updatePage } from "./api";
 import { usePageOptions } from "./hooks/usePages";
@@ -35,16 +35,14 @@ export interface PageFormProps {
 export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
   const isEdit = page !== null;
   const { options: parentOptions } = usePageOptions();
-  const media = useMediaById(page?.featuredImageMediaId ?? "");
 
   const {
     register,
     handleSubmit,
     formState: { errors, isDirty, isSubmitting },
-    reset,
     watch,
     setValue,
-  } = useForm<PageFormData>({
+  } = useForm<z.input<typeof pageFormSchema>, unknown, PageFormData>({
     resolver: zodResolver(pageFormSchema),
     defaultValues: isEdit && page ? pageToFormData(page) : {
       titleFa: "",
@@ -80,7 +78,7 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
   const canonicalUrlId = useId();
   const noindexId = useId();
 
-  const { guardProvider } = useUnsavedChangesGuard(isDirty);
+  const { isConfirmOpen, guardedAction, confirmLeave, cancelLeave } = useUnsavedChangesGuard(isDirty);
 
   const onSubmit = async (data: PageFormData) => {
     try {
@@ -153,8 +151,11 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">تصویر برجسته</label>
-          <button type="button" onClick={() => setValue("featuredImageMediaId", media?.id ?? "")} className="text-sm text-blue-600">انتخاب رسانه</button>
+          <p className="block text-sm font-medium mb-1">تصویر برجسته</p>
+          <MediaPicker
+            selectedId={featuredImageMediaId}
+            onSelect={(media) => setValue("featuredImageMediaId", media.id, { shouldDirty: true })}
+          />
           {featuredImageMediaId && <div className="mt-2 text-xs">شناسه رسانه: {featuredImageMediaId}</div>}
         </div>
         <div className="border-t pt-4 space-y-3">
@@ -188,11 +189,11 @@ export function PageForm({ page, onCancel, onSaved }: PageFormProps) {
           </div>
         </div>
         <div className="flex gap-3 pt-3">
-          <button type="button" onClick={onCancel} className="px-4 py-2 border rounded-md">لغو</button>
+          <button type="button" onClick={() => guardedAction(onCancel)} className="px-4 py-2 border rounded-md">لغو</button>
           <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-blue-600 text-white rounded-md">{isEdit ? "ذخیره" : "ایجاد"}</button>
         </div>
       </form>
-      <UnsavedChangesDialog open={isDirty && !isSubmitting} onConfirm={onCancel} />
+      {isConfirmOpen && <UnsavedChangesDialog onDiscard={confirmLeave} onKeepEditing={cancelLeave} />}
     </div>
   );
 }

@@ -1,6 +1,12 @@
 import { apiClient } from "@/lib/apiClient";
 
-import type { CmsMedia, CmsMediaStatus, CmsMediaUsage, UploadMediaPayload } from "./types";
+import type {
+  CmsMedia,
+  CmsMediaStatus,
+  CmsMediaUsage,
+  UpdateMediaPayload,
+  UploadMediaPayload,
+} from "./types";
 
 /**
  * Request functions for the CMS Admin media endpoints
@@ -73,6 +79,15 @@ export async function uploadMedia(
         }
       : undefined,
   });
+  return response.data;
+}
+
+/** `PATCH /admin/media/:id` — updates the asset's accessible description. */
+export async function updateMedia(
+  id: string,
+  payload: UpdateMediaPayload,
+): Promise<CmsMedia> {
+  const response = await apiClient.patch<CmsMedia>(`/media/${id}`, payload);
   return response.data;
 }
 

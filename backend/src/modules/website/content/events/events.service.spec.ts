@@ -12,6 +12,7 @@ describe('EventsService', () => {
   let siteSettings: any;
   let revisions: any;
   let redis: any;
+  let campusScope: any;
   let service: EventsService;
 
   beforeEach(() => {
@@ -48,6 +49,9 @@ describe('EventsService', () => {
       delete: jest.fn(),
       deleteByPrefix: jest.fn(),
     };
+    campusScope = {
+      assertCampusBelongsToSite: jest.fn().mockResolvedValue(undefined),
+    };
     service = new EventsService(
       repo,
       siteService,
@@ -57,6 +61,7 @@ describe('EventsService', () => {
       siteSettings,
       revisions,
       redis,
+      campusScope,
     );
   });
 
@@ -141,6 +146,40 @@ describe('EventsService', () => {
         'event-1',
         expect.objectContaining({ slug: 'open-house' }),
         'author-1',
+      );
+    });
+
+    describe('findAll', () => {
+      it('includes campus-specific and shared events for a campus filter', async () => {
+        await service.findAll(undefined, undefined, 'campus-1');
+
+        expect(repo.createQueryBuilder.mock.results[0].value.andWhere).toHaveBeenCalledWith(
+          '(event.campusId = :campusId OR event.campusId IS NULL)',
+          { campusId: 'campus-1' },
+        );
+      });
+    });
+
+    it('invalidates public caches before propagating a revision failure', async () => {
+      revisions.record.mockRejectedValue(new Error('revision failed'));
+
+      await expect(
+        service.create(
+          {
+            title: { fa: 'رویداد' },
+            slug: 'revision-failure',
+            body: { fa: 'توضیحات' },
+            startAt: '2027-01-01T10:00:00.000Z',
+          },
+          'author-1',
+        ),
+      ).rejects.toThrow('revision failed');
+
+      expect(repo.save).toHaveBeenCalledTimes(1);
+      expect(redis.delete).toHaveBeenCalled();
+      expect(redis.deleteByPrefix).toHaveBeenCalled();
+      expect(redis.delete.mock.invocationCallOrder[0]).toBeLessThan(
+        revisions.record.mock.invocationCallOrder[0],
       );
     });
 
@@ -273,7 +312,7 @@ describe('EventsService', () => {
   });
 
   describe('updateStatus', () => {
-    it('delegates transition validation to PublishingService', async () => {
+    it('awaits transition validation before persisting a status change', async () => {
       repo.findOneByOrFail.mockResolvedValue({
         id: 'event-1',
         siteId,
@@ -293,6 +332,23 @@ describe('EventsService', () => {
         siteId,
       });
       expect(result.status).toBe(PublishStatus.PUBLISHED);
+    });
+
+    it('does not persist or invalidate cache when the transition is rejected', async () => {
+      repo.findOneByOrFail.mockResolvedValue({
+        id: 'event-1',
+        siteId,
+        slug: 'event-one',
+        status: PublishStatus.ARCHIVED,
+      });
+      publishing.transition.mockRejectedValue(new Error('invalid transition'));
+
+      await expect(
+        service.updateStatus('event-1', PublishStatus.PUBLISHED),
+      ).rejects.toThrow('invalid transition');
+
+      expect(repo.save).not.toHaveBeenCalled();
+      expect(redis.delete).not.toHaveBeenCalled();
     });
   });
 

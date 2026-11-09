@@ -1,5 +1,11 @@
 import { Type } from 'class-transformer';
-import { IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator';
+import {
+  IsBoolean,
+  IsOptional,
+  IsString,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
 import { TranslatableTextDto } from '../../common/dto/translatable-text.dto';
 
 export class CreateGalleryItemDto {
@@ -19,4 +25,8 @@ export class CreateGalleryItemDto {
   @IsOptional()
   @IsString()
   category?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isFeatured?: boolean;
 }

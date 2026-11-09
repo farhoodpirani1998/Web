@@ -1,18 +1,15 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 
-// https://vitejs.dev/config/
-//
-// Path aliases are resolved by `vite-tsconfig-paths`, which reads the
-// canonical alias map from `tsconfig.app.json` (`compilerOptions.paths`).
-// That file is the single source of truth for aliases — do not also add
-// a manual `resolve.alias` here, or the two can silently drift apart.
+// https://vite.dev/config/
 //
 // Admin runs on a different port than the public frontend (5173) so both
 // can be run side by side during local development.
 export default defineConfig({
-  plugins: [react(), tsconfigPaths()],
+  plugins: [react()],
+  resolve: {
+    tsconfigPaths: true,
+  },
   server: {
     port: 5174,
     host: true,
@@ -26,5 +23,12 @@ export default defineConfig({
     outDir: "dist",
     sourcemap: true,
     target: "es2022",
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [{ name: "vendor", test: /[\\/]node_modules[\\/]/, maxSize: 400_000 }],
+        },
+      },
+    },
   },
 });

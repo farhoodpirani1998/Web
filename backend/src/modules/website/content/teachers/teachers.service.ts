@@ -14,6 +14,7 @@ import { SeoService } from '../../core/seo/seo.service';
 import { RedisService } from '../../core/redis/redis.service';
 import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
+import { CampusScopeService } from '../common/campus-scope.service';
 import {
   RevisionsService,
   RevisionEnabledType,
@@ -55,6 +56,7 @@ export class TeachersService implements OnModuleInit {
     private readonly sitemap: SitemapService,
     private readonly revisions: RevisionsService,
     private readonly redis: RedisService,
+    private readonly campusScope: CampusScopeService,
   ) {}
 
   /**
@@ -112,6 +114,7 @@ export class TeachersService implements OnModuleInit {
 
   async create(dto: CreateTeacherDto, authorId: string): Promise<Teacher> {
     const siteId = this.siteService.getDefaultSiteId();
+    await this.campusScope.assertCampusBelongsToSite(siteId, dto.campusId);
     await this.assertSlugAvailable(siteId, dto.slug);
 
     // New teachers are appended to the end of the current display
@@ -145,23 +148,32 @@ export class TeachersService implements OnModuleInit {
     if (teacher.avatarMediaId) {
       await this.media.attach(teacher.avatarMediaId, ENTITY_TYPE, teacher.id);
     }
+    await this.invalidatePublicCache(teacher.slug);
     await this.revisions.record(
       ENTITY_TYPE,
       teacher.id,
       snapshotOf(teacher),
       authorId,
     );
-    await this.invalidatePublicCache(teacher.slug);
     return teacher;
   }
 
-  async findAll(status?: PublishStatus): Promise<Teacher[]> {
+  async findAll(
+    status?: PublishStatus,
+    campusId?: string,
+  ): Promise<Teacher[]> {
     const siteId = this.siteService.getDefaultSiteId();
     const qb = this.teachersRepo
       .createQueryBuilder('teacher')
       .where('teacher.siteId = :siteId', { siteId });
 
     if (status) qb.andWhere('teacher.status = :status', { status });
+    if (campusId) {
+      qb.andWhere(
+        '(teacher.campusId = :campusId OR teacher.campusId IS NULL)',
+        { campusId },
+      );
+    }
 
     // Manual position, not chronological — see entity comment.
     return qb.addOrderBy('teacher.position', 'ASC').getMany();
@@ -177,6 +189,12 @@ export class TeachersService implements OnModuleInit {
     authorId: string,
   ): Promise<Teacher> {
     const teacher = await this.findOne(id);
+    if (dto.campusId !== undefined) {
+      await this.campusScope.assertCampusBelongsToSite(
+        teacher.siteId,
+        dto.campusId,
+      );
+    }
     const previousSlug = teacher.slug;
     const previousAvatarMediaId = teacher.avatarMediaId;
 
@@ -191,7 +209,7 @@ export class TeachersService implements OnModuleInit {
       teacher.bio = sanitizeTranslatableRichText(dto.bio);
     if (dto.department !== undefined) teacher.department = dto.department;
     if (dto.campusId !== undefined)
-      teacher.campusId = dto.campusId ?? undefined;
+      teacher.campusId = dto.campusId ?? null;
     if (dto.phone !== undefined) teacher.phone = dto.phone ?? undefined;
     if (dto.email !== undefined) teacher.email = dto.email ?? undefined;
     if (dto.specialties !== undefined)
@@ -216,13 +234,13 @@ export class TeachersService implements OnModuleInit {
       }
     }
 
+    await this.invalidatePublicCache(previousSlug, saved.slug);
     await this.revisions.record(
       ENTITY_TYPE,
       saved.id,
       snapshotOf(saved),
       authorId,
     );
-    await this.invalidatePublicCache(previousSlug, saved.slug);
     return saved;
   }
 

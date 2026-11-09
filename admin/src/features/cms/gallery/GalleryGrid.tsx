@@ -30,6 +30,7 @@ export interface GalleryGridProps {
   onEdit: (item: CmsGalleryItem) => void;
   onDeleteRequest: (item: CmsGalleryItem) => void;
   onChangeStatus: (item: CmsGalleryItem, status: CmsGalleryStatus) => void;
+  onToggleFeatured: (item: CmsGalleryItem) => void;
   onReorder: (fromIndex: number, toIndex: number) => void;
 }
 
@@ -43,6 +44,7 @@ export function GalleryGrid({
   onEdit,
   onDeleteRequest,
   onChangeStatus,
+  onToggleFeatured,
   onReorder,
 }: GalleryGridProps) {
   if (isLoading) {
@@ -78,6 +80,7 @@ export function GalleryGrid({
           onEdit={onEdit}
           onDeleteRequest={onDeleteRequest}
           onChangeStatus={onChangeStatus}
+          onToggleFeatured={onToggleFeatured}
           onReorder={onReorder}
         />
       ))}

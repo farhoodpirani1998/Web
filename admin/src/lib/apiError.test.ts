@@ -44,15 +44,38 @@ describe("normalizeApiError", () => {
     expect(result.status).toBe(403);
   });
 
-  it("joins an array of backend messages", () => {
-    const result = normalizeApiError(axiosError(400, { message: ["a", "b"] }));
-    expect(result.message).toBe("a b");
+  it("maps class-validator messages to form field errors", () => {
+    const result = normalizeApiError(
+      axiosError(400, {
+        message: [
+          "studentNationalId must match the required format",
+          "guardianPhone must be valid",
+          "each value in contactPhones must be a string",
+          "address.fa should not be empty",
+        ],
+      }),
+    );
+    expect(result.message).toBe("لطفاً اطلاعات واردشده را بررسی کنید.");
+    expect(result.fieldErrors).toEqual({
+      studentNationalId: "must match the required format",
+      guardianPhone: "must be valid",
+      contactPhones: "each value in contactPhones must be a string",
+      "address.fa": "should not be empty",
+    });
+  });
+
+  it("shows a Persian rate-limit message", () => {
+    expect(normalizeApiError(axiosError(429)).message).toContain("درخواست‌های زیادی");
+  });
+
+  it("shows a Persian server message", () => {
+    expect(normalizeApiError(axiosError(500)).message).toContain("خطایی در سرور");
   });
 
   it("falls back for a 4xx with no usable body", () => {
     const result = normalizeApiError(axiosError(400, {}));
     expect(result.kind).toBe("unknown");
-    expect(result.message).toBe("Something went wrong. Please try again.");
+    expect(result.message).toBe("لطفاً اطلاعات واردشده را بررسی کنید.");
   });
 
   it("maps a non-axios error to `unknown`", () => {

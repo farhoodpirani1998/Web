@@ -19,8 +19,8 @@ import { useTeachers } from "./useTeachers";
  * use) and widens the card gap from `md` to `lg` to give the taller
  * portrait-style `TeacherCard`s room to breathe.
  */
-export function TeacherGrid() {
-  const { data, isPending, isError } = useTeachers();
+export function TeacherGrid({ campusId }: { campusId?: string }) {
+  const { data, isPending, isError } = useTeachers(campusId);
   const teachers = data ?? [];
 
   return (
@@ -28,11 +28,13 @@ export function TeacherGrid() {
       <Stack gap="md">
         <Stack gap="sm">
           <Heading id="teachers-grid-heading" level={2}>
-            فهرست مدرسان
+            {campusId ? "مدرسان این مدرسه" : "فهرست مدرسان"}
           </Heading>
-          <Text variant="lead" className="max-w-2xl">
-            متن نمونه برای معرفی مدرسان مجموعه به تفکیک درس و تخصص.
-          </Text>
+          {!campusId ? (
+            <Text variant="lead" className="max-w-2xl">
+              متن نمونه برای معرفی مدرسان مجموعه به تفکیک درس و تخصص.
+            </Text>
+          ) : null}
         </Stack>
         {isPending ? (
           <Grid cols="4" gap="lg">

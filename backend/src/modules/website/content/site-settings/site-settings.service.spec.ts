@@ -1,5 +1,6 @@
 import { SiteSettingsService } from './site-settings.service';
 import { WEBSITE_EVENTS } from '../../core/events/events.constants';
+import { WorkingHoursDay } from './entities/working-hours.type';
 
 describe('SiteSettingsService', () => {
   const siteId = 'site-1';
@@ -120,6 +121,99 @@ describe('SiteSettingsService', () => {
         WEBSITE_EVENTS.SETTINGS_UPDATED,
         { siteId, group: 'seo' },
       );
+    });
+  });
+
+  describe('updateContact', () => {
+    it('saves all contact phones and keeps the first in the legacy field', async () => {
+      repo.findOneByOrFail.mockResolvedValue({
+        id: 'settings-1',
+        siteId,
+        contactPhone: 'old-phone',
+      });
+
+      const result = await service.updateContact({
+        contactPhones: [' 02634030675 ', '02634029647'],
+      });
+
+      expect(result.contactPhones).toEqual(['02634030675', '02634029647']);
+      expect(result.contactPhone).toBe('02634030675');
+      expect(events.emit).toHaveBeenCalledWith(
+        WEBSITE_EVENTS.SETTINGS_UPDATED,
+        { siteId, group: 'contact' },
+      );
+    });
+
+    it('saves nullable map coordinates and invalidates the settings response immediately', async () => {
+      repo.findOneByOrFail.mockResolvedValue({
+        id: 'settings-1',
+        siteId,
+        mapLatitude: 36,
+        mapLongitude: 52,
+      });
+
+      const result = await service.updateContact({
+        mapLatitude: 35.7,
+        mapLongitude: 51.42,
+      });
+
+      expect(result.mapLatitude).toBe(35.7);
+      expect(result.mapLongitude).toBe(51.42);
+      expect(redis.delete).toHaveBeenCalledWith('public-api:site-settings');
+    });
+
+    it('allows clearing map coordinates', async () => {
+      repo.findOneByOrFail.mockResolvedValue({
+        id: 'settings-1',
+        siteId,
+        mapLatitude: 36,
+        mapLongitude: 52,
+      });
+
+      const result = await service.updateContact({
+        mapLatitude: null,
+        mapLongitude: null,
+      });
+
+      expect(result.mapLatitude).toBeNull();
+      expect(result.mapLongitude).toBeNull();
+    });
+
+    it('saves structured working hours and invalidates the public settings cache', async () => {
+      repo.findOneByOrFail.mockResolvedValue({
+        id: 'settings-1',
+        siteId,
+        workingHours: [],
+      });
+
+      const workingHours = [
+        {
+          day: WorkingHoursDay.SATURDAY,
+          openTime: '08:00',
+          closeTime: '16:00',
+          isClosed: false,
+        },
+      ];
+      const result = await service.updateContact({ workingHours });
+
+      expect(result.workingHours).toEqual(workingHours);
+      expect(redis.delete).toHaveBeenCalledWith('public-api:site-settings');
+      expect(events.emit).toHaveBeenCalledWith(
+        WEBSITE_EVENTS.SETTINGS_UPDATED,
+        { siteId, group: 'contact' },
+      );
+    });
+
+    it('allows clearing working hours', async () => {
+      repo.findOneByOrFail.mockResolvedValue({
+        id: 'settings-1',
+        siteId,
+        workingHours: [{ day: 'saturday' }],
+      });
+
+      const result = await service.updateContact({ workingHours: null });
+
+      expect(result.workingHours).toBeNull();
     });
   });
 

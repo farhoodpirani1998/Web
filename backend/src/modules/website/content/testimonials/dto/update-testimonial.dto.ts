@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsInt,
+  IsBoolean,
   IsOptional,
   IsString,
   IsUUID,
@@ -37,4 +38,8 @@ export class UpdateTestimonialDto {
   @IsOptional()
   @IsUUID()
   avatarMediaId?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  isFeatured?: boolean;
 }

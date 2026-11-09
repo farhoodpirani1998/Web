@@ -36,8 +36,9 @@ export class EventsController {
   findAll(
     @Query('status') status?: PublishStatus,
     @Query('category') category?: string,
+    @Query('campusId', new ParseUUIDPipe({ optional: true })) campusId?: string,
   ) {
-    return this.eventsService.findAll(status, category);
+    return this.eventsService.findAll(status, category, campusId);
   }
 
   @Get(':id')

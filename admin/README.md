@@ -6,26 +6,13 @@ the same backend (`../backend`, NestJS) as its eventual API.
 
 ## Status
 
-**Sprint — Persistent Login.** The full CMS Admin authentication flow
-now works end-to-end, including persisted sessions: `/login` has a
-real form, `/admin/*` redirects unauthenticated users to `/login` (and
-back again after they sign in), the header has a working logout
-button, and a page reload no longer requires signing in again — an
-httpOnly refresh-token cookie (set by the backend on login) lets
-`AuthProvider` silently obtain a fresh access token on mount. See
-`features/auth/AuthProvider.tsx` and `features/auth/api.ts` for the
-flow, and `../backend/src/modules/website/identity/auth/` (in
-particular `cms-refresh-token.service.ts`) for the backend half:
-token rotation on every refresh, reuse detection with a short grace
-window for benign races (e.g. two tabs), and revocation on logout.
-
-The access token itself is still deliberately in-memory only (not
-persisted directly) — see `features/auth/authStore.ts` for why. The
-following are still intentionally **not** implemented:
-
-- Permissions-aware UI (role/permission data is fetched and stored, but
-  nothing branches on it yet)
-- Any CMS content features
+The admin includes persistent authentication, permission-gated routes
+and controls, and CMS management screens for site content and
+administration. Login uses an httpOnly refresh-token cookie to restore
+sessions; the access token stays in memory only. See
+`src/features/auth/AuthProvider.tsx`, `src/features/auth/authStore.ts`,
+and `../backend/src/modules/website/identity/auth/` for the session
+flow and token rotation details.
 
 ## Stack
 

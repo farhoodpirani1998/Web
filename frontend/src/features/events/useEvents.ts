@@ -16,9 +16,9 @@ export const eventsQueryKey = ["events"] as const;
  * — callers branch on `error.kind` rather than parsing raw HTTP status
  * codes.
  */
-export function useEvents(): UseQueryResult<readonly Event[]> {
+export function useEvents(campusId?: string): UseQueryResult<readonly Event[]> {
   return useQuery({
-    queryKey: eventsQueryKey,
-    queryFn: fetchEvents,
+    queryKey: campusId ? [...eventsQueryKey, campusId] : eventsQueryKey,
+    queryFn: () => fetchEvents(campusId),
   });
 }

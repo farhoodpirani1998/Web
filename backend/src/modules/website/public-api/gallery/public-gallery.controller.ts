@@ -40,6 +40,7 @@ interface PublicGalleryItemDto {
   description?: GalleryItem['description'];
   category?: string;
   position: number;
+  isFeatured: boolean;
 }
 
 /**
@@ -68,6 +69,7 @@ export class PublicGalleryController {
     @Query('category') category?: string,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) rawPage = 1,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) rawLimit = 20,
+    @Query('featuredOnly') featuredOnly?: string,
   ): Promise<PaginatedResult<PublicGalleryItemDto>> {
     const { page, limit } = clampPagination(rawPage, rawLimit);
 
@@ -82,6 +84,7 @@ export class PublicGalleryController {
       category,
       page,
       limit,
+      featuredOnly === 'true' ? 'featured' : 'all',
     );
     const cached =
       await this.redis.get<PaginatedResult<PublicGalleryItemDto>>(cacheKey);
@@ -93,6 +96,7 @@ export class PublicGalleryController {
       .where('item.siteId = :siteId', { siteId })
       .andWhere('item.status = :status', { status: PublishStatus.PUBLISHED });
     if (category) qb.andWhere('item.category = :category', { category });
+    if (featuredOnly === 'true') qb.andWhere('item.isFeatured = true');
 
     const [items, total] = await qb
       .addOrderBy('item.position', 'ASC')
@@ -117,6 +121,7 @@ export class PublicGalleryController {
         description: item.description,
         category: item.category,
         position: item.position,
+        isFeatured: item.isFeatured,
       })),
       total,
       page,

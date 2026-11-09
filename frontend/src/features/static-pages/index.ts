@@ -14,4 +14,3 @@ export type { PageTemplate, PublicStaticPageDto } from "./types";
 export { fetchHomepage, fetchStaticPageBySlug } from "./api";
 export { useStaticPageBySlug, staticPageDetailQueryKey } from "./useStaticPageBySlug";
 export { useHomepage, homepageQueryKey } from "./useHomepage";
-export { useHomepageAggregate, homepageAggregateQueryKey } from "./useHomepageAggregate";

@@ -27,7 +27,7 @@ export {
   fetchTeacherRevisions,
   restoreTeacherRevision,
 } from "./api";
-export { useTeachers, type UseTeachersResult } from "./hooks/useTeachers";
+export { useTeachers, type UseTeachersResult } from "../hooks/useTeachers";
 
 export { TeachersPage } from "./TeachersPage";
 export { TeacherList, type TeacherListProps } from "./TeacherList";

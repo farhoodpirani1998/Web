@@ -1,12 +1,11 @@
 import { defineConfig, mergeConfig } from "vitest/config";
-import viteConfig from "./vite.config";
+import viteConfig from "./vite.config.ts";
 
 /**
  * Vitest config — merged onto the app's existing Vite config so tests
- * reuse the exact same plugins (React + `vite-tsconfig-paths`, which is
- * what resolves the `@/*` alias) rather than re-declaring them and
- * risking drift. Only the `test` block is added here; the build/serve
- * settings from `vite.config.ts` are irrelevant to Vitest and ignored.
+ * reuse the app's React plugin and native tsconfig path resolution
+ * rather than re-declaring them and risking drift. Only the `test`
+ * block is added here; build/serve settings are ignored by Vitest.
  */
 export default mergeConfig(
   viteConfig,

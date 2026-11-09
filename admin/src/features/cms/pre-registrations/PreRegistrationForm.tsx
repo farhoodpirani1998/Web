@@ -31,7 +31,7 @@ export function PreRegistrationForm({ preRegistration, onCancel, onSaved }: PreR
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty, isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: preRegistration
@@ -43,7 +43,7 @@ export function PreRegistrationForm({ preRegistration, onCancel, onSaved }: PreR
     setSaveError(null);
     try {
       if (isEdit && preRegistration) {
-        const saved = await updatePreRegistrationStatus(preRegistration.id, data.status);
+        const saved = await updatePreRegistrationStatus(preRegistration.id, { status: data.status });
         onSaved({ ...saved, notes: data.notes } as CmsPreRegistration);
       } else {
         onCancel();

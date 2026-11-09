@@ -11,6 +11,7 @@ import { RedisModule } from '../../core/redis/redis.module';
 import { RevisionsModule } from '../../core/revisions/revisions.module';
 import { SiteSettingsModule } from '../site-settings/site-settings.module';
 import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
+import { CampusScopeModule } from '../common/campus-scope.module';
 
 /**
  * Kernel pieces used: site scoping, publishing, media (featured image
@@ -30,6 +31,7 @@ import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([CalendarEvent]),
+    CampusScopeModule,
     SiteModule,
     PublishingModule,
     MediaModule,

@@ -6,6 +6,7 @@
  * same convention as `features/cms/faq/index.ts`.
  */
 export { DashboardPage } from "./DashboardPage";
+export { DashboardContentCompleteness } from "./DashboardContentCompleteness";
 export { DashboardKpiCard, type DashboardKpiCardProps } from "./DashboardKpiCard";
 export { DashboardQuickActions } from "./DashboardQuickActions";
 export { DashboardRecentActivity } from "./DashboardRecentActivity";
@@ -18,3 +19,10 @@ export {
   type DashboardStats,
   type UseDashboardStatsResult,
 } from "./hooks/useDashboardStats";
+export {
+  createContentCompletenessItems,
+  useDashboardCompleteness,
+  type CompletenessStatus,
+  type ContentCompletenessItem,
+  type UseDashboardCompletenessResult,
+} from "./hooks/useDashboardCompleteness";

@@ -41,6 +41,7 @@ export class GalleryService {
         caption: dto.caption,
         description: dto.description,
         category: dto.category,
+        isFeatured: dto.isFeatured ?? false,
         position: (maxPosition?.max ?? -1) + 1,
         status: PublishStatus.DRAFT,
       }),
@@ -73,6 +74,7 @@ export class GalleryService {
     if (dto.caption !== undefined) item.caption = dto.caption;
     if (dto.description !== undefined) item.description = dto.description;
     if (dto.category !== undefined) item.category = dto.category;
+    if (dto.isFeatured !== undefined) item.isFeatured = dto.isFeatured;
 
     const saved = await this.galleryRepo.save(item);
 

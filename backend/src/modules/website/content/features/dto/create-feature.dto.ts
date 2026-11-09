@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
-import { IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsEnum, IsOptional, ValidateNested } from 'class-validator';
 import { TranslatableTextDto } from '../../common/dto/translatable-text.dto';
+import { FeatureIcon } from '../feature-icon.enum';
 
 export class CreateFeatureDto {
   @ValidateNested()
@@ -12,6 +13,6 @@ export class CreateFeatureDto {
   description!: TranslatableTextDto;
 
   @IsOptional()
-  @IsString()
+  @IsEnum(FeatureIcon)
   icon?: string;
 }

@@ -48,6 +48,16 @@ describe('TestimonialsService', () => {
   });
 
   describe('create', () => {
+    it('persists the featured flag', async () => {
+      const testimonial = await service.create({
+        authorName: 'Jane Doe',
+        content: { fa: 'عالی بود' },
+        isFeatured: true,
+      });
+
+      expect(testimonial.isFeatured).toBe(true);
+    });
+
     it('attaches the avatar media usage when an avatarMediaId is provided', async () => {
       const testimonial = await service.create({
         authorName: 'Jane Doe',
@@ -73,6 +83,23 @@ describe('TestimonialsService', () => {
   });
 
   describe('update', () => {
+    it('updates the featured flag', async () => {
+      repo.findOneByOrFail.mockResolvedValue({
+        id: 'testimonial-1',
+        siteId,
+        authorName: 'Jane Doe',
+        content: { fa: 'قبلی' },
+        isFeatured: false,
+        status: PublishStatus.DRAFT,
+      });
+
+      const testimonial = await service.update('testimonial-1', {
+        isFeatured: true,
+      });
+
+      expect(testimonial.isFeatured).toBe(true);
+    });
+
     it('detaches the old avatar and attaches the new one when it changes', async () => {
       repo.findOneByOrFail.mockResolvedValue({
         id: 'testimonial-1',

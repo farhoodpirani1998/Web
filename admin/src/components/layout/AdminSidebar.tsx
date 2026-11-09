@@ -37,7 +37,7 @@ export function AdminSidebar({
   const { admin } = useAuth();
 
   return (
-    <div className="flex h-full flex-col border-e border-sidebar-border bg-sidebar text-sidebar-foreground">
+    <div className="flex h-full flex-col border-e border-sidebar-border bg-gradient-to-b from-sidebar to-[#08172b] text-sidebar-foreground">
       <BrandHeader collapsed={collapsed} />
 
       <nav aria-label="ناوبری اصلی" className="flex-1 overflow-y-auto px-3 py-2">
@@ -69,12 +69,13 @@ export function AdminSidebar({
                         to={item.route}
                         onClick={onNavigate}
                         title={collapsed ? item.label : undefined}
+                        aria-label={collapsed ? item.label : undefined}
                         className={({ isActive }) =>
                           cn(
-                            "group relative flex items-center gap-3 rounded-md py-2 text-sm font-medium transition-colors",
+                            "group relative flex min-h-11 items-center gap-3 rounded-xl py-2 text-sm font-medium transition-all duration-200",
                             collapsed ? "justify-center px-0" : "px-3",
                             isActive
-                              ? "bg-sidebar-active text-white"
+                              ? "bg-sidebar-active text-white shadow-[inset_0_0_0_1px_hsl(var(--sidebar-border))]"
                               : "text-sidebar-foreground/90 hover:bg-sidebar-hover hover:text-white",
                           )
                         }
@@ -117,7 +118,7 @@ export function AdminSidebar({
             type="button"
             onClick={onToggleCollapse}
             className={cn(
-              "flex w-full items-center gap-3 rounded-md py-2 text-sm font-medium text-sidebar-muted transition-colors hover:bg-sidebar-hover hover:text-white",
+              "flex min-h-11 w-full items-center gap-3 rounded-md py-2 text-sm font-medium text-sidebar-muted transition-colors hover:bg-sidebar-hover hover:text-white",
               collapsed ? "justify-center px-0" : "px-3",
             )}
             title={collapsed ? "باز کردن نوار کناری" : "جمع کردن نوار کناری"}

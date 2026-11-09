@@ -11,6 +11,7 @@ import { SeoModule } from '../../core/seo/seo.module';
 import { RedisModule } from '../../core/redis/redis.module';
 import { RevisionsModule } from '../../core/revisions/revisions.module';
 import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
+import { CampusScopeModule } from '../common/campus-scope.module';
 
 /**
  * Kernel pieces used: site scoping, ordering (drag-and-drop `position`
@@ -25,6 +26,7 @@ import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Teacher]),
+    CampusScopeModule,
     SiteModule,
     OrderingModule,
     PublishingModule,

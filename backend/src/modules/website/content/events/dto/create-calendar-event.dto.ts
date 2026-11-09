@@ -76,6 +76,10 @@ export class CreateCalendarEventDto {
   featuredImageMediaId?: string;
 
   @IsOptional()
+  @IsUUID()
+  campusId?: string;
+
+  @IsOptional()
   @ValidateNested()
   @Type(() => SeoMetadataDto)
   seo?: SeoMetadataDto;

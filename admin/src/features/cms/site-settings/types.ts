@@ -41,6 +41,9 @@ export type CmsSocialPlatform =
   | "telegram"
   | "whatsapp"
   | "eitaa"
+  | "bale"
+  | "rubika"
+  | "aparat"
   | "youtube"
   | "linkedin"
   | "twitter"
@@ -50,6 +53,23 @@ export type CmsSocialPlatform =
 export interface CmsSocialLink {
   platform: CmsSocialPlatform;
   url: string;
+  active?: boolean;
+}
+
+export type CmsWorkingHoursDay =
+  | "saturday"
+  | "sunday"
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday";
+
+export interface CmsWorkingHoursEntry {
+  day: CmsWorkingHoursDay;
+  openTime: string;
+  closeTime: string;
+  isClosed: boolean;
 }
 
 /**
@@ -93,8 +113,12 @@ export interface CmsSiteSettings extends CmsEntityMeta {
   faviconMediaId?: string;
   contactEmail?: string;
   contactPhone?: string;
+  contactPhones?: string[];
   address?: Translatable<string>;
   mapUrl?: string;
+  mapLatitude?: number | null;
+  mapLongitude?: number | null;
+  workingHours?: CmsWorkingHoursEntry[] | null;
   socialLinks: CmsSocialLink[];
   defaultSeo: CmsSeoMetadata;
   featureFlags: CmsSiteFeatureFlags;
@@ -117,8 +141,12 @@ export interface UpdateGeneralSettingsPayload {
 export interface UpdateContactSettingsPayload {
   contactEmail?: string;
   contactPhone?: string;
+  contactPhones?: string[];
   address?: Translatable<string>;
   mapUrl?: string;
+  mapLatitude?: number | null;
+  mapLongitude?: number | null;
+  workingHours?: CmsWorkingHoursEntry[] | null;
 }
 
 /**

@@ -14,6 +14,7 @@ import { SiteSettingsService } from '../site-settings/site-settings.service';
 import { RedisService } from '../../core/redis/redis.service';
 import { buildPublicCacheKey } from '../../public-api/common/public-cache.constants';
 import { sanitizeTranslatableRichText } from '../common/rich-text-sanitizer';
+import { CampusScopeService } from '../common/campus-scope.service';
 import {
   RevisionsService,
   RevisionEnabledType,
@@ -32,6 +33,7 @@ function snapshotOf(article: NewsArticle): Record<string, unknown> {
     body: article.body,
     category: article.category,
     tags: article.tags,
+    campusId: article.campusId,
     featuredImageMediaId: article.featuredImageMediaId,
     seo: article.seo,
   };
@@ -49,6 +51,7 @@ export class NewsService implements OnModuleInit {
     private readonly siteSettings: SiteSettingsService,
     private readonly revisions: RevisionsService,
     private readonly redis: RedisService,
+    private readonly campusScope: CampusScopeService,
   ) {}
 
   /**
@@ -112,6 +115,7 @@ export class NewsService implements OnModuleInit {
   ): Promise<NewsArticle> {
     const siteId = this.siteService.getDefaultSiteId();
     await this.assertSlugAvailable(siteId, dto.slug);
+    await this.campusScope.assertCampusBelongsToSite(siteId, dto.campusId);
 
     const article = await this.newsRepo.save(
       this.newsRepo.create({
@@ -122,6 +126,7 @@ export class NewsService implements OnModuleInit {
         body: sanitizeTranslatableRichText(dto.body),
         category: dto.category,
         tags: dto.tags,
+        campusId: dto.campusId,
         featuredImageMediaId: dto.featuredImageMediaId,
         seo: dto.seo ?? {},
         status: PublishStatus.DRAFT,
@@ -135,19 +140,20 @@ export class NewsService implements OnModuleInit {
         article.id,
       );
     }
+    await this.invalidatePublicCache(article.slug);
     await this.revisions.record(
       ENTITY_TYPE,
       article.id,
       snapshotOf(article),
       authorId,
     );
-    await this.invalidatePublicCache(article.slug);
     return article;
   }
 
   async findAll(
     status?: PublishStatus,
     category?: string,
+    campusId?: string,
   ): Promise<NewsArticle[]> {
     const siteId = this.siteService.getDefaultSiteId();
     const qb = this.newsRepo
@@ -156,6 +162,12 @@ export class NewsService implements OnModuleInit {
 
     if (status) qb.andWhere('article.status = :status', { status });
     if (category) qb.andWhere('article.category = :category', { category });
+    if (campusId) {
+      qb.andWhere(
+        '(article.campusId = :campusId OR article.campusId IS NULL)',
+        { campusId },
+      );
+    }
 
     // Reverse-chronological, not manual position — see entity comment.
     // NULLS LAST spelled out explicitly since Postgres defaults DESC to
@@ -176,6 +188,12 @@ export class NewsService implements OnModuleInit {
     authorId: string,
   ): Promise<NewsArticle> {
     const article = await this.findOne(id);
+    if (dto.campusId !== undefined) {
+      await this.campusScope.assertCampusBelongsToSite(
+        article.siteId,
+        dto.campusId,
+      );
+    }
     const previousSlug = article.slug;
     const previousFeaturedImageMediaId = article.featuredImageMediaId;
 
@@ -189,6 +207,7 @@ export class NewsService implements OnModuleInit {
       article.body = sanitizeTranslatableRichText(dto.body);
     if (dto.category !== undefined) article.category = dto.category;
     if (dto.tags !== undefined) article.tags = dto.tags;
+    if (dto.campusId !== undefined) article.campusId = dto.campusId ?? null;
     if (dto.featuredImageMediaId !== undefined) {
       article.featuredImageMediaId = dto.featuredImageMediaId ?? undefined;
     }
@@ -216,13 +235,13 @@ export class NewsService implements OnModuleInit {
       }
     }
 
+    await this.invalidatePublicCache(previousSlug, saved.slug);
     await this.revisions.record(
       ENTITY_TYPE,
       saved.id,
       snapshotOf(saved),
       authorId,
     );
-    await this.invalidatePublicCache(previousSlug, saved.slug);
     return saved;
   }
 

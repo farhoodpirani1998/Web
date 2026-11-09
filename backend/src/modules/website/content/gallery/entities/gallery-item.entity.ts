@@ -40,6 +40,10 @@ export class GalleryItem extends BaseSiteScopedEntity {
   @Column({ type: 'int', default: 0 })
   position!: number;
 
+  @Index('IDX_gallery_items_isFeatured')
+  @Column({ type: 'boolean', default: false })
+  isFeatured!: boolean;
+
   @Column({ type: 'enum', enum: PublishStatus, default: PublishStatus.DRAFT })
   status!: PublishStatus;
 }

@@ -17,4 +17,4 @@ export { RegistrationForm } from "./RegistrationForm";
 export { FAQ } from "./FAQ";
 export { SuccessState } from "./SuccessState";
 export { submitPreRegistration } from "./api";
-export type { PreRegistrationPayload } from "./types";
+export type { PreRegistrationPayload, PreRegistrationResponse } from "./types";

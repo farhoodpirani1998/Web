@@ -6,15 +6,23 @@ import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PermissionGate } from "@/components/ui/PermissionGate";
 import { Section } from "@/components/ui/Section";
+import { useAdminUsers } from "@/features/cms/admin-users";
+import { useCampuses } from "@/features/cms/campuses";
 import { ApiError } from "@/lib/apiError";
 
-import { updatePreRegistrationStatus } from "./api";
 import { PreRegistrationDeleteConfirm } from "./PreRegistrationDeleteConfirm";
 import { PreRegistrationDetail } from "./PreRegistrationDetail";
 import { PreRegistrationList } from "./PreRegistrationList";
 import { PreRegistrationStatusFilter } from "./PreRegistrationStatusFilter";
-import { usePreRegistrations } from "./hooks/usePreRegistrations";
-import type { CmsPreRegistration, CmsPreRegistrationStatus } from "./types";
+import {
+  usePreRegistrationMutations,
+  usePreRegistrations,
+} from "./hooks/usePreRegistrations";
+import type {
+  CmsPreRegistration,
+  CmsPreRegistrationStatus,
+  UpdatePreRegistrationAssignmentPayload,
+} from "./types";
 
 /**
  * The Pre-Registrations admin page (`/admin/pre-registrations`, wired
@@ -36,12 +44,15 @@ import type { CmsPreRegistration, CmsPreRegistrationStatus } from "./types";
  */
 export function PreRegistrationsPage() {
   const [status, setStatus] = useState<CmsPreRegistrationStatus | undefined>(undefined);
-  const { preRegistrations, isLoading, error, refetch, setPreRegistrations } =
-    usePreRegistrations(status);
+  const { preRegistrations, isLoading, error, refetch } = usePreRegistrations(status);
+  const { statusMut, followUpMut } = usePreRegistrationMutations();
+  const { admins } = useAdminUsers();
+  const { campuses } = useCampuses();
 
   const [viewingDetailId, setViewingDetailId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<CmsPreRegistration | null>(null);
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
+  const [updatingFollowUpId, setUpdatingFollowUpId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const viewingDetail = preRegistrations.find((item) => item.id === viewingDetailId) ?? null;
@@ -59,18 +70,30 @@ export function PreRegistrationsPage() {
     setUpdatingStatusId(preRegistration.id);
 
     try {
-      const updated = await updatePreRegistrationStatus(preRegistration.id, {
-        status: nextStatus,
-      });
-      setPreRegistrations((current) =>
-        current.map((item) => (item.id === updated.id ? updated : item)),
-      );
+      await statusMut.mutateAsync({ id: preRegistration.id, status: nextStatus });
     } catch (err) {
       setActionError(
         err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
       setUpdatingStatusId(null);
+    }
+  }
+
+  async function handleSaveFollowUp(
+    preRegistration: CmsPreRegistration,
+    payload: UpdatePreRegistrationAssignmentPayload,
+  ) {
+    setActionError(null);
+    setUpdatingFollowUpId(preRegistration.id);
+    try {
+      await followUpMut.mutateAsync({ id: preRegistration.id, payload });
+    } catch (err) {
+      setActionError(
+        err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
+      );
+    } finally {
+      setUpdatingFollowUpId(null);
     }
   }
 
@@ -111,6 +134,8 @@ export function PreRegistrationsPage() {
               preRegistrations={preRegistrations}
               isLoading={isLoading}
               error={error}
+              admins={admins}
+              campuses={campuses}
               statusFilter={status}
               updatingStatusId={updatingStatusId}
               onViewDetail={(item) => setViewingDetailId(item.id)}
@@ -123,9 +148,14 @@ export function PreRegistrationsPage() {
         {viewingDetail ? (
           <PreRegistrationDetail
             preRegistration={viewingDetail}
+            admins={admins}
+            campuses={campuses}
             isUpdatingStatus={updatingStatusId === viewingDetail.id}
+            isUpdatingFollowUp={updatingFollowUpId === viewingDetail.id}
+            saveError={actionError}
             onClose={() => setViewingDetailId(null)}
             onChangeStatus={(next) => handleChangeStatus(viewingDetail, next)}
+            onSaveFollowUp={(payload) => handleSaveFollowUp(viewingDetail, payload)}
           />
         ) : null}
 

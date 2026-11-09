@@ -10,14 +10,9 @@ import { buttonVariants } from "@/shared/design-system/components/ui/button";
 import { Skeleton } from "@/shared/design-system/components/ui/skeleton";
 import { cn } from "@/shared/utils/cn";
 import type { NavLinkItem } from "@/app/shell/DesktopNavigation";
+import { getNavigationLinkTarget, isExternalNavigationUrl } from "./navigation-links";
 
 const MOBILE_NAV_PANEL_ID = "mobile-nav-panel";
-const EXTERNAL_URL_PATTERN = /^([a-z][a-z0-9+.-]*:)?\/\//i;
-
-function isExternalUrl(url: string): boolean {
-  return EXTERNAL_URL_PATTERN.test(url);
-}
-
 /** Fixed-width placeholder rows, same intent as `DesktopNavigation`'s skeleton bars. */
 const SKELETON_WIDTHS = ["w-24", "w-32", "w-20", "w-28", "w-16", "w-24", "w-20"] as const;
 
@@ -154,13 +149,13 @@ export function MobileNavigation({ items, brandName, isLoading = false, onOpenPo
                         FOCUS_RING_CLASSNAME,
                       );
 
-                      if (isExternalUrl(item.url)) {
+                      if (isExternalNavigationUrl(item.url)) {
                         return (
                           <li key={item.id}>
                             <a
                               href={item.url}
-                              target={item.target ?? "_blank"}
-                              rel="noopener noreferrer"
+                              target={getNavigationLinkTarget(item.url, item.target)}
+                              rel={getNavigationLinkTarget(item.url, item.target) === "_blank" ? "noopener noreferrer" : undefined}
                               className={linkClassName}
                             >
                               {item.label}

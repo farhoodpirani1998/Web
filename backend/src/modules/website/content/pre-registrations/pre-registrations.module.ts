@@ -5,6 +5,7 @@ import { PreRegistrationsService } from './pre-registrations.service';
 import { PreRegistrationsController } from './pre-registrations.controller';
 import { SiteModule } from '../../core/site/site.module';
 import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
+import { CampusScopeModule } from '../common/campus-scope.module';
 
 /**
  * Imports only the kernel pieces it actually uses: site scoping and
@@ -20,6 +21,7 @@ import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([PreRegistration]),
+    CampusScopeModule,
     SiteModule,
     CmsAuthModule,
   ],

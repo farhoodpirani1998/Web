@@ -31,7 +31,7 @@ const OPTIONS: { label: string; value: CmsTestimonialStatus | undefined }[] = [
 export function TestimonialStatusFilter({ value, onChange }: TestimonialStatusFilterProps) {
   return (
     <div
-      role="tablist"
+      role="group"
       aria-label="فیلتر نظرات بر اساس وضعیت"
       className="inline-flex w-fit rounded-md border border-slate-200 bg-slate-50 p-0.5"
     >
@@ -41,8 +41,7 @@ export function TestimonialStatusFilter({ value, onChange }: TestimonialStatusFi
           <button
             key={option.label}
             type="button"
-            role="tab"
-            aria-selected={isActive}
+            aria-pressed={isActive}
             onClick={() => onChange(option.value)}
             className={`rounded px-3 py-1.5 text-sm font-medium transition ${
               isActive

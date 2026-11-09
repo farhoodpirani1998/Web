@@ -5,19 +5,17 @@
  */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useId, useState } from "react";
+import { useState } from "react";
+import type { z } from "zod";
 
 import { UnsavedChangesDialog } from "@/components/ui/UnsavedChangesDialog";
 import { MediaPicker, useMediaById } from "@/features/cms/media";
-import { useIsDirty, useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
+import { CampusSelect } from "@/features/cms/campuses";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { ApiError } from "@/lib/apiError";
 
-import {
-  createTeacher,
-  updateTeacher,
-  type CreateTeacherPayload,
-  type UpdateTeacherPayload,
-} from "./api";
+import { createTeacher, updateTeacher } from "./api";
+import type { CreateTeacherPayload, UpdateTeacherPayload } from "./types";
 import { teacherFormSchema, formDataToCreatePayload, formDataToUpdatePayload, type TeacherFormData } from "./schema";
 import type { CmsTeacher } from "./types";
 
@@ -36,8 +34,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
     formState: { errors, isDirty, isSubmitting },
     setValue,
     watch,
-    reset,
-  } = useForm<TeacherFormData>({
+  } = useForm<z.input<typeof teacherFormSchema>, unknown, TeacherFormData>({
     resolver: zodResolver(teacherFormSchema),
     defaultValues: teacher
       ? {
@@ -90,6 +87,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
   const { isConfirmOpen, guardedAction, confirmLeave, cancelLeave } = useUnsavedChangesGuard(isDirty);
 
   const avatarMediaId = watch("avatarMediaId");
+  const campusId = watch("campusId") ?? "";
 
   async function onSubmit(data: TeacherFormData) {
     setSaveError(null);
@@ -168,11 +166,17 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
             </Field>
           </div>
 
-          <Field label="شناسه پردیس (campusId)" error={errors.campusId}>
-            <input {...register("campusId")} className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100" disabled={isSubmitting} placeholder="e.g. 3fa85f64-5717-4562-b3fc-2c963f66afa6" aria-invalid={!!errors.campusId} />
-          </Field>
+          <CampusSelect
+            id="teacher-campus"
+            label="پردیس"
+            value={campusId}
+            onChange={(value) =>
+              setValue("campusId", value, { shouldDirty: true, shouldValidate: true })
+            }
+            disabled={isSubmitting}
+          />
 
-          <AvatarField mediaId={avatarMediaId} disabled={isSubmitting} onChoose={() => setIsPickerOpen(true)} onClear={() => setValue("avatarMediaId", null)} />
+          <AvatarField mediaId={avatarMediaId ?? null} disabled={isSubmitting} onChoose={() => setIsPickerOpen(true)} onClear={() => setValue("avatarMediaId", null)} />
 
           <fieldset className="rounded-md border border-slate-200 p-3">
             <legend className="px-1 text-sm font-medium text-slate-900">SEO — اختیاری</legend>
@@ -209,7 +213,7 @@ export function TeacherForm({ teacher, onCancel, onSaved }: TeacherFormProps) {
 
       {isPickerOpen ? (
         <MediaPickerDialog
-          selectedId={avatarMediaId}
+          selectedId={avatarMediaId ?? null}
           onSelect={(media) => {
             setValue("avatarMediaId", media.id);
             setIsPickerOpen(false);
@@ -272,4 +276,3 @@ function MediaPickerDialog({ selectedId, onSelect, onCancel }: { selectedId: str
     </div>
   );
 }
-

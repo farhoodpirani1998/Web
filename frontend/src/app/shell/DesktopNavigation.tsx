@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { FOCUS_RING_CLASSNAME } from "@/shared/design-system/a11y";
 import { Skeleton } from "@/shared/design-system/components/ui/skeleton";
 import { cn } from "@/shared/utils/cn";
+import { getNavigationLinkTarget, isExternalNavigationUrl } from "./navigation-links";
 
 /**
  * Minimal shape `DesktopNavigation`/`MobileNavigation` need to render a
@@ -29,12 +30,6 @@ export interface DesktopNavigationProps {
   items: readonly NavLinkItem[];
   /** True only while the initial fetch is in flight and no data exists yet. */
   isLoading?: boolean;
-}
-
-const EXTERNAL_URL_PATTERN = /^([a-z][a-z0-9+.-]*:)?\/\//i;
-
-function isExternalUrl(url: string): boolean {
-  return EXTERNAL_URL_PATTERN.test(url);
 }
 
 function linkClassName(isActive: boolean): string {
@@ -83,12 +78,12 @@ export function DesktopNavigation({ items, isLoading = false }: DesktopNavigatio
       className="hidden md:flex md:flex-wrap md:items-center md:justify-end md:gap-x-5 md:gap-y-1"
     >
       {items.map((item) =>
-        isExternalUrl(item.url) ? (
+        isExternalNavigationUrl(item.url) ? (
           <a
             key={item.id}
             href={item.url}
-            target={item.target ?? "_blank"}
-            rel="noopener noreferrer"
+            target={getNavigationLinkTarget(item.url, item.target)}
+            rel={getNavigationLinkTarget(item.url, item.target) === "_blank" ? "noopener noreferrer" : undefined}
             className={linkClassName(false)}
           >
             {item.label}

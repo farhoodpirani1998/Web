@@ -54,6 +54,10 @@ export class NewsArticle extends BaseSiteScopedEntity {
   @Column({ type: 'text', array: true, nullable: true })
   tags?: string[];
 
+  @Index('IDX_news_articles_campusId')
+  @Column({ type: 'uuid', nullable: true })
+  campusId?: string | null;
+
   // Reference into core/media, tracked via MediaUsage — never an
   // embedded copy. Optional, same as Hero.backgroundMediaId.
   @Column({ type: 'uuid', nullable: true })

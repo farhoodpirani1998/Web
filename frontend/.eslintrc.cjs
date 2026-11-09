@@ -22,6 +22,12 @@ module.exports = {
     ecmaFeatures: { jsx: true },
     project: ["./tsconfig.app.json", "./tsconfig.node.json"],
   },
+  overrides: [
+    {
+      files: ["e2e/**/*.ts"],
+      parserOptions: { project: null },
+    },
+  ],
   plugins: ["react", "react-hooks", "react-refresh", "@typescript-eslint", "jsx-a11y"],
   settings: {
     react: { version: "detect" },

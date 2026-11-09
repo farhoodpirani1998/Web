@@ -95,5 +95,30 @@ describe('MediaService', () => {
       });
       expect(result).toBe(rows);
     });
+
+    describe('updateAltText', () => {
+      it('updates and returns the media alt text', async () => {
+        const media = { id: 'media-1', altText: 'Old description' };
+        mediaRepo.findOneByOrFail.mockResolvedValue(media);
+        mediaRepo.save.mockResolvedValue({ ...media, altText: 'New description' });
+
+        const result = await service.updateAltText('media-1', '  New description  ');
+
+        expect(mediaRepo.findOneByOrFail).toHaveBeenCalledWith({ id: 'media-1' });
+        expect(mediaRepo.save).toHaveBeenCalledWith({
+          ...media,
+          altText: 'New description',
+        });
+        expect(result.altText).toBe('New description');
+      });
+
+      it('rejects empty descriptions without querying or saving a media row', async () => {
+        await expect(service.updateAltText('media-1', '   ')).rejects.toThrow(
+          'altText is required',
+        );
+        expect(mediaRepo.findOneByOrFail).not.toHaveBeenCalled();
+        expect(mediaRepo.save).not.toHaveBeenCalled();
+      });
+    });
   });
 });

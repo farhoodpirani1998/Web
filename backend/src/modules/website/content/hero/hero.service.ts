@@ -70,13 +70,13 @@ export class HeroService {
     if (slide.backgroundMediaId) {
       await this.media.attach(slide.backgroundMediaId, ENTITY_TYPE, slide.id);
     }
+    await this.invalidatePublicCache();
     await this.revisions.record(
       ENTITY_TYPE,
       slide.id,
       snapshotOf(slide),
       authorId,
     );
-    await this.invalidatePublicCache();
     return slide;
   }
 
@@ -126,13 +126,13 @@ export class HeroService {
       }
     }
 
+    await this.invalidatePublicCache();
     await this.revisions.record(
       ENTITY_TYPE,
       saved.id,
       snapshotOf(saved),
       authorId,
     );
-    await this.invalidatePublicCache();
     return saved;
   }
 

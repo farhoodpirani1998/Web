@@ -9,9 +9,8 @@ import {
   createFeature,
   updateFeature,
   deleteFeature,
-  reorderFeatures,
 } from "../api";
-import type { CmsFeature, CmsFeatureStatus } from "../types";
+import type { CmsFeature, CmsFeatureStatus, UpdateFeaturePayload } from "../types";
 
 export const featureKeys = {
   all: ["features"] as const,
@@ -39,6 +38,18 @@ export function useFeatureList(status?: CmsFeatureStatus) {
   };
 }
 
+export function useFeatures(status?: CmsFeatureStatus) {
+  const list = useFeatureList(status);
+  return {
+    features: list.data ?? [],
+    isLoading: list.isLoading,
+    error: list.error,
+    refetch: () => { void list.refetch(); },
+    setFeatures: (updater: CmsFeature[] | ((old: CmsFeature[]) => CmsFeature[])) =>
+      list.setData(typeof updater === "function" ? (old) => updater(old ?? []) : updater),
+  };
+}
+
 export function useFeatureById(id: string | null) {
   return useQuery({
     queryKey: featureKeys.detail(id ?? ""),
@@ -59,7 +70,7 @@ export function useCreateFeature() {
 export function useUpdateFeature() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: any }) => updateFeature(id, payload),
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateFeaturePayload }) => updateFeature(id, payload),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: featureKeys.all }),
   });
 }

@@ -74,8 +74,7 @@ export interface CmsTeacher extends CmsEntityMeta {
   excerpt?: Translatable<string>;
   bio: Translatable<string>;
   department?: Translatable<string>;
-  /** Plain uuid reference to a Campus, not a relation — validated server-side. No admin Campus picker exists yet; see `TeacherForm`'s comment. */
-  campusId?: string;
+  campusId?: string | null;
   phone?: string;
   email?: string;
   /** Manual admin ordering — primary sort key for both admin and public listings. */
@@ -93,9 +92,9 @@ export interface CreateTeacherPayload {
   fullName: string;
   slug: string;
   jobTitle: Translatable<string>;
-  excerpt?: Translatable<string>;
+  excerpt?: Partial<Translatable<string>>;
   bio: Translatable<string>;
-  department?: Translatable<string>;
+  department?: Partial<Translatable<string>>;
   campusId?: string;
   phone?: string;
   email?: string;
@@ -115,10 +114,10 @@ export interface CreateTeacherPayload {
 export interface UpdateTeacherPayload {
   fullName?: string;
   slug?: string;
-  jobTitle?: Translatable<string>;
-  excerpt?: Translatable<string>;
-  bio?: Translatable<string>;
-  department?: Translatable<string>;
+  jobTitle?: Partial<Translatable<string>>;
+  excerpt?: Partial<Translatable<string>>;
+  bio?: Partial<Translatable<string>>;
+  department?: Partial<Translatable<string>>;
   campusId?: string | null;
   phone?: string | null;
   email?: string | null;
@@ -159,7 +158,7 @@ export interface CmsTeacherRevision {
     excerpt?: Translatable<string>;
     bio: Translatable<string>;
     department?: Translatable<string>;
-    campusId?: string;
+    campusId?: string | null;
     phone?: string;
     email?: string;
     avatarMediaId?: string;

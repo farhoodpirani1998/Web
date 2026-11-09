@@ -174,13 +174,13 @@ export class PagesService implements OnModuleInit {
     if (page.featuredImageMediaId) {
       await this.media.attach(page.featuredImageMediaId, ENTITY_TYPE, page.id);
     }
+    await this.invalidateDetail(page.slug);
     await this.revisions.record(
       ENTITY_TYPE,
       page.id,
       snapshotOf(page),
       authorId,
     );
-    await this.invalidateDetail(page.slug);
     return page;
   }
 
@@ -256,6 +256,9 @@ export class PagesService implements OnModuleInit {
       }
     }
 
+    await this.invalidateDetail(previousSlug);
+    await this.invalidateDetail(saved.slug);
+    if (saved.isHomepage) await this.invalidateHomepage();
     await this.revisions.record(
       ENTITY_TYPE,
       saved.id,
@@ -265,9 +268,6 @@ export class PagesService implements OnModuleInit {
     // previousSlug and saved.slug can differ (slug rename) and, unlike
     // News, this page's content can also be served under 'homepage' —
     // clear that too whenever the edited page is the current homepage.
-    await this.invalidateDetail(previousSlug);
-    await this.invalidateDetail(saved.slug);
-    if (saved.isHomepage) await this.invalidateHomepage();
     return saved;
   }
 

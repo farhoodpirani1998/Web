@@ -3,6 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 
 import { AppLayout } from "@/app/layout/AppLayout";
 import { PageLoader } from "@/app/layout/PageLoader";
+import { ROUTE_PATHS } from "@/app/routes/paths";
 
 // Route-level code-splitting is the unit of lazy-loading (§7, §29) —
 // a visitor only downloads the code for the page they actually visit.
@@ -17,6 +18,15 @@ const ContactPage = lazy(() =>
 );
 const SchoolsPage = lazy(() =>
   import("@/pages/SchoolsPage").then((m) => ({ default: m.SchoolsPage })),
+);
+const SchoolDetailPage = lazy(() =>
+  import("@/pages/SchoolDetailPage").then((m) => ({ default: m.SchoolDetailPage })),
+);
+const TextbookLibraryPage = lazy(() =>
+  import("@/pages/TextbookLibraryPage").then((m) => ({ default: m.TextbookLibraryPage })),
+);
+const TextbookDetailPage = lazy(() =>
+  import("@/pages/TextbookDetailPage").then((m) => ({ default: m.TextbookDetailPage })),
 );
 const NewsPage = lazy(() =>
   import("@/pages/NewsPage").then((m) => ({ default: m.NewsPage })),
@@ -66,7 +76,9 @@ const NotFoundPage = lazy(() =>
   import("@/pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage })),
 );
 const StaticPageDetailPage = lazy(() =>
-  import("@/pages/StaticPageDetailPage").then((m) => ({ default: m.StaticPageDetailPage })),
+  import("@/pages/StaticPageDetailPage").then((m) => ({
+    default: m.StaticPageDetailPage,
+  })),
 );
 
 function withSuspense(element: ReactNode) {
@@ -101,6 +113,18 @@ export const router = createBrowserRouter([
       {
         path: "schools",
         element: withSuspense(<SchoolsPage />),
+      },
+      {
+        path: "schools/:slug",
+        element: withSuspense(<SchoolDetailPage />),
+      },
+      {
+        path: ROUTE_PATHS.library,
+        element: withSuspense(<TextbookLibraryPage />),
+      },
+      {
+        path: ROUTE_PATHS.textbookDetail,
+        element: withSuspense(<TextbookDetailPage />),
       },
       {
         path: "news",

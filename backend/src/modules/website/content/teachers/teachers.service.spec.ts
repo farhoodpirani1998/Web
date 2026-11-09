@@ -12,6 +12,7 @@ describe('TeachersService', () => {
   let sitemap: any;
   let revisions: any;
   let redis: any;
+  let campusScope: any;
   let service: TeachersService;
 
   beforeEach(() => {
@@ -47,6 +48,9 @@ describe('TeachersService', () => {
       delete: jest.fn(),
       deleteByPrefix: jest.fn(),
     };
+    campusScope = {
+      assertCampusBelongsToSite: jest.fn().mockResolvedValue(undefined),
+    };
     service = new TeachersService(
       repo,
       siteService,
@@ -56,6 +60,7 @@ describe('TeachersService', () => {
       sitemap,
       revisions,
       redis,
+      campusScope,
     );
   });
 
@@ -170,6 +175,19 @@ describe('TeachersService', () => {
     });
   });
 
+  describe('findAll', () => {
+    it('includes campus-specific and shared teachers for a campus filter', async () => {
+      await service.findAll(undefined, 'campus-1');
+
+      expect(
+        repo.createQueryBuilder.mock.results[0].value.andWhere,
+      ).toHaveBeenCalledWith(
+        '(teacher.campusId = :campusId OR teacher.campusId IS NULL)',
+        { campusId: 'campus-1' },
+      );
+    });
+  });
+
   describe('update', () => {
     it('re-checks slug uniqueness only when the slug actually changes', async () => {
       repo.findOneByOrFail.mockResolvedValue({
@@ -242,7 +260,7 @@ describe('TeachersService', () => {
         'author-1',
       );
 
-      expect(result.campusId).toBeUndefined();
+      expect(result.campusId).toBeNull();
       expect(result.phone).toBeUndefined();
       expect(result.email).toBeUndefined();
     });

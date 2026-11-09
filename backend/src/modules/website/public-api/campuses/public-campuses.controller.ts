@@ -35,10 +35,13 @@ interface PublicCampusListItemDto {
   excerpt?: Campus['excerpt'];
   address?: Campus['address'];
   mapUrl?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   phone?: string;
   email?: string;
   area?: Campus['area'];
   features?: string[];
+  gradeLevels?: string[] | null;
   position: number;
   featuredImage: PublicMediaRef | null;
 }
@@ -150,10 +153,13 @@ export class PublicCampusesController {
       excerpt: campus.excerpt,
       address: campus.address,
       mapUrl: campus.mapUrl,
+      latitude: campus.latitude,
+      longitude: campus.longitude,
       phone: campus.phone,
       email: campus.email,
       area: campus.area,
       features: campus.features,
+      gradeLevels: campus.gradeLevels,
       position: campus.position,
       featuredImage: campus.featuredImageMediaId
         ? (mediaMap.get(campus.featuredImageMediaId) ?? null)

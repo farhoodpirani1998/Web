@@ -1,5 +1,4 @@
 import { z } from "zod";
-import type { Translatable } from "../types";
 
 export const achievementValueSchema = z.string().min(1, "مقدار الزامی است");
 

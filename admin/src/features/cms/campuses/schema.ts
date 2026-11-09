@@ -4,6 +4,10 @@
  */
 import { z } from "zod";
 import type { Translatable } from "../types";
+import type {
+  CreateCampusPayload as CmsCreateCampusPayload,
+  UpdateCampusPayload as CmsUpdateCampusPayload,
+} from "./types";
 
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -29,8 +33,11 @@ export const createCampusPayloadSchema = z.object({
   body: translatableSchema,
   address: translatableSchema.partial().optional(),
   mapUrl: z.string().optional(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
   phone: z.string().optional(),
   email: z.string().email("ایمیل معتبر نیست").optional().or(z.literal("")),
+  gradeLevels: z.array(z.string()).optional(),
   featuredImageMediaId: z.string().uuid("شناسه رسانه معتبر نیست").optional(),
   seo: seoMetadataSchema.partial().optional(),
 });
@@ -44,8 +51,11 @@ export const updateCampusPayloadSchema = z.object({
   body: translatableSchema.partial().optional(),
   address: translatableSchema.partial().optional(),
   mapUrl: z.string().nullable().optional(),
+  latitude: z.number().min(-90).max(90).nullable().optional(),
+  longitude: z.number().min(-180).max(180).nullable().optional(),
   phone: z.string().nullable().optional(),
   email: z.string().email().nullable().optional(),
+  gradeLevels: z.array(z.string()).nullable().optional(),
   featuredImageMediaId: z.string().uuid().nullable().optional(),
   seo: seoMetadataSchema.partial().optional(),
 });
@@ -69,8 +79,19 @@ export const campusFormSchema = z.object({
   addressFa: z.string().optional(),
   addressEn: z.string().optional(),
   mapUrl: z.string().optional(),
+  latitude: z.string().optional().refine((value) => {
+    if (!value?.trim()) return true;
+    const latitude = Number(value);
+    return Number.isFinite(latitude) && latitude >= -90 && latitude <= 90;
+  }, "عرض جغرافیایی باید بین ۹۰- و ۹۰ باشد"),
+  longitude: z.string().optional().refine((value) => {
+    if (!value?.trim()) return true;
+    const longitude = Number(value);
+    return Number.isFinite(longitude) && longitude >= -180 && longitude <= 180;
+  }, "طول جغرافیایی باید بین ۱۸۰- و ۱۸۰ باشد"),
   phone: z.string().optional(),
   email: z.string().email("ایمیل معتبر نیست").optional().or(z.literal("")),
+  gradeLevels: z.string().optional(),
   featuredImageMediaId: z.string().uuid().nullable().optional(),
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
@@ -81,7 +102,18 @@ export const campusFormSchema = z.object({
 
 export type CampusFormData = z.infer<typeof campusFormSchema>;
 
-export function formDataToCreatePayload(data: CampusFormData): CreateCampusPayload {
+function parseGradeLevels(value: string | undefined): string[] {
+  return Array.from(
+    new Set(
+      (value ?? "")
+        .split(/[،,\n]/)
+        .map((level) => level.trim())
+        .filter(Boolean),
+    ),
+  );
+}
+
+export function formDataToCreatePayload(data: CampusFormData): CmsCreateCampusPayload {
   const seo =
     data.metaTitle || data.metaDescription || data.ogImageUrl || data.canonicalUrl || data.noindex
       ? {
@@ -99,14 +131,19 @@ export function formDataToCreatePayload(data: CampusFormData): CreateCampusPaylo
     body: { fa: data.bodyFa.trim(), ...(data.bodyEn?.trim() ? { en: data.bodyEn.trim() } : {}) },
     ...(data.addressFa?.trim() ? { address: { fa: data.addressFa.trim(), ...(data.addressEn?.trim() ? { en: data.addressEn.trim() } : {}) } } : {}),
     ...(data.mapUrl?.trim() ? { mapUrl: data.mapUrl.trim() } : {}),
+    ...(data.latitude?.trim() ? { latitude: Number(data.latitude) } : {}),
+    ...(data.longitude?.trim() ? { longitude: Number(data.longitude) } : {}),
     ...(data.phone?.trim() ? { phone: data.phone.trim() } : {}),
     ...(data.email?.trim() ? { email: data.email.trim() } : {}),
+    ...(parseGradeLevels(data.gradeLevels).length
+      ? { gradeLevels: parseGradeLevels(data.gradeLevels) }
+      : {}),
     ...(data.featuredImageMediaId ? { featuredImageMediaId: data.featuredImageMediaId } : {}),
     ...(seo ? { seo } : {}),
   };
 }
 
-export function formDataToUpdatePayload(data: CampusFormData): UpdateCampusPayload {
+export function formDataToUpdatePayload(data: CampusFormData): CmsUpdateCampusPayload {
   const seo =
     data.metaTitle || data.metaDescription || data.ogImageUrl || data.canonicalUrl || data.noindex
       ? {
@@ -124,8 +161,13 @@ export function formDataToUpdatePayload(data: CampusFormData): UpdateCampusPaylo
     ...(data.bodyFa?.trim() ? { body: { fa: data.bodyFa.trim(), ...(data.bodyEn?.trim() ? { en: data.bodyEn.trim() } : {}) } } : {}),
     ...(data.addressFa?.trim() ? { address: { fa: data.addressFa.trim(), ...(data.addressEn?.trim() ? { en: data.addressEn.trim() } : {}) } } : {}),
     mapUrl: data.mapUrl?.trim() || null,
+    latitude: data.latitude?.trim() ? Number(data.latitude) : null,
+    longitude: data.longitude?.trim() ? Number(data.longitude) : null,
     phone: data.phone?.trim() || null,
     email: data.email?.trim() || null,
+    gradeLevels: parseGradeLevels(data.gradeLevels).length
+      ? parseGradeLevels(data.gradeLevels)
+      : null,
     featuredImageMediaId: data.featuredImageMediaId ?? null,
     ...(seo ? { seo } : {}),
   };
@@ -138,8 +180,11 @@ export function campusToFormData(campus: {
   body: Translatable<string>;
   address?: Translatable<string>;
   mapUrl?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   phone?: string;
   email?: string;
+  gradeLevels?: string[] | null;
   featuredImageMediaId?: string;
   seo: { metaTitle?: string; metaDescription?: string; ogImageUrl?: string; canonicalUrl?: string; noindex: boolean };
 }): CampusFormData {
@@ -154,8 +199,11 @@ export function campusToFormData(campus: {
     addressFa: campus.address?.fa ?? "",
     addressEn: campus.address?.en ?? "",
     mapUrl: campus.mapUrl ?? "",
+    latitude: campus.latitude == null ? "" : String(campus.latitude),
+    longitude: campus.longitude == null ? "" : String(campus.longitude),
     phone: campus.phone ?? "",
     email: campus.email ?? "",
+    gradeLevels: campus.gradeLevels?.join("، ") ?? "",
     featuredImageMediaId: campus.featuredImageMediaId ?? null,
     metaTitle: campus.seo.metaTitle ?? "",
     metaDescription: campus.seo.metaDescription ?? "",

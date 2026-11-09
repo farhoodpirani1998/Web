@@ -1,20 +1,10 @@
-/**
- * Shared placeholder contact info (Website Frontend Architecture §4,
- * §8, §35 "does not invent backend functionality").
- *
- * `TopBar` and `Footer` both render the same phone/email/address —
- * previously each defined its own copy of these strings locally. Real
- * values are ultimately Site Settings content-module data (no such
- * Public API endpoint exists yet), so this stays a small frontend-owned
- * constants file rather than a data hook; swapping it for a
- * `useSiteSettings()`-style hook later only touches this one file.
- */
-
-export const PLACEHOLDER_CONTACT = {
-  address: "خیابان نمونه، پلاک ۱۲، تهران",
-  phone: "۰۲۱-۱۲۳۴۵۶۷۸",
-  email: "info@example.com",
-} as const;
+export function getContactPhones(
+  contactPhones?: readonly string[],
+  legacyContactPhone?: string,
+): readonly string[] {
+  if (contactPhones?.length) return contactPhones;
+  return legacyContactPhone ? [legacyContactPhone] : [];
+}
 
 export function toTelephoneHref(phone: string): string {
   const localizedDigits = "۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩";

@@ -51,6 +51,14 @@ export class PreRegistration extends BaseSiteScopedEntity {
   @Column()
   studentGrade!: string;
 
+  @Index('IDX_pre_registrations_campusId')
+  @Column({ type: 'uuid', nullable: true })
+  campusId?: string | null;
+
+  @Index('IDX_pre_registrations_referenceCode', { unique: true })
+  @Column()
+  referenceCode!: string;
+
   @Column()
   guardianFullName!: string;
 
@@ -59,6 +67,13 @@ export class PreRegistration extends BaseSiteScopedEntity {
   // free-form contact input.
   @Column()
   guardianPhone!: string;
+
+  @Index('IDX_pre_registrations_assignedAdminId')
+  @Column({ type: 'uuid', nullable: true })
+  assignedAdminId?: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  followUpAt?: Date | null;
 
   @Column({ nullable: true })
   guardianEmail?: string;

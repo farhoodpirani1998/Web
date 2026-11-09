@@ -37,7 +37,7 @@
  * Testimonial.authorName (see the entity's own doc comment).
  */
 
-import type { CmsEntityMeta, CmsPublishStatus, Translatable } from "../types";
+import type { CmsEntityMeta, CmsPublishStatus, Translatable } from "../../types";
 
 /** Mirrors `PublishStatus` (backend) as used on the `Teacher` entity. */
 export type CmsTeacherStatus = CmsPublishStatus;
@@ -75,7 +75,7 @@ export interface CmsTeacher extends CmsEntityMeta {
   bio: Translatable<string>;
   department?: Translatable<string>;
   /** Plain uuid reference to a Campus, not a relation — validated server-side. No admin Campus picker exists yet; see `TeacherForm`'s comment. */
-  campusId?: string;
+  campusId?: string | null;
   phone?: string;
   email?: string;
   /** Manual admin ordering — primary sort key for both admin and public listings. */

@@ -52,10 +52,8 @@ export const PUBLIC_THROTTLE = {
  * more attractive target for scripted abuse (spam, mail-relay abuse,
  * brute-forced validation) than a read-only content route.
  *
- * No controller in this codebase currently accepts public user input,
- * so nothing applies this yet — it's configured and ready for the first
- * one that does, the same way `@Throttle(PUBLIC_THROTTLE)` is applied
- * above: `@Throttle(PUBLIC_FORM_THROTTLE)` on that controller.
+ * Applied to public user-input endpoints such as pre-registration and
+ * newsletter subscription via `@Throttle(PUBLIC_FORM_THROTTLE)`.
  *
  * Configurable via THROTTLE_PUBLIC_FORM_TTL_MS / THROTTLE_PUBLIC_FORM_LIMIT
  * (see .env.example); falls back to 5 requests per 60s when either is

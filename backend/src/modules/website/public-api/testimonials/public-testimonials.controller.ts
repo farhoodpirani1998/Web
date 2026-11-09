@@ -1,4 +1,4 @@
-import { Controller, Get, Header } from '@nestjs/common';
+import { Controller, Get, Header, Query } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
@@ -29,6 +29,7 @@ interface PublicTestimonialDto {
   rating?: number;
   avatar: PublicMediaRef | null;
   position: number;
+  isFeatured: boolean;
 }
 
 /** Optional section — gated by featureFlags.testimonialsEnabled, empty list when disabled. */
@@ -47,19 +48,29 @@ export class PublicTestimonialsController {
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
-  async findAll(): Promise<PublicTestimonialDto[]> {
+  async findAll(
+    @Query('featuredOnly') featuredOnly?: string,
+  ): Promise<PublicTestimonialDto[]> {
     // Feature-flag check stays uncached (siteSettings is itself cached) so a
     // toggled-off section returns [] immediately rather than after the TTL.
     const settings = await this.siteSettings.get();
     if (!settings.featureFlags.testimonialsEnabled) return [];
 
-    const cacheKey = buildPublicCacheKey('testimonials', 'list');
+    const cacheKey = buildPublicCacheKey(
+      'testimonials',
+      'list',
+      featuredOnly === 'true' ? 'featured' : 'all',
+    );
     const cached = await this.redis.get<PublicTestimonialDto[]>(cacheKey);
     if (cached) return cached;
 
     const siteId = this.siteService.getDefaultSiteId();
     const testimonials = await this.testimonialRepo.find({
-      where: { siteId, status: PublishStatus.PUBLISHED },
+      where: {
+        siteId,
+        status: PublishStatus.PUBLISHED,
+        ...(featuredOnly === 'true' ? { isFeatured: true } : {}),
+      },
       order: { position: 'ASC' },
     });
     const visible = this.visibility.filterVisible(testimonials);
@@ -78,6 +89,7 @@ export class PublicTestimonialsController {
         ? (mediaMap.get(testimonial.avatarMediaId) ?? null)
         : null,
       position: testimonial.position,
+      isFeatured: testimonial.isFeatured,
     }));
     await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
     return dto;

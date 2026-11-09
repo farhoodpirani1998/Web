@@ -1,4 +1,5 @@
 import type { PublicSeoDto, StructuredDataItem } from "@/shared/seo";
+import type { AboutBodyBlock } from "./markdown";
 
 /**
  * Types for the `about` feature — the backend's **Static Pages /
@@ -11,8 +12,8 @@ import type { PublicSeoDto, StructuredDataItem } from "@/shared/seo";
  * - `PublicAboutDto`/`PublicMediaRef`/`Translatable` mirror the real
  *   wire response from `GET /public/about`
  *   (`backend/src/modules/website/public-api/about/public-about.controller.ts`)
- *   — a singleton object (`{ title, body, image, seo, structuredData,
- *   updatedAt }`), not the section-by-section shape below. "Mirror,
+ *   — a singleton object (`{ title, body, image, sections, seo,
+ *   structuredData, updatedAt }`), not the section-by-section shape below. "Mirror,
  *   don't import" — this feature never imports backend code. `seo`/
  *   `structuredData` themselves are typed via the shared `@/shared/seo`
  *   layer (`PublicSeoDto`/`StructuredDataItem`, §21) rather than
@@ -25,19 +26,9 @@ import type { PublicSeoDto, StructuredDataItem } from "@/shared/seo";
  *   `toAboutPageContent` adapts the single DTO into this shape so no
  *   section component needs to change shape.
  *
- * Contract gap vs. the original frontend-only `AboutPageContent`
- * shape: the backend's `AboutPage` entity only carries `title`/`body`
- * (plus `image`/`seo`, unused by these sections) — see the entity's
- * doc comment. It has no `stats`/`values`/`timeline`/`team` concept at
- * all, so `toAboutPageContent` maps those to `[]` rather than
- * inventing entries — same "degrade gracefully rather than fabricate
- * data" approach `teachers`'s `toTeacher` uses for its own
- * backend-less fields. (`faq` is likewise always `[]` here — `AboutFAQ`
- * doesn't actually read `data.faq`; it's backed by the separate
- * `@/features/faq`'s `useFaq()` hook instead.) `hero.description` and
- * `story.paragraphs` both derive from the one `body` field the
- * backend does provide — same "degrade gracefully" approach
- * `campuses`'s `toCampus` uses for its own `body`-vs-`excerpt` gap.
+ * The CMS now stores stats, values, timeline entries, team members, and
+ * the About FAQ heading/description alongside the page title/body.
+ * FAQ entries themselves remain in the separate FAQ module.
  */
 
 /** Local mirror of the backend kernel's `Translatable<T>` — `fa` required, `en` optional. */
@@ -59,9 +50,52 @@ export interface PublicAboutDto {
   title: Translatable<string>;
   body: Translatable<string>;
   image: PublicMediaRef | null;
+  sections: {
+    stats: PublicAboutSection<PublicAboutStatItem>;
+    values: PublicAboutSection<PublicAboutValueItem>;
+    timeline: PublicAboutSection<PublicAboutTimelineItem>;
+    team: PublicAboutSection<PublicAboutTeamMember>;
+    faq?: {
+      title?: Translatable<string>;
+      description?: Translatable<string>;
+    };
+  };
   seo: PublicSeoDto;
   structuredData: readonly StructuredDataItem[];
   updatedAt: string;
+}
+
+export interface PublicAboutSection<TItem> {
+  title?: Translatable<string>;
+  description?: Translatable<string>;
+  items: TItem[];
+}
+
+export interface PublicAboutStatItem {
+  id: string;
+  value: string;
+  suffix?: string;
+  label: Translatable<string>;
+}
+
+export interface PublicAboutValueItem {
+  id: string;
+  title: Translatable<string>;
+  description: Translatable<string>;
+}
+
+export interface PublicAboutTimelineItem {
+  id: string;
+  year: string;
+  title: Translatable<string>;
+  description: Translatable<string>;
+}
+
+export interface PublicAboutTeamMember {
+  id: string;
+  name: Translatable<string>;
+  role: Translatable<string>;
+  avatar: PublicMediaRef | null;
 }
 
 export interface AboutHeroContent {
@@ -74,16 +108,15 @@ export interface AboutHeroContent {
 export interface AboutStatItem {
   /** Stable identifier, also used as the React list key. */
   id: string;
-  /** Display value, Persian-digit formatted (e.g. "۱۲٬۰۰۰+"). */
+  /** Display value, formatted with `Intl.NumberFormat('fa-IR')`. */
   value: string;
+  suffix?: string;
   label: string;
 }
 
 export interface AboutStoryContent {
   title: string;
-  /** Ordered paragraphs; the first renders with the "lead" emphasis
-   *  treatment, the rest as regular body copy. */
-  paragraphs: readonly string[];
+  blocks: readonly AboutBodyBlock[];
 }
 
 export interface AboutValueItem {
@@ -108,9 +141,9 @@ export interface AboutTeamMember {
   id: string;
   name: string;
   role: string;
-  /** Photo asset URL; omitted while no Media module-backed value
-   *  exists — `Avatar` falls back to initials in that case. */
+  /** Photo asset URL; omitted when no Media entry is attached. */
   avatarUrl?: string;
+  avatarAlt?: string;
 }
 
 export interface AboutFAQItem {
@@ -131,12 +164,23 @@ export interface AboutFAQItem {
  */
 export interface AboutPageContent {
   hero: AboutHeroContent;
-  stats: readonly AboutStatItem[];
+  image: PublicMediaRef | null;
+  stats: AboutSectionContent<AboutStatItem>;
   story: AboutStoryContent;
-  values: readonly AboutValueItem[];
-  timeline: readonly AboutTimelineItem[];
-  team: readonly AboutTeamMember[];
+  values: AboutSectionContent<AboutValueItem>;
+  timeline: AboutSectionContent<AboutTimelineItem>;
+  team: AboutSectionContent<AboutTeamMember>;
   faq: readonly AboutFAQItem[];
+  faqSection: {
+    title?: string;
+    description?: string;
+  };
   seo: PublicSeoDto;
   structuredData: readonly StructuredDataItem[];
+}
+
+export interface AboutSectionContent<TItem> {
+  title?: string;
+  description?: string;
+  items: readonly TItem[];
 }

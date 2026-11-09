@@ -22,10 +22,15 @@ import type { GalleryItem, PublicGalleryItemDto, PublicPaginatedResponse } from 
  */
 const GALLERY_PAGE_LIMIT = 100;
 
-export async function fetchGallery(): Promise<readonly GalleryItem[]> {
+export async function fetchGallery(featuredOnly = false): Promise<readonly GalleryItem[]> {
   const response = await apiClient.get<PublicPaginatedResponse<PublicGalleryItemDto>>(
     "/gallery",
-    { params: { limit: GALLERY_PAGE_LIMIT } },
+    {
+      params: {
+        limit: GALLERY_PAGE_LIMIT,
+        ...(featuredOnly ? { featuredOnly: true } : {}),
+      },
+    },
   );
 
   return response.data.items.map(toGalleryItem);
@@ -55,5 +60,6 @@ function toGalleryItem(dto: PublicGalleryItemDto): GalleryItem {
       src: dto.image?.url,
     },
     description: dto.description?.fa ?? caption ?? "",
+    isFeatured: dto.isFeatured,
   };
 }

@@ -1,7 +1,9 @@
+import { GraduationCap } from "lucide-react";
 import { useParams } from "react-router-dom";
 
 import {
   Container,
+  Badge,
   ErrorState,
   Heading,
   Image,
@@ -32,6 +34,15 @@ import { useCampusBySlug } from "@/features/campuses";
 export function CampusDetailPage() {
   const { slug = "" } = useParams<{ slug: string }>();
   const { data, isLoading, isError, refetch } = useCampusBySlug(slug);
+  const mapUrl =
+    data?.mapUrl ||
+    (data?.latitude != null && data.longitude != null
+      ? `https://www.google.com/maps?q=${data.latitude},${data.longitude}`
+      : undefined);
+  const mapEmbedUrl =
+    data?.latitude != null && data.longitude != null
+      ? `https://www.google.com/maps?q=${data.latitude},${data.longitude}&output=embed`
+      : undefined;
 
   return (
     <PageLayout>
@@ -61,7 +72,25 @@ export function CampusDetailPage() {
 
             <Heading level={1}>{data.title.fa}</Heading>
 
-            {(data.address || data.phone || data.email || data.mapUrl) && (
+            {data.gradeLevels?.length ? (
+              <Stack gap="sm">
+                <Stack direction="row" gap="xs" align="center">
+                  <GraduationCap aria-hidden="true" className="h-5 w-5 text-brand-gold" />
+                  <Text as="span" weight="semibold">
+                    پایه‌های تحصیلی
+                  </Text>
+                </Stack>
+                <Stack direction="row" gap="xs" wrap>
+                  {data.gradeLevels.map((grade) => (
+                    <Badge key={grade} variant="secondary">
+                      {grade}
+                    </Badge>
+                  ))}
+                </Stack>
+              </Stack>
+            ) : null}
+
+            {(data.address || data.phone || data.email || mapUrl) && (
               <Stack gap="xs">
                 {data.address && (
                   <Text as="span" variant="bodySm" color="muted">
@@ -78,12 +107,22 @@ export function CampusDetailPage() {
                     {data.email}
                   </Link>
                 )}
-                {data.mapUrl && (
-                  <Link href={data.mapUrl} variant="default" target="_blank" rel="noreferrer">
+                {mapUrl && (
+                  <Link href={mapUrl} variant="default" target="_blank" rel="noreferrer">
                     مشاهده روی نقشه
                   </Link>
                 )}
               </Stack>
+            )}
+
+            {mapEmbedUrl && (
+              <iframe
+                title={`موقعیت ${data.title.fa} روی نقشه`}
+                src={mapEmbedUrl}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-72 w-full rounded-xl border border-border"
+              />
             )}
 
             <Text variant="body">{data.body.fa}</Text>

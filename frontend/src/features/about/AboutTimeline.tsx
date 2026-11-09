@@ -1,66 +1,23 @@
 import { Badge, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { useAboutPage } from "./useAboutPage";
-import type { AboutTimelineItem } from "./types";
-
-/**
- * About page "Timeline" section, following the same pattern as the
- * homepage's `hero`/`features`/`cta` features and now (as of this
- * extension) also `@/features/news`'s `NewsList`.
- *
- * Backed by `useAboutPage()` (the Public API's Static Pages/About
- * content module, §4, §8): lays out `data.timeline` once the query
- * has resolved with at least one item, and falls back to the local
- * `fallbackTimeline` literal while the query is loading, has errored,
- * or the CMS has nothing published yet. The last entry (whichever
- * source it comes from) keeps the filled "today" marker dot.
- *
- * Visual refresh: the plain `border-s` rule now carries a gold tint and
- * each entry gets a small gold dot marker sitting on that line (plain
- * `aria-hidden` `span`s, no new component), the year moves from a bare
- * overline into a navy/gold `Badge` for stronger scannability, and the
- * final entry's dot is filled solid to read as "today" — a clearer
- * visual hierarchy than the previous same-weight text stack, while the
- * list stays the same semantic `<ol>`/`<li>` structure (§26).
- */
-
-const fallbackTimeline: readonly AboutTimelineItem[] = [
-  {
-    id: "y1378",
-    year: "۱۳۷۸",
-    title: "آغاز فعالیت",
-    description: "شروع کار با یک شعبه و گروهی کوچک از مدرسان داوطلب.",
-  },
-  {
-    id: "y1390",
-    year: "۱۳۹۰",
-    title: "گسترش شعب",
-    description: "راه‌اندازی سومین و چهارمین شعبه در مناطق دیگر شهر.",
-  },
-  {
-    id: "y1398",
-    year: "۱۳۹۸",
-    title: "ورود به آموزش آنلاین",
-    description: "افزودن دوره‌های آنلاین برای پوشش دانش‌آموزان خارج از شهر.",
-  },
-  {
-    id: "y1404",
-    year: "۱۴۰۴",
-    title: "امروز",
-    description: "فعالیت در ۶ شعبه با صدها دوره حضوری و آنلاین در سال.",
-  },
-];
 
 export function AboutTimeline() {
   const { data } = useAboutPage();
-  const timeline = data && data.timeline.length > 0 ? data.timeline : fallbackTimeline;
+  if (!data || data.timeline.items.length === 0) return null;
+  const timeline = data.timeline.items;
 
   return (
     <Section spacing="lg" aria-labelledby="about-timeline-heading">
       <Stack gap="md">
         <Stack gap="xs" align="start">
           <Heading id="about-timeline-heading" level={2}>
-            مسیر رشد
+            {data.timeline.title ?? "مسیر رشد"}
           </Heading>
+          {data.timeline.description ? (
+            <Text variant="bodySm" color="muted">
+              {data.timeline.description}
+            </Text>
+          ) : null}
           <span
             aria-hidden="true"
             className="block h-1 w-16 rounded-full bg-brand-gold"

@@ -64,7 +64,7 @@ export function HomeStatsBand() {
       ? data.slice(0, 4).map((stat, index) => ({
           id: stat.id,
           value: stat.value,
-          suffix: stat.suffix ?? '',
+          suffix: stat.suffix ?? "",
           label: stat.label.fa,
           icon: BAND_ICONS[index % BAND_ICONS.length],
         }))
@@ -72,7 +72,7 @@ export function HomeStatsBand() {
 
   return (
     <section aria-label="آمار مجموعه" className="relative z-10 bg-transparent">
-      <Container size="xl" className="-mt-10 sm:-mt-14">
+      <Container size="xl" className="-mt-8 lg:-mt-14">
         <Grid
           cols="4"
           gap="none"
@@ -107,7 +107,10 @@ function StatItem({
   const { count, ref } = useCountUp(value);
 
   return (
-    <div ref={ref} className="flex items-center gap-3 bg-card px-5 py-6 sm:gap-4 sm:px-7 rtl:flex-row-reverse">
+    <div
+      ref={ref}
+      className="flex items-center gap-3 bg-card px-5 py-6 sm:gap-4 sm:px-7 rtl:flex-row-reverse"
+    >
       <span
         aria-hidden="true"
         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-gold/15 text-brand-gold sm:h-12 sm:w-12"

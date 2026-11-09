@@ -5,6 +5,7 @@ import { UnsavedChangesDialog } from "@/components/ui/UnsavedChangesDialog";
 import { MediaPicker, useMediaById } from "@/features/cms/media";
 import { useIsDirty, useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { ApiError } from "@/lib/apiError";
+import { toEnglishDigits, toPersianDigits } from "@/lib/toPersianDigits";
 
 import {
   updateContactSettings,
@@ -16,6 +17,8 @@ import type {
   CmsSiteSettings,
   CmsSocialLink,
   CmsSocialPlatform,
+  CmsWorkingHoursDay,
+  CmsWorkingHoursEntry,
   UpdateContactSettingsPayload,
   UpdateGeneralSettingsPayload,
 } from "./types";
@@ -51,9 +54,123 @@ export function SettingsForm({ settings, onSaved }: SettingsFormProps) {
     <div className="flex flex-col gap-8">
       <GeneralSection settings={settings} onSaved={onSaved} />
       <ContactSection settings={settings} onSaved={onSaved} />
+      <WorkingHoursSection settings={settings} onSaved={onSaved} />
       <SocialSection settings={settings} onSaved={onSaved} />
       <FeatureFlagsSection settings={settings} onSaved={onSaved} />
     </div>
+  );
+}
+
+const WORKING_HOURS_DAYS: { day: CmsWorkingHoursDay; label: string }[] = [
+  { day: "saturday", label: "شنبه" },
+  { day: "sunday", label: "یکشنبه" },
+  { day: "monday", label: "دوشنبه" },
+  { day: "tuesday", label: "سه‌شنبه" },
+  { day: "wednesday", label: "چهارشنبه" },
+  { day: "thursday", label: "پنجشنبه" },
+  { day: "friday", label: "جمعه" },
+];
+
+function WorkingHoursSection({ settings, onSaved }: SettingsFormProps) {
+  const [hours, setHours] = useState<CmsWorkingHoursEntry[]>(
+    () =>
+      settings.workingHours?.map((entry) => ({ ...entry })) ??
+      WORKING_HOURS_DAYS.map(({ day }) => ({
+        day,
+        openTime: "09:00",
+        closeTime: "17:00",
+        isClosed: true,
+      })),
+  );
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { isDirty, resetBaseline } = useIsDirty(hours);
+  const { isConfirmOpen, confirmLeave, cancelLeave } = useUnsavedChangesGuard(isDirty);
+
+  function updateDay(day: CmsWorkingHoursDay, patch: Partial<CmsWorkingHoursEntry>) {
+    setHours((current) =>
+      current.map((entry) => (entry.day === day ? { ...entry, ...patch } : entry)),
+    );
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (isSaving) return;
+    setError(null);
+    setIsSaving(true);
+    try {
+      const saved = await updateContactSettings({ workingHours: hours });
+      onSaved(saved);
+      resetBaseline();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  return (
+    <form
+      className="flex flex-col gap-4 border-t border-slate-200 pt-6"
+      onSubmit={handleSubmit}
+      noValidate
+    >
+      <h2 className="text-base font-semibold text-slate-900">ساعات کاری</h2>
+      <div className="flex flex-col gap-3">
+        {WORKING_HOURS_DAYS.map(({ day, label }) => {
+          const entry = hours.find((item) => item.day === day)!;
+          return (
+            <div key={day} className="grid items-center gap-2 sm:grid-cols-[6rem_1fr_1fr_auto]">
+              <span className="text-sm font-medium text-slate-900">{label}</span>
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                شروع
+                <input
+                  type="time"
+                  value={entry.openTime}
+                  onChange={(event) => updateDay(day, { openTime: event.target.value })}
+                  disabled={isSaving || entry.isClosed}
+                  className="rounded-md border border-slate-300 px-2 py-1.5"
+                />
+              </label>
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                پایان
+                <input
+                  type="time"
+                  value={entry.closeTime}
+                  onChange={(event) => updateDay(day, { closeTime: event.target.value })}
+                  disabled={isSaving || entry.isClosed}
+                  className="rounded-md border border-slate-300 px-2 py-1.5"
+                />
+              </label>
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={entry.isClosed}
+                  onChange={(event) => updateDay(day, { isClosed: event.target.checked })}
+                  disabled={isSaving}
+                />
+                تعطیل
+              </label>
+            </div>
+          );
+        })}
+      </div>
+      {error ? <p role="alert" className="text-sm text-red-600">{error}</p> : null}
+      <div>
+        <PermissionGate permission="website.content:write">
+          <button
+            type="submit"
+            disabled={isSaving}
+            className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+          >
+            {isSaving ? "در حال ذخیره…" : "ذخیره ساعات کاری"}
+          </button>
+        </PermissionGate>
+      </div>
+      {isConfirmOpen ? (
+        <UnsavedChangesDialog onDiscard={confirmLeave} onKeepEditing={cancelLeave} />
+      ) : null}
+    </form>
   );
 }
 
@@ -380,11 +497,9 @@ function MediaFieldPickerDialog({
  * endpoint — omitting leaves each unchanged, same reasoning as
  * `tagline` in `GeneralSection`.
  *
- * `contactPhone` is the one field always sent as typed, including
- * empty: `@IsString()` with no `MinLength` accepts `""`, so clearing
- * the input and saving actually clears it server-side — same
- * "always send, including empty" convention `FaqForm` uses for
- * `category`.
+ * Contact phone numbers are sent as a complete list. The legacy scalar
+ * `contactPhone` remains supported by the API, but this form always
+ * writes `contactPhones` so multiple official numbers stay distinct.
  */
 function ContactSection({ settings, onSaved }: SettingsFormProps) {
   const emailId = useId();
@@ -392,21 +507,40 @@ function ContactSection({ settings, onSaved }: SettingsFormProps) {
   const addressFaId = useId();
   const addressEnId = useId();
   const mapUrlId = useId();
+  const mapLatitudeId = useId();
+  const mapLongitudeId = useId();
 
   const [contactEmail, setContactEmail] = useState(settings.contactEmail ?? "");
-  const [contactPhone, setContactPhone] = useState(settings.contactPhone ?? "");
+  const [contactPhonesText, setContactPhonesText] = useState(
+    (settings.contactPhones?.length
+      ? settings.contactPhones
+      : settings.contactPhone
+        ? [settings.contactPhone]
+        : []
+    )
+      .map(toPersianDigits)
+      .join("\n"),
+  );
   const [addressFa, setAddressFa] = useState(settings.address?.fa ?? "");
   const [addressEn, setAddressEn] = useState(settings.address?.en ?? "");
   const [mapUrl, setMapUrl] = useState(settings.mapUrl ?? "");
+  const [mapLatitude, setMapLatitude] = useState(
+    settings.mapLatitude == null ? "" : String(settings.mapLatitude),
+  );
+  const [mapLongitude, setMapLongitude] = useState(
+    settings.mapLongitude == null ? "" : String(settings.mapLongitude),
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { isDirty, resetBaseline } = useIsDirty({
     contactEmail,
-    contactPhone,
+    contactPhonesText,
     addressFa,
     addressEn,
     mapUrl,
+    mapLatitude,
+    mapLongitude,
   });
   const { isConfirmOpen, confirmLeave, cancelLeave } = useUnsavedChangesGuard(isDirty);
 
@@ -418,17 +552,34 @@ function ContactSection({ settings, onSaved }: SettingsFormProps) {
     setIsSaving(true);
 
     const trimmedEmail = contactEmail.trim();
+    const contactPhones = contactPhonesText
+      .split(/\r?\n/)
+      .map((phone) => toEnglishDigits(phone.trim()))
+      .filter(Boolean);
     const trimmedAddressFa = addressFa.trim();
     const trimmedAddressEn = addressEn.trim();
     const trimmedMapUrl = mapUrl.trim();
+    const latitude = mapLatitude.trim() === "" ? null : Number(mapLatitude);
+    const longitude = mapLongitude.trim() === "" ? null : Number(mapLongitude);
+    if (
+      (latitude !== null && (!Number.isFinite(latitude) || latitude < -90 || latitude > 90)) ||
+      (longitude !== null &&
+        (!Number.isFinite(longitude) || longitude < -180 || longitude > 180))
+    ) {
+      setError("مختصات باید در بازه معتبر عرض و طول جغرافیایی باشند.");
+      setIsSaving(false);
+      return;
+    }
 
     const payload: UpdateContactSettingsPayload = {
       ...(trimmedEmail ? { contactEmail: trimmedEmail } : {}),
-      contactPhone: contactPhone.trim(),
+      contactPhones,
       ...(trimmedAddressFa
         ? { address: { fa: trimmedAddressFa, ...(trimmedAddressEn ? { en: trimmedAddressEn } : {}) } }
         : {}),
       ...(trimmedMapUrl ? { mapUrl: trimmedMapUrl } : {}),
+      mapLatitude: latitude,
+      mapLongitude: longitude,
     };
 
     try {
@@ -462,13 +613,15 @@ function ContactSection({ settings, onSaved }: SettingsFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={phoneId} className="text-sm font-medium text-slate-900">
-          تلفن تماس <span className="font-normal text-slate-400">— اختیاری</span>
+          تلفن‌های تماس <span className="font-normal text-slate-400">— هر شماره در یک خط</span>
         </label>
-        <input
+        <textarea
           id={phoneId}
-          type="text"
-          value={contactPhone}
-          onChange={(event) => setContactPhone(event.target.value)}
+          dir="ltr"
+          inputMode="tel"
+          rows={2}
+          value={contactPhonesText}
+          onChange={(event) => setContactPhonesText(toPersianDigits(event.target.value))}
           disabled={isSaving}
           className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
         />
@@ -505,7 +658,7 @@ function ContactSection({ settings, onSaved }: SettingsFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={mapUrlId} className="text-sm font-medium text-slate-900">
-          نشانی نقشه <span className="font-normal text-slate-400">— اختیاری</span>
+          لینک مسیریابی نقشه <span className="font-normal text-slate-400">— اختیاری</span>
         </label>
         <input
           id={mapUrlId}
@@ -517,6 +670,55 @@ function ContactSection({ settings, onSaved }: SettingsFormProps) {
           className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
         />
       </div>
+
+      <p className="text-xs text-slate-500">
+        لینک بالا برای مسیریابی است؛ برای نمایش نقشه در سایت، مختصات زیر را وارد کنید.
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={mapLatitudeId} className="text-sm font-medium text-slate-900">
+            عرض جغرافیایی (−۹۰ تا ۹۰)
+          </label>
+          <input
+            id={mapLatitudeId}
+            type="number"
+            min="-90"
+            max="90"
+            step="any"
+            dir="ltr"
+            value={mapLatitude}
+            onChange={(event) => setMapLatitude(event.target.value)}
+            disabled={isSaving}
+            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={mapLongitudeId} className="text-sm font-medium text-slate-900">
+            طول جغرافیایی (−۱۸۰ تا ۱۸۰)
+          </label>
+          <input
+            id={mapLongitudeId}
+            type="number"
+            min="-180"
+            max="180"
+            step="any"
+            dir="ltr"
+            value={mapLongitude}
+            onChange={(event) => setMapLongitude(event.target.value)}
+            disabled={isSaving}
+            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+          />
+        </div>
+      </div>
+      {mapLatitude.trim() && mapLongitude.trim() ? (
+        <iframe
+          title="پیش‌نمایش موقعیت روی نقشه"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          className="h-48 w-full rounded-md border border-slate-200"
+          src={`https://www.google.com/maps?q=${encodeURIComponent(`${mapLatitude},${mapLongitude}`)}&output=embed`}
+        />
+      ) : null}
 
       {error ? (
         <p role="alert" className="text-sm text-red-600">
@@ -552,6 +754,9 @@ const SOCIAL_PLATFORM_OPTIONS: { label: string; value: CmsSocialPlatform }[] = [
   { label: "Telegram", value: "telegram" },
   { label: "WhatsApp", value: "whatsapp" },
   { label: "Eitaa", value: "eitaa" },
+  { label: "Bale", value: "bale" },
+  { label: "Rubika", value: "rubika" },
+  { label: "Aparat", value: "aparat" },
   { label: "YouTube", value: "youtube" },
   { label: "LinkedIn", value: "linkedin" },
   { label: "Twitter", value: "twitter" },
@@ -568,6 +773,11 @@ const SOCIAL_PLATFORM_OPTIONS: { label: string; value: CmsSocialPlatform }[] = [
  */
 function SocialSection({ settings, onSaved }: SettingsFormProps) {
   const [links, setLinks] = useState<CmsSocialLink[]>(settings.socialLinks);
+  const linkKeyPrefix = useId();
+  const nextLinkKey = useRef(0);
+  const [linkKeys, setLinkKeys] = useState(() =>
+    settings.socialLinks.map(() => `${linkKeyPrefix}-${nextLinkKey.current++}`),
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -589,15 +799,38 @@ function SocialSection({ settings, onSaved }: SettingsFormProps) {
   }, [links, resetBaseline]);
 
   function addLink() {
-    setLinks((current) => [...current, { platform: "instagram", url: "" }]);
+    const available = SOCIAL_PLATFORM_OPTIONS.find(
+      (option) => !links.some((link) => link.platform === option.value),
+    );
+    if (!available) return;
+
+    setLinkKeys((current) => [...current, `${linkKeyPrefix}-${nextLinkKey.current++}`]);
+    setLinks((current) => [...current, { platform: available.value, url: "", active: true }]);
   }
 
   function removeLink(index: number) {
+    setLinkKeys((current) => current.filter((_, i) => i !== index));
     setLinks((current) => current.filter((_, i) => i !== index));
   }
 
   function updateLink(index: number, patch: Partial<CmsSocialLink>) {
     setLinks((current) => current.map((link, i) => (i === index ? { ...link, ...patch } : link)));
+  }
+
+  function moveLink(index: number, offset: -1 | 1) {
+    const target = index + offset;
+    if (target < 0 || target >= links.length) return;
+
+    setLinkKeys((current) => {
+      const next = [...current];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+    setLinks((current) => {
+      const next = [...current];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -608,13 +841,29 @@ function SocialSection({ settings, onSaved }: SettingsFormProps) {
     setIsSaving(true);
 
     const cleaned = links
-      .map((link) => ({ platform: link.platform, url: link.url.trim() }))
+      .map((link) => ({
+        platform: link.platform,
+        url: link.url.trim(),
+        active: link.active !== false,
+      }))
       .filter((link) => link.url.length > 0);
+
+    if (
+      cleaned.some(
+        (link, index) => cleaned.findIndex((entry) => entry.platform === link.platform) !== index,
+      ) ||
+      cleaned.some((link) => !/^https:\/\/\S+$/i.test(link.url))
+    ) {
+      setError("برای هر شبکه فقط یک نشانی HTTPS معتبر وارد کنید.");
+      setIsSaving(false);
+      return;
+    }
 
     try {
       const saved = await updateSocialLinks({ socialLinks: cleaned });
       onSaved(saved);
       pendingBaselineReset.current = true;
+      setLinkKeys(saved.socialLinks.map(() => `${linkKeyPrefix}-${nextLinkKey.current++}`));
       setLinks(saved.socialLinks);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
@@ -632,8 +881,9 @@ function SocialSection({ settings, onSaved }: SettingsFormProps) {
           <p className="text-sm text-slate-500">هنوز شبکه اجتماعی‌ای اضافه نشده.</p>
         ) : (
           links.map((link, index) => (
-            <div key={index} className="flex items-center gap-2">
+            <div key={linkKeys[index]} className="flex flex-wrap items-center gap-2">
               <select
+                aria-label={`شبکه اجتماعی ${index + 1}`}
                 value={link.platform}
                 onChange={(event) =>
                   updateLink(index, { platform: event.target.value as CmsSocialPlatform })
@@ -641,7 +891,14 @@ function SocialSection({ settings, onSaved }: SettingsFormProps) {
                 disabled={isSaving}
                 className="rounded-md border border-slate-300 px-2 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
               >
-                {SOCIAL_PLATFORM_OPTIONS.map((option) => (
+                {SOCIAL_PLATFORM_OPTIONS.filter(
+                  (option) =>
+                    option.value === link.platform ||
+                    !links.some(
+                      (item, itemIndex) =>
+                        itemIndex !== index && item.platform === option.value,
+                    ),
+                ).map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -649,12 +906,38 @@ function SocialSection({ settings, onSaved }: SettingsFormProps) {
               </select>
               <input
                 type="url"
+                aria-label={`نشانی ${SOCIAL_PLATFORM_OPTIONS.find((option) => option.value === link.platform)?.label ?? index + 1}`}
                 value={link.url}
                 onChange={(event) => updateLink(index, { url: event.target.value })}
                 disabled={isSaving}
                 placeholder="https://…"
                 className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
               />
+              <label className="flex items-center gap-1 text-xs">
+                <input
+                  type="checkbox"
+                  checked={link.active !== false}
+                  onChange={(event) => updateLink(index, { active: event.target.checked })}
+                  disabled={isSaving}
+                />
+                فعال
+              </label>
+              <button
+                type="button"
+                onClick={() => moveLink(index, -1)}
+                disabled={index === 0 || isSaving}
+                aria-label="انتقال به بالا"
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                onClick={() => moveLink(index, 1)}
+                disabled={index === links.length - 1 || isSaving}
+                aria-label="انتقال به پایین"
+              >
+                ↓
+              </button>
               <button
                 type="button"
                 onClick={() => removeLink(index)}
@@ -673,7 +956,7 @@ function SocialSection({ settings, onSaved }: SettingsFormProps) {
         <button
           type="button"
           onClick={addLink}
-          disabled={isSaving}
+          disabled={isSaving || links.length >= SOCIAL_PLATFORM_OPTIONS.length}
           className="rounded-md border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
           افزودن لینک

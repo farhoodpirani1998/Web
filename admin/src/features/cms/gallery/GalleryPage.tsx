@@ -8,7 +8,7 @@ import { PermissionGate } from "@/components/ui/PermissionGate";
 import { Section } from "@/components/ui/Section";
 import { ApiError } from "@/lib/apiError";
 
-import { reorderGalleryItems, updateGalleryItemStatus } from "./api";
+import { reorderGalleryItems, updateGalleryItem, updateGalleryItemStatus } from "./api";
 import { GalleryDeleteConfirm } from "./GalleryDeleteConfirm";
 import { GalleryGrid } from "./GalleryGrid";
 import { GalleryItemForm } from "./GalleryItemForm";
@@ -74,6 +74,21 @@ export function GalleryPage() {
     } catch (err) {
       setActionError(
         err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
+      );
+    } finally {
+      setUpdatingStatusId(null);
+    }
+  }
+
+  async function handleToggleFeatured(item: CmsGalleryItem) {
+    setActionError(null);
+    setUpdatingStatusId(item.id);
+    try {
+      const updated = await updateGalleryItem(item.id, { isFeatured: !item.isFeatured });
+      setItems((current) => current.map((row) => (row.id === updated.id ? updated : row)));
+    } catch (err) {
+      setActionError(
+        err instanceof ApiError ? err.message : "تغییر وضعیت برجسته انجام نشد.",
       );
     } finally {
       setUpdatingStatusId(null);
@@ -161,6 +176,7 @@ export function GalleryPage() {
               onEdit={handleEdit}
               onDeleteRequest={setPendingDelete}
               onChangeStatus={handleChangeStatus}
+              onToggleFeatured={handleToggleFeatured}
               onReorder={handleReorder}
             />
           </div>

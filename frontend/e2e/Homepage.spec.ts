@@ -227,12 +227,6 @@ test.describe('Homepage — Performance Metrics', () => {
   });
 
   test('Homepage has acceptable Cumulative Layout Shift (CLS)', async ({ page }) => {
-    let cls = 0;
-
-    page.on('console', (msg) => {
-      // Track any reported CLS metrics
-    });
-
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
@@ -241,8 +235,12 @@ test.describe('Homepage — Performance Metrics', () => {
       const entries = performance.getEntriesByType('layout-shift');
       let totalCLS = 0;
       for (const entry of entries) {
-        if ((entry as any).hadRecentInput) continue;
-        totalCLS += (entry as any).value;
+        const layoutShift = entry as PerformanceEntry & {
+          hadRecentInput?: boolean;
+          value: number;
+        };
+        if (layoutShift.hadRecentInput) continue;
+        totalCLS += layoutShift.value;
       }
       return totalCLS;
     });

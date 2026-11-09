@@ -1,3 +1,7 @@
+import { useRef } from "react";
+
+import { useFocusTrap } from "@/hooks/useFocusTrap";
+
 /**
  * "Discard unsaved changes?" confirm dialog — paired with
  * `hooks/useUnsavedChangesGuard.ts`. Same plain fixed-overlay modal
@@ -18,11 +22,28 @@ export interface UnsavedChangesDialogProps {
   onKeepEditing: () => void;
 }
 
-export function UnsavedChangesDialog({ onDiscard, onKeepEditing }: UnsavedChangesDialogProps) {
+export function UnsavedChangesDialog({
+  onDiscard,
+  onKeepEditing,
+}: UnsavedChangesDialogProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, true, onKeepEditing);
+
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-6">
-        <h2 className="text-lg font-semibold text-slate-900">تغییرات ذخیره‌نشده دور ریخته شود؟</h2>
+    <div
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 px-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="unsaved-dialog-title"
+    >
+      <div
+        ref={dialogRef}
+        tabIndex={-1}
+        className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-6"
+      >
+        <h2 id="unsaved-dialog-title" className="text-lg font-semibold text-slate-900">
+          تغییرات ذخیره‌نشده دور ریخته شود؟
+        </h2>
         <p className="mt-1 text-sm text-slate-600">
           تغییرات ذخیره‌نشده دارید. اگر همین حالا خارج شوید، از دست خواهند رفت.
         </p>

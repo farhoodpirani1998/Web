@@ -42,6 +42,7 @@ export class TestimonialsService {
         content: dto.content,
         rating: dto.rating,
         avatarMediaId: dto.avatarMediaId,
+        isFeatured: dto.isFeatured ?? false,
         position: (maxPosition?.max ?? -1) + 1,
         status: PublishStatus.DRAFT,
       }),
@@ -81,6 +82,7 @@ export class TestimonialsService {
     if (dto.avatarMediaId !== undefined) {
       testimonial.avatarMediaId = dto.avatarMediaId ?? undefined;
     }
+    if (dto.isFeatured !== undefined) testimonial.isFeatured = dto.isFeatured;
 
     const saved = await this.testimonialRepo.save(testimonial);
 

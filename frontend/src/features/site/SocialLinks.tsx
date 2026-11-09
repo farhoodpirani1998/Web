@@ -35,6 +35,9 @@ const SOCIAL_PLATFORM_LABELS = {
   telegram: "تلگرام",
   whatsapp: "واتس‌اپ",
   eitaa: "ایتا",
+  bale: "بله",
+  rubika: "روبیکا",
+  aparat: "آپارات",
   youtube: "یوتیوب",
   linkedin: "لینکدین",
   twitter: "توییتر",
@@ -43,7 +46,7 @@ const SOCIAL_PLATFORM_LABELS = {
 
 export function SocialLinks() {
   const { data } = useSiteSettings();
-  const socialLinks = data?.socialLinks ?? [];
+  const socialLinks = data?.socialLinks.filter((social) => social.active !== false) ?? [];
 
   return (
     <Section spacing="lg" aria-labelledby="site-social-heading">

@@ -27,10 +27,10 @@ import type {
  */
 const EVENTS_PAGE_LIMIT = 100;
 
-export async function fetchEvents(): Promise<readonly Event[]> {
+export async function fetchEvents(campusId?: string): Promise<readonly Event[]> {
   const response = await apiClient.get<PublicPaginatedResponse<PublicEventListItemDto>>(
     "/events",
-    { params: { limit: EVENTS_PAGE_LIMIT } },
+    { params: { limit: EVENTS_PAGE_LIMIT, ...(campusId ? { campusId } : {}) } },
   );
 
   return response.data.items.map(toEvent);

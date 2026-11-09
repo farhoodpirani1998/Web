@@ -6,7 +6,6 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
-  type UseMutateFunction,
   type UseQueryResult,
 } from "@tanstack/react-query";
 
@@ -21,12 +20,8 @@ import {
   updatePageStatus,
   schedulePage,
   setPageHomepage,
-  type CreatePagePayload,
-  type UpdatePagePayload,
-  type SchedulePagePayload,
-  type SetPageHomepagePayload,
 } from "../api";
-import type { CmsPage, CmsPageStatus } from "../types";
+import type { CmsPage, CmsPageStatus, CreatePagePayload, UpdatePagePayload, SchedulePagePayload, SetPageHomepagePayload } from "../types";
 
 export const pageKeys = {
   all: ["pages"] as const,
@@ -38,11 +33,13 @@ export const pageKeys = {
 
 export interface UsePagesResult {
   data: CmsPage[] | undefined;
+  pages: CmsPage[];
   isLoading: boolean;
   isError: boolean;
   error: ApiError | null;
-  refetch: UseQueryResult<CmsPage[], ApiError>["refetch"];
+  refetch: UseQueryResult<CmsPage[], Error>["refetch"];
   setData: (updater: CmsPage[] | ((old: CmsPage[] | undefined) => CmsPage[])) => void;
+  setPages: (updater: CmsPage[] | ((old: CmsPage[]) => CmsPage[])) => void;
 }
 
 export function usePages(status?: CmsPageStatus, parentId?: string): UsePagesResult {
@@ -55,13 +52,21 @@ export function usePages(status?: CmsPageStatus, parentId?: string): UsePagesRes
   const setData = (updater: CmsPage[] | ((old: CmsPage[] | undefined) => CmsPage[])) => {
     queryClient.setQueryData<CmsPage[]>(pageKeys.list(status, parentId), updater);
   };
+  const setPages = (updater: CmsPage[] | ((old: CmsPage[]) => CmsPage[])) => {
+    queryClient.setQueryData<CmsPage[]>(pageKeys.list(status, parentId), (old) => {
+      const pages = old ?? [];
+      return typeof updater === "function" ? updater(pages) : updater;
+    });
+  };
   return {
     data: query.data,
+    pages: query.data ?? [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error as ApiError | null,
     refetch: query.refetch,
     setData,
+    setPages,
   };
 }
 
@@ -76,6 +81,7 @@ export function usePage(id: string | null) {
 
 export interface UsePageOptionsResult {
   data: CmsPage[] | undefined;
+  options: CmsPage[];
   isLoading: boolean;
 }
 
@@ -85,16 +91,16 @@ export function usePageOptions(): UsePageOptionsResult {
     queryFn: () => fetchPagesList(),
     staleTime: 60_000,
   });
-  return { data: query.data, isLoading: query.isLoading };
+  return { data: query.data, options: query.data ?? [], isLoading: query.isLoading };
 }
 
 export interface UsePageMutations {
-  create: UseMutateFunction<CmsPage, ApiError, CreatePagePayload>;
-  update: UseMutateFunction<CmsPage, ApiError, { id: string; payload: UpdatePagePayload }>;
-  delete: UseMutateFunction<void, ApiError, string>;
-  updateStatus: UseMutateFunction<CmsPage, ApiError, { id: string; status: CmsPageStatus }>;
-  schedule: UseMutateFunction<CmsPage, ApiError, { id: string; payload: SchedulePagePayload }>;
-  setHomepage: UseMutateFunction<CmsPage, ApiError, { id: string; payload: SetPageHomepagePayload }>;
+  create: (payload: CreatePagePayload) => void;
+  update: (variables: { id: string; payload: UpdatePagePayload }) => void;
+  delete: (id: string) => void;
+  updateStatus: (variables: { id: string; status: CmsPageStatus }) => void;
+  schedule: (variables: { id: string; payload: SchedulePagePayload }) => void;
+  setHomepage: (variables: { id: string; payload: SetPageHomepagePayload }) => void;
 }
 
 export function usePageMutations(): UsePageMutations {
@@ -164,11 +170,11 @@ export function usePageMutations(): UsePageMutations {
   });
 
   return {
-    create,
-    update,
-    delete: deleteMutation,
-    updateStatus,
-    schedule,
-    setHomepage,
+    create: create.mutate,
+    update: update.mutate,
+    delete: deleteMutation.mutate,
+    updateStatus: updateStatus.mutate,
+    schedule: schedule.mutate,
+    setHomepage: setHomepage.mutate,
   };
 }

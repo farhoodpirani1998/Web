@@ -51,6 +51,7 @@ export class SiteSettingsService implements OnModuleInit {
         this.settingsRepo.create({
           siteId,
           siteName: { fa: '' },
+          contactPhones: [],
           socialLinks: [],
           defaultSeo: {},
           featureFlags: {
@@ -117,10 +118,24 @@ export class SiteSettingsService implements OnModuleInit {
     const settings = await this.get();
     if (dto.contactEmail !== undefined)
       settings.contactEmail = dto.contactEmail;
-    if (dto.contactPhone !== undefined)
+    if (dto.contactPhones !== undefined) {
+      settings.contactPhones = dto.contactPhones
+        .map((phone) => phone.trim())
+        .filter(Boolean);
+      settings.contactPhone = settings.contactPhones[0] || undefined;
+    } else if (dto.contactPhone !== undefined) {
       settings.contactPhone = dto.contactPhone;
+      settings.contactPhones = dto.contactPhone.trim()
+        ? [dto.contactPhone]
+        : [];
+    }
     if (dto.address !== undefined) settings.address = dto.address;
     if (dto.mapUrl !== undefined) settings.mapUrl = dto.mapUrl;
+    if (dto.mapLatitude !== undefined) settings.mapLatitude = dto.mapLatitude;
+    if (dto.mapLongitude !== undefined)
+      settings.mapLongitude = dto.mapLongitude;
+    if (dto.workingHours !== undefined)
+      settings.workingHours = dto.workingHours;
 
     const saved = await this.settingsRepo.save(settings);
     await this.emitUpdated(saved.siteId, 'contact');
@@ -129,7 +144,10 @@ export class SiteSettingsService implements OnModuleInit {
 
   async updateSocial(dto: UpdateSocialLinksDto): Promise<SiteSettings> {
     const settings = await this.get();
-    settings.socialLinks = dto.socialLinks;
+    settings.socialLinks = dto.socialLinks.map((link) => ({
+      ...link,
+      active: link.active ?? true,
+    }));
 
     const saved = await this.settingsRepo.save(settings);
     await this.emitUpdated(saved.siteId, 'social');

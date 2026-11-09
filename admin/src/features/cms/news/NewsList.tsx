@@ -1,70 +1,98 @@
-import { Skeleton } from "@/components/ui/Skeleton";
 import { useState } from "react";
-import { useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table";
-import { useNewsList } from "../hooks/useNews";
-import type { CmsNewsArticle, CmsNewsStatus } from "../types";
 
-export default function NewsList() {
-  const { data = [], isLoading } = useNewsList();
+import { Skeleton } from "@/components/ui/Skeleton";
+import type { ApiError } from "@/lib/apiError";
+
+import { NewsRow } from "./NewsRow";
+import type { CmsNewsArticle, CmsNewsStatus } from "./types";
+
+export interface NewsListProps {
+  articles: CmsNewsArticle[];
+  isLoading: boolean;
+  error: ApiError | null;
+  status?: CmsNewsStatus;
+  updatingStatusId: string | null;
+  updatingScheduleId: string | null;
+  isSelected: (article: CmsNewsArticle) => boolean;
+  isAllSelected: boolean;
+  isSelectionIndeterminate: boolean;
+  onToggleSelect: (article: CmsNewsArticle) => void;
+  onToggleSelectAll: () => void;
+  onEdit: (article: CmsNewsArticle) => void;
+  onDeleteRequest: (article: CmsNewsArticle) => void;
+  onChangeStatus: (article: CmsNewsArticle, status: CmsNewsStatus) => void;
+  onSchedule: (article: CmsNewsArticle, publishAt: string | null) => void;
+  onViewHistory: (article: CmsNewsArticle) => void;
+}
+
+export default function NewsList(props: NewsListProps) {
   const [globalFilter, setGlobalFilter] = useState("");
-
-  const columns = [
-    { header: "عنوان", accessorFn: (r: CmsNewsArticle) => r.title.fa || r.title.en || "", id: "title" },
-    { header: "نامک", accessorKey: "slug" as const },
-    { header: "وضعیت", accessorKey: "status" as const },
-    { header: "تاریخ انتشار", accessorFn: (r: CmsNewsArticle) => r.publishAt ? new Date(r.publishAt).toLocaleDateString("fa-IR") : "—", id: "publishAt" },
-  ];
-
-  const table = useReactTable({
-    data,
-    columns,
-    state: { globalFilter },
-    onGlobalFilterChange: setGlobalFilter,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+  const { articles, isLoading, error } = props;
+  const visibleArticles = articles.filter((article) => {
+    const filter = globalFilter.trim().toLocaleLowerCase();
+    return !filter || article.title.fa.toLocaleLowerCase().includes(filter) || article.slug.includes(filter);
   });
 
   return (
     <div dir="rtl" className="p-4">
-      <h2 className="text-xl font-bold text-brand-900 mb-3">لیست اخبار</h2>
+      <h2 className="mb-3 text-xl font-bold text-brand-900">لیست اخبار</h2>
       <input
         value={globalFilter}
-        onChange={e => setGlobalFilter(e.target.value)}
-        placeholder="جستجو..."
-        className="w-full md:w-96 border rounded px-3 py-1 mb-3"
+        onChange={(event) => setGlobalFilter(event.target.value)}
+        aria-label="جستجوی اخبار" placeholder="جستجو..."
+        className="mb-3 w-full rounded border px-3 py-1 md:w-96"
       />
-      {isLoading ? <div className="space-y-3 py-4"><Skeleton className="h-8 w-full" /><Skeleton className="h-8 w-full" /><Skeleton className="h-8 w-full" /></div> : (
-        <table className="w-full border-collapse border text-sm">
-          <thead className="bg-brand-50">
-            {table.getHeaderGroups().map(hg => (
-              <tr key={hg.id}>
-                {hg.headers.map(h => (
-                  <th key={h.id} className="border px-2 py-1 text-right cursor-pointer" onClick={h.column.getToggleSortingHandler()}>
-                    {flexRender(h.column.columnDef.header, h.getContext())}
-                    {{ asc: " ▲", desc: " ▼" }[h.column.getIsSorted() as string] || null}
-                  </th>
-                ))}
+      {error ? <p role="alert" className="text-sm text-red-600">{error.message}</p> : null}
+      {isLoading ? (
+        <div className="space-y-3 py-4">
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-8 w-full" />
+        </div>
+      ) : (
+        <div className="overflow-auto">
+          <table className="w-full border-collapse border text-sm">
+            <thead className="bg-brand-50">
+              <tr>
+                <th className="border px-2 py-1">
+                  <input
+                    type="checkbox"
+                    checked={props.isAllSelected}
+                    ref={(element) => {
+                      if (element) element.indeterminate = props.isSelectionIndeterminate;
+                    }}
+                    onChange={props.onToggleSelectAll}
+                    aria-label="انتخاب همه خبرها"
+                  />
+                </th>
+                <th className="border px-2 py-1 text-right">خبر</th>
+                <th className="border px-2 py-1 text-right">دسته‌بندی</th>
+                <th className="border px-2 py-1 text-right">وضعیت</th>
+                <th className="border px-2 py-1 text-right">برنامه‌ریزی</th>
+                <th className="border px-2 py-1 text-right">عملیات</th>
               </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map(row => (
-              <tr key={row.id} className="hover:bg-gray-50">
-                {row.getVisibleCells().map(cell => (
-                  <td key={cell.id} className="border px-2 py-1">{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {visibleArticles.map((article) => (
+                <NewsRow
+                  key={article.id}
+                  article={article}
+                  selected={props.isSelected(article)}
+                  isUpdatingStatus={props.updatingStatusId === article.id}
+                  isUpdatingSchedule={props.updatingScheduleId === article.id}
+                  onToggleSelect={props.onToggleSelect}
+                  onEdit={props.onEdit}
+                  onDeleteRequest={props.onDeleteRequest}
+                  onChangeStatus={props.onChangeStatus}
+                  onSchedule={props.onSchedule}
+                  onViewHistory={props.onViewHistory}
+                />
+              ))}
+            </tbody>
+          </table>
+          {!visibleArticles.length && !isLoading ? <p className="py-4 text-center text-sm">خبری یافت نشد.</p> : null}
+        </div>
       )}
-      <div className="flex gap-2 mt-3">
-        <button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} className="px-3 py-1 border rounded">قبلی</button>
-        <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} className="px-3 py-1 border rounded">بعدی</button>
-        <span className="text-xs self-center">صفحه {table.getState().pagination.pageIndex + 1} از {table.getPageCount()}</span>
-      </div>
     </div>
   );
 }

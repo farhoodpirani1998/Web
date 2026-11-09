@@ -23,6 +23,7 @@ export const REVISION_ENABLED_TYPES = [
   'calendar_event',
   'campus',
   'teacher',
+  'school',
 ] as const;
 export type RevisionEnabledType = (typeof REVISION_ENABLED_TYPES)[number];
 
@@ -39,20 +40,29 @@ export class RevisionsService {
     snapshot: Record<string, unknown>,
     authorId: string,
   ): Promise<ContentRevision> {
-    const last = await this.repo.findOne({
-      where: { entityType, entityId },
-      order: { versionNumber: 'DESC' },
+    return this.repo.manager.transaction(async (manager) => {
+      // The advisory transaction lock makes MAX(versionNumber)+1 atomic
+      // across concurrent requests and application instances.
+      await manager.query(
+        'SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))',
+        [entityType, entityId],
+      );
+      const revisionRepo = manager.getRepository(ContentRevision);
+      const last = await revisionRepo.findOne({
+        where: { entityType, entityId },
+        order: { versionNumber: 'DESC' },
+      });
+      const versionNumber = (last?.versionNumber ?? 0) + 1;
+      return revisionRepo.save(
+        revisionRepo.create({
+          entityType,
+          entityId,
+          versionNumber,
+          snapshot,
+          authorId,
+        }),
+      );
     });
-    const versionNumber = (last?.versionNumber ?? 0) + 1;
-    return this.repo.save(
-      this.repo.create({
-        entityType,
-        entityId,
-        versionNumber,
-        snapshot,
-        authorId,
-      }),
-    );
   }
 
   async list(entityType: RevisionEnabledType, entityId: string) {

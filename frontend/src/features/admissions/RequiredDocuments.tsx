@@ -30,10 +30,15 @@ import { useAdmissions } from "./useAdmissions";
  * backend's Admissions content-module data; this renders
  * frontend-owned Persian placeholder copy in the meantime.
  */
-export function RequiredDocuments() {
-  const { data } = useAdmissions();
-  const requiredDocuments =
-    data && data.requiredDocuments.length > 0 ? data.requiredDocuments : fallbackDocuments;
+export function RequiredDocuments({ campusId }: { campusId?: string }) {
+  const { data } = useAdmissions(campusId);
+  const requiredDocuments = campusId
+    ? data?.requiredDocuments ?? []
+    : data && data.requiredDocuments.length > 0
+      ? data.requiredDocuments
+      : fallbackDocuments;
+
+  if (campusId && requiredDocuments.length === 0) return null;
 
   return (
     <Section spacing="lg" aria-labelledby="admissions-documents-heading">

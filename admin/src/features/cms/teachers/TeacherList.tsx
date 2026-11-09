@@ -1,5 +1,5 @@
 /**
- * Modern Teacher List using TanStack Table v8.
+ * Teacher list using the installed TanStack Table legacy adapter.
  *
  * Replaces the old `<table>` manual rendering with:
  * - `useReactTable` for column definitions, sorting, filtering
@@ -11,18 +11,17 @@
  */
 import { useState, useMemo } from "react";
 import {
-  useReactTable,
-  createCoreRowModel,
-  createSortedRowModel,
-  createFilteredRowModel,
-  createPaginationRowModel,
-  flexRender,
-  type ColumnDef,
-  type SortingState,
-} from "@tanstack/react-table";
+  useLegacyTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  type LegacyColumnDef as ColumnDef,
+} from "@tanstack/react-table/legacy";
+import type { SortingState } from "@tanstack/react-table";
+import { flexRender } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronLeft, ChevronRight, Edit3, Trash2, Clock, Eye, MoveVertical } from "lucide-react";
 
-import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PermissionGate } from "@/components/ui/PermissionGate";
 import { SelectAllCheckbox } from "@/components/ui/SelectAllCheckbox";
@@ -170,12 +169,18 @@ export function TeacherList({
         accessorKey: "status",
         header: "وضعیت",
         cell: ({ row }) => {
-          const s = row.original.status;
-          const color = s === "published" ? "bg-emerald-100 text-emerald-700" : s === "draft" ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600";
           return (
-            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${color}`}>
-              {s === "published" ? "منتشر" : s === "draft" ? " پیش‌نویس" : " آرشیو"}
-            </span>
+            <select
+              value={row.original.status}
+              onChange={(event) => onChangeStatus(row.original, event.target.value as CmsTeacherStatus)}
+              disabled={updatingStatusId === row.original.id}
+              aria-label={`وضعیت ${row.original.fullName}`}
+              className="rounded border border-slate-200 px-2 py-1 text-xs"
+            >
+              <option value="draft">پیش‌نویس</option>
+              <option value="published">منتشر</option>
+              <option value="archived">آرشیو</option>
+            </select>
           );
         },
         size: 100,
@@ -197,7 +202,6 @@ export function TeacherList({
         header: () => <span className="sr-only">اقدامات</span>,
         cell: ({ row }) => {
           const t = row.original;
-          const isUpdatingStatus = updatingStatusId === t.id;
           const isUpdatingSchedule = updatingScheduleId === t.id;
           return (
             <div className="flex items-center justify-end gap-1">
@@ -212,18 +216,18 @@ export function TeacherList({
         enableSorting: false,
       },
     ],
-    [teachers, selectedIds, status, isReordering, updatingStatusId, updatingScheduleId, onToggleSelect, onToggleSelectAll, onEdit, onDeleteRequest, onViewHistory, onSchedule, onReorder],
+    [teachers, selectedIds, status, isReordering, updatingStatusId, updatingScheduleId, onToggleSelect, onToggleSelectAll, onEdit, onDeleteRequest, onChangeStatus, onViewHistory, onSchedule, onReorder],
   );
 
-  const table = useReactTable({
+  const table = useLegacyTable({
     data: teachers,
     columns,
     state: { sorting },
     onSortingChange: setSorting,
-    getCoreRowModel: createCoreRowModel(),
-    getSortedRowModel: createSortedRowModel(),
-    getFilteredRowModel: createFilteredRowModel(),
-    getPaginationRowModel: createPaginationRowModel(),
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     manualPagination: false,
     defaultColumn: { size: 100 },
   });

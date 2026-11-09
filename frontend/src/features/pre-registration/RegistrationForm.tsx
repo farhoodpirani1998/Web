@@ -10,11 +10,19 @@ import {
   Typography,
 } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
+import {
+  isValidNationalId,
+  isValidBirthDate,
+  getTodayDateString,
+  normalizeDigits,
+  normalizeIranPhone,
+} from "@/shared/utils/preRegistrationValidation";
 import { ApiError } from "@/shared/api";
+import { useCampuses } from "@/features/campuses";
 
 import { submitPreRegistration } from "./api";
 import { SuccessState } from "./SuccessState";
-import type { PreRegistrationPayload } from "./types";
+import { GRADE_OPTIONS, type PreRegistrationPayload } from "./types";
 
 /**
  * Pre-registration page "Registration Form" section.
@@ -29,10 +37,8 @@ import type { PreRegistrationPayload } from "./types";
  * admin app's `LoginPage` — the closest existing example of a real
  * submit flow in this codebase.
  *
- * Field set, labels, and visual layout are unchanged from the original
- * presentation-only version — this sprint only adds state/handlers, no
- * redesign. No "campus of interest" field: the form only ever collected
- * a grade, so none was invented on the backend either.
+ * The optional campus selector uses the existing Campuses API. Leaving
+ * it unselected submits a null campus association.
  *
  * No shared `Input`/`Textarea`/`Select`/`Label` primitives exist yet in
  * the design system (`@/shared/design-system/components`), so this
@@ -51,14 +57,6 @@ const textareaClassName = cn(fieldClassName, "h-auto min-h-24 py-2 resize-none")
 
 const labelClassName = "text-sm font-medium text-foreground";
 
-const GRADE_OPTIONS = [
-  { value: "grade-1", label: "پایه اول ابتدایی" },
-  { value: "grade-2", label: "پایه دوم ابتدایی" },
-  { value: "grade-3", label: "پایه سوم ابتدایی" },
-  { value: "grade-7", label: "پایه هفتم" },
-  { value: "grade-10", label: "پایه دهم" },
-] as const;
-
 /** Every field starts empty — matches `CreatePreRegistrationDto`'s required/optional shape. */
 const EMPTY_FORM_VALUES: PreRegistrationPayload = {
   studentFirstName: "",
@@ -66,6 +64,7 @@ const EMPTY_FORM_VALUES: PreRegistrationPayload = {
   studentNationalId: "",
   studentBirthDate: "",
   studentGrade: "",
+  campusId: null,
   guardianFullName: "",
   guardianPhone: "",
   guardianEmail: "",
@@ -79,9 +78,11 @@ interface FieldProps {
   placeholder?: string;
   required?: boolean;
   autoComplete?: string;
+  max?: string;
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
+  dir?: "rtl" | "ltr";
 }
 
 function Field({
@@ -91,9 +92,11 @@ function Field({
   placeholder,
   required,
   autoComplete,
+  max,
   value,
   onChange,
   disabled,
+  dir,
 }: FieldProps) {
   return (
     <Stack gap="xs">
@@ -112,6 +115,8 @@ function Field({
         placeholder={placeholder}
         required={required}
         autoComplete={autoComplete}
+        max={max}
+        dir={dir}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         disabled={disabled}
@@ -122,10 +127,12 @@ function Field({
 }
 
 export function RegistrationForm() {
+  const { data: campuses = [] } = useCampuses();
   const [formValues, setFormValues] =
     React.useState<PreRegistrationPayload>(EMPTY_FORM_VALUES);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isSuccess, setIsSuccess] = React.useState(false);
+  const [referenceCode, setReferenceCode] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
 
   function updateField<K extends keyof PreRegistrationPayload>(
@@ -143,17 +150,70 @@ export function RegistrationForm() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+
+    if (!event.currentTarget.reportValidity()) {
+      return;
+    }
+
+    const requiredFields: (keyof PreRegistrationPayload)[] = [
+      "studentFirstName",
+      "studentLastName",
+      "studentNationalId",
+      "studentBirthDate",
+      "studentGrade",
+      "guardianFullName",
+      "guardianPhone",
+    ];
+    if (requiredFields.some((field) => !formValues[field]?.trim())) {
+      setError("لطفاً همه فیلدهای الزامی را تکمیل کنید.");
+      return;
+    }
+
+    if (!isValidBirthDate(formValues.studentBirthDate)) {
+      setError("تاریخ تولد واردشده معتبر نیست.");
+      return;
+    }
+
+    const guardianEmail = formValues.guardianEmail?.trim();
+    if (guardianEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guardianEmail)) {
+      setError("ایمیل واردشده معتبر نیست.");
+      return;
+    }
+
+    if (!isValidNationalId(formValues.studentNationalId)) {
+      setError("کد ملی واردشده معتبر نیست.");
+      return;
+    }
+    const nationalId = normalizeDigits(formValues.studentNationalId).replace(
+      /[\s-]/g,
+      "",
+    );
+
+    const guardianPhone = normalizeIranPhone(formValues.guardianPhone);
+    if (!guardianPhone) {
+      setError("شماره تماس باید یک شماره معتبر ایران باشد.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       // Optional fields: send `undefined` rather than an empty string
       // when unfilled, matching `CreatePreRegistrationDto`'s `@IsOptional`
       // fields (an empty string would otherwise fail `@IsEmail`).
-      await submitPreRegistration({
+      const response = await submitPreRegistration({
         ...formValues,
-        guardianEmail: formValues.guardianEmail || undefined,
-        notes: formValues.notes || undefined,
+        studentFirstName: formValues.studentFirstName.trim(),
+        studentLastName: formValues.studentLastName.trim(),
+        studentNationalId: nationalId,
+        studentGrade: formValues.studentGrade.trim(),
+        campusId: formValues.campusId || null,
+        guardianFullName: formValues.guardianFullName.trim(),
+        guardianPhone,
+        guardianEmail: guardianEmail || undefined,
+        notes: formValues.notes?.trim() || undefined,
       });
+      setReferenceCode(response.referenceCode);
       setIsSuccess(true);
     } catch (err) {
       setError(
@@ -168,7 +228,7 @@ export function RegistrationForm() {
   }
 
   if (isSuccess) {
-    return <SuccessState />;
+    return <SuccessState referenceCode={referenceCode} />;
   }
 
   return (
@@ -188,7 +248,7 @@ export function RegistrationForm() {
         </Stack>
 
         <Card variant="outline" padding="lg" className="mx-auto w-full max-w-3xl">
-          <form noValidate aria-label="فرم پیش‌ثبت‌نام دانش‌آموز" onSubmit={handleSubmit}>
+          <form aria-label="فرم پیش‌ثبت‌نام دانش‌آموز" onSubmit={handleSubmit}>
             <Stack gap="lg">
               <Stack as="fieldset" gap="md" className="m-0 border-0 p-0">
                 <Typography as="legend" variant="overline" className="px-0">
@@ -224,6 +284,7 @@ export function RegistrationForm() {
                       id="student-national-id"
                       label="کد ملی"
                       required
+                      dir="ltr"
                       value={formValues.studentNationalId}
                       onChange={(value) => updateField("studentNationalId", value)}
                       disabled={isSubmitting}
@@ -235,6 +296,7 @@ export function RegistrationForm() {
                       label="تاریخ تولد"
                       type="date"
                       required
+                      max={getTodayDateString()}
                       value={formValues.studentBirthDate}
                       onChange={(value) => updateField("studentBirthDate", value)}
                       disabled={isSubmitting}
@@ -266,6 +328,29 @@ export function RegistrationForm() {
                     ))}
                   </select>
                 </Stack>
+
+                <Stack gap="xs">
+                  <label htmlFor="student-campus" className={labelClassName}>
+                    مدرسه یا پردیس (اختیاری)
+                  </label>
+                  <select
+                    id="student-campus"
+                    name="campusId"
+                    value={formValues.campusId ?? ""}
+                    onChange={(event) =>
+                      updateField("campusId", event.target.value || null)
+                    }
+                    disabled={isSubmitting}
+                    className={fieldClassName}
+                  >
+                    <option value="">بدون انتخاب</option>
+                    {campuses.map((campus) => (
+                      <option key={campus.id} value={campus.id}>
+                        {campus.name}
+                      </option>
+                    ))}
+                  </select>
+                </Stack>
               </Stack>
 
               <Stack as="fieldset" gap="md" className="m-0 border-0 p-0">
@@ -290,6 +375,7 @@ export function RegistrationForm() {
                       type="tel"
                       required
                       autoComplete="tel"
+                      dir="ltr"
                       value={formValues.guardianPhone}
                       onChange={(value) => updateField("guardianPhone", value)}
                       disabled={isSubmitting}

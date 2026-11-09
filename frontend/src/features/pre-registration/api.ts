@@ -1,6 +1,6 @@
 import { apiClient } from "@/shared/api";
 
-import type { PreRegistrationPayload } from "./types";
+import type { PreRegistrationPayload, PreRegistrationResponse } from "./types";
 
 /**
  * Request function for the `pre-registration` feature's Public API
@@ -14,7 +14,7 @@ import type { PreRegistrationPayload } from "./types";
  */
 export async function submitPreRegistration(
   payload: PreRegistrationPayload,
-): Promise<{ id: string }> {
-  const response = await apiClient.post<{ id: string }>("/pre-registration", payload);
+): Promise<PreRegistrationResponse> {
+  const response = await apiClient.post<PreRegistrationResponse>("/pre-registration", payload);
   return response.data;
 }

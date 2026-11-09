@@ -63,3 +63,7 @@ export interface UploadMediaPayload {
   file: File;
   altText: string;
 }
+
+export interface UpdateMediaPayload {
+  altText: string;
+}

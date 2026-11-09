@@ -52,6 +52,7 @@ export interface PublicGalleryItemDto {
   description?: Translatable<string>;
   category?: string;
   position: number;
+  isFeatured: boolean;
 }
 
 export interface GalleryImage {
@@ -77,4 +78,5 @@ export interface GalleryItem {
   image: GalleryImage;
   /** Longer copy shown on `GalleryDetails` (expanded context). */
   description: string;
+  isFeatured: boolean;
 }

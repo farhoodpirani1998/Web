@@ -14,7 +14,7 @@
  * navigation — clearing auth flips `useAuth()` to `unauthenticated` and
  * `RequireAuth` redirects to `/login`.
  */
-import { Bell, KeyRound, LogOut, Menu, Search } from "lucide-react";
+import { KeyRound, LogOut, Menu, Moon, Search, Sun } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -31,12 +31,19 @@ import { clearAuth, logout, useAuth } from "@/features/auth";
 import { ChangePasswordDialog, ROLE_LABELS } from "@/features/cms/admin-users";
 import { useGlobalSearchContext } from "@/features/cms/global-search";
 import { ADMIN_NAV_ITEMS } from "@/routes/nav.config";
+import { formatLongDate } from "@/lib/formatDate";
 
 interface AdminHeaderProps {
   onOpenMenu: () => void;
+  theme: "light" | "dark";
+  onToggleTheme: () => void;
 }
 
-export function AdminHeader({ onOpenMenu }: AdminHeaderProps) {
+export function AdminHeader({
+  onOpenMenu,
+  theme,
+  onToggleTheme,
+}: AdminHeaderProps) {
   const { admin } = useAuth();
   const { openSearch } = useGlobalSearchContext();
   const location = useLocation();
@@ -74,18 +81,25 @@ export function AdminHeader({ onOpenMenu }: AdminHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-border bg-card/80 px-4 backdrop-blur-md supports-[backdrop-filter]:bg-card/70 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-border bg-card/85 px-4 backdrop-blur-xl supports-[backdrop-filter]:bg-card/70 sm:px-6 lg:px-8">
       <div className="flex min-w-0 items-center gap-3">
         <button
           type="button"
           onClick={onOpenMenu}
-          className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground lg:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground lg:hidden"
           aria-label="باز کردن منوی ناوبری"
         >
           <Menu className="h-5 w-5" />
         </button>
 
-        <h1 className="truncate font-heading text-lg font-bold text-foreground">{pageTitle}</h1>
+        <div className="min-w-0">
+          <h1 className="truncate font-heading text-lg font-bold text-foreground">
+            {pageTitle}
+          </h1>
+          <p className="hidden text-xs text-muted-foreground sm:block">
+            {formatLongDate()}
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
@@ -97,14 +111,14 @@ export function AdminHeader({ onOpenMenu }: AdminHeaderProps) {
           <Search className="h-4 w-4" />
           <span className="flex-1 text-start">جستجو…</span>
           <kbd className="rounded border border-border bg-secondary px-1.5 py-0.5 font-sans text-[0.7rem] text-muted-foreground">
-            Ctrl+K
+            Ctrl K
           </kbd>
         </button>
 
         <button
           type="button"
           onClick={openSearch}
-          className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground md:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground md:hidden"
           aria-label="جستجو"
         >
           <Search className="h-5 w-5" />
@@ -112,18 +126,24 @@ export function AdminHeader({ onOpenMenu }: AdminHeaderProps) {
 
         <button
           type="button"
-          className="relative flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-          aria-label="اعلان‌ها"
+          onClick={onToggleTheme}
+          className="flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          aria-label={theme === "dark" ? "فعال‌کردن حالت روشن" : "فعال‌کردن حالت تاریک"}
+          aria-pressed={theme === "dark"}
+          title={theme === "dark" ? "حالت روشن" : "حالت تاریک"}
         >
-          <Bell className="h-5 w-5" />
-          <span className="absolute end-1.5 top-1.5 h-2 w-2 rounded-full bg-brand-gold ring-2 ring-card" />
+          {theme === "dark" ? (
+            <Sun className="h-5 w-5" aria-hidden="true" />
+          ) : (
+            <Moon className="h-5 w-5" aria-hidden="true" />
+          )}
         </button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="flex items-center gap-2 rounded-full p-0.5 ps-2 transition-colors hover:bg-secondary"
+              className="flex min-h-11 min-w-11 items-center gap-2 rounded-full p-0.5 ps-2 transition-colors hover:bg-secondary"
               aria-label="حساب کاربری"
             >
               {admin ? (

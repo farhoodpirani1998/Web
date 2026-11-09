@@ -23,4 +23,6 @@ export type {
   SiteSettingsSeo,
   SiteSettingsSocialLink,
   SiteSettingsSocialPlatform,
+  SiteSettingsWorkingHoursEntry,
+  SiteSettingsWorkingHoursDay,
 } from "./types";

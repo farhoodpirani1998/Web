@@ -32,6 +32,7 @@ const SUPER_ADMIN = adminWith("website_super_admin", [
   "website.content:read",
   "website.media:manage",
   "website.admins:manage",
+  "website.newsletter:manage",
 ]);
 
 describe("requiredPermissionForPath", () => {
@@ -44,6 +45,12 @@ describe("requiredPermissionForPath", () => {
   it("requires admin management for the admin users page", () => {
     expect(requiredPermissionForPath(ROUTE_PATHS.ADMIN_ADMIN_USERS)).toBe(
       "website.admins:manage",
+    );
+  });
+
+  it("requires the separate newsletter-management permission", () => {
+    expect(requiredPermissionForPath(ROUTE_PATHS.ADMIN_NEWSLETTER)).toBe(
+      "website.newsletter:manage",
     );
   });
 
@@ -77,6 +84,7 @@ describe("canAccessRoute", () => {
   it("denies a content editor the pages their role cannot load", () => {
     expect(canAccessRoute(CONTENT_EDITOR, ROUTE_PATHS.ADMIN_MEDIA)).toBe(false);
     expect(canAccessRoute(CONTENT_EDITOR, ROUTE_PATHS.ADMIN_ADMIN_USERS)).toBe(false);
+    expect(canAccessRoute(CONTENT_EDITOR, ROUTE_PATHS.ADMIN_NEWSLETTER)).toBe(false);
   });
 
   it("denies a media editor the admin-user list but not the media library", () => {
@@ -87,6 +95,7 @@ describe("canAccessRoute", () => {
   it("lets a super admin through both", () => {
     expect(canAccessRoute(SUPER_ADMIN, ROUTE_PATHS.ADMIN_MEDIA)).toBe(true);
     expect(canAccessRoute(SUPER_ADMIN, ROUTE_PATHS.ADMIN_ADMIN_USERS)).toBe(true);
+    expect(canAccessRoute(SUPER_ADMIN, ROUTE_PATHS.ADMIN_NEWSLETTER)).toBe(true);
   });
 
   it("fails closed when no permission list is available", () => {

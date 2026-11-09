@@ -15,8 +15,8 @@ import { useEvents } from "./useEvents";
  * empty states (Phase 2) rather than silently falling back to
  * placeholder data.
  */
-export function EventList() {
-  const { data, isPending, isError } = useEvents();
+export function EventList({ campusId }: { campusId?: string }) {
+  const { data, isPending, isError } = useEvents(campusId);
   const items = data ?? [];
 
   return (
@@ -24,11 +24,13 @@ export function EventList() {
       <Stack gap="md">
         <Stack gap="sm">
           <Heading id="events-list-heading" level={2}>
-            فهرست رویدادها
+            {campusId ? "رویدادهای این مدرسه" : "فهرست رویدادها"}
           </Heading>
-          <Text variant="lead" className="max-w-2xl">
-            متن نمونه برای معرفی رویدادهای پیش‌رو و برنامه‌های مجموعه.
-          </Text>
+          {!campusId ? (
+            <Text variant="lead" className="max-w-2xl">
+              متن نمونه برای معرفی رویدادهای پیش‌رو و برنامه‌های مجموعه.
+            </Text>
+          ) : null}
         </Stack>
         {isPending ? (
           <Grid cols="3" gap="lg">

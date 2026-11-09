@@ -41,6 +41,7 @@ export interface TestimonialRowProps {
   onEdit: (testimonial: CmsTestimonial) => void;
   onDeleteRequest: (testimonial: CmsTestimonial) => void;
   onChangeStatus: (testimonial: CmsTestimonial, status: CmsTestimonialStatus) => void;
+  onToggleFeatured: (testimonial: CmsTestimonial) => void;
   onReorder: (fromIndex: number, toIndex: number) => void;
 }
 
@@ -56,6 +57,7 @@ export function TestimonialRow({
   onEdit,
   onDeleteRequest,
   onChangeStatus,
+  onToggleFeatured,
   onReorder,
 }: TestimonialRowProps) {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -95,7 +97,7 @@ export function TestimonialRow({
             type="checkbox"
             checked={selected}
             onChange={() => onToggleSelect(testimonial)}
-            aria-label={`Select testimonial from ${testimonial.authorName}`}
+            aria-label={`انتخاب نظر ${testimonial.authorName}`}
             className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
           />
         </PermissionGate>
@@ -119,7 +121,7 @@ export function TestimonialRow({
                   type="button"
                   disabled={isReordering || index === 0}
                   onClick={() => onReorder(index, index - 1)}
-                  aria-label="انتقال به بالا"
+                  aria-label={`انتقال به بالا ${testimonial.authorName}`}
                   className="text-xs leading-none text-slate-500 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-30"
                 >
                   ▲
@@ -128,7 +130,7 @@ export function TestimonialRow({
                   type="button"
                   disabled={isReordering || index === rowCount - 1}
                   onClick={() => onReorder(index, index + 1)}
-                  aria-label="انتقال به پایین"
+                  aria-label={`انتقال به پایین ${testimonial.authorName}`}
                   className="text-xs leading-none text-slate-500 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-30"
                 >
                   ▼
@@ -153,7 +155,7 @@ export function TestimonialRow({
             )}
           </div>
           <div>
-            <p className="font-medium text-slate-900">{testimonial.authorName}</p>
+            <p className="font-medium text-slate-900" dir="auto">{testimonial.authorName}</p>
             {testimonial.authorRole?.fa ? (
               <p className="text-xs text-slate-500" dir="rtl">
                 {testimonial.authorRole.fa}
@@ -171,7 +173,7 @@ export function TestimonialRow({
 
       <td className="px-3 py-3 align-top text-slate-600">
         {testimonial.rating ? (
-          <span aria-label={`${testimonial.rating} out of 5`}>
+          <span aria-label={`امتیاز ${testimonial.rating} از ۵`}>
             {"★".repeat(testimonial.rating)}
             <span className="text-slate-300">{"★".repeat(5 - testimonial.rating)}</span>
           </span>
@@ -186,6 +188,17 @@ export function TestimonialRow({
           isUpdating={isUpdatingStatus}
           onChangeStatus={(status) => onChangeStatus(testimonial, status)}
         />
+        <PermissionGate permission="website.content:write">
+          <button
+            type="button"
+            onClick={() => onToggleFeatured(testimonial)}
+            disabled={isUpdatingStatus}
+            aria-pressed={testimonial.isFeatured}
+            className="mt-2 rounded-md border border-slate-300 px-2 py-1 text-xs"
+          >
+            {testimonial.isFeatured ? "برجسته" : "عادی"}
+          </button>
+        </PermissionGate>
       </td>
 
       <td className="px-3 py-3 text-right align-top">

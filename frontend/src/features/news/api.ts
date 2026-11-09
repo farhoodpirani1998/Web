@@ -26,10 +26,10 @@ import type {
  */
 const NEWS_PAGE_LIMIT = 100;
 
-export async function fetchNews(): Promise<readonly NewsItem[]> {
+export async function fetchNews(campusId?: string): Promise<readonly NewsItem[]> {
   const response = await apiClient.get<PublicPaginatedResponse<PublicNewsListItemDto>>(
     "/news",
-    { params: { limit: NEWS_PAGE_LIMIT } },
+    { params: { limit: NEWS_PAGE_LIMIT, ...(campusId ? { campusId } : {}) } },
   );
 
   return response.data.items.map(toNewsItem);

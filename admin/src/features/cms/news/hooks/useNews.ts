@@ -1,11 +1,21 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { UseQueryResult } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import type { CmsNewsArticle, CmsNewsStatus } from "../types";
 import {
   fetchNewsList, fetchNewsArticleById, createNewsArticle, updateNewsArticle, deleteNewsArticle, updateNewsArticleStatus,
 } from "../api";
 import type { ApiError } from "@/lib/apiError";
-import type { UpdateNewsPayload, ScheduleNewsPayload } from "../schema";
+import type { UpdateNewsPayload } from "../schema";
+
+export interface UseNewsListResult {
+  data: CmsNewsArticle[] | undefined;
+  articles: CmsNewsArticle[];
+  isLoading: boolean;
+  isError: boolean;
+  error: ApiError | null;
+  refetch: UseQueryResult<CmsNewsArticle[], Error>["refetch"];
+  setData: (updater: CmsNewsArticle[] | ((old: CmsNewsArticle[] | undefined) => CmsNewsArticle[])) => void;
+  setArticles: (updater: CmsNewsArticle[] | ((old: CmsNewsArticle[]) => CmsNewsArticle[])) => void;
+}
 
 export const newsKeys = {
   all: ["news"] as const,
@@ -13,7 +23,7 @@ export const newsKeys = {
   detail: (id: string) => [...newsKeys.all, "detail", id] as const,
 };
 
-export function useNewsList(status?: CmsNewsStatus) {
+export function useNewsList(status?: CmsNewsStatus, category?: string) {
   const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: newsKeys.list(status),
@@ -23,13 +33,21 @@ export function useNewsList(status?: CmsNewsStatus) {
   const setData = (updater: CmsNewsArticle[] | ((old: CmsNewsArticle[] | undefined) => CmsNewsArticle[])) => {
     queryClient.setQueryData<CmsNewsArticle[]>(newsKeys.list(status), updater);
   };
+  const setArticles = (updater: CmsNewsArticle[] | ((old: CmsNewsArticle[]) => CmsNewsArticle[])) => {
+    queryClient.setQueryData<CmsNewsArticle[]>(newsKeys.list(status), (old) => {
+      const articles = old ?? [];
+      return typeof updater === "function" ? updater(articles) : updater;
+    });
+  };
   return {
     data: query.data,
+    articles: category ? (query.data ?? []).filter((article) => article.category === category) : query.data ?? [],
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error as ApiError | null,
     refetch: query.refetch,
     setData,
+    setArticles,
   };
 }
 
@@ -88,5 +106,6 @@ export function useUpdateNewsStatus() {
   });
 }
 
-// Preserve legacy export name expected by index
-export { useNewsList as useNews, type UseNewsResult } from "./useNews";
+export function useNews(status?: CmsNewsStatus, category?: string): UseNewsListResult {
+  return useNewsList(status, category);
+}

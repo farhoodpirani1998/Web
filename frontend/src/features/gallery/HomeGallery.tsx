@@ -1,6 +1,15 @@
 import type { SVGProps } from "react";
 
-import { Badge, Grid, Heading, Image, Section, Stack, Text } from "@/shared/design-system/components";
+import {
+  Badge,
+  Container,
+  Grid,
+  Heading,
+  Image,
+  Section,
+  Stack,
+  Text,
+} from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
 import { galleryItems } from "./data";
 import { useGallery } from "./useGallery";
@@ -46,64 +55,66 @@ function isTall(index: number) {
 }
 
 export function HomeGallery() {
-  const { data } = useGallery();
+  const { data, isLoading } = useGallery();
+  if (!isLoading && data?.length === 0) return null;
   const items = data && data.length > 0 ? data : galleryItems;
   const homeGalleryItems = items.slice(0, 7);
 
   return (
     <Section spacing="lg" tone="muted" aria-labelledby="home-gallery-heading">
-      <Stack gap="xl">
-        <Stack gap="sm" align="center" className="text-center">
-          <Badge variant="outline" className="rounded-full border-accent/40 bg-accent/10 text-primary">
-            گالری تصاویر
-          </Badge>
-          <Heading id="home-gallery-heading" level={2}>
-            نگاهی به فضای مجموعه
-          </Heading>
-          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-accent" />
-          <Text variant="lead" className="max-w-2xl">
-            متن معرفی نمونه برای بخش گالری. این متن جایگزین خلاصه‌ای است که در نهایت پس از
-            پیاده‌سازی ماژول محتوایی گالری، از طریق Public API بک‌اند تأمین خواهد شد.
-          </Text>
-        </Stack>
-
-        <Grid
-          cols="3"
-          gap="none"
-          className="[grid-auto-rows:200px] gap-3 sm:gap-4"
-        >
-          {homeGalleryItems.map((item, index) => (
-            <div
-              key={item.id}
-              className={cn(
-                "group relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 via-muted to-accent/15",
-                isTall(index) && "row-span-2",
-              )}
+      <Container size="xl">
+        <Stack gap="xl">
+          <Stack gap="sm" align="center" className="text-center">
+            <Badge
+              variant="outline"
+              className="rounded-full border-accent/40 bg-accent/10 text-primary"
             >
-              {item.image.src ? (
-                <Image
-                  src={item.image.src}
-                  alt={item.image.alt}
-                  fit="cover"
-                  containerClassName="absolute inset-0 h-full w-full"
-                />
-              ) : (
-                <>
-                  <span className="sr-only">{item.image.alt}</span>
-                  <PhotoGlyph
-                    aria-hidden="true"
-                    className="absolute inset-0 m-auto h-9 w-9 text-primary/20"
-                  />
-                </>
-              )}
+              گالری تصاویر
+            </Badge>
+            <Heading id="home-gallery-heading" level={2}>
+              نگاهی به فضای مجموعه
+            </Heading>
+            <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-accent" />
+            <Text variant="lead" className="max-w-2xl">
+              متن معرفی نمونه برای بخش گالری. این متن جایگزین خلاصه‌ای است که در نهایت پس
+              از پیاده‌سازی ماژول محتوایی گالری، از طریق Public API بک‌اند تأمین خواهد شد.
+            </Text>
+          </Stack>
+
+          <Grid cols="3" gap="none" className="gap-3 [grid-auto-rows:200px] sm:gap-4">
+            {homeGalleryItems.map((item, index) => (
               <div
-                aria-hidden="true"
-                className="absolute inset-0 bg-primary/0 transition-colors duration-300 group-hover:bg-primary/20"
-              />
-            </div>
-          ))}
-        </Grid>
-      </Stack>
+                key={item.id}
+                className={cn(
+                  "group relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 via-muted to-accent/15",
+                  isTall(index) && "row-span-2",
+                )}
+              >
+                {item.image.src ? (
+                  <Image
+                    src={item.image.src}
+                    alt={item.image.alt}
+                    fit="cover"
+                    containerClassName="absolute inset-0 h-full w-full"
+                  />
+                ) : (
+                  <>
+                    <span className="sr-only">{item.image.alt}</span>
+                    <PhotoGlyph
+                      aria-hidden="true"
+                      className="absolute inset-0 m-auto h-9 w-9 text-primary/20"
+                    />
+                  </>
+                )}
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-primary/0 transition-colors duration-300 group-hover:bg-primary/20"
+                />
+              </div>
+            ))}
+          </Grid>
+        </Stack>
+      </Container>
     </Section>
   );
 }
@@ -112,7 +123,16 @@ export function HomeGallery() {
 function PhotoGlyph({ className, ...props }: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" className={className} focusable="false" {...props}>
-      <rect x="2.5" y="4.5" width="19" height="15" rx="2" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <rect
+        x="2.5"
+        y="4.5"
+        width="19"
+        height="15"
+        rx="2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
       <circle cx="8" cy="10" r="1.75" fill="currentColor" />
       <path
         d="M3 17.5 8.5 12l3.5 3.5 3-3L21 17.5"

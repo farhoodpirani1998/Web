@@ -5,7 +5,8 @@ import { Link } from "@/shared/design-system/components/ui/link";
 import { FOCUS_RING_CLASSNAME } from "@/shared/design-system/a11y";
 import { cn } from "@/shared/utils/cn";
 import { useSiteSettings } from "@/features/site";
-import { toTelephoneHref } from "@/shared/config/contact";
+import { getContactPhones, toTelephoneHref } from "@/shared/config/contact";
+import { toPersianDigits } from "@/shared/utils/toPersianDigits";
 
 /**
  * Persistent top strip (Figma Design Reference §4.1 "TopBar"), mounted
@@ -22,16 +23,15 @@ import { toTelephoneHref } from "@/shared/config/contact";
  * real social URLs exist (Site Settings content module, §4, §8), that
  * block is additive.
  *
- * Contact details reuse `shared/config/contact` (shared with `Footer`)
- * — the same frontend-owned placeholder values two chrome components
- * would otherwise each hardcode separately.
+ * Contact details come from Site Settings; shared helpers normalize
+ * their phone links for both the top bar and footer.
  *
  * Responsive per Figma: phone always visible, email only from `md`,
  * the (unlinked) short address only from `lg`.
  */
 export function TopBar() {
   const { data } = useSiteSettings();
-  const phone = data?.contactPhone;
+  const phones = getContactPhones(data?.contactPhones, data?.contactPhone);
   const email = data?.contactEmail;
   const address = data?.address?.fa;
 
@@ -40,16 +40,19 @@ export function TopBar() {
       <Container>
         <Stack direction="row" align="center" justify="between" gap="md" className="h-9 text-xs">
           <Stack direction="row" align="center" gap="md">
-            {phone ? <Link
-              href={toTelephoneHref(phone)}
-              className={cn(
-                "inline-flex items-center gap-1.5 text-white/70 transition-colors hover:text-brand-gold",
-                FOCUS_RING_CLASSNAME,
-              )}
-            >
-              <Phone className="h-3.5 w-3.5" aria-hidden="true" />
-              <span dir="ltr">{phone}</span>
-            </Link> : null}
+            {phones.map((phone, index) => (
+              <Link
+                key={`${phone}-${index}`}
+                href={toTelephoneHref(phone)}
+                className={cn(
+                  "inline-flex items-center gap-1.5 text-white/70 transition-colors hover:text-brand-gold",
+                  FOCUS_RING_CLASSNAME,
+                )}
+              >
+                <Phone className="h-3.5 w-3.5" aria-hidden="true" />
+                <span dir="ltr">{toPersianDigits(phone)}</span>
+              </Link>
+            ))}
             {email ? <Link
               href={`mailto:${email}`}
               className={cn(

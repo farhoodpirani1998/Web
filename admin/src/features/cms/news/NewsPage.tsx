@@ -15,7 +15,7 @@ import { ApiError } from "@/lib/apiError";
 import { deleteNewsArticle, scheduleNewsArticle, updateNewsArticleStatus } from "./api";
 import { NewsDeleteConfirm } from "./NewsDeleteConfirm";
 import { NewsForm } from "./NewsForm";
-import { NewsList } from "./NewsList";
+import NewsList from "./NewsList";
 import { NewsRevisionsPanel } from "./NewsRevisionsPanel";
 import { NewsStatusFilter } from "./NewsStatusFilter";
 import { useNews } from "./hooks/useNews";

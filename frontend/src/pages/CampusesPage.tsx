@@ -3,12 +3,8 @@ import { Seo } from "@/shared/seo";
 import { Hero, CampusList, CampusDetails, FAQ } from "@/features/campuses";
 
 /**
- * Static (frontend-hardcoded, not backend-resolved) SEO for this list
- * page — no `useCampuses()`-style query exists yet (see below), so
- * unlike `AboutPage`/`HomePage`'s `seo`/`structuredData` from their
- * own public-api response, this page builds its own
- * `PublicSeoDto`-shaped object and passes it to the same shared
- * `<Seo />` (`@/shared/seo`, §21) directly.
+ * The list page uses page-level SEO metadata; each campus detail route
+ * uses the corresponding public campus detail response.
  */
 const CAMPUSES_SEO = {
   title: "پردیس‌های آموزشی",
@@ -26,22 +22,19 @@ const CAMPUSES_SEO = {
  * `StatisticsPage`/`SitePage`/`PreRegistrationPage` (Website Frontend
  * Architecture §20 "Routing Strategy").
  *
- * This page is presentation-only scaffolding for the backend's future
- * Campuses content module (§4, §8) — no such endpoint exists on the
- * Public API yet, so every section renders frontend-owned, CMS-ready
- * placeholder copy and fetches nothing.
+ * The campus list and detail content is backed by the existing public
+ * Campuses API. Visitor-friendly `/schools` routes present the same
+ * physical-campus records as schools.
  *
- * Deliberately separate from `@/features/schools` / `SchoolsPage`
- * (route `/schools`): this Sprint's explicit scope is a new, isolated
- * feature and route — `SchoolsPage` is not replaced, renamed, or
- * modified by this work.
+ * Kept as the established `/campuses` directory route alongside the
+ * visitor-friendly `/schools` directory route.
  *
  * Each section (Hero, CampusList, CampusDetails, FAQ) is its own
  * extracted feature module (`@/features/campuses`), following the
  * same pattern as the other static pages — `CampusesPage` only
  * composes these components; it owns no section's markup/copy itself.
- * Swapping any section for real data later is additive and stays
- * entirely inside that section's own feature file.
+ * Campus query and response adaptation remain inside the campuses
+ * feature.
  *
  * `CampusCard` (the per-campus unit `CampusList` repeats) and
  * `EmptyState` (the future "no results" view) are also part of

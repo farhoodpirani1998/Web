@@ -39,7 +39,7 @@ export interface CreateFaqPayload {
 
 /** Body for `PATCH /admin/faqs/:id`. Mirrors `UpdateFaqDto`. */
 export interface UpdateFaqPayload {
-  question?: Translatable<string>;
-  answer?: Translatable<string>;
-  category?: string;
+  question?: Partial<Translatable<string>>;
+  answer?: Partial<Translatable<string>>;
+  category?: string | null;
 }

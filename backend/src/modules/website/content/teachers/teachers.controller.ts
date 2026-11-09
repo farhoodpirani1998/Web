@@ -38,8 +38,11 @@ export class TeachersController {
 
   @Get()
   @RequireCmsPermission(WebsitePermission.CONTENT_READ)
-  findAll(@Query('status') status?: PublishStatus) {
-    return this.teachersService.findAll(status);
+  findAll(
+    @Query('status') status?: PublishStatus,
+    @Query('campusId', new ParseUUIDPipe({ optional: true })) campusId?: string,
+  ) {
+    return this.teachersService.findAll(status, campusId);
   }
 
   @Get(':id')

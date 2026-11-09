@@ -69,6 +69,10 @@ function toCampus(dto: PublicCampusListItemDto): Campus {
     detailedDescription: description,
     area: dto.area?.fa,
     address: dto.address?.fa,
+    mapUrl: dto.mapUrl,
+    latitude: dto.latitude,
+    longitude: dto.longitude,
+    gradeLevels: dto.gradeLevels,
     features: dto.features,
     contact: {
       phone,

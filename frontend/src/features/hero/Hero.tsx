@@ -1,6 +1,11 @@
 import { ArrowLeft, BookOpen, Calendar, Users } from "lucide-react";
 
-import { Container, Image, Link, buttonVariants } from "@/shared/design-system/components";
+import {
+  Container,
+  Image,
+  Link,
+  buttonVariants,
+} from "@/shared/design-system/components";
 import { APP_NAME } from "@/shared/config/app";
 import { cn } from "@/shared/utils/cn";
 import { useHero } from "./useHero";
@@ -54,18 +59,33 @@ export function Hero() {
   };
 
   return (
-    <section aria-labelledby="home-hero-heading" className="relative overflow-hidden bg-background">
+    <section
+      aria-labelledby="home-hero-heading"
+      className="relative isolate overflow-hidden bg-background"
+    >
+      <div
+        data-aifx="holo-foil"
+        className="pointer-events-none absolute inset-0 -z-10"
+        aria-hidden="true"
+      />
+
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-brand-navy/5 blur-3xl"
       />
 
-      <Container size="xl" className="relative z-10 grid gap-12 py-16 md:py-24 lg:grid-cols-2 lg:items-center">
+      <Container
+        size="xl"
+        className="relative z-10 grid gap-12 py-16 md:py-24 lg:grid-cols-2 lg:items-center"
+      >
         {/* Text column — first in DOM/reading order, sits on the right in RTL */}
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="duration-700 animate-in fade-in slide-in-from-bottom-4">
           {hero.eyebrow && (
             <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-brand-navy/5 px-3 py-1.5">
-              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-gold" />
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 rounded-full bg-brand-gold"
+              />
               <span className="text-xs font-bold text-brand-navy">{hero.eyebrow}</span>
             </div>
           )}
@@ -112,17 +132,19 @@ export function Hero() {
         </div>
 
         {/* Image column */}
-        <div className="relative animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150 fill-mode-both">
+        <div className="relative delay-150 duration-700 animate-in fade-in slide-in-from-bottom-4 fill-mode-both">
           <div
             aria-hidden="true"
-            className="absolute -right-4 -top-4 flex items-center gap-3 rounded-2xl bg-card p-4 shadow-lg ring-1 ring-border/60 md:-right-8 md:-top-8"
+            className="absolute -right-4 -top-6 z-20 flex items-center gap-3 rounded-2xl bg-card p-4 shadow-lg ring-1 ring-border/60 md:-right-8 md:-top-8"
           >
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-gold/15 text-brand-gold">
               <BookOpen className="h-5 w-5" aria-hidden="true" />
             </span>
             <span className="text-xs font-bold leading-tight text-foreground">
               آموزش استاندارد
-              <span className="block font-normal text-muted-foreground">بر اساس متدهای روز</span>
+              <span className="block font-normal text-muted-foreground">
+                بر اساس متدهای روز
+              </span>
             </span>
           </div>
 
@@ -131,8 +153,8 @@ export function Hero() {
             alt={hero.image.alt}
             loading="eager"
             fetchPriority="high"
-            fit="cover"
-            ratio={4 / 3}
+            fit="contain"
+            className="h-auto"
             containerClassName="overflow-hidden rounded-3xl"
           />
 

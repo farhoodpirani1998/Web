@@ -1,9 +1,10 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { RouterProvider } from "react-router-dom";
 import { AuthProvider } from "@/features/auth";
 import { router } from "@/routes";
-import { ToastProvider } from "@/components/ui/Toast";
-import { ToastContainer } from "@/components/ui/Toast";
+
+const queryClient = new QueryClient();
 
 /**
  * Application root component.
@@ -18,12 +19,11 @@ export function App() {
   return (
     <div dir="rtl" lang="fa">
       <ErrorBoundary>
-        <AuthProvider>
-          <ToastProvider>
-            <ToastContainer />
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
             <RouterProvider router={router} />
-          </ToastProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </QueryClientProvider>
       </ErrorBoundary>
     </div>
   );

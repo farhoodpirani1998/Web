@@ -1,4 +1,4 @@
-import { Controller, Get, Header } from '@nestjs/common';
+import { Controller, Get, Header, ParseUUIDPipe, Query } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
@@ -6,6 +6,7 @@ import {
   AdmissionEntry,
   AdmissionEntryKind,
 } from '../../content/admissions/entities/admission-entry.entity';
+import { CampusScopeService } from '../../content/common/campus-scope.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
 import { RedisService } from '../../core/redis/redis.service';
@@ -29,6 +30,7 @@ interface PublicAdmissionEntryDto {
   period?: string;
   includes?: string[];
   position: number;
+  campusId?: string | null;
 }
 
 /**
@@ -44,20 +46,25 @@ export class PublicAdmissionsController {
     private readonly siteService: SiteService,
     private readonly visibility: PublicVisibilityService,
     private readonly redis: RedisService,
+    private readonly campusScope: CampusScopeService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
-  async findAll(): Promise<PublicAdmissionEntryDto[]> {
-    const cacheKey = buildPublicCacheKey('admissions', 'list');
+  async findAll(
+    @Query('campusId', new ParseUUIDPipe({ optional: true })) campusId?: string,
+  ): Promise<PublicAdmissionEntryDto[]> {
+    const cacheKey = buildPublicCacheKey('admissions', 'list', campusId);
     const cached = await this.redis.get<PublicAdmissionEntryDto[]>(cacheKey);
     if (cached) return cached;
 
     const siteId = this.siteService.getDefaultSiteId();
-    const entries = await this.entriesRepo.find({
-      where: { siteId, status: PublishStatus.PUBLISHED },
-      order: { position: 'ASC' },
-    });
+    const qb = this.entriesRepo
+      .createQueryBuilder('entry')
+      .where('entry.siteId = :siteId', { siteId })
+      .andWhere('entry.status = :status', { status: PublishStatus.PUBLISHED });
+    this.campusScope.applyPublicFilter(qb, 'entry', campusId);
+    const entries = await qb.addOrderBy('entry.position', 'ASC').getMany();
     const visible = this.visibility.filterVisible(entries);
 
     const dto = visible.map((entry) => ({
@@ -70,6 +77,7 @@ export class PublicAdmissionsController {
       period: entry.period,
       includes: entry.includes,
       position: entry.position,
+      campusId: entry.campusId,
     }));
     await this.redis.set(cacheKey, dto, PUBLIC_CACHE_TTL_SECONDS);
     return dto;

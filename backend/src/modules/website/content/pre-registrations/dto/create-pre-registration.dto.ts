@@ -3,6 +3,8 @@ import {
   IsEmail,
   IsOptional,
   IsString,
+  IsUUID,
+  Matches,
   MinLength,
 } from 'class-validator';
 
@@ -23,7 +25,7 @@ export class CreatePreRegistrationDto {
   studentLastName!: string;
 
   @IsString()
-  @MinLength(1)
+  @Matches(/^\d{10}$/)
   studentNationalId!: string;
 
   @IsDateString()
@@ -33,12 +35,16 @@ export class CreatePreRegistrationDto {
   @MinLength(1)
   studentGrade!: string;
 
+  @IsOptional()
+  @IsUUID()
+  campusId?: string;
+
   @IsString()
   @MinLength(1)
   guardianFullName!: string;
 
   @IsString()
-  @MinLength(1)
+  @Matches(/^0\d{10}$/)
   guardianPhone!: string;
 
   // Optional on the form ("ایمیل (اختیاری)").

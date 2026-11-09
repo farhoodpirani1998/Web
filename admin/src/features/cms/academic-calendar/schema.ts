@@ -1,5 +1,4 @@
 import { z } from "zod";
-import type { AcademicCalendarEntryKind } from "./types";
 
 export const kindSchema = z.enum(["year_stat","term","holiday","exam_period","important_date"]);
 

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useFocusTrap } from "@/hooks/useFocusTrap";
+
 import type { GlobalSearchResult } from "./types";
 import type { UseGlobalSearchResult } from "./useGlobalSearch";
 
@@ -28,6 +30,9 @@ export function CommandPalette({ search }: CommandPaletteProps) {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useFocusTrap(dialogRef, isOpen, close);
 
   useEffect(() => {
     setActiveIndex(0);
@@ -42,7 +47,7 @@ export function CommandPalette({ search }: CommandPaletteProps) {
     close();
   }
 
-  function handleKeyDown(event: ReactKeyboardEvent<HTMLInputElement>) {
+  function handleKeyDown(event: ReactKeyboardEvent<HTMLElement>) {
     if (event.key === "ArrowDown") {
       event.preventDefault();
       setActiveIndex((index) => Math.min(index + 1, results.length - 1));
@@ -75,7 +80,7 @@ export function CommandPalette({ search }: CommandPaletteProps) {
       rows.push(
         <p
           key={`group:${groupKey}`}
-          className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-slate-400 first:pt-1"
+          className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground first:pt-1"
         >
           {result.kind === "nav" ? "ناوبری" : result.moduleLabel}
         </p>,
@@ -89,23 +94,23 @@ export function CommandPalette({ search }: CommandPaletteProps) {
         type="button"
         onClick={() => goTo(result.route)}
         onMouseEnter={() => setActiveIndex(index)}
-        className={`flex w-full flex-col items-start rounded-md px-3 py-2 text-left text-sm ${
-          index === activeIndex ? "bg-slate-100 text-slate-900" : "text-slate-700 hover:bg-slate-50"
+        onKeyDown={handleKeyDown}
+        className={`flex w-full flex-col items-start rounded-xl px-3 py-2 text-start text-sm transition-colors ${
+          index === activeIndex ? "bg-secondary text-foreground" : "text-foreground/80 hover:bg-secondary"
         }`}
       >
         <span className="font-medium">{result.title}</span>
         {result.kind === "content" && result.subtitle ? (
-          <span className="text-xs text-slate-500">{result.subtitle}</span>
+          <span className="text-xs text-muted-foreground">{result.subtitle}</span>
         ) : null}
       </button>,
     );
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4 pt-24">
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/55 px-4 pt-[12vh] backdrop-blur-sm">
       <button
         type="button"
-        role="button"
         aria-label="بستن جستجو"
         onClick={close}
         className="absolute inset-0 cursor-default"
@@ -114,24 +119,26 @@ export function CommandPalette({ search }: CommandPaletteProps) {
         role="dialog"
         aria-modal="true"
         aria-label="جستجو"
-        onKeyDown={handleKeyDown}
-        className="relative z-10 flex max-h-[70vh] w-full max-w-lg flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl"
+        ref={dialogRef}
+        tabIndex={-1}
+        className="relative z-10 flex max-h-[76vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl"
       >
-        <div className="border-b border-slate-200 p-3">
+        <div className="border-b border-border p-3">
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="جستجوی صفحات و محتوا…"
             aria-label="جستجوی صفحات و محتوا"
-            className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300"
+            className="min-h-12 w-full rounded-xl border border-input bg-background px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
 
         <div className="flex-1 overflow-y-auto p-2">
           {rows.length === 0 ? (
-            <p className="px-3 py-6 text-center text-sm text-slate-500">
+            <p className="px-3 py-6 text-center text-sm text-muted-foreground">
               {isContentLoading
                 ? "در حال جستجو…"
                 : isContentError
@@ -143,7 +150,7 @@ export function CommandPalette({ search }: CommandPaletteProps) {
           )}
         </div>
 
-        <div className="flex items-center justify-between border-t border-slate-200 px-3 py-2 text-xs text-slate-400">
+        <div className="flex items-center justify-between border-t border-border px-3 py-2 text-xs text-muted-foreground">
           <span>↑↓ برای جابه‌جایی، Enter برای انتخاب، Esc برای بستن</span>
           {isContentLoading ? <span>در حال بارگذاری محتوا…</span> : null}
         </div>

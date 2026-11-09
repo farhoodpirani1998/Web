@@ -4,11 +4,11 @@
  */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useId, useState } from "react";
+import { useState } from "react";
 
 import { UnsavedChangesDialog } from "@/components/ui/UnsavedChangesDialog";
 import { MediaPicker, useMediaById } from "@/features/cms/media";
-import { useIsDirty, useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { ApiError } from "@/lib/apiError";
 
 import { createGalleryItem, updateGalleryItem } from "./api";
@@ -30,7 +30,6 @@ export function GalleryForm({ item, onCancel, onSaved }: GalleryFormProps) {
     formState: { errors, isDirty, isSubmitting },
     watch,
     setValue,
-    reset,
   } = useForm<GalleryFormData>({
     resolver: zodResolver(galleryFormSchema),
     defaultValues: item ? galleryToFormData(item) : {
@@ -38,6 +37,7 @@ export function GalleryForm({ item, onCancel, onSaved }: GalleryFormProps) {
       captionFa: "",
       captionEn: "",
       category: "",
+      isFeatured: false,
     },
   });
 
@@ -73,8 +73,8 @@ export function GalleryForm({ item, onCancel, onSaved }: GalleryFormProps) {
         </h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-4 flex max-h-[70vh] flex-col gap-4 overflow-y-auto" noValidate>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-slate-900">تصویر</label>
+          <div className="flex flex-col gap-1.5" role="group" aria-labelledby="gallery-image-label">
+            <span id="gallery-image-label" className="text-sm font-medium text-slate-900">تصویر</span>
             <div className="flex items-center gap-3">
               <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-slate-50">
                 {imageMediaId ? (
@@ -108,6 +108,11 @@ export function GalleryForm({ item, onCancel, onSaved }: GalleryFormProps) {
             />
             {errors.captionFa ? <p className="text-xs text-red-600">{errors.captionFa.message}</p> : null}
           </div>
+
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" {...register("isFeatured")} />
+            نمایش در اسلایدر برجسته‌ی سایت
+          </label>
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor="captionEn" className="text-sm font-medium text-slate-900">

@@ -16,13 +16,9 @@ import {
  *
  * This is a fixed singular page (Website Frontend Architecture §20
  * "Routing Strategy"), not a slug-addressed static page — its route is
- * `/about`, not `/pages/:slug`. A backend-owned Static Pages / About
- * content module now backs `GET /public/about` (`@/features/about`'s
- * `useAboutPage`); most sections still render frontend-owned
- * placeholder copy per-field (see `@/features/about/api.ts`'s
- * `toAboutPageContent`), but the page itself renders the shared
- * `<Seo />` component (`@/shared/seo`, §21) off that same query's
- * `seo`/`structuredData` fields.
+ * `/about`, not `/pages/:slug`. The About CMS module backs the page
+ * sections and SEO metadata; each section with no published content
+ * is omitted instead of falling back to sample copy.
  *
  * Each section (Hero, Stats, Story, Values, Timeline, Team, FAQ) is
  * now an extracted feature module (`@/features/about`), following the
@@ -46,11 +42,41 @@ import {
  * (`index.html`) as well as a future `ltr` locale.
  */
 export function AboutPage() {
-  const { data } = useAboutPage();
+  const { data, isLoading, error } = useAboutPage();
+
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <p role="status" className="py-12 text-center text-muted-foreground">
+          در حال بارگذاری صفحه درباره ما…
+        </p>
+      </PageLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageLayout>
+        <p role="alert" className="py-12 text-center text-destructive">
+          بارگذاری صفحه درباره ما ناموفق بود: {error.message}
+        </p>
+      </PageLayout>
+    );
+  }
+
+  if (!data) {
+    return (
+      <PageLayout>
+        <p role="alert" className="py-12 text-center text-destructive">
+          محتوای صفحه درباره ما در دسترس نیست.
+        </p>
+      </PageLayout>
+    );
+  }
 
   return (
     <>
-      <Seo seo={data?.seo} structuredData={data?.structuredData} />
+      <Seo seo={data.seo} structuredData={data.structuredData} />
 
       {/* Full-bleed hero band, outside PageLayout (which is a Container). */}
       <AboutHero />

@@ -60,10 +60,8 @@ export function log({
   /* In production this should ship to a central collector (e.g., Sentry / Datadog / backend log endpoint).
      For this admin SPA we keep it in-memory + console for debugging, never persisting locally. */
   if (level === "error") {
-    // eslint-disable-next-line no-console
     console.error("[ADMIN LOG]", entry);
   } else if (level === "warn") {
-    // eslint-disable-next-line no-console
     console.warn("[ADMIN LOG]", entry);
   } else {
     // eslint-disable-next-line no-console

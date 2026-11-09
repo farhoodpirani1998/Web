@@ -114,7 +114,7 @@ export function FaqRow({
           {faq.question.fa}
         </p>
         {faq.question.en ? (
-          <p className="mt-0.5 line-clamp-2 text-xs text-slate-500">{faq.question.en}</p>
+          <p className="mt-0.5 line-clamp-2 text-xs text-slate-500" dir="ltr">{faq.question.en}</p>
         ) : null}
       </td>
 

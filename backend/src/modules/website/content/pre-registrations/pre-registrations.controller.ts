@@ -10,16 +10,16 @@ import {
 } from '@nestjs/common';
 import { PreRegistrationsService } from './pre-registrations.service';
 import { UpdatePreRegistrationStatusDto } from './dto/update-pre-registration-status.dto';
+import { UpdatePreRegistrationAssignmentDto } from './dto/update-pre-registration-assignment.dto';
 import { PreRegistrationStatus } from './entities/pre-registration-status.enum';
 import { RequireCmsPermission } from '../../identity/auth/cms-permission.decorator';
 import { WebsitePermission } from '../../auth/website-role.enum';
 
 /**
  * Admin read/triage/delete for Pre-Registration submissions. No
- * `create`/`update` here — submissions only ever arrive via
- * `PublicPreRegistrationController` (`POST /public/pre-registration`);
- * this admin surface only lists, inspects, changes triage status, and
- * deletes them.
+ * Submissions arrive via `PublicPreRegistrationController`
+ * (`POST /public/pre-registration`); this admin surface lists, inspects,
+ * changes triage status and assignment/follow-up, and deletes them.
  *
  * `updateStatus` is gated on `CONTENT_WRITE`, not `CONTENT_PUBLISH`
  * (unlike `FaqController.updateStatus`) — this status is plain triage
@@ -51,6 +51,15 @@ export class PreRegistrationsController {
     @Body() dto: UpdatePreRegistrationStatusDto,
   ) {
     return this.preRegistrationsService.updateStatus(id, dto.status);
+  }
+
+  @Patch(':id/assignment')
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
+  updateAssignment(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdatePreRegistrationAssignmentDto,
+  ) {
+    return this.preRegistrationsService.updateAssignment(id, dto);
   }
 
   @Delete(':id')

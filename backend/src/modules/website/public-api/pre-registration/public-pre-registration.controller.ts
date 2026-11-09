@@ -32,8 +32,12 @@ export class PublicPreRegistrationController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() dto: CreatePreRegistrationDto): Promise<{ id: string }> {
+  async create(
+    @Body() dto: CreatePreRegistrationDto,
+  ): Promise<{ referenceCode: string }> {
     const preRegistration = await this.preRegistrationsService.create(dto);
-    return { id: preRegistration.id };
+    return {
+      referenceCode: preRegistration.referenceCode,
+    };
   }
 }

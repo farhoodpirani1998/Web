@@ -4,6 +4,7 @@ import type {
   CmsPreRegistration,
   CmsPreRegistrationStatus,
   UpdatePreRegistrationStatusPayload,
+  UpdatePreRegistrationAssignmentPayload,
 } from "./types";
 
 /**
@@ -48,6 +49,18 @@ export async function updatePreRegistrationStatus(
 ): Promise<CmsPreRegistration> {
   const response = await apiClient.patch<CmsPreRegistration>(
     `/pre-registrations/${id}/status`,
+    payload,
+  );
+  return response.data;
+}
+
+/** `PATCH /admin/pre-registrations/:id/assignment`. */
+export async function updatePreRegistrationAssignment(
+  id: string,
+  payload: UpdatePreRegistrationAssignmentPayload,
+): Promise<CmsPreRegistration> {
+  const response = await apiClient.patch<CmsPreRegistration>(
+    `/pre-registrations/${id}/assignment`,
     payload,
   );
   return response.data;

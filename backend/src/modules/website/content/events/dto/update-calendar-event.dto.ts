@@ -79,6 +79,10 @@ export class UpdateCalendarEventDto {
   featuredImageMediaId?: string | null;
 
   @IsOptional()
+  @IsUUID()
+  campusId?: string | null;
+
+  @IsOptional()
   @ValidateNested()
   @Type(() => SeoMetadataDto)
   seo?: SeoMetadataDto;

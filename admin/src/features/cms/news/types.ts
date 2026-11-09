@@ -62,6 +62,7 @@ export interface CmsNewsArticle extends CmsEntityMeta {
   body: Translatable<string>;
   category?: string;
   tags?: string[];
+  campusId?: string | null;
   featuredImageMediaId?: string;
   seo: CmsSeoMetadata;
   /** ISO 8601 timestamp, or absent/undefined when the article isn't scheduled. */
@@ -73,10 +74,11 @@ export interface CmsNewsArticle extends CmsEntityMeta {
 export interface CreateNewsArticlePayload {
   title: Translatable<string>;
   slug: string;
-  excerpt?: Translatable<string>;
+  excerpt?: Partial<Translatable<string>>;
   body: Translatable<string>;
   category?: string;
   tags?: string[];
+  campusId?: string;
   featuredImageMediaId?: string;
   seo?: CmsSeoMetadataInput;
 }
@@ -89,12 +91,13 @@ export interface CreateNewsArticlePayload {
  * convention as Hero's `backgroundMediaId`.
  */
 export interface UpdateNewsArticlePayload {
-  title?: Translatable<string>;
+  title?: Partial<Translatable<string>>;
   slug?: string;
-  excerpt?: Translatable<string>;
-  body?: Translatable<string>;
+  excerpt?: Partial<Translatable<string>>;
+  body?: Partial<Translatable<string>>;
   category?: string;
   tags?: string[];
+  campusId?: string | null;
   featuredImageMediaId?: string | null;
   seo?: CmsSeoMetadataInput;
 }
@@ -131,6 +134,7 @@ export interface CmsNewsRevision {
     body: Translatable<string>;
     category?: string;
     tags?: string[];
+    campusId?: string | null;
     featuredImageMediaId?: string;
     seo?: CmsSeoMetadata;
   };

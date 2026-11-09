@@ -4,6 +4,7 @@ import {
   Header,
   NotFoundException,
   Param,
+  ParseUUIDPipe,
   Query,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import { Repository } from 'typeorm';
 import { Teacher } from '../../content/teachers/entities/teacher.entity';
+import { CampusScopeService } from '../../content/common/campus-scope.service';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 import { SiteService } from '../../core/site/site.service';
 import { SeoService, PublicSeoDto } from '../../core/seo/seo.service';
@@ -36,7 +38,7 @@ interface PublicTeacherListItemDto {
   jobTitle: Teacher['jobTitle'];
   excerpt?: Teacher['excerpt'];
   department?: Teacher['department'];
-  campusId?: string;
+  campusId?: string | null;
   phone?: string;
   email?: string;
   specialties?: string[];
@@ -74,28 +76,27 @@ export class PublicTeachersController {
     private readonly seo: SeoService,
     private readonly config: ConfigService,
     private readonly redis: RedisService,
+    private readonly campusScope: CampusScopeService,
   ) {}
 
   @Header('Cache-Control', PUBLIC_CACHE_CONTROL)
   @Get()
   async findAll(
-    @Query('campusId') campusId?: string,
+    @Query('campusId', new ParseUUIDPipe({ optional: true })) campusId?: string,
   ): Promise<PublicTeacherListItemDto[]> {
     const cacheKey = buildPublicCacheKey('teachers', 'list', campusId);
     const cached = await this.redis.get<PublicTeacherListItemDto[]>(cacheKey);
     if (cached) return cached;
 
     const siteId = this.siteService.getDefaultSiteId();
-    const where: Record<string, unknown> = {
-      siteId,
-      status: PublishStatus.PUBLISHED,
-    };
-    if (campusId) where.campusId = campusId;
-
-    const teachers = await this.teachersRepo.find({
-      where,
-      order: { position: 'ASC' },
-    });
+    const qb = this.teachersRepo
+      .createQueryBuilder('teacher')
+      .where('teacher.siteId = :siteId', { siteId })
+      .andWhere('teacher.status = :status', {
+        status: PublishStatus.PUBLISHED,
+      });
+    this.campusScope.applyPublicFilter(qb, 'teacher', campusId);
+    const teachers = await qb.addOrderBy('teacher.position', 'ASC').getMany();
     const visible = this.visibility.filterVisible(teachers);
 
     const mediaMap = await this.media.resolveMany(

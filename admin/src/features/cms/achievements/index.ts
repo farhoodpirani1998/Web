@@ -21,7 +21,7 @@ export {
   updateAchievementStatus,
   reorderAchievements,
 } from "./api";
-export { useAchievementList, useAchievement, useAchievementMutations, achievementKeys } from "./hooks/useAchievements";
+export { useAchievementList, useAchievements, useAchievement, useAchievementMutations, achievementKeys } from "./hooks/useAchievements";
 export { AchievementsPage } from "./AchievementsPage";
 export { AchievementForm } from "./AchievementForm";
 export { AchievementList } from "./AchievementList";

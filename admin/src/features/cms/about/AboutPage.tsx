@@ -77,7 +77,7 @@ export function AboutPage() {
       >
         <PageHeader
           title="درباره ما"
-          description="مدیریت محتوا، تصویر و سئوی صفحه درباره ما در سایت عمومی."
+          description="مدیریت متن، تصویر، زیر‌بخش‌ها و سئوی صفحه درباره ما در سایت عمومی."
         >
           <PermissionGate permission="website.revisions:view">
             <button

@@ -16,6 +16,9 @@ export type SiteSettingsSocialPlatform =
   | "telegram"
   | "whatsapp"
   | "eitaa"
+  | "bale"
+  | "rubika"
+  | "aparat"
   | "youtube"
   | "linkedin"
   | "twitter"
@@ -24,6 +27,23 @@ export type SiteSettingsSocialPlatform =
 export interface SiteSettingsSocialLink {
   platform: SiteSettingsSocialPlatform;
   url: string;
+  active?: boolean;
+}
+
+export type SiteSettingsWorkingHoursDay =
+  | "saturday"
+  | "sunday"
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday";
+
+export interface SiteSettingsWorkingHoursEntry {
+  day: SiteSettingsWorkingHoursDay;
+  openTime: string;
+  closeTime: string;
+  isClosed: boolean;
 }
 
 export interface SiteSettingsSeo {
@@ -42,8 +62,12 @@ export interface SiteSettings {
   favicon: SiteSettingsMedia | null;
   contactEmail?: string;
   contactPhone?: string;
+  contactPhones?: readonly string[];
   address?: SiteSettingsTranslatable;
   mapUrl?: string;
+  mapLatitude?: number | null;
+  mapLongitude?: number | null;
+  workingHours?: readonly SiteSettingsWorkingHoursEntry[] | null;
   socialLinks: readonly SiteSettingsSocialLink[];
   defaultSeo: SiteSettingsSeo;
   featureFlags: {

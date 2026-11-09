@@ -3,6 +3,7 @@ import { BaseSiteScopedEntity } from '../../../core/common/base-site-scoped.enti
 import { PublishStatus } from '../../../core/publishing/publish-status.enum';
 import { Translatable } from '../../../core/i18n/locale.enum';
 import { SeoMetadata } from '../../../core/seo/seo-metadata.embeddable';
+import { AboutContentSections } from './about-sections.types';
 
 /**
  * The "About Us" page. Deliberately a singleton per site (one row,
@@ -24,6 +25,9 @@ export class AboutPage extends BaseSiteScopedEntity {
   // Reference into core/media, tracked via MediaUsage.
   @Column({ type: 'uuid', nullable: true })
   imageMediaId?: string;
+
+  @Column({ type: 'jsonb', default: () => "'{}'::jsonb" })
+  sections!: AboutContentSections;
 
   @Column(() => SeoMetadata)
   seo!: SeoMetadata;

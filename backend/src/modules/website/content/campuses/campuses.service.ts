@@ -35,10 +35,13 @@ function snapshotOf(campus: Campus): Record<string, unknown> {
     body: campus.body,
     address: campus.address,
     mapUrl: campus.mapUrl,
+    latitude: campus.latitude,
+    longitude: campus.longitude,
     phone: campus.phone,
     email: campus.email,
     area: campus.area,
     features: campus.features,
+    gradeLevels: campus.gradeLevels,
     featuredImageMediaId: campus.featuredImageMediaId,
     seo: campus.seo,
   };
@@ -130,10 +133,13 @@ export class CampusesService implements OnModuleInit {
         body: sanitizeTranslatableRichText(dto.body),
         address: dto.address,
         mapUrl: dto.mapUrl,
+        latitude: dto.latitude,
+        longitude: dto.longitude,
         phone: dto.phone,
         email: dto.email,
         area: dto.area,
         features: dto.features,
+        gradeLevels: dto.gradeLevels,
         position: (maxPosition?.max ?? -1) + 1,
         featuredImageMediaId: dto.featuredImageMediaId,
         seo: dto.seo ?? {},
@@ -148,13 +154,13 @@ export class CampusesService implements OnModuleInit {
         campus.id,
       );
     }
+    await this.invalidatePublicCache(campus.slug);
     await this.revisions.record(
       ENTITY_TYPE,
       campus.id,
       snapshotOf(campus),
       authorId,
     );
-    await this.invalidatePublicCache(campus.slug);
     return campus;
   }
 
@@ -193,10 +199,14 @@ export class CampusesService implements OnModuleInit {
       campus.body = sanitizeTranslatableRichText(dto.body);
     if (dto.address !== undefined) campus.address = dto.address ?? undefined;
     if (dto.mapUrl !== undefined) campus.mapUrl = dto.mapUrl ?? undefined;
+    if (dto.latitude !== undefined) campus.latitude = dto.latitude;
+    if (dto.longitude !== undefined) campus.longitude = dto.longitude;
     if (dto.phone !== undefined) campus.phone = dto.phone ?? undefined;
     if (dto.email !== undefined) campus.email = dto.email ?? undefined;
     if (dto.area !== undefined) campus.area = dto.area ?? undefined;
     if (dto.features !== undefined) campus.features = dto.features ?? undefined;
+    if (dto.gradeLevels !== undefined)
+      campus.gradeLevels = dto.gradeLevels ?? null;
 
     if (dto.featuredImageMediaId !== undefined) {
       campus.featuredImageMediaId = dto.featuredImageMediaId ?? undefined;
@@ -225,13 +235,13 @@ export class CampusesService implements OnModuleInit {
       }
     }
 
+    await this.invalidatePublicCache(previousSlug, saved.slug);
     await this.revisions.record(
       ENTITY_TYPE,
       saved.id,
       snapshotOf(saved),
       authorId,
     );
-    await this.invalidatePublicCache(previousSlug, saved.slug);
     return saved;
   }
 
@@ -305,6 +315,8 @@ export class CampusesService implements OnModuleInit {
       body: Campus['body'];
       address?: Campus['address'];
       mapUrl?: Campus['mapUrl'];
+      latitude?: Campus['latitude'];
+      longitude?: Campus['longitude'];
       phone?: Campus['phone'];
       email?: Campus['email'];
       area?: Campus['area'];
@@ -324,6 +336,8 @@ export class CampusesService implements OnModuleInit {
         body: snapshot.body,
         address: snapshot.address,
         mapUrl: snapshot.mapUrl ?? null,
+        latitude: snapshot.latitude ?? null,
+        longitude: snapshot.longitude ?? null,
         phone: snapshot.phone ?? null,
         email: snapshot.email ?? null,
         area: snapshot.area ?? null,

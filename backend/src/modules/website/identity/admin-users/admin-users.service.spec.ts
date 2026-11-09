@@ -10,8 +10,10 @@ import { WebsiteRole } from '../../auth/website-role.enum';
  */
 function makeRepo(superAdminOthersCount = 1) {
   const store: CmsAdminUser[] = [];
-  return {
+  const lockQuery = jest.fn().mockResolvedValue(undefined);
+  const repo: any = {
     store,
+    lockQuery,
     findOne: jest.fn(({ where }: { where: { id?: string; email?: string } }) =>
       Promise.resolve(
         store.find((a) =>
@@ -31,14 +33,23 @@ function makeRepo(superAdminOthersCount = 1) {
     // Only `assertNotLastActiveSuperAdmin` builds a query; it just needs a
     // configurable count of "other active super-admins".
     createQueryBuilder: jest.fn(() => {
-      const qb = {
-        where: () => qb,
-        andWhere: () => qb,
+      const qb: any = {
+        where: jest.fn(() => qb),
+        andWhere: jest.fn(() => qb),
         getCount: jest.fn().mockResolvedValue(superAdminOthersCount),
       };
       return qb;
     }),
   };
+  repo.manager = {
+    transaction: jest.fn(async (operation: (manager: any) => Promise<unknown>) =>
+      operation({
+        query: lockQuery,
+        getRepository: () => repo,
+      }),
+    ),
+  };
+  return repo;
 }
 
 function admin(partial: Partial<CmsAdminUser>): CmsAdminUser {
@@ -121,6 +132,10 @@ describe('AdminUsersService', () => {
     await expect(
       service.update(onlySuper.id, { isActive: false }, 'someone-else'),
     ).rejects.toBeInstanceOf(ConflictException);
+    expect(repo.lockQuery).toHaveBeenCalledWith(
+      'SELECT pg_advisory_xact_lock($1, $2)',
+      [1279345235, 1],
+    );
   });
 
   it('refuses to delete the last active super-admin', async () => {
@@ -132,5 +147,20 @@ describe('AdminUsersService', () => {
     await expect(
       service.remove(onlySuper.id, 'someone-else'),
     ).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it('allows deleting an inactive super-admin when no active one remains', async () => {
+    const repo = makeRepo(0);
+    const inactiveSuper = admin({
+      role: WebsiteRole.SUPER_ADMIN,
+      isActive: false,
+    });
+    repo.store.push(inactiveSuper);
+    const service = new AdminUsersService(repo as any, hasherMock() as any);
+
+    await expect(
+      service.remove(inactiveSuper.id, 'someone-else'),
+    ).resolves.toBeUndefined();
+    expect(repo.delete).toHaveBeenCalledWith({ id: inactiveSuper.id });
   });
 });

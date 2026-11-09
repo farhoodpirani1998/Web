@@ -2,7 +2,7 @@ import * as React from "react";
 import { Card, Skeleton, Stack } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
 
-export interface TeacherCardSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {}
+export type TeacherCardSkeletonProps = React.HTMLAttributes<HTMLDivElement>;
 
 /**
  * Skeleton placeholder for `TeacherCard` — sized to match the card's

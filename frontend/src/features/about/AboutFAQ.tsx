@@ -3,7 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { useFaq } from "@/features/faq/useFaq";
 import { Card, Heading, Section, Stack, Text } from "@/shared/design-system/components";
 import { cn } from "@/shared/utils/cn";
-import type { AboutFAQItem } from "./types";
+import { useAboutPage } from "./useAboutPage";
 
 /**
  * About page "FAQ" section.
@@ -17,57 +17,41 @@ import type { AboutFAQItem } from "./types";
  * this (now a fifth identical instance of the pattern) to a shared
  * `Accordion` primitive is a natural follow-up.
  *
- * Backed by the shared `useFaq()` hook (`@/features/faq`, `GET
- * /faq`), following the same "fetched list with a local-literal
- * fallback" convention `@/features/news`'s `NewsList` established:
- * lays out the fetched list once the query has resolved with at
- * least one item, and falls back to the local `fallbackFaqItems`
- * literal while the query is loading, has errored, or the CMS has
- * nothing published yet.
+ * Questions and answers come from the FAQ CMS module. The section is
+ * omitted when there are no published entries rather than showing
+ * sample copy.
  */
 
-const fallbackFaqItems: readonly AboutFAQItem[] = [
-  {
-    id: "history",
-    question: "مجموعه از چه سالی فعالیت خود را آغاز کرده است؟",
-    answer: "متن نمونه پاسخ درباره سال تأسیس و روند شکل‌گیری مجموعه.",
-  },
-  {
-    id: "branches",
-    question: "مجموعه در چند شهر و شعبه فعالیت می‌کند؟",
-    answer: "متن نمونه پاسخ درباره شعب فعال و مناطق تحت پوشش مجموعه.",
-  },
-  {
-    id: "values",
-    question: "اصول و ارزش‌های اصلی مجموعه چیست؟",
-    answer: "متن نمونه پاسخ درباره ارزش‌هایی که مبنای فعالیت روزانه مجموعه هستند.",
-  },
-  {
-    id: "contact-team",
-    question: "چگونه می‌توان با اعضای تیم مجموعه در تماس بود؟",
-    answer: "متن نمونه پاسخ درباره روش هماهنگی و تماس با تیم مجموعه.",
-  },
-];
-
 export function AboutFAQ() {
-  const { data } = useFaq();
-  const faqItems: readonly AboutFAQItem[] =
-    data && data.length > 0 ? data : fallbackFaqItems;
+  const { data: faqItems, error, isLoading } = useFaq();
+  const { data: about } = useAboutPage();
+  if (error) {
+    return (
+      <Section spacing="lg">
+        <p role="alert" className="text-sm text-destructive">
+          بارگذاری پرسش‌های متداول ناموفق بود: {error.message}
+        </p>
+      </Section>
+    );
+  }
+  if (isLoading || !faqItems?.length) return null;
 
   return (
     <Section spacing="lg" aria-labelledby="about-faq-heading">
       <Stack gap="lg">
         <Stack gap="sm" align="center" className="text-center">
           <Heading id="about-faq-heading" level={2}>
-            سوالات متداول
+            {about?.faqSection.title ?? "سوالات متداول"}
           </Heading>
           <span
             aria-hidden="true"
             className="block h-1 w-16 rounded-full bg-brand-gold"
           />
-          <Text variant="lead" className="max-w-2xl">
-            متن معرفی نمونه برای بخش سوالات متداول درباره ما.
-          </Text>
+          {about?.faqSection.description ? (
+            <Text variant="lead" className="max-w-2xl">
+              {about.faqSection.description}
+            </Text>
+          ) : null}
         </Stack>
 
         <Stack gap="sm" className="mx-auto w-full max-w-3xl">

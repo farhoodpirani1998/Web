@@ -8,3 +8,5 @@
  */
 export { ContactIntro } from "./ContactIntro";
 export { ContactInfo } from "./ContactInfo";
+export { ContactForm } from "./ContactForm";
+export { ContactSocial } from "./ContactSocial";

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { formatNumber } from "@/lib/formatNumber";
 import { ROUTE_PATHS } from "@/routes/paths";
 
 /**
@@ -31,11 +32,19 @@ export function DashboardPreRegistrationWidget({
         <div>
           <p className="text-sm font-medium text-muted-foreground">پیش‌ثبت‌نام‌های جدید</p>
           <p className="font-heading text-2xl font-extrabold text-foreground">
-            {isLoading ? <Skeleton className="mt-1 h-7 w-12" /> : (count ?? "—")}
+            {isLoading ? (
+              <Skeleton className="mt-1 h-7 w-12" />
+            ) : count === null ? (
+              "—"
+            ) : (
+              formatNumber(count)
+            )}
           </p>
           {hasNew ? (
             <p className="mt-0.5 text-xs text-brand-gold">
-              {count === 1 ? "یک درخواست در انتظار بررسی" : `${count} درخواست در انتظار بررسی`}
+              {count === 1
+                ? "یک درخواست در انتظار بررسی"
+                : `${formatNumber(count ?? 0)} درخواست در انتظار بررسی`}
             </p>
           ) : null}
         </div>

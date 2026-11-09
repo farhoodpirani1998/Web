@@ -12,9 +12,9 @@ export const admissionsQueryKey = ["admissions"] as const;
  * (`GET /admissions`), grouped into the four lists each section renders.
  * Errors surface as the normalized `ApiError` from `@/shared/api`.
  */
-export function useAdmissions(): UseQueryResult<Admissions> {
+export function useAdmissions(campusId?: string): UseQueryResult<Admissions> {
   return useQuery({
-    queryKey: admissionsQueryKey,
-    queryFn: fetchAdmissions,
+    queryKey: campusId ? [...admissionsQueryKey, campusId] : admissionsQueryKey,
+    queryFn: () => fetchAdmissions(campusId),
   });
 }

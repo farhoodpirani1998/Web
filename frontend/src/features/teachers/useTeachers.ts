@@ -16,9 +16,9 @@ export const teachersQueryKey = ["teachers"] as const;
  * (§14, §18) — callers branch on `error.kind` rather than parsing raw
  * HTTP status codes.
  */
-export function useTeachers(): UseQueryResult<readonly Teacher[]> {
+export function useTeachers(campusId?: string): UseQueryResult<readonly Teacher[]> {
   return useQuery({
-    queryKey: teachersQueryKey,
-    queryFn: fetchTeachers,
+    queryKey: campusId ? [...teachersQueryKey, campusId] : teachersQueryKey,
+    queryFn: () => fetchTeachers(campusId),
   });
 }

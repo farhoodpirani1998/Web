@@ -36,8 +36,9 @@ export class NewsController {
   findAll(
     @Query('status') status?: PublishStatus,
     @Query('category') category?: string,
+    @Query('campusId', new ParseUUIDPipe({ optional: true })) campusId?: string,
   ) {
-    return this.newsService.findAll(status, category);
+    return this.newsService.findAll(status, category, campusId);
   }
 
   @Get(':id')

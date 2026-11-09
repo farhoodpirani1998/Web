@@ -18,24 +18,54 @@ import { Outlet } from "react-router-dom";
 import { cn } from "@/lib/cn";
 import { AdminHeader } from "@/components/layout/AdminHeader";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 import { GlobalSearchProvider } from "@/features/cms/global-search";
-import { Toast } from "@/components/ui/Toast";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 const COLLAPSE_STORAGE_KEY = "admin:sidebar-collapsed";
+const THEME_STORAGE_KEY = "admin:theme";
+
+type Theme = "light" | "dark";
+
+function readStorageValue(key: string): string | null {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStorageValue(key: string, value: string): void {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Storage can be unavailable in restricted browser contexts.
+  }
+}
 
 function readInitialCollapsed(): boolean {
   if (typeof window === "undefined") return false;
-  return window.localStorage.getItem(COLLAPSE_STORAGE_KEY) === "true";
+  return readStorageValue(COLLAPSE_STORAGE_KEY) === "true";
+}
+
+function readInitialTheme(): Theme {
+  if (typeof window === "undefined") return "light";
+  return readStorageValue(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
 }
 
 export function AdminLayout() {
   const [collapsed, setCollapsed] = useState(readInitialCollapsed);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [theme, setTheme] = useState<Theme>(readInitialTheme);
   const drawerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    window.localStorage.setItem(COLLAPSE_STORAGE_KEY, String(collapsed));
+    writeStorageValue(COLLAPSE_STORAGE_KEY, String(collapsed));
   }, [collapsed]);
+
+  useEffect(() => {
+    writeStorageValue(THEME_STORAGE_KEY, theme);
+  }, [theme]);
 
   // Lock body scroll while the mobile drawer is open.
   useEffect(() => {
@@ -47,39 +77,21 @@ export function AdminLayout() {
     };
   }, [mobileOpen]);
 
-  // Focus-trap inside mobile drawer (tab indexing).
   useEffect(() => {
-    if (!mobileOpen || !drawerRef.current) return;
+    if (!drawerRef.current) return;
     const drawer = drawerRef.current;
-    const focusable = drawer.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-    );
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    first.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Tab") return;
-      if (e.shiftKey) {
-        if (document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        }
-      } else {
-        if (document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    };
-    drawer.addEventListener("keydown", onKey);
-    return () => drawer.removeEventListener("keydown", onKey);
+    drawer.inert = !mobileOpen;
   }, [mobileOpen]);
 
+  useFocusTrap(drawerRef, mobileOpen, () => setMobileOpen(false));
+
   return (
-    <GlobalSearchProvider>
-      <a href="#main-content" className="skip-link">محتوای اصلی</a>
-      <div className="flex h-screen overflow-hidden bg-background">
+    <ToastProvider>
+      <GlobalSearchProvider>
+        <a href="#main-content" className="skip-link">
+          محتوای اصلی
+        </a>
+        <div className={cn("flex h-screen overflow-hidden bg-background", theme)}>
         {/* Desktop sidebar — persistent at lg+, rail or full per `collapsed`. */}
         <aside
           className={cn(
@@ -113,6 +125,10 @@ export function AdminLayout() {
           />
           <div
             ref={drawerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="منوی ناوبری"
+            tabIndex={-1}
             className={cn(
               "absolute inset-y-0 start-0 w-64 shadow-2xl transition-transform duration-300 ease-in-out",
               mobileOpen ? "translate-x-0" : "translate-x-full",
@@ -123,13 +139,20 @@ export function AdminLayout() {
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <AdminHeader onOpenMenu={() => setMobileOpen(true)} />
+          <AdminHeader
+            onOpenMenu={() => setMobileOpen(true)}
+            theme={theme}
+            onToggleTheme={() =>
+              setTheme((current) => (current === "dark" ? "light" : "dark"))
+            }
+          />
 
           <main id="main-content" className="min-w-0 flex-1 overflow-y-auto">
             <Outlet />
           </main>
         </div>
-      </div>
-    </GlobalSearchProvider>
+        </div>
+      </GlobalSearchProvider>
+    </ToastProvider>
   );
 }

@@ -5,10 +5,11 @@
  */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { UnsavedChangesDialog } from "@/components/ui/UnsavedChangesDialog";
-import { useIsDirty, useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { ApiError } from "@/lib/apiError";
 
 import { createFaq, updateFaq } from "./api";
@@ -34,21 +35,25 @@ export function FaqForm({ faq, onCancel, onSaved }: FaqFormProps) {
     register,
     handleSubmit,
     formState: { errors, isDirty, isSubmitting },
-    reset,
   } = useForm<FaqFormData>({
     resolver: zodResolver(faqFormSchema),
-    defaultValues: faq ? faqToFormData(faq) : {
-      questionFa: "",
-      questionEn: "",
-      answerFa: "",
-      answerEn: "",
-      category: "",
-    },
+    defaultValues: faq
+      ? faqToFormData(faq)
+      : {
+          questionFa: "",
+          questionEn: "",
+          answerFa: "",
+          answerEn: "",
+          category: "",
+        },
   });
 
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const { isConfirmOpen, guardedAction, confirmLeave, cancelLeave } = useUnsavedChangesGuard(isDirty);
+  const { isConfirmOpen, guardedAction, confirmLeave, cancelLeave } =
+    useUnsavedChangesGuard(isDirty);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, true, () => guardedAction(onCancel));
 
   async function onSubmit(data: FaqFormData) {
     setSaveError(null);
@@ -63,14 +68,26 @@ export function FaqForm({ faq, onCancel, onSaved }: FaqFormProps) {
         onSaved(saved);
       }
     } catch (err) {
-      setSaveError(err instanceof ApiError ? err.message : "خطایی رخ داد. دوباره تلاش کنید.");
+      setSaveError(
+        err instanceof ApiError ? err.message : "خطایی رخ داد. دوباره تلاش کنید.",
+      );
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" dir="rtl">
-      <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-6 shadow-xl">
-        <h2 className="text-lg font-semibold text-slate-900">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+      dir="rtl"
+    >
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="faq-form-title"
+        tabIndex={-1}
+        className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-6 shadow-xl"
+      >
+        <h2 id="faq-form-title" className="text-lg font-semibold text-slate-900">
           {isEdit ? "ویرایش پرسش متداول" : "پرسش متداول جدید"}
         </h2>
 
@@ -87,11 +104,15 @@ export function FaqForm({ faq, onCancel, onSaved }: FaqFormProps) {
               id="questionFa"
               dir="rtl"
               {...register("questionFa")}
+              aria-invalid={!!errors.questionFa}
+              aria-describedby={errors.questionFa ? "questionFa-error" : undefined}
               disabled={isSubmitting}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
             />
             {errors.questionFa ? (
-              <p className="text-xs text-red-600">{errors.questionFa.message}</p>
+              <p id="questionFa-error" className="text-xs text-red-600">
+                {errors.questionFa.message}
+              </p>
             ) : null}
           </div>
 
@@ -101,6 +122,7 @@ export function FaqForm({ faq, onCancel, onSaved }: FaqFormProps) {
             </label>
             <input
               id="questionEn"
+              dir="ltr"
               {...register("questionEn")}
               disabled={isSubmitting}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
@@ -116,11 +138,15 @@ export function FaqForm({ faq, onCancel, onSaved }: FaqFormProps) {
               dir="rtl"
               rows={4}
               {...register("answerFa")}
+              aria-invalid={!!errors.answerFa}
+              aria-describedby={errors.answerFa ? "answerFa-error" : undefined}
               disabled={isSubmitting}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 disabled:bg-slate-100"
             />
             {errors.answerFa ? (
-              <p className="text-xs text-red-600">{errors.answerFa.message}</p>
+              <p id="answerFa-error" className="text-xs text-red-600">
+                {errors.answerFa.message}
+              </p>
             ) : null}
           </div>
 
@@ -130,6 +156,7 @@ export function FaqForm({ faq, onCancel, onSaved }: FaqFormProps) {
             </label>
             <textarea
               id="answerEn"
+              dir="ltr"
               rows={4}
               {...register("answerEn")}
               disabled={isSubmitting}
@@ -153,7 +180,9 @@ export function FaqForm({ faq, onCancel, onSaved }: FaqFormProps) {
           </div>
 
           {saveError ? (
-            <p role="alert" className="text-sm text-red-600">{saveError}</p>
+            <p role="alert" className="text-sm text-red-600">
+              {saveError}
+            </p>
           ) : null}
 
           <div className="mt-2 flex justify-end gap-2">
@@ -170,7 +199,11 @@ export function FaqForm({ faq, onCancel, onSaved }: FaqFormProps) {
               disabled={isSubmitting}
               className="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
-              {isSubmitting ? "در حال ذخیره…" : isEdit ? "ذخیره تغییرات" : "ایجاد پرسش متداول"}
+              {isSubmitting
+                ? "در حال ذخیره…"
+                : isEdit
+                  ? "ذخیره تغییرات"
+                  : "ایجاد پرسش متداول"}
             </button>
           </div>
         </form>

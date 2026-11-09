@@ -29,6 +29,7 @@ export const createNewsPayloadSchema = z.object({
   body: translatableSchema,
   category: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  campusId: z.string().uuid().optional(),
   featuredImageMediaId: z.string().uuid("شناسه رسانه معتبر نیست").optional(),
   seo: seoMetadataSchema.partial().optional(),
 });
@@ -41,6 +42,7 @@ export const updateNewsPayloadSchema = z.object({
   body: translatableSchema.partial().optional(),
   category: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  campusId: z.string().uuid().nullable().optional(),
   featuredImageMediaId: z.string().uuid().nullable().optional(),
   seo: seoMetadataSchema.partial().optional(),
 });
@@ -61,6 +63,7 @@ export const newsFormSchema = z.object({
   bodyEn: z.string().optional(),
   category: z.string().optional(),
   tags: z.string().optional(),
+  campusId: z.string().uuid("شناسه پردیس معتبر نیست").optional().or(z.literal("")),
   featuredImageMediaId: z.string().uuid().nullable().optional(),
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
@@ -88,6 +91,7 @@ export function formDataToCreatePayload(data: NewsFormData): CreateNewsPayload {
     body: { fa: data.bodyFa.trim(), en: data.bodyEn?.trim() || undefined },
     category: data.category?.trim() || undefined,
     tags: data.tags ? data.tags.split(",").map((s) => s.trim()).filter(Boolean) : undefined,
+    campusId: data.campusId?.trim() || undefined,
     featuredImageMediaId: data.featuredImageMediaId || undefined,
     seo,
   };
@@ -112,6 +116,7 @@ export function formDataToUpdatePayload(data: NewsFormData): UpdateNewsPayload {
   if (data.bodyFa !== undefined) payload.body = { fa: data.bodyFa.trim(), en: data.bodyEn?.trim() || undefined };
   if (data.category !== undefined) payload.category = data.category.trim() || undefined;
   if (data.tags !== undefined) payload.tags = data.tags ? data.tags.split(",").map((s) => s.trim()).filter(Boolean) : [];
+  if (data.campusId !== undefined) payload.campusId = data.campusId.trim() || null;
   if (data.featuredImageMediaId !== undefined) payload.featuredImageMediaId = data.featuredImageMediaId || null;
   if (seo !== undefined) payload.seo = seo;
   return payload;
@@ -124,6 +129,7 @@ export function newsToFormData(article: {
   body: Translatable<string>;
   category?: string;
   tags?: string[];
+  campusId?: string | null;
   featuredImageMediaId?: string;
   seo: { metaTitle?: string; metaDescription?: string; ogImageUrl?: string; canonicalUrl?: string; noindex: boolean };
 }): NewsFormData {
@@ -137,6 +143,7 @@ export function newsToFormData(article: {
     bodyEn: article.body.en ?? "",
     category: article.category ?? "",
     tags: article.tags?.join(", ") ?? "",
+    campusId: article.campusId ?? "",
     featuredImageMediaId: article.featuredImageMediaId ?? null,
     metaTitle: article.seo.metaTitle ?? "",
     metaDescription: article.seo.metaDescription ?? "",

@@ -29,8 +29,9 @@ export class AdmissionsController {
   findAll(
     @Query('status') status?: PublishStatus,
     @Query('kind') kind?: AdmissionEntryKind,
+    @Query('campusId', new ParseUUIDPipe({ optional: true })) campusId?: string,
   ) {
-    return this.admissionsService.findAll(status, kind);
+    return this.admissionsService.findAll(status, kind, campusId);
   }
 
   @Get(':id')

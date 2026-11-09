@@ -1,4 +1,15 @@
 import { Heading, Section, Stack, Text } from "@/shared/design-system/components";
+import { useSiteSettings } from "./useSiteSettings";
+
+const DAY_LABELS = {
+  saturday: "شنبه",
+  sunday: "یکشنبه",
+  monday: "دوشنبه",
+  tuesday: "سه‌شنبه",
+  wednesday: "چهارشنبه",
+  thursday: "پنجشنبه",
+  friday: "جمعه",
+} as const;
 
 /**
  * Site Settings "Working Hours" section — the weekly schedule a real
@@ -19,15 +30,31 @@ import { Heading, Section, Stack, Text } from "@/shared/design-system/components
  */
 
 export function WorkingHours() {
+  const { data } = useSiteSettings();
+  const hours = data?.workingHours ?? [];
+
   return (
     <Section spacing="lg" aria-labelledby="site-hours-heading">
       <Stack gap="md">
         <Heading id="site-hours-heading" level={2}>
           ساعات کاری
         </Heading>
-        <Text variant="bodySm" color="muted">
-          ساعات کاری هنوز در تنظیمات ثبت نشده است.
-        </Text>
+        {hours.length === 0 ? (
+          <Text variant="bodySm" color="muted">
+            ساعات کاری هنوز در تنظیمات ثبت نشده است.
+          </Text>
+        ) : (
+          <dl className="grid gap-2 sm:grid-cols-2">
+            {hours.map(({ day, openTime, closeTime, isClosed }) => (
+              <div key={day} className="flex items-center justify-between gap-4">
+                <dt className="text-sm font-medium">{DAY_LABELS[day]}</dt>
+                <dd className="text-sm text-muted-foreground">
+                  {isClosed ? "تعطیل" : `${openTime} تا ${closeTime}`}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )}
       </Stack>
     </Section>
   );

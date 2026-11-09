@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PreRegistration } from './entities/pre-registration.entity';
 import { PreRegistrationStatus } from './entities/pre-registration-status.enum';
 import { CreatePreRegistrationDto } from './dto/create-pre-registration.dto';
 import { SiteService } from '../../core/site/site.service';
+import { CampusScopeService } from '../common/campus-scope.service';
+import { UpdatePreRegistrationAssignmentDto } from './dto/update-pre-registration-assignment.dto';
 
 /**
  * Create + admin list/read/status/delete for Pre-Registration
@@ -21,11 +24,13 @@ export class PreRegistrationsService {
     @InjectRepository(PreRegistration)
     private readonly repo: Repository<PreRegistration>,
     private readonly siteService: SiteService,
+    private readonly campusScope: CampusScopeService,
   ) {}
 
   /** Called from the public, unauthenticated submit endpoint — see `PublicPreRegistrationController`. */
   async create(dto: CreatePreRegistrationDto): Promise<PreRegistration> {
     const siteId = this.siteService.getDefaultSiteId();
+    await this.campusScope.assertCampusBelongsToSite(siteId, dto.campusId);
 
     return this.repo.save(
       this.repo.create({
@@ -35,6 +40,8 @@ export class PreRegistrationsService {
         studentNationalId: dto.studentNationalId,
         studentBirthDate: dto.studentBirthDate,
         studentGrade: dto.studentGrade,
+        campusId: dto.campusId,
+        referenceCode: `NH-${randomUUID().replace(/-/g, '').toUpperCase()}`,
         guardianFullName: dto.guardianFullName,
         guardianPhone: dto.guardianPhone,
         guardianEmail: dto.guardianEmail,
@@ -63,6 +70,22 @@ export class PreRegistrationsService {
   ): Promise<PreRegistration> {
     const preRegistration = await this.findOne(id);
     preRegistration.status = status;
+    return this.repo.save(preRegistration);
+  }
+
+  async updateAssignment(
+    id: string,
+    dto: UpdatePreRegistrationAssignmentDto,
+  ): Promise<PreRegistration> {
+    const preRegistration = await this.findOne(id);
+    if (dto.assignedAdminId !== undefined) {
+      preRegistration.assignedAdminId = dto.assignedAdminId ?? null;
+    }
+    if (dto.followUpAt !== undefined) {
+      preRegistration.followUpAt = dto.followUpAt
+        ? new Date(dto.followUpAt)
+        : null;
+    }
     return this.repo.save(preRegistration);
   }
 

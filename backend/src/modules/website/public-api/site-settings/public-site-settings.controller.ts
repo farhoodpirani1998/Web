@@ -29,8 +29,12 @@ interface PublicSiteSettingsDto {
   favicon: PublicMediaRef | null;
   contactEmail?: string;
   contactPhone?: string;
+  contactPhones: string[];
   address?: SiteSettings['address'];
   mapUrl?: string;
+  mapLatitude?: number | null;
+  mapLongitude?: number | null;
+  workingHours?: SiteSettings['workingHours'];
   socialLinks: SiteSettings['socialLinks'];
   defaultSeo: SiteSettings['defaultSeo'];
   featureFlags: SiteSettings['featureFlags'];
@@ -69,6 +73,9 @@ export class PublicSiteSettingsController {
     if (cached) return cached;
 
     const settings = await this.siteSettings.get();
+    const contactPhones =
+      settings.contactPhones ??
+      (settings.contactPhone ? [settings.contactPhone] : []);
     const [logo, favicon] = await Promise.all([
       this.media.resolveOne(settings.logoMediaId),
       this.media.resolveOne(settings.faviconMediaId),
@@ -80,8 +87,10 @@ export class PublicSiteSettingsController {
       description: SeoService.resolveTranslatable(settings.tagline),
       logoUrl: logo?.url,
       email: settings.contactEmail,
-      phone: settings.contactPhone,
-      sameAs: settings.socialLinks.map((link) => link.url),
+      phone: contactPhones[0],
+      sameAs: settings.socialLinks
+        .filter((link) => link.active !== false)
+        .map((link) => link.url),
     });
 
     const dto: PublicSiteSettingsDto = {
@@ -90,10 +99,14 @@ export class PublicSiteSettingsController {
       logo,
       favicon,
       contactEmail: settings.contactEmail,
-      contactPhone: settings.contactPhone,
+      contactPhone: contactPhones[0],
+      contactPhones,
       address: settings.address,
       mapUrl: settings.mapUrl,
-      socialLinks: settings.socialLinks,
+      mapLatitude: settings.mapLatitude,
+      mapLongitude: settings.mapLongitude,
+      workingHours: settings.workingHours ?? undefined,
+      socialLinks: settings.socialLinks.filter((link) => link.active !== false),
       defaultSeo: settings.defaultSeo,
       featureFlags: settings.featureFlags,
       organizationSchema,

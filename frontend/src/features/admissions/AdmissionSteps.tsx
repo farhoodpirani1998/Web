@@ -20,9 +20,15 @@ import { useAdmissions } from "./useAdmissions";
  * content-module data; this renders frontend-owned Persian placeholder
  * copy in the meantime.
  */
-export function AdmissionSteps() {
-  const { data } = useAdmissions();
-  const admissionSteps = data && data.steps.length > 0 ? data.steps : fallbackSteps;
+export function AdmissionSteps({ campusId }: { campusId?: string }) {
+  const { data } = useAdmissions(campusId);
+  const admissionSteps = campusId
+    ? data?.steps ?? []
+    : data && data.steps.length > 0
+      ? data.steps
+      : fallbackSteps;
+
+  if (campusId && admissionSteps.length === 0) return null;
 
   return (
     <Section spacing="lg" aria-labelledby="admissions-steps-heading">

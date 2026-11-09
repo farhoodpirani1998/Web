@@ -112,6 +112,75 @@ describe('AboutService', () => {
 
       expect(result.seo).toEqual({ metaTitle: 'New Title', noindex: false });
     });
+
+    it('replaces section content and synchronizes team image usages', async () => {
+      repo.findOneByOrFail.mockResolvedValue({
+        id: 'about-1',
+        siteId,
+        title: { fa: 'عنوان' },
+        body: { fa: 'متن' },
+        seo: {},
+        imageMediaId: 'cover-image',
+        sections: {
+          stats: { items: [] },
+          team: {
+            items: [
+              {
+                id: 'member-old',
+                name: { fa: 'نام قبلی' },
+                role: { fa: 'سمت قبلی' },
+                avatarMediaId: 'team-image-old',
+              },
+            ],
+          },
+        },
+        status: PublishStatus.DRAFT,
+      });
+
+      const sections = {
+        stats: { items: [] },
+        team: {
+          items: [
+            {
+              id: 'member-new',
+              name: { fa: 'نام جدید' },
+              role: { fa: 'سمت جدید' },
+              avatarMediaId: 'team-image-new',
+            },
+          ],
+        },
+      };
+
+      const result = await service.update({ sections }, authorId);
+
+      expect(result.sections).toEqual(sections);
+      expect(media.detach).toHaveBeenCalledWith(
+        'team-image-old',
+        'about',
+        'about-1',
+      );
+      expect(media.attach).toHaveBeenCalledWith(
+        'team-image-new',
+        'about',
+        'about-1',
+      );
+      expect(media.detach).not.toHaveBeenCalledWith(
+        'cover-image',
+        'about',
+        'about-1',
+      );
+      expect(media.attach).not.toHaveBeenCalledWith(
+        'cover-image',
+        'about',
+        'about-1',
+      );
+      expect(revisions.record).toHaveBeenCalledWith(
+        'about',
+        'about-1',
+        expect.objectContaining({ sections }),
+        authorId,
+      );
+    });
   });
 
   describe('updateStatus', () => {
@@ -132,6 +201,31 @@ describe('AboutService', () => {
         siteId,
       });
       expect(result.status).toBe(PublishStatus.PUBLISHED);
+    });
+
+    describe('restoreRevision', () => {
+      it('clears About sections when restoring a revision created before sections existed', async () => {
+        repo.findOneByOrFail.mockResolvedValue({
+          id: 'about-1',
+          siteId,
+          title: { fa: 'عنوان فعلی' },
+          body: { fa: 'متن فعلی' },
+          imageMediaId: undefined,
+          sections: { stats: { items: [] } },
+          seo: {},
+          status: PublishStatus.DRAFT,
+        });
+        revisions.getVersion.mockResolvedValue({
+          snapshot: {
+            title: { fa: 'عنوان قبلی' },
+            body: { fa: 'متن قبلی' },
+          },
+        });
+
+        const result = await service.restoreRevision(1, authorId);
+
+        expect(result.sections).toEqual({});
+      });
     });
   });
 });

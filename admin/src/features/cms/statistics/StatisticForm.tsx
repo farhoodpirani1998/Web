@@ -8,8 +8,7 @@ import { z } from "zod";
 
 import { ApiError } from "@/lib/apiError";
 import { createStatistic, updateStatistic } from "./api";
-import { statisticLabelSchema, createStatisticPayloadSchema, updateStatisticPayloadSchema } from "./schema";
-import type { CmsStatistic, CreateStatisticPayloadInput, UpdateStatisticPayloadInput } from "./types";
+import type { CmsStatistic, CreateStatisticPayload, UpdateStatisticPayload } from "./types";
 
 export interface StatisticFormProps {
   statistic: CmsStatistic | null;
@@ -33,7 +32,7 @@ export function StatisticForm({ statistic, onCancel, onSaved }: StatisticFormPro
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty, isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: statistic
@@ -50,7 +49,7 @@ export function StatisticForm({ statistic, onCancel, onSaved }: StatisticFormPro
     setSaveError(null);
     try {
       if (isEdit && statistic) {
-        const payload: UpdateStatisticPayloadInput = {
+        const payload: UpdateStatisticPayload = {
           label: { fa: data.labelFa, en: data.labelEn || undefined },
           value: data.value,
           suffix: data.suffix || undefined,
@@ -58,7 +57,7 @@ export function StatisticForm({ statistic, onCancel, onSaved }: StatisticFormPro
         const saved = await updateStatistic(statistic.id, payload);
         onSaved(saved);
       } else {
-        const payload: CreateStatisticPayloadInput = {
+        const payload: CreateStatisticPayload = {
           label: { fa: data.labelFa, en: data.labelEn || undefined },
           value: data.value,
           suffix: data.suffix || undefined,

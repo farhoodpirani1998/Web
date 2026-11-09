@@ -1,5 +1,6 @@
 import { useId, useState, type FormEvent } from "react";
 
+import { CampusSelect } from "@/features/cms/campuses";
 import { UnsavedChangesDialog } from "@/components/ui/UnsavedChangesDialog";
 import { useIsDirty, useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { ApiError } from "@/lib/apiError";
@@ -38,6 +39,7 @@ export function AdmissionForm({ entry, onCancel, onSaved }: AdmissionFormProps) 
   const priceId = useId();
   const periodId = useId();
   const includesId = useId();
+  const campusId = useId();
 
   const [kind, setKind] = useState<AdmissionEntryKind>(entry?.kind ?? "step");
   const [titleFa, setTitleFa] = useState(entry?.title.fa ?? "");
@@ -47,6 +49,7 @@ export function AdmissionForm({ entry, onCancel, onSaved }: AdmissionFormProps) 
   const [price, setPrice] = useState(entry?.price ?? "");
   const [period, setPeriod] = useState(entry?.period ?? "");
   const [includes, setIncludes] = useState((entry?.includes ?? []).join("، "));
+  const [selectedCampusId, setSelectedCampusId] = useState(entry?.campusId ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,6 +64,7 @@ export function AdmissionForm({ entry, onCancel, onSaved }: AdmissionFormProps) 
     price,
     period,
     includes,
+    selectedCampusId,
   });
   const { isConfirmOpen, guardedAction, confirmLeave, cancelLeave } =
     useUnsavedChangesGuard(isDirty);
@@ -93,8 +97,14 @@ export function AdmissionForm({ entry, onCancel, onSaved }: AdmissionFormProps) 
 
     try {
       const saved = isEdit
-        ? await updateAdmissionEntry(entry.id, payload)
-        : await createAdmissionEntry(payload);
+        ? await updateAdmissionEntry(entry.id, {
+            ...payload,
+            campusId: selectedCampusId || null,
+          })
+        : await createAdmissionEntry({
+            ...payload,
+            campusId: selectedCampusId || undefined,
+          });
       onSaved(saved);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
@@ -165,6 +175,14 @@ export function AdmissionForm({ entry, onCancel, onSaved }: AdmissionFormProps) 
               className={inputClass}
             />
           </div>
+
+          <CampusSelect
+            id={campusId}
+            label="پردیس"
+            value={selectedCampusId}
+            onChange={setSelectedCampusId}
+            disabled={isSaving}
+          />
 
           {fields.value ? (
             <div className="flex flex-col gap-1.5">

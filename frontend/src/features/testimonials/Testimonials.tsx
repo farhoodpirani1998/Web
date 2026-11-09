@@ -5,6 +5,7 @@ import {
   Badge,
   Card,
   CardContent,
+  Container,
   Grid,
   Heading,
   Section,
@@ -40,29 +41,34 @@ export function Testimonials() {
 
   return (
     <Section spacing="lg" tone="muted" aria-labelledby="testimonials-heading">
-      <Stack gap="xl">
-        <Stack gap="sm" align="center" className="text-center">
-          <Badge
-            variant="outline"
-            className="w-fit rounded-full border-brand-gold/40 bg-brand-gold/10 text-brand-navy"
-          >
-            نظرات خانواده‌ها
-          </Badge>
-          <Heading id="testimonials-heading" level={2}>
-            از زبان خانواده‌ها و دانش‌آموزان
-          </Heading>
-          <span aria-hidden="true" className="block h-1 w-16 rounded-full bg-brand-gold" />
-          <Text variant="lead" className="max-w-2xl">
-            تجربه‌ی خانواده‌ها و دانش‌آموزان از همراهی با مجموعه‌ی ما.
-          </Text>
-        </Stack>
+      <Container size="xl">
+        <Stack gap="xl">
+          <Stack gap="sm" align="center" className="text-center">
+            <Badge
+              variant="outline"
+              className="w-fit rounded-full border-brand-gold/40 bg-brand-gold/10 text-brand-navy"
+            >
+              نظرات خانواده‌ها
+            </Badge>
+            <Heading id="testimonials-heading" level={2}>
+              از زبان خانواده‌ها و دانش‌آموزان
+            </Heading>
+            <span
+              aria-hidden="true"
+              className="block h-1 w-16 rounded-full bg-brand-gold"
+            />
+            <Text variant="lead" className="max-w-2xl">
+              تجربه‌ی خانواده‌ها و دانش‌آموزان از همراهی با مجموعه‌ی ما.
+            </Text>
+          </Stack>
 
-        <Grid cols="3" gap="lg">
-          {data.map((item) => (
-            <TestimonialCard key={item.id} item={item} />
-          ))}
-        </Grid>
-      </Stack>
+          <Grid cols="3" gap="lg">
+            {data.map((item) => (
+              <TestimonialCard key={item.id} item={item} />
+            ))}
+          </Grid>
+        </Stack>
+      </Container>
     </Section>
   );
 }
@@ -93,8 +99,12 @@ function TestimonialCard({ item }: { item: TestimonialItem }) {
             fallback={item.authorName.slice(0, 1)}
           />
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-brand-navy">{item.authorName}</p>
-            {role ? <p className="truncate text-xs text-muted-foreground">{role}</p> : null}
+            <p className="truncate text-sm font-semibold text-brand-navy">
+              {item.authorName}
+            </p>
+            {role ? (
+              <p className="truncate text-xs text-muted-foreground">{role}</p>
+            ) : null}
           </div>
         </div>
       </CardContent>

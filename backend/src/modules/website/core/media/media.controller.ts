@@ -17,6 +17,7 @@ import { extname } from 'path';
 import { MediaService } from './media.service';
 import { UploadMediaDto } from './dto/upload-media.dto';
 import { MediaStatus } from './entities/media.entity';
+import { UpdateMediaDto } from './dto/update-media.dto';
 import {
   ALLOWED_EXTENSIONS,
   ALLOWED_MIME_TYPES,
@@ -106,6 +107,15 @@ export class MediaController {
     @Body() dto: UploadMediaDto,
   ) {
     return this.mediaService.upload(file, dto.altText);
+  }
+
+  @Patch(':id')
+  @RequireCmsPermission(WebsitePermission.MEDIA_MANAGE)
+  updateAltText(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateMediaDto,
+  ) {
+    return this.mediaService.updateAltText(id, dto.altText);
   }
 
   @Patch(':id/archive')

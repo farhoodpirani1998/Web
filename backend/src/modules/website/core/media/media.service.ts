@@ -128,6 +128,17 @@ export class MediaService {
     return this.mediaRepo.findOneByOrFail({ id });
   }
 
+  async updateAltText(id: string, altText: string): Promise<Media> {
+    const normalizedAltText = altText?.trim();
+    if (!normalizedAltText) {
+      throw new BadRequestException('altText is required');
+    }
+
+    const media = await this.mediaRepo.findOneByOrFail({ id });
+    media.altText = normalizedAltText;
+    return this.mediaRepo.save(media);
+  }
+
   /**
    * Every place a media asset is currently referenced (one row per
    * `attach`/`detach` pair still standing) — same rows `purge` already

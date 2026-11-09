@@ -3,6 +3,10 @@
  */
 import { z } from "zod";
 import type { Translatable } from "../types";
+import type { CreateFeaturePayload, UpdateFeaturePayload } from "./types";
+import { FEATURE_ICON_KEYS } from "./iconOptions";
+
+const featureIconSchema = z.enum(FEATURE_ICON_KEYS);
 
 const translatableSchema = z.object({
   fa: z.string().min(1, "فیلد فارسی الزامی است"),
@@ -12,26 +16,23 @@ const translatableSchema = z.object({
 export const createFeaturePayloadSchema = z.object({
   title: translatableSchema,
   description: translatableSchema,
-  icon: z.string().optional(),
+  icon: featureIconSchema.optional(),
 });
 
 export const updateFeaturePayloadSchema = z.object({
-  title: translatableSchema.partial().optional(),
-  description: translatableSchema.partial().optional(),
-  icon: z.string().optional(),
-  position: z.number().optional(),
-  status: z.string().optional(),
+  title: translatableSchema.optional(),
+  description: translatableSchema.optional(),
+  icon: featureIconSchema.optional(),
 });
 
-export type CreateFeaturePayload = z.infer<typeof createFeaturePayloadSchema>;
-export type UpdateFeaturePayload = z.infer<typeof updateFeaturePayloadSchema>;
+export type { CreateFeaturePayload, UpdateFeaturePayload };
 
 export const featureFormSchema = z.object({
   titleFa: z.string().min(1, "عنوان فارسی الزامی است"),
   titleEn: z.string().optional(),
   descriptionFa: z.string().min(1, "توضیح فارسی الزامی است"),
   descriptionEn: z.string().optional(),
-  icon: z.string().optional(),
+  icon: featureIconSchema.or(z.literal("")).optional(),
   position: z.coerce.number().min(0),
   status: z.string().optional(),
 });
@@ -47,14 +48,14 @@ export function formDataToCreatePayload(data: FeatureFormData): CreateFeaturePay
 }
 
 export function formDataToUpdatePayload(data: FeatureFormData): UpdateFeaturePayload {
-  const payload: UpdateFeaturePayload = {
-    ...(data.titleFa?.trim() ? { title: { fa: data.titleFa.trim(), ...(data.titleEn?.trim() ? { en: data.titleEn.trim() } : {}) } } : {}),
-    ...(data.descriptionFa?.trim() ? { description: { fa: data.descriptionFa.trim(), ...(data.descriptionEn?.trim() ? { en: data.descriptionEn.trim() } : {}) } } : {}),
+  return {
+    title: { fa: data.titleFa.trim(), ...(data.titleEn?.trim() ? { en: data.titleEn.trim() } : {}) },
+    description: {
+      fa: data.descriptionFa.trim(),
+      ...(data.descriptionEn?.trim() ? { en: data.descriptionEn.trim() } : {}),
+    },
     ...(data.icon?.trim() ? { icon: data.icon.trim() } : {}),
-    position: data.position,
-    status: data.status,
   };
-  return payload;
 }
 
 export function featureToFormData(feature: {
@@ -70,7 +71,7 @@ export function featureToFormData(feature: {
     titleEn: feature.title.en ?? "",
     descriptionFa: feature.description.fa,
     descriptionEn: feature.description.en ?? "",
-    icon: feature.icon ?? "",
+    icon: FEATURE_ICON_KEYS.find((key) => key === feature.icon) ?? "",
     position: feature.position ?? 0,
     status: feature.status ?? "draft",
   };
