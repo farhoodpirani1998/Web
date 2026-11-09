@@ -113,6 +113,20 @@ export class LocalTextbookStorageService implements TextbookStorage {
       throw new Error('کلید فایل نامعتبر است.');
     }
 
+    const realResolved = await realpath(resolved).catch(() => null);
+    if (realResolved) {
+      const realRelativePath = relative(root, realResolved);
+      const isRealPathWithinRoot =
+        realRelativePath === '' ||
+        (!realRelativePath.startsWith('..') &&
+          !realRelativePath.startsWith('../') &&
+          !isAbsolute(realRelativePath));
+
+      if (!isRealPathWithinRoot) {
+        throw new Error('کلید فایل نامعتبر است.');
+      }
+    }
+
     return resolved;
   }
 
