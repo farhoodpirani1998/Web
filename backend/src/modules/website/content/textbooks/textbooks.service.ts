@@ -216,7 +216,18 @@ export class TextbooksService {
     const externalUrl =
       dto.externalUrl !== undefined ? dto.externalUrl : book.externalUrl;
     this.validateSource(sourceType, externalUrl ?? undefined);
+
+    const shouldDropUploadedAsset =
+      book.fileKey && sourceType !== TextbookSourceType.UPLOADED;
+
     Object.assign(book, dto);
+    if (shouldDropUploadedAsset) {
+      await this.storage.remove(book.fileKey!);
+      book.fileKey = null;
+      book.fileSize = '0';
+      book.checksum = null;
+    }
+
     return this.textbooks.save(book);
   }
 
@@ -243,6 +254,12 @@ export class TextbooksService {
 
   async remove(id: string): Promise<void> {
     const book = await this.findAdminById(id);
+    if (book.fileKey) {
+      await this.storage.remove(book.fileKey);
+      book.fileKey = null;
+      book.fileSize = '0';
+      book.checksum = null;
+    }
     book.deletedAt = new Date();
     await this.textbooks.save(book);
   }
