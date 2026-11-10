@@ -1,12 +1,20 @@
 import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+vi.mock("@/features/cms/campuses/api", () => ({
+  fetchCampusesList: vi.fn().mockResolvedValue([]),
+}));
+vi.mock("@/features/cms/media/api", () => ({
+  fetchMediaList: vi.fn().mockResolvedValue([]),
+  fetchMediaById: vi.fn().mockResolvedValue(null),
+}));
+
 import { TeacherForm } from "./TeacherForm";
 
 function renderTeacherForm() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  queryClient.setQueryData(["campuses", "list", "all"], []);
   const router = createMemoryRouter(
     [{ path: "/", element: <TeacherForm teacher={null} onCancel={() => {}} onSaved={() => {}} /> }],
     { initialEntries: ["/"] },

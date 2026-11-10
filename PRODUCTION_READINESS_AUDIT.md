@@ -7,7 +7,8 @@ This report replaces the historical readiness report and reflects the current re
 - The repository contains three independently managed applications: `frontend/`, `admin/`, and `backend/`.
 - Their current builds, lint commands, and unit-test suites pass locally. Backend lint reports 17 existing `no-console` warnings and no errors.
 - CI and all Dockerfiles use Node 22. The frontend declares Node `>=18.18.0`, the admin declares `>=22.12.0`, and the backend package does not declare an `engines` range.
-- The admin GitHub workflow's Node 22 version is compatible with the admin engine requirement; no workflow change is needed.
+- The admin GitHub workflow now uses Node 22, matching the admin engine requirement.
+- Local media deletion now ignores only `ENOENT`, logs other errors, and rethrows them; this previously reported issue is resolved.
 - The historical production and bug reports contained claims contradicted by current routes and code. `BUGS_REPORT.md` has been removed because no independently verified finding from it remained. Confirmed findings are retained in `AUDIT_REPORT.md` and below.
 
 ## Confirmed application findings
@@ -16,7 +17,6 @@ This report replaces the historical readiness report and reflects the current re
 |---|---|---|---|---|
 | 1 | MEDIUM | `backend/src/modules/website/core/media/media.service.ts` | 184-193 | Media usage is checked separately from storage and database deletion. A concurrent usage attachment can race with `purge`, leaving a content reference to a deleted file. |
 | 2 | MEDIUM | `backend/src/modules/website/core/ordering/ordering.service.ts` | 12-25 | The shared reorder helper does not validate that `orderedIds` is the complete, unique set of current item IDs. Partial or duplicate lists can leave unchanged or duplicate positions. |
-| 3 | MEDIUM | `backend/src/modules/website/core/media/storage/local-storage.provider.ts` | 39-40 | `delete` suppresses every `unlink` error, not only `ENOENT`; callers cannot detect a failed local file deletion. |
 
 ## Deployment prerequisites and verification limits
 
@@ -32,6 +32,6 @@ This report replaces the historical readiness report and reflects the current re
 |---|---|---|---|
 | `frontend/` | Pass | Pass | 31 files, 105 tests passed |
 | `admin/` | Pass | Pass | 27 files, 84 tests passed |
-| `backend/` | Pass | Pass, 17 warnings / 0 errors | 59 suites, 354 tests passed |
+| `backend/` | Pass | Pass, 17 warnings / 0 errors | 59 suites, 356 tests passed |
 
 These local checks do not substitute for the documented staging smoke test and backup-restore verification.

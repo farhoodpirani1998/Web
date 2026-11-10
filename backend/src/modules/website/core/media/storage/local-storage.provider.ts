@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { promises as fs } from 'fs';
 import { join, resolve } from 'path';
@@ -8,6 +8,7 @@ import { sanitizeFilename } from './sanitize-filename';
 
 @Injectable()
 export class LocalStorageProvider implements StorageProvider {
+  private readonly logger = new Logger(LocalStorageProvider.name);
   private readonly basePath: string;
   private readonly publicBaseUrl: string;
 
@@ -37,7 +38,25 @@ export class LocalStorageProvider implements StorageProvider {
   }
 
   async delete(storageKey: string): Promise<void> {
-    await fs.unlink(join(this.basePath, storageKey)).catch(() => undefined);
+    try {
+      await fs.unlink(join(this.basePath, storageKey));
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        'code' in error &&
+        error.code === 'ENOENT'
+      ) {
+        return;
+      }
+
+      this.logger.error(
+        `Failed to delete stored media file "${storageKey}": ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error instanceof Error ? error.stack : undefined,
+      );
+      throw error;
+    }
   }
 
   getUrl(storageKey: string): string {
