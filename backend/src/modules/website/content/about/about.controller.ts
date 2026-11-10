@@ -18,8 +18,8 @@ import { CmsRequestUser } from '../../identity/auth/cms-jwt-payload.interface';
 /**
  * Admin surface for the singleton About page — no :id in the routes,
  * since there is exactly one row per site (see AboutService). As with
- * every other content module here, the public read path belongs to the
- * public-api layer (Phase 3+), not this admin controller.
+ * every other content module here, public reads belong to the
+ * public-api layer rather than this admin controller.
  */
 @Controller('admin/about')
 export class AboutController {

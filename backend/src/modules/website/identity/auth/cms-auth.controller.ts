@@ -33,13 +33,10 @@ import {
 import { ConfigService } from '@nestjs/config';
 
 /**
- * CMS Admin's own login surface — entirely separate from any SMS-facing
- * route. Deliberately not under `WebsiteAuthGuard`/`RequireWebsitePermission`
- * (those govern SMS-identified callers); every route here is either
- * unauthenticated (login, refresh) or gated by `CmsAuthGuard` (me).
+ * CMS Admin login surface. Every route here is either unauthenticated
+ * (login, refresh) or gated by `CmsAuthGuard` (me).
  *
- * Sprint — Persistent Login: `refresh` and `logout` are new; `login`
- * now also issues a refresh token, delivered as an httpOnly cookie
+ * Login and refresh issue a refresh token delivered as an httpOnly cookie
  * (never in the JSON body — see `setRefreshCookie`) rather than a field
  * the frontend would have to handle and could accidentally end up
  * somewhere JS-readable. Route handlers that touch the cookie take
@@ -57,11 +54,10 @@ export class CmsAuthController {
   ) {}
 
   // 200, not 201: this isn't creating a resource, it's exchanging
-  // credentials for a token — matches how the SMS side of this
-  // codebase treats auth as a verb, not a REST resource.
+  // credentials for a token — auth is a verb, not a REST resource.
   //
   // @Throttle is applied here only, not on the controller — see
-  // CMS_LOGIN_THROTTLE's doc comment (Sprint 2.3B hardening). Every
+  // CMS_LOGIN_THROTTLE's doc comment. Every
   // other route on this controller keeps using the app-wide default
   // throttler untouched (except `refresh`, which has its own).
   @AllowAnonymousCmsEntry()

@@ -5,10 +5,9 @@
  * `features/cms/types.ts` — the admin frontend and the NestJS backend
  * are separate packages with no shared runtime code path.
  *
- * Every content entity across every future CMS module (News, Pages,
- * Gallery, …) references media by id only — a `mediaId` field, never an
- * embedded/resolved media object (see the Sprint 3.3 audit, §3 "Media
- * relations"). This file is what a `mediaId` resolves to, via
+ * CMS content entities reference media by id only — a `mediaId` field,
+ * never an embedded/resolved media object. This file is what a
+ * `mediaId` resolves to, via
  * `useMediaById` (`./useMediaById.ts`), not something content DTOs
  * import directly.
  */

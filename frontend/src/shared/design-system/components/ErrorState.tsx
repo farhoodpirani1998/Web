@@ -19,8 +19,8 @@ export interface ErrorStateProps extends React.HTMLAttributes<HTMLDivElement> {
  * Content-agnostic error-boundary-adjacent primitive (§12, §13, §18),
  * for *data*-level failures (a failed query, a failed fetch) rather
  * than render-time crashes — those are `ErrorBoundary`'s job. Composed
- * from the same Sprint 2A primitives as `EmptyState`, with `role="alert"`
- * so assistive technology announces it as soon as it mounts.
+ * from the same design-system primitives as `EmptyState`, with
+ * `role="alert"` so assistive technology announces it as soon as it mounts.
  */
 const ErrorState = React.forwardRef<HTMLDivElement, ErrorStateProps>(
   (

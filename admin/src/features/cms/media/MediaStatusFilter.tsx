@@ -7,9 +7,8 @@ import type { CmsMediaStatus } from "./types";
  * `MediaController.findAll`), so this component's value type doubles as
  * the hook's param type with no translation step in `MediaPage`.
  *
- * No search box alongside this: `GET /admin/media` has no search
- * param (see the Sprint 3.3 audit, §3) and this sprint's constraints
- * say not to invent one client-side.
+ * No search box is provided because `GET /admin/media` has no search
+ * parameter.
  */
 export interface MediaStatusFilterProps {
   value: CmsMediaStatus | undefined;

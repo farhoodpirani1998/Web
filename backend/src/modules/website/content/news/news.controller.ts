@@ -25,7 +25,7 @@ import { PublishStatus } from '../../core/publishing/publish-status.enum';
  * Admin CRUD for news/announcement articles. As with every other
  * content module here, the public, unauthenticated read path
  * (`/public/website/news`, individual `/news/:slug` pages) belongs to
- * the public-api layer (Phase 3+), not this admin controller.
+ * the public-api layer, not this admin controller.
  */
 @Controller('admin/news')
 export class NewsController {
@@ -82,7 +82,7 @@ export class NewsController {
   }
 
   // Distinct from `status`: gates when a PUBLISHED article actually
-  // becomes visible (sitemap today; public API in Phase 3+). Gated by
+  // becomes visible to the sitemap and public API. Gated by
   // the same permission as status changes — deciding *when* something
   // goes live is a publishing decision, not a content-editing one.
   @Patch(':id/schedule')

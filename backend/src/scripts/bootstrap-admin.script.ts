@@ -34,7 +34,7 @@ config();
  */
 async function main(): Promise<void> {
   // Normalized (trimmed + lowercased) the same way `LoginDto` normalizes
-  // login input (Sprint 2.3B) — this is what keeps a case-insensitive
+  // login input — this is what keeps a case-insensitive
   // login working correctly against a row created by this script.
   const email = process.env.CMS_BOOTSTRAP_ADMIN_EMAIL?.trim().toLowerCase();
   const password = process.env.CMS_BOOTSTRAP_ADMIN_PASSWORD;
@@ -65,10 +65,8 @@ async function main(): Promise<void> {
     const repo = dataSource.getRepository(CmsAdminUser);
 
     // Refuses to run once *any* admin exists — this is a first-run
-    // bootstrap only, not a general "create an admin" tool. Creating
-    // additional admins once one Super Admin exists is Sprint 2.3B
-    // scope (an authenticated admin-management endpoint, gated by
-    // CmsAuthGuard + a Super Admin check, not an unauthenticated script).
+    // bootstrap only, not a general "create an admin" tool. Additional
+    // admins are created through the authenticated admin-management API.
     const existingCount = await repo.count();
     if (existingCount > 0) {
       throw new Error(

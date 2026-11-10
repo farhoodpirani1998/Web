@@ -27,9 +27,8 @@ import { CmsRequestUser } from './cms-jwt-payload.interface';
  * documented stateless tradeoff — a role change/deactivation on
  * `CmsAdminUser` is only reflected once a new token is issued (login)
  * or the next `GET /admin/auth/me` call, not on every permission check.
- * `ROLE_PERMISSIONS` and the `WebsitePermission` enum are reused as-is
- * (per the Sprint 3.2 architecture decision: only the identity source
- * changes, not the permission model itself).
+ * `ROLE_PERMISSIONS` and `WebsitePermission` are reused as-is; CMS
+ * authentication does not alter the permission model.
  */
 @Injectable()
 export class CmsPermissionGuard implements CanActivate {

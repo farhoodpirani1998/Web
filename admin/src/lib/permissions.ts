@@ -3,8 +3,8 @@ import type { AdminPermission, AdminRole, AdminUser } from "@/types/auth";
 /**
  * Framework-independent permission/role helpers.
  *
- * Sprint 2.5: these are pure functions over `AdminUser` — no React, no
- * store access, no API calls. They exist so "can this user do X" logic
+ * These are pure functions over `AdminUser` — no React, no store access,
+ * no API calls. They keep "can this user do X" logic
  * lives in exactly one place instead of being reimplemented at each
  * call site (or, worse, each call site re-deriving its own notion of
  * what a role implies).

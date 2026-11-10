@@ -59,35 +59,10 @@ import { PublicContactMessagesController } from './contact-messages/public-conta
 import { ContactMessagesModule } from '../content/contact-messages/contact-messages.module';
 
 /**
- * Phase 6 — the public, unauthenticated read layer (see app.module.ts's
- * long-standing comment and every content module's "there is deliberately
- * no public read endpoint here" controller doc). Reads content directly
- * via its own repositories rather than through the admin services
- * (HeroService, NewsService, ...): those services' `findAll`/`findOne`
- * are shaped for admin CRUD (draft+published, single-id lookup), not for
- * the public site's status+publishAt gating, slug lookups, or
- * cross-entity resolution (menu item -> page, mediaId -> url) this
- * layer needs. SiteSettingsService and SitemapService are the two
- * exceptions — reused directly rather than re-read through a
- * repository: SiteSettingsService already exposes exactly the
- * singleton-row read this layer needs, and SitemapService's entries
- * are assembled by each content module's own provider (registered in
- * its onModuleInit), not by anything this layer would otherwise query.
- *
- * No WebsiteAuthModule import: every route here is intentionally
- * unauthenticated (see main.ts's CORS comment). Each controller carries
- * its own dedicated rate limit and Cache-Control header — see
- * common/public-rate-limit.constants.ts — rather than anything
- * configured at this module level. Read-through Redis caching (see
- * common/public-cache.constants.ts and core/redis/redis.service.ts) is
- * likewise handled per-controller, not here — RedisModule is imported
- * so every controller in this module can inject RedisService.
- *
- * Public write controllers (pre-registration, contact messages, and
- * newsletter subscription) are uncached POSTs that use
- * `PUBLIC_FORM_THROTTLE`.
- * They delegate inserts to the content modules' services rather than
- * duplicating persistence and normalization logic.
+ * Registers the public read API and public form-submission controllers.
+ * Read controllers apply public visibility and resolve related media,
+ * navigation, and SEO data; caching and rate limits are configured per
+ * controller. Form submissions delegate to content services.
  */
 @Module({
   imports: [

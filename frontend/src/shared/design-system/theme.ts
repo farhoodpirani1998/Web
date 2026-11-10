@@ -6,10 +6,7 @@
  * using Tailwind classes / CSS variables directly — reach for these
  * only when a prop must be a literal value.
  *
- * This module intentionally does not expose a theme *switcher*: per
- * `tokens.css`, dark mode is scaffolded but not a maintained second
- * theme, and wiring one is an explicit product decision outside this
- * design-system layer (§24).
+ * This module exposes token readers only; it does not switch themes.
  */
 
 /**

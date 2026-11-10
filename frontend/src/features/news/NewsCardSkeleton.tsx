@@ -10,7 +10,7 @@ export interface NewsCardSkeletonProps extends React.HTMLAttributes<HTMLDivEleme
 /**
  * Skeleton placeholder for `NewsCard` — sized to match the card's
  * eventual content layout (both compact grid tile and featured lead
- * story variants). Used by `NewsList` during data loading (Phase 3).
+ * story variants). Used by `NewsList` during data loading.
  *
  * Mirrors the card's structure: image placeholder, metadata row
  * (category badge + date), title, excerpt, and link — all rendered

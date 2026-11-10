@@ -3,14 +3,9 @@ import { EmptyState as SharedEmptyState, Section } from "@/shared/design-system/
 /**
  * Events "no results" state.
  *
- * Standalone presentation only — this is the visual `EventList`
- * would show in place of the grid if a future filtered/searched
- * event list came back empty (a future `useEvents()`-style data hook
- * with query params, e.g. filtering by category or date range). There
- * is no filter/search state to make empty today, so this component is
- * exported for future wiring but intentionally not composed into
- * `EventsPage` — mirroring the same precedent as
- * `@/features/campuses`'s and `@/features/teachers`'s `EmptyState`.
+ * Feature-specific empty-state composition. The directory currently
+ * uses the shared empty state directly, so this component is not
+ * composed into `EventsPage`.
  *
  * Reuses the existing `EmptyState` composite (§12, §13, §19) rather
  * than introducing a new "no results" primitive — its icon/title/

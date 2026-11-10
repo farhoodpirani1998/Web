@@ -7,7 +7,7 @@ export type GalleryCardSkeletonProps = React.HTMLAttributes<HTMLDivElement>;
 /**
  * Skeleton placeholder for `GalleryCard` — sized to match the card's
  * square aspect-ratio tile layout. Used by `GalleryGrid` during data
- * loading (Phase 3).
+ * loading.
  *
  * A simple square skeleton matching the gallery's uniform grid layout.
  */

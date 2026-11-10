@@ -2,8 +2,8 @@ import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class LoginDto {
-  // Sprint 2.3B hardening: normalized (trimmed + lowercased) before
-  // validation/lookup runs. Postgres `character varying` comparison
+  // Normalize (trim and lowercase) before validation and lookup.
+  // Postgres `character varying` comparison
   // (see AddAdminUsers migration — no `citext`/`LOWER()` index) is
   // case-sensitive, so without this an admin created as
   // "Admin@Example.com" could only ever log in with that exact
@@ -23,8 +23,8 @@ export class LoginDto {
   // No @MinLength/complexity rules here on purpose: this validates the
   // *shape* of the request body, not password strength — a login
   // endpoint must accept whatever password an existing account was
-  // created with. Complexity rules belong on account creation
-  // (a future admin-management endpoint), not here. Not trimmed,
+  // created with. Complexity rules belong on account creation, not
+  // here. Not trimmed,
   // unlike email above: leading/trailing whitespace in a password is
   // part of the secret, and silently altering it could reject an
   // otherwise-correct password.

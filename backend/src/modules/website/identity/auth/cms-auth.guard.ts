@@ -20,11 +20,12 @@ import { WebsiteRole } from '../../auth/website-role.enum';
  * prevents *new* logins and is reflected the next time `GET
  * /admin/auth/me` re-reads the row. This is an accepted, documented
  * tradeoff mitigated by a short token expiry
- * (`CMS_JWT_EXPIRES_IN`); a revocation list or refresh-token scheme
- * remains explicitly out of scope.
+ * (`CMS_JWT_EXPIRES_IN`). Access tokens are not revoked individually;
+ * refresh-token rotation and active-account checks apply when a token
+ * is refreshed.
  *
- * Sprint 2.3B hardening: issuer is now enforced by `jwt.verifyAsync`'s
- * own `issuer` option instead of a separate manual comparison after
+ * Issuer validation uses `jwt.verifyAsync`'s `issuer` option instead of
+ * a separate manual comparison after
  * the fact. Previously a bad signature and a wrong issuer produced two
  * different messages ("Invalid or expired token" vs "Unexpected token
  * issuer") from two different code paths — a caller could use that

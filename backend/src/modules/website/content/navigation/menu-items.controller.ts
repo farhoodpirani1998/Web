@@ -19,7 +19,7 @@ import { WebsitePermission } from '../../auth/website-role.enum';
 /**
  * Admin CRUD for individual navigation entries. Same admin-only,
  * permission-gated shape as MenusController and every other content
- * controller here — the public read path is Phase 3+ scope.
+ * controller here — public reads are handled by the public API.
  */
 @Controller('admin/menu-items')
 export class MenuItemsController {

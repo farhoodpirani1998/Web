@@ -12,7 +12,7 @@ import { useEvents } from "./useEvents";
  *
  * Backed by `useEvents()` (the Public API's Events content module,
  * §4, §8): lays out `data.events` with explicit loading, error, and
- * empty states (Phase 2) rather than silently falling back to
+ * empty states rather than silently falling back to
  * placeholder data.
  */
 export function EventList({ campusId }: { campusId?: string }) {

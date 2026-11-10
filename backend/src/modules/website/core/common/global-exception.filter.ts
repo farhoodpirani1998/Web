@@ -30,10 +30,8 @@ import { logJson } from './json-logger';
  *
  * One specific "unexpected" error is deliberately special-cased before
  * that generic 500 handling: TypeORM's `EntityNotFoundError`, thrown by
- * every module's `findOneByOrFail`/`findOneOrFail` "get by id" call
- * (see the Sprint 3.3 audit, §4 — untested at the unit level, since
- * every `.spec.ts` mocks the repository instead of exercising the real
- * TypeORM error path). Left alone it falls through to the generic
+ * `findOneByOrFail`/`findOneOrFail` "get by id" calls. A unit test
+ * covers this error path. Left alone it falls through to the generic
  * branch below and becomes a 500 — the wrong result for what is, from
  * the client's point of view, an ordinary 404 (bad id, stale link, a
  * row deleted in another tab). It's translated here, once, rather than

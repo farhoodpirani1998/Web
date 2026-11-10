@@ -12,7 +12,7 @@ import { useNews } from "./useNews";
  *
  * Backed by `useNews()` (the Public API's News content module, §4,
  * §8): lays out `data.news` (assumed newest-first) with explicit
- * loading, error, and empty states (Phase 2). Shows one editorial
+ * loading, error, and empty states. Shows one editorial
  * lead story (full-width) followed by remaining items in a 3-column
  * grid — the same "one lead + regular grid" hierarchy premium news
  * pages use.
@@ -21,11 +21,8 @@ import { useNews } from "./useNews";
  * underline eyebrow treatment the homepage `Features` section and
  * `GalleryGrid` already use.
  *
- * There is deliberately no per-article route/link here (§7 — no
- * generic catch-all "render whatever this slug points to" route):
- * individual news-article pages aren't part of this feature's scope,
- * so cards link to `NewsDetails`'s on-page anchor, not a separate
- * route.
+ * Cards link to `NewsDetails`'s on-page anchor. Individual article
+ * slugs are handled by the explicit `NewsDetailPage` route.
  */
 export function NewsList({ campusId }: { campusId?: string }) {
   const { data, isPending, isError } = useNews(campusId);

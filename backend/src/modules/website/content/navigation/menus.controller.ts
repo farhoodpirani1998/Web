@@ -17,7 +17,7 @@ import { WebsitePermission } from '../../auth/website-role.enum';
 /**
  * Admin CRUD for navigation menu containers (e.g. "header", "footer").
  * As with every other content module here, the public, unauthenticated
- * read path belongs to the public-api layer (Phase 3+), not this admin
+ * read path belongs to the public-api layer, not this admin
  * controller — every route below requires an authenticated,
  * permission-checked website admin.
  */

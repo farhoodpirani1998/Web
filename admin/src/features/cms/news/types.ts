@@ -12,11 +12,11 @@
  * `types.ts` makes — nothing in this admin frontend acts on it today
  * (exactly one site exists, resolved server-side).
  *
- * News is one of the backend's 4 revision-enabled types
+ * News is one of the backend's revision-enabled types
  * (`NewsController` exposes `GET /:id/revisions` and a restore route,
  * gated behind `website.revisions:view`/`website.revisions:restore`) —
- * unlike Hero (Sprint 3.8/3.9), this sprint's UI does implement a
- * revisions history/restore panel (`NewsRevisionsPanel.tsx`), since
+ * and its UI includes a revisions history/restore panel
+ * (`NewsRevisionsPanel.tsx`), since
  * both permissions already exist on `AdminPermission`
  * (`types/auth.ts`) and News' own entity doc calls itself out as "high
  * cost to accidentally lose, worth diffing/restoring".

@@ -30,8 +30,8 @@ import { useCampuses } from "./useCampuses";
  * (`Section`, `Stack`, `Heading`, `Text`, `Image`, `Link`) —
  * no new shared component. The trailing "Coming Soon" card (dashed
  * border, no image) matches Figma exactly. Each "View School" link
- * points at `/campuses#campus-{id}`, the same in-page anchor
- * `CampusCard` already uses today (no per-campus route exists yet),
+ * points at the explicit `/campuses/:slug` detail route; cards on the
+ * directory page also use in-page anchors,
  * rather than a placeholder link (§ "no placeholder code").
  */
 

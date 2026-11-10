@@ -8,7 +8,7 @@ import { AboutContentSections } from './about-sections.types';
 /**
  * The "About Us" page. Deliberately a singleton per site (one row,
  * unique siteId) rather than a list — distinct from the generic
- * Static Pages module (Phase 2+), which handles arbitrary additional
+ * Static Pages module, which handles arbitrary additional
  * pages. Unlike Hero/FAQ/Testimonials, About IS its own indexable
  * public page, so it carries SeoMetadata and registers with
  * SitemapService. One of the 4 revision-enabled types.

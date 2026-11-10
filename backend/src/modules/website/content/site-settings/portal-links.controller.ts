@@ -15,10 +15,7 @@ import { ReorderPortalLinksDto } from './dto/reorder-portal-links.dto';
 import { RequireCmsPermission } from '../../identity/auth/cms-permission.decorator';
 import { WebsitePermission } from '../../auth/website-role.enum';
 
-/**
- * Admin CRUD for Portal Links. Same admin-only, permission-gated shape
- * as FeaturesController — the public read path is Phase 3+ scope.
- */
+/** Admin CRUD for Portal Links; public reads are handled by the public API. */
 @Controller('admin/portal-links')
 export class PortalLinksController {
   constructor(private readonly portalLinksService: PortalLinksService) {}

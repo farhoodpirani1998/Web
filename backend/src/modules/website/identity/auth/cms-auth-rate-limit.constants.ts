@@ -3,11 +3,9 @@
  * when unset or unparsable. Duplicated here (rather than imported from
  * `public-api/common/public-rate-limit.constants.ts`) on purpose: that
  * file is public-api's own concern, and this module doesn't otherwise
- * depend on anything under `public-api/` — same isolation principle as
- * not sharing code with `modules/website/auth/` (SMS's integration
- * point). The implementation is intentionally small enough that
- * duplicating it is cheaper than introducing a cross-module dependency
- * for it.
+ * depend on anything under `public-api/`. The implementation is
+ * intentionally small enough that duplicating it is cheaper than
+ * introducing a cross-module dependency for it.
  *
  * Same reason as the public-api version: consumed as a `@Throttle()`
  * decorator argument, which is plain-object metadata evaluated at

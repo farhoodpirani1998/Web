@@ -1,12 +1,8 @@
 import type { CmsMedia } from "./types";
 
 /**
- * In-memory cache of `CmsMedia` keyed by id, plus in-flight request
- * dedup — the shared piece every future content module needs to resolve
- * a `mediaId` to a thumbnail without a repeat network request (see the
- * Sprint 3.3 audit, §6 item 2: "a shared MediaPicker / useMediaById
- * piece … avoids seven near-identical N+1-fetch implementations
- * later").
+ * In-memory cache of `CmsMedia` keyed by id, with in-flight request
+ * deduplication for `useMediaById` and `MediaPicker`.
  *
  * Same shape as `features/auth/authStore.ts` (plain module-level state
  * + `subscribe`/`emit`, not Redux/Zustand/Context) for the same reason

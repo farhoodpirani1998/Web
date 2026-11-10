@@ -86,7 +86,7 @@ function withSuspense(element: ReactNode) {
 }
 
 /**
- * Phase 1 ships Persian-only (§28), so routes are not locale-prefixed —
+ * Routes are not locale-prefixed —
  * a `/:locale` segment would be unnecessary complexity for a
  * single-locale launch. The locale *mechanism* (`src/i18n`) still
  * exists and is unaffected, so reintroducing locale-prefixed routes

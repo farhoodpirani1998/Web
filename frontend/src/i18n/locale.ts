@@ -9,12 +9,8 @@
  * (rather than importing it from app config) because supported locales
  * are i18n domain data, not generic runtime config.
  *
- * Phase 1 scope: the site ships Persian-only, and routes are not
- * locale-prefixed (`/:locale`) — that would be unnecessary complexity
- * for a single-locale launch. `isSupportedLocale` and `getDirection`
- * are kept ready for the day a second locale (or URL-based locale
- * routing) is reintroduced, so that future work is additive, not a
- * rewrite of this module.
+ * Public routes are not locale-prefixed (`/:locale`). `isSupportedLocale`
+ * and `getDirection` provide the shared locale checks used by the app.
  */
 
 /** Supported locales — matches the backend kernel's Locale enum (§28). */

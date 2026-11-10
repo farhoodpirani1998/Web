@@ -41,11 +41,8 @@ function sortByOrder(items: readonly NavigationItem[]): NavLinkItem[] {
  * Persistent header chrome (§8 "Layout Architecture"), part of the
  * `AppShell` and rendered once, never re-mounted on route changes.
  *
- * Sprint 3A scope: structural nav only. The logo/brand mark and contact
- * info are Site Settings–derived content (§4, §8) and are wired in once
- * that feature exists — the app name is used as a text placeholder here
- * so the brand link has *something* accessible in the meantime, not as
- * a stand-in for real Site Settings content.
+ * Navigation comes from the CMS with a route-verified local fallback.
+ * The header also uses Site Settings for contact and portal information.
  *
  * Visual refresh (brand pass): sticky/backdrop-blurred chrome, a small
  * presentational crest mark (`BrandMark`, decorative-only via

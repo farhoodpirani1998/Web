@@ -43,7 +43,7 @@ import { useNews } from "./useNews";
  * (`Section`, `Stack`, `Heading`, `Text`, `Badge`, `Image`, `Link`) —
  * no new shared component. Each card's "ادامه مطلب" link points at
  * `/news#news-{id}`, the same in-page anchor `NewsCard`/`NewsDetails`
- * already use today (no per-article route exists yet — §7), and the
+ * use, while individual articles also have explicit detail routes; the
  * header's "مشاهده همه اخبار" link goes to the real `/news` route.
  */
 

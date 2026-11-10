@@ -1,15 +1,7 @@
 /**
- * Shared navigation data for the app shell's `Header` (Sprint 3A).
- *
- * This is *not* the backend-owned Navigation content module (Website
- * Frontend Architecture §4, §8, §20) — that module doesn't exist on the
- * Public API yet, so there is nothing to fetch. Until it does, the shell
- * needs *some* structural nav to be keyboard/screen-reader verifiable,
- * so this file holds a small, frontend-owned placeholder list, shaped
- * the same way a future `useNavigation()` data hook's result would be
- * (`label` + `href`), so swapping this array for real API data later is
- * additive — `Header`/`DesktopNavigation`/`MobileNavigation` never need
- * to change, only where this array comes from.
+ * Frontend-owned fallback navigation for the app shell. `Header` uses
+ * the CMS Navigation data when available and falls back to these
+ * route-verified links if the request fails or returns no items.
  *
  * Only routes that actually exist in `router.tsx` are listed (§35 "does
  * not invent backend functionality" — the same principle applies to

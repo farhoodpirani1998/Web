@@ -10,10 +10,8 @@ interface LocationState {
 }
 
 /**
- * Wraps `/login` (Sprint 2.4B, task 3 — "authenticated users cannot
- * stay on login page unnecessarily"). Redirects an already-authenticated
- * user straight to the admin area, sending them back to wherever
- * `RequireAuth` originally redirected them from, if anywhere.
+ * Redirects authenticated users away from `/login` to the page they
+ * originally requested, or to the admin dashboard.
  */
 export function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
   const { status } = useAuth();

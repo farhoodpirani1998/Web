@@ -3,10 +3,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/shared/utils/cn";
 
 /**
- * Sprint 2B addition: `size`/`tone` variants via `cva`, layered on
- * additively. The defaults reproduce the original hardcoded classes
- * exactly, so every existing call site (e.g. `PageLoader`) renders
- * identically without changes.
+ * Configurable size and tone variants. Defaults preserve the original
+ * appearance for existing call sites.
  */
 const spinnerVariants = cva("animate-spin rounded-full border-2", {
   variants: {

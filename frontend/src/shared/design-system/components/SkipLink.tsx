@@ -14,7 +14,7 @@ export interface SkipLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElem
  * landmark id `AppLayout` already exposes.
  *
  * This component is presentational only — it is mounted once inside
- * `AppShell` (`@/app/shell/AppShell`, Sprint 3A), ahead of `Header`, so
+ * `AppShell` (`@/app/shell/AppShell`), ahead of `Header`, so
  * it's the first focusable element on every routed page.
  */
 const SkipLink = React.forwardRef<HTMLAnchorElement, SkipLinkProps>(

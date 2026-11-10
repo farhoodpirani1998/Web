@@ -12,7 +12,7 @@ import { useGallery } from "./useGallery";
  *
  * Backed by `useGallery()` (the Public API's Gallery/Media content
  * module, §4, §8): lays out `data.gallery` with explicit loading, error,
- * and empty states (Phase 2) rather than silently falling back to
+ * and empty states rather than silently falling back to
  * placeholder data.
  */
 export function GalleryGrid() {

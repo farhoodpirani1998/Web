@@ -26,10 +26,8 @@ export async function fetchTeachers(campusId?: string): Promise<readonly Teacher
  * Fetches one teacher's full detail response
  * (`GET /public/teachers/:slug`). Same rationale as
  * `@/features/campuses`'s `fetchCampusBySlug`: returned as the raw
- * `PublicTeacherDetailDto` rather than adapted into `Teacher` — no
- * page/component consumes it yet (no per-teacher route) — with
- * `seo`/`structuredData` preserved exactly as the backend returns
- * them.
+ * `PublicTeacherDetailDto`; the teacher detail page consumes this DTO
+ * directly, including its `seo`/`structuredData` fields.
  */
 export async function fetchTeacherBySlug(slug: string): Promise<PublicTeacherDetailDto> {
   const response = await apiClient.get<PublicTeacherDetailDto>(`/teachers/${slug}`);
@@ -40,15 +38,15 @@ export async function fetchTeacherBySlug(slug: string): Promise<PublicTeacherDet
  * Adapts one wire `PublicTeacherListItemDto` into the `Teacher` shape
  * `TeacherCard`/`TeacherGrid`/`TeacherDetails` already render.
  *
- * Locale: Phase 1 ships Persian-only (§28), so every `Translatable`
- * field resolves `.fa` directly, same as `campuses`'s `toCampus`.
+ * The site currently renders Persian content, so each `Translatable`
+ * field resolves `.fa` directly, as in `campuses`'s `toCampus`.
  *
  * Known contract gap: the list DTO only carries `excerpt`, never the
  * teacher's full `bio` — that field only exists on the
  * `GET /public/teachers/:slug` detail response, and `TeacherDetails`
- * renders every teacher inline on one page (no per-teacher route)
- * rather than through that per-slug endpoint. Fetching the detail
- * endpoint once per list item to fill in `bio` would mean N extra
+ * renders list records inline, while the separate detail page loads
+ * the full response. Fetching the detail endpoint once per list item
+ * to fill in `bio` would mean N extra
  * requests every time the teachers list loads, so — same "degrade
  * gracefully rather than fabricate data" approach `campuses`'s
  * `toCampus` uses for its own `body`-vs-`excerpt` gap — `bio` falls

@@ -27,11 +27,10 @@ import type { PublicSeoDto, StructuredDataItem } from "@/shared/seo";
  * - `address`/`phone`/`email` are optional on the entity, so `contact`
  *   fields and `address` are optional here too.
  * - The list endpoint carries `excerpt`, never the campus's full
- *   `body` — that only exists on the (unused-by-this-feature)
- *   `GET /public/campuses/:slug` detail response. See `./api.ts`'s
- *   `toCampus` doc comment for how `detailedDescription` is populated
+ *   `body` — that only exists on `GET /public/campuses/:slug`. See
+ *   `./api.ts`'s `toCampus` doc comment for how `detailedDescription` is populated
  *   from what the list actually returns (same "degrade gracefully"
- *   approach `news`'s `toNewsItem` uses for its `body` field).
+ *   approach used by other list adapters).
  */
 
 /** Local mirror of the backend kernel's `Translatable<T>` — `fa` required, `en` optional. */
@@ -107,7 +106,7 @@ export interface CampusImage {
 export interface Campus {
   /** Stable identifier, also used as the React list key and the `CampusDetails` anchor id. */
   id: string;
-  /** Public slug (`/public/campuses/:slug`); not currently routed to, kept for future per-campus pages. */
+  /** Public slug used by the campus detail route. */
   slug: string;
   name: string;
   /** Short summary shown on `CampusCard` (list/overview context). */

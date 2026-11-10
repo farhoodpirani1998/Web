@@ -1,12 +1,9 @@
 /**
  * Page container.
  *
- * Sprint 1.6 scope: the single shared page-level wrapper for admin
- * pages — owns horizontal padding, responsive max-width, and vertical
- * rhythm between a page's sections. `AdminLayout`'s `<main>` no longer
- * applies its own padding/max-width (see Sprint 1.6 layout audit); each
- * page opts in by wrapping its content in `<PageContainer>` instead of
- * redefining this wrapper itself.
+ * Shared page-level wrapper for admin pages, providing horizontal
+ * padding, responsive max-width, and vertical spacing between sections.
+ * `AdminLayout` leaves page sizing to this component.
  */
 import type { ReactNode } from "react";
 

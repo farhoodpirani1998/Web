@@ -1,10 +1,8 @@
 /**
  * Section.
  *
- * Sprint 1.6 scope: reusable content-section wrapper for admin pages —
- * consistent card-style spacing/border, with an optional title and
- * description above the children. Used to group related content within
- * a page (see `PageContainer`/`PageHeader` for the page-level wrapper).
+ * Reusable content-section wrapper with consistent card styling and
+ * optional title and description.
  */
 import type { ReactNode } from "react";
 

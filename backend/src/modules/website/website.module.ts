@@ -39,9 +39,9 @@ import { TextbooksModule } from './content/textbooks/textbooks.module';
 import { PublicApiModule } from './public-api/public-api.module';
 
 /**
- * Composition root — imports every kernel module (and, from Phase 2
- * onward, every content module) so they're registered exactly once in
- * the DI graph. Exports nothing further: this is the top of the tree,
+ * Composition root — imports the kernel and content modules so
+ * they're registered exactly once in the DI graph. Exports nothing
+ * further: this is the top of the tree,
  * not a pass-through / barrel. Content modules import only the specific
  * kernel modules they actually use, declared in their own `imports`.
  */
@@ -85,7 +85,6 @@ import { PublicApiModule } from './public-api/public-api.module';
     ContactMessagesModule,
     TextbooksModule,
     PublicApiModule,
-    // Phase 2+ remaining: Achievements, ...
   ],
 })
 export class WebsiteModule {}

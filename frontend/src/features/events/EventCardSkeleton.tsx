@@ -8,7 +8,7 @@ export type EventCardSkeletonProps = React.HTMLAttributes<HTMLDivElement>;
  * Skeleton placeholder for `EventCard` — sized to match the card's
  * eventual layout with image/placeholder, category badge, title,
  * description, tags, and event details (date/time/location). Used by
- * `EventList` during data loading (Phase 3).
+ * `EventList` during data loading.
  *
  * Mirrors the card's structure: image area, category badge overlay,
  * title, description, tags row, details section, and link.

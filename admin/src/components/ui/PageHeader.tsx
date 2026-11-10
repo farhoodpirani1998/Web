@@ -1,10 +1,8 @@
 /**
  * Page header.
  *
- * Sprint 1.6 scope: reusable title/description header for admin pages,
- * with an optional actions slot (e.g. a primary button) on the
- * trailing edge. Purely presentational — it does not wire up any
- * action itself.
+ * Reusable title/description header for admin pages, with an optional
+ * actions slot on the trailing edge.
  */
 import type { ReactNode } from "react";
 

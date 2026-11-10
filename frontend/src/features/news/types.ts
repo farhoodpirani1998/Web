@@ -19,11 +19,8 @@ import type { PublicSeoDto, StructuredDataItem } from "@/shared/seo";
  *   `HomeNews` already render — `./api.ts` adapts each DTO into this
  *   shape so no component needs to change.
  *
- * Note: the list endpoint's DTO carries `excerpt`, not the article's
- * full `body` — that only exists on the (unused-by-this-feature)
- * `GET /public/news/:slug` detail response. See `./api.ts`'s
- * `toNewsItem` doc comment for how `NewsItem.body` is populated from
- * what the list actually returns.
+ * The list DTO includes the full article `body`; the detail response
+ * adds SEO metadata and its update timestamp.
  */
 
 /** Local mirror of the backend kernel's `Translatable<T>` — `fa` required, `en` optional. */

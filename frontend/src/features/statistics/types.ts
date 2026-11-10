@@ -12,10 +12,9 @@
  * shared runtime code path.
  *
  * `label` is translatable (backend `Translatable<string>`, `fa`
- * required/`en` optional) rather than a plain string — the site ships
- * Persian-only for now (`@/i18n/locale.ts`'s Phase 1 scope), so
- * consumers read `.fa` directly, same convention that module
- * documents for when a second locale is reintroduced.
+ * required/`en` optional) rather than a plain string. Consumers
+ * currently read `.fa` directly because the site renders Persian
+ * content.
  *
  * `value`/`suffix` stay split (numeric + optional trailing unit)
  * rather than a single pre-formatted string, matching the `Statistic`

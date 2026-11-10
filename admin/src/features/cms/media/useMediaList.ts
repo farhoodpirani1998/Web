@@ -8,8 +8,8 @@ import type { CmsMedia, CmsMediaStatus } from "./types";
 
 /**
  * Fetches the media list (optionally filtered by status), e.g. for
- * `MediaPicker` (`./MediaPicker.tsx`) or a future standalone media
- * library page. Kept separate from `useMediaById`'s cache: a list is a
+ * `MediaPicker` (`./MediaPicker.tsx`) and the Media Library page.
+ * Kept separate from `useMediaById`'s cache: a list is a
  * point-in-time view of "what exists right now" and isn't itself
  * something later reads should treat as a standing cache entry — but
  * each row it returns *is* fed into that cache (`setCachedMedia`) so a
@@ -17,7 +17,7 @@ import type { CmsMedia, CmsMediaStatus } from "./types";
  * re-fetch it.
  *
  * No pagination/search params, matching `fetchMediaList` — `GET
- * /admin/media` doesn't support them (see the audit, §3).
+ * /admin/media` doesn't support them.
  *
  * `refetch` is exposed for the one thing this list can't know on its
  * own: when the caller uploads/archives/deletes a media row and wants

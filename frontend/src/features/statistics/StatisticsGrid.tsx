@@ -23,7 +23,7 @@ import type { StatisticItem } from "./types";
  *
  * Backed by `useStatistics()` (the Public API's Statistics content
  * module, §4, §8): lays out `data` with explicit loading, error, and
- * empty states (Phase 2) rather than silently falling back to
+ * empty states rather than silently falling back to
  * placeholder data when the query is loading, has errored, or returns
  * empty — never both at once, so a published CMS dataset fully replaces
  * the placeholder rather than merging with it.
@@ -33,8 +33,8 @@ import type { StatisticItem } from "./types";
  * Persian-digit literal) are normalized into the same `DisplayStat`
  * shape before rendering, so the JSX below — and the visual design it
  * produces — stays identical regardless of which source is active.
- * `label.fa` is read directly (not `.en`) since the site ships
- * Persian-only for now (`@/i18n/locale.ts`'s Phase 1 scope).
+ * `label.fa` is read directly (not `.en`) because the site currently
+ * renders Persian content.
  *
  * Accessible by construction: each tile's figure and label are both
  * rendered as plain visible text (no information conveyed by color or

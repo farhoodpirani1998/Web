@@ -36,10 +36,8 @@ export const env = {
   ),
 
   /**
-   * The site's active locale. Phase 1 ships Persian-only (§28), so this
-   * currently drives static bootstrap concerns (`<html lang/dir>`) rather
-   * than any URL segment. Once a second locale ships, this becomes the
-   * fallback used before a route/user selection resolves.
+   * The site's active locale. It drives document language and direction;
+   * locale is not currently part of the route path.
    */
   defaultLocale: requireEnv("VITE_DEFAULT_LOCALE", "fa"),
 

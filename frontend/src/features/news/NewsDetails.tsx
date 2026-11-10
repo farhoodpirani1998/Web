@@ -18,12 +18,11 @@ import { useNews } from "./useNews";
  * `@/features/teachers`'s `TeacherDetails`, and
  * `@/features/gallery`'s `GalleryDetails`.
  *
- * This is the feature's "full article" functionality: rather than a
- * separate per-article route (deliberately out of scope, see
- * `NewsList`'s doc comment — §7, no generic catch-all slug route), it
- * reuses the same native `<details>`/`<summary>` disclosure pattern
- * already established by `CampusDetails`/`TeacherDetails`/
- * `GalleryDetails` — fully interactive, keyboard/screen-reader
+ * This section provides an inline disclosure view in addition to the
+ * dedicated per-article route. It reuses the native
+ * `<details>`/`<summary>` pattern established by
+ * `CampusDetails`/`TeacherDetails`/`GalleryDetails` — interactive,
+ * keyboard/screen-reader
  * accessible (§26), zero React/component state, and zero new
  * dependencies, in keeping with this project's existing conventions.
  * Each `<details>` carries the id `#news-{id}`, which is exactly what

@@ -38,11 +38,8 @@ export async function fetchNews(campusId?: string): Promise<readonly NewsItem[]>
 /**
  * Fetches one article's full detail response (`GET /public/news/:slug`),
  * unlike `fetchNews`, this is returned as the raw `PublicNewsDetailDto`
- * rather than adapted into `NewsItem` — no page/component consumes it
- * yet (§7 — News has no per-article route), so there's no target shape
- * to adapt into. `seo`/`structuredData` are preserved exactly as the
- * backend returns them, for a future consumer (e.g. a `<Seo />`-
- * rendering page) to use unchanged.
+ * The article detail page consumes this DTO directly, preserving
+ * `seo`/`structuredData` as returned by the backend.
  */
 export async function fetchNewsBySlug(slug: string): Promise<PublicNewsDetailDto> {
   const response = await apiClient.get<PublicNewsDetailDto>(`/news/${slug}`);
@@ -53,17 +50,8 @@ export async function fetchNewsBySlug(slug: string): Promise<PublicNewsDetailDto
  * Adapts one wire `PublicNewsListItemDto` into the `NewsItem` shape
  * `NewsCard`/`NewsList`/`NewsDetails`/`HomeNews` already render.
  *
- * Known contract gap: the list DTO only carries `excerpt`, never the
- * article's full `body` — that field only exists on the
- * `GET /public/news/:slug` detail response, and `NewsDetails` renders
- * every article inline on one page (§7 — no per-article route) rather
- * than through that per-slug endpoint. Fetching the detail endpoint
- * once per list item to fill in `body` would mean N extra requests
- * every time the news list loads, so — same "degrade gracefully
- * rather than fabricate data" approach `hero`'s `toHero` uses for a
- * missing optional field — `body` falls back to the same `excerpt`
- * text the card already shows. This is flagged in the audit report as
- * a remaining risk, not silently papered over.
+ * The list response already includes the full article body, so the
+ * list and inline details can render it without per-article requests.
  */
 function toNewsItem(dto: PublicNewsListItemDto): NewsItem {
   const excerpt = dto.excerpt?.fa ?? "";

@@ -8,8 +8,8 @@ import type { PublicSeoDto, StructuredDataItem } from "./types";
  * tags, the `og:image` meta tag, the canonical `<link>`, and one
  * `<script type="application/ld+json">` per `structuredData` entry.
  *
- * No react-helmet or similar dependency (Phase 1 has none installed,
- * and this codebase has no existing head-management library — see
+ * No react-helmet or similar dependency is used; this codebase has no
+ * existing head-management library — see
  * `index.html`'s placeholder-title comment) — tags are written/removed
  * directly via the DOM, same "no new dependency" approach the rest of
  * `@/shared` follows.

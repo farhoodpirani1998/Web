@@ -13,9 +13,8 @@ import {
 import type { CmsMedia } from "./types";
 
 /**
- * Resolves a `mediaId` (e.g. a future `NewsArticle.featuredImageMediaId`)
- * to its `CmsMedia` row, the shared piece every content module needs per
- * the Sprint 3.3 audit, §6 item 2. Reads/writes the module-level cache
+ * Resolves a `mediaId` (e.g. `NewsArticle.featuredImageMediaId`) to its
+ * `CmsMedia` row, shared across content modules. Reads/writes the cache
  * in `./mediaCache.ts` — two components resolving the same id (e.g. a
  * thumbnail on a list row and again on that row's edit page) share one
  * cache entry and, if both mount before the first fetch resolves, one

@@ -11,7 +11,7 @@ import { useTeachers } from "./useTeachers";
  *
  * Backed by `useTeachers()` (the Public API's Teachers content
  * module, §4, §8): lays out `data` with explicit loading, error, and
- * empty states (Phase 2) rather than silently falling back to placeholder
+ * empty states rather than silently falling back to placeholder
  * data. Shows user feedback at each step of the data lifecycle.
  *
  * Visual refresh: adds a short lead paragraph under the heading (the

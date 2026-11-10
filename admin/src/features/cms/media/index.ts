@@ -29,7 +29,7 @@ export { useMediaById, type UseMediaByIdResult } from "./useMediaById";
 export { useMediaList, type UseMediaListResult } from "./useMediaList";
 export { MediaPicker, type MediaPickerProps } from "./MediaPicker";
 
-// Sprint 3.5: the Media Library page and its building blocks.
+// Media Library page and its building blocks.
 export { MediaPage } from "./MediaPage";
 export { MediaGrid, type MediaGridProps } from "./MediaGrid";
 export { MediaCard, type MediaCardProps } from "./MediaCard";

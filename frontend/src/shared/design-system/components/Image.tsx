@@ -31,8 +31,8 @@ export interface ImageProps
 }
 
 /**
- * Content-agnostic image primitive (§12, §13). Composes Sprint 2A/2B
- * primitives instead of reimplementing them: `AspectRatio` for the box,
+ * Content-agnostic image primitive. Composes existing primitives:
+ * `AspectRatio` for the box,
  * `Skeleton` for the loading placeholder. Always `loading="lazy"` and
  * `decoding="async"` unless the caller overrides them (e.g. an
  * above-the-fold hero image supplying `loading="eager"` +

@@ -7,10 +7,7 @@ export type ColorScheme = "light" | "dark";
  * scheme preference only — it does not toggle the `.dark` class or
  * write to the DOM.
  *
- * Per `tokens.css` (§24 "Theme Strategy"), dark-mode variables are
- * scaffolded but not a maintained second theme yet; this hook exists so
- * a future theme switcher has a ready-made, correct signal to start
- * from, without this Sprint making that product decision itself.
+ * Dark mode is not applied or persisted by this hook.
  */
 export function useColorScheme(): ColorScheme {
   const prefersDark = useMediaQuery("(prefers-color-scheme: dark)");

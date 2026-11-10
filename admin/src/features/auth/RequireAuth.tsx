@@ -6,10 +6,8 @@ import { ROUTE_PATHS } from "@/routes/paths";
 import { useAuth } from "./authContext";
 
 /**
- * Wraps `/admin/*` (Sprint 2.4B, task 3). Redirects to `/login` when
- * there's no authenticated session, preserving the attempted location
- * in router state so `RedirectIfAuthenticated` can send the user back
- * after they log in.
+ * Redirects unauthenticated users to `/login`, preserving the attempted
+ * location so `RedirectIfAuthenticated` can send them back after login.
  *
  * `status === "checking"` is handled defensively but should never
  * actually render here — `AuthProvider` itself blocks rendering its

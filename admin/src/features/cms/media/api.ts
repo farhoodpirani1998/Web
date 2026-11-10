@@ -17,10 +17,10 @@ import type {
  * functions, never `apiClient` directly (same convention as
  * `features/auth/api.ts`). Paths are bare (`/media`, not `/admin/media`)
  * because `apiClient`'s base URL already points at `.../admin` (see
- * `lib/env.ts`), matching the Sprint 3.3 audit's note on this.
+ * `lib/env.ts`).
  *
  * No pagination/search params here: `GET /admin/media` only supports an
- * optional `status` filter today (see the audit, §3) — nothing here
+ * optional `status` filter — nothing here
  * should invent query params the backend doesn't read.
  */
 

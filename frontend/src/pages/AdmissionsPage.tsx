@@ -19,10 +19,9 @@ import {
  * `TeachersPage`/`EventsPage` (Website Frontend Architecture §20
  * "Routing Strategy").
  *
- * This page is presentation-only scaffolding for the backend's future
- * Admissions content module (§4, §8) — no such endpoint exists on the
- * Public API yet, so every section renders frontend-owned, CMS-ready
- * placeholder copy and fetches nothing.
+ * The feature includes a Public API client and query hook, but these
+ * page sections currently render their local content rather than
+ * consuming that query.
  *
  * Deliberately isolated, matching the same "new, isolated feature"
  * scope `@/features/campuses`/`@/features/teachers`/`@/features/events`
@@ -40,8 +39,7 @@ import {
  * data later is additive and stays entirely inside that section's own
  * feature file.
  *
- * Persian-first: copy is authored directly in Persian (the site's
- * Phase 1 locale, §28) rather than as English placeholder text, and the
+ * Persian-first: copy is authored directly in Persian, and the
  * layout relies on logical properties / direction-agnostic design
  * system primitives so it holds up under the app's `dir="rtl"` root
  * (`index.html`) as well as a future `ltr` locale.

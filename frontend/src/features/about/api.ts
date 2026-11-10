@@ -35,7 +35,7 @@ export async function fetchAboutPage(): Promise<AboutPageContent> {
  * Adapts the wire `PublicAboutDto` into the `AboutPageContent` shape
  * the About page and homepage sections render.
  *
- * Locale: Phase 1 ships Persian-only (§28), so every `Translatable`
+ * The site currently renders Persian content, so each `Translatable`
  * field resolves `.fa` directly, same as `campuses`'s `toCampus` and
  * `teachers`'s `toTeacher`.
  *

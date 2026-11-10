@@ -13,12 +13,9 @@ import type { PublicStaticPageDto } from "./types";
  * return the same singleton `PublicPageDto` shape (see the
  * controller's doc comment: `homepage` is registered before `:slug`
  * so it's never shadowed by the dynamic route), so both functions
- * here return the raw `PublicStaticPageDto` unchanged — no adapted
- * shape to map into yet, since no page/component consumes this
- * feature (this sprint only adds the fetch layer). `seo`/
- * `structuredData` are preserved exactly as the backend returns them,
- * same convention as `@/features/about`'s `fetchAboutPage` and
- * `@/features/news`'s `fetchNewsBySlug`.
+ * here return the raw `PublicStaticPageDto` unchanged for homepage and
+ * static-page detail consumers, preserving `seo`/`structuredData` as
+ * returned by the backend.
  */
 export async function fetchStaticPageBySlug(slug: string): Promise<PublicStaticPageDto> {
   const response = await apiClient.get<PublicStaticPageDto>(`/pages/${slug}`);

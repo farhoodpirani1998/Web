@@ -7,9 +7,7 @@ import { getDirection, isSupportedLocale } from "@/i18n/locale";
 
 import "@/assets/styles/globals.css";
 
-// Keeps <html lang/dir> (statically set to fa/rtl in index.html for
-// Phase 1) in sync with the configured locale, so this stays correct
-// without a manual edit once a second locale/env value is introduced.
+// Keep <html lang/dir> in sync with the configured locale.
 if (isSupportedLocale(env.defaultLocale)) {
   document.documentElement.lang = env.defaultLocale;
   document.documentElement.dir = getDirection(env.defaultLocale);

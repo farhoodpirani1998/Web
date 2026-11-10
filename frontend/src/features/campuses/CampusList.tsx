@@ -11,7 +11,7 @@ import { useCampuses } from "./useCampuses";
  *
  * Backed by `useCampuses()` (the Public API's Campuses content
  * module, §4, §8): lays out only published API data, with explicit
- * loading, error, and empty states (Phase 2) rather than local placeholder
+ * loading, error, and empty states rather than local placeholder
  * records.
  *
  * Visual refresh: adds a short lead paragraph under the heading (the
@@ -60,4 +60,3 @@ export function CampusList() {
     </Section>
   );
 }
-

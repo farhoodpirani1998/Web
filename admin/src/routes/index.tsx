@@ -1,45 +1,6 @@
 /**
- * Router configuration.
- *
- * Sprint 1.3 scope: adds the AdminLayout shell around `/admin/*` routes.
- * Sprint 1.5 scope: registers the remaining placeholder routes
- * (content, media, settings) alongside dashboard.
- * Sprint 2.4B scope: wraps `/login` in `RedirectIfAuthenticated` and
- * `/admin` in `RequireAuth` (see `features/auth`). The route tree shape
- * itself is unchanged â€” these are guard wrappers around the existing
- * `element`s, not new routes.
- * Sprint 3.7 scope: registers `/admin/portal-links` (new) and rewires
- * `/admin/settings` to the real Site Settings page â€” the route tree
- * shape itself is otherwise unchanged.
- * Sprint 3.10 scope: registers `/admin/news` (new) â€” the route tree
- * shape itself is otherwise unchanged.
- * Sprint 3.11 scope: registers `/admin/pages` (new) â€” the route tree
- * shape itself is otherwise unchanged.
- * Sprint 3.12 scope: registers `/admin/events` (new) â€” the route tree
- * shape itself is otherwise unchanged.
- * Sprint 3.13 scope: registers `/admin/teachers` (new) â€” the route
- * tree shape itself is otherwise unchanged.
- * Sprint 3.14 scope: registers `/admin/campuses` (new) â€” the route
- * tree shape itself is otherwise unchanged.
- * Sprint 3.15 scope: registers `/admin/testimonials` (new) â€” the
- * route tree shape itself is otherwise unchanged.
- * Sprint 3.16 scope: registers `/admin/features` (new) â€” the route
- * tree shape itself is otherwise unchanged.
- * Sprint 3.17 scope: registers `/admin/statistics` (new) â€” the route
- * tree shape itself is otherwise unchanged.
- * Sprint 3.18 scope: registers `/admin/about` (new) â€” the route tree
- * shape itself is otherwise unchanged.
- * Sprint 3.19 scope: registers `/admin/cta` (new) â€” the route tree
- * shape itself is otherwise unchanged.
- * Sprint â€” CMS Navigation Admin scope: registers `/admin/menus` (new)
- * â€” the route tree shape itself is otherwise unchanged.
- * Sprint â€” Pre-Registration Form scope: registers
- * `/admin/pre-registrations` (new) â€” the route tree shape itself is
- * otherwise unchanged.
- * Sprint â€” Route Permissions scope: the admin pages move under a
- * pathless `RequireRouteAccess` layout route that hides sections the
- * signed-in admin's role cannot open. No route was added, renamed, or
- * removed â€” only the nesting depth changed.
+ * Lazy-loaded admin routes. Login redirects authenticated users; the
+ * `/admin` tree is protected by authentication and route permissions.
  */
 import { lazy, Suspense, type ReactNode } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";

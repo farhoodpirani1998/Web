@@ -6,32 +6,8 @@ import { toPersianDigits } from "@/shared/utils/toPersianDigits";
 import { useAchievements } from "./useAchievements";
 
 /**
- * Homepage "Achievements" section (Website Frontend Architecture §4,
- * §10 "Section Architecture", §11 "Component Hierarchy") — new
- * `achievements` feature, matching the approved Figma design's
- * `AchievementsSection` (Figma Design Reference §4.9). `achievements`
- * has no existing project-side equivalent (unlike Campuses/WhyChoose/
- * News/Gallery, each already scaffolded around a real content
- * domain) — `features/README.md` lists it as one of the real site
- * sections the project will eventually have a feature folder for, so
- * this is that folder's first component, following the same
- * "home band owns its own placeholder content" convention already
- * used by `HomeStatsBand`/`HomeAbout`/`HomeCampuses`.
- *
- * Presentation only: composed from existing design-system primitives
- * (`Container`, `Stack`, `Heading`, `Text`) plus a `Trophy` icon
- * (`lucide-react`, already a dependency) and an `aria-hidden` dot-
- * texture overlay (inline `radial-gradient`, matching Figma's `0.03`
- * opacity — same technique `CTA` already uses at `0.04`). Real
- * headline/figures are ultimately Achievements content-module data
- * (§4, §8); this renders frontend-owned Persian placeholder figures in
- * the meantime, the same convention already used elsewhere.
- *
- * Full-bleed `bg-primary`, so — like `Hero`/`HomeStatsBand`/`CTA` —
- * it's rendered *outside* `HomePage`'s `PageLayout` and opens its own
- * `Container` internally, after `Features` (WhyChoose) per Figma's
- * canonical render order (§3): ... → WhyChoose → Achievements → News →
- * Gallery → CTA.
+ * Homepage achievements section. Loads achievement items from the
+ * public API and uses local fallback figures when no items are returned.
  */
 
 interface Achievement {

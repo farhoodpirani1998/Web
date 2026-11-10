@@ -4,12 +4,12 @@ import { formatFileSize } from "./formatFileSize";
 import type { CmsMedia } from "./types";
 
 /**
- * One media asset. Preview uses `media.url` only, per this sprint's
- * constraint — `thumbnailUrl`/`cardUrl` are never populated by
+ * One media asset. Preview uses `media.url` because `thumbnailUrl` and
+ * `cardUrl` are not populated by
  * `MediaService.upload` today (they exist on the entity but nothing
  * sets them), so treating them as real would show a broken image for
- * every asset. `MediaPicker` (Sprint 3.4) already falls back to `url`
- * for the same reason; this card just uses it directly.
+ * every asset. `MediaPicker` also falls back to `url` for the same
+ * reason.
  *
  * Archive/delete are individually gated with `PermissionGate` (in
  * addition to `MediaPage` gating the whole page) so this card is safe

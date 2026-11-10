@@ -7,8 +7,7 @@ import { Button, Heading, PageLayout, Stack, Text } from "@/shared/design-system
  * belonging to a currently-disabled section are the same outcome —
  * absent data (§7, §10, §18) — so both resolve here.
  *
- * Sprint 3B updates this page to compose inside `PageLayout`, matching
- * every other route, instead of hand-rolling its own wrapper.
+ * Uses the shared `PageLayout` wrapper like the other routes.
  */
 export function NotFoundPage() {
   return (

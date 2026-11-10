@@ -18,11 +18,8 @@ import { formatPersianDate } from "@/shared/utils/formatDate";
  * News article detail page — route `/news/:slug` (added alongside
  * this page in `@/app/routes/router.tsx`).
  *
- * Unlike `NewsPage` (the fixed `/news` listing page, which renders
- * every article inline via `NewsDetails`'s `<details>` disclosure —
- * see that file's doc comment on why no per-article route existed
- * until now), this page is slug-addressed: it reads `:slug` from the
- * route and fetches that one article's full detail response via
+ * This page is slug-addressed: it reads `:slug` from the route and
+ * fetches that article's full detail response via
  * `@/features/news`'s `useNewsBySlug` (backed by `fetchNewsBySlug`,
  * `GET /news/:slug`).
  *

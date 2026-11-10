@@ -7,8 +7,8 @@ import { PageTemplate } from './page-template.enum';
 
 /**
  * A generic, arbitrary content page (admissions policy, campus life,
- * a landing page, etc.) — the Phase 2+ "Static Pages" module the About
- * entity's doc comment points to. Unlike About (a fixed singleton),
+ * a landing page, etc.) — the generic Static Pages module, distinct
+ * from the fixed About singleton.
  * there can be any number of these, each with its own slug.
  *
  * - One of the 4 revision-enabled types (`static_page` — already

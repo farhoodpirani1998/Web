@@ -13,13 +13,9 @@ import type {
  * functions, never `apiClient` directly (same convention as the public
  * frontend's per-feature `api.ts` files).
  *
- * Sprint 2.4B: `login` is called from `LoginPage`, and `fetchCurrentAdmin`
- * is called from both `LoginPage` (after a successful login) and
- * `AuthProvider` (startup bootstrap check).
- *
- * Sprint — Persistent Login: `refresh` (this file's `refreshAccessToken`)
- * is called from `AuthProvider` (startup silent-login attempt). It is
- * *not* called by `apiClient`'s own response interceptor — that makes
+ * `login` is called from `LoginPage`; `fetchCurrentAdmin` is used after
+ * login and during the `AuthProvider` startup check. The response
+ * interceptor does not call `refreshAccessToken` — it makes
  * its own inline call to the same `/auth/refresh` endpoint instead,
  * since `api.ts` importing `apiClient` and `apiClient.ts` importing
  * back from `api.ts` would be a circular import; the interceptor only

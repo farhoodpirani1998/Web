@@ -2,10 +2,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
  * Adds `admin_users` — the identity table for locally-authenticated CMS
- * administrators (Sprint 2.2, "CMS Identity Foundation"). Purely
- * additive: no existing table is altered, dropped, or renamed, and
- * `website_role_assignments` (SMS's integration point, see
- * `auth/entities/website-role-assignment.entity.ts`) is untouched.
+ * administrators. Purely additive: no existing table is altered,
+ * dropped, or renamed.
  *
  * `admin_users_role_enum` mirrors the same five `WebsiteRole` values as
  * `website_role_assignments_role_enum`, kept as its own distinct

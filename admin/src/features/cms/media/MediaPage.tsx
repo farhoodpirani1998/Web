@@ -31,8 +31,8 @@ import { useMediaList } from "./useMediaList";
  * Gated behind `website.media:manage` for the entire page body, not
  * just individual actions: every `/admin/media` route requires that
  * permission (`MediaController`), including the plain list — so a user
- * without it can't do anything here, not even view. Per the Sprint 3.3
- * audit's flagged (not fixed) gap, `content_editor`/`publisher` don't
+ * without it can't do anything here, not even view. `content_editor`
+ * and `publisher` don't
  * have this permission today; that's a product decision for the team,
  * not something to work around here (see the fallback message below).
  *

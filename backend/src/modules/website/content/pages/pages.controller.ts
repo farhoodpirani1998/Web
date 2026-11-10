@@ -25,8 +25,8 @@ import { PublishStatus } from '../../core/publishing/publish-status.enum';
 /**
  * Admin CRUD for generic content pages. As with every other content
  * module here, the public, unauthenticated read path (`/public/website/pages`,
- * individual `/pages/:slug` pages) belongs to the public-api layer
- * (Phase 3+), not this admin controller.
+ * individual `/pages/:slug` pages) belongs to the public-api layer,
+ * not this admin controller.
  */
 @Controller('admin/pages')
 export class PagesController {
@@ -79,8 +79,8 @@ export class PagesController {
   }
 
   // Distinct from `status`, identical idiom to News: gates when a
-  // PUBLISHED page actually becomes visible (sitemap today; public API
-  // in Phase 3+). Gated by the same permission as status/homepage
+  // PUBLISHED page actually becomes visible to the sitemap and public
+  // API. Gated by the same permission as status/homepage
   // changes — a publishing decision, not a content-editing one.
   @Patch(':id/schedule')
   @RequireCmsPermission(WebsitePermission.CONTENT_PUBLISH)

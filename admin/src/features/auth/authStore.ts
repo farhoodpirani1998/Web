@@ -3,12 +3,6 @@ import type { AdminUser } from "@/types/auth";
 /**
  * Minimal auth state for the CMS Admin frontend.
  *
- * Sprint 2.4B: now actively consumed — `apiClient`'s request
- * interceptor reads the token, `apiClient`'s response interceptor
- * clears it on 401, `LoginPage` sets it after a successful login, and
- * `AuthProvider`/`RequireAuth`/`RedirectIfAuthenticated` (see
- * `./AuthProvider.tsx`) derive auth status and route guarding from it.
- *
  * Deliberately a plain module-level store, not Redux/Zustand/Context:
  * the project has no state library dependency yet (see package.json)
  * and the actual need right now is just "hold a token and an admin
@@ -18,10 +12,10 @@ import type { AdminUser } from "@/types/auth";
  * `useSyncExternalStore` whenever this store changes.
  *
  * Deliberately in-memory only (no localStorage/sessionStorage): the CMS
- * access token is short-lived by design (see backend `CmsAuthService`,
- * ~15m) and, per this codebase's XSS-defense posture, must never sit
- * somewhere JS-readable across reloads. Persistent login (Sprint —
- * Persistent Login) doesn't change that — it's the httpOnly refresh-
+ * access token is short-lived by design (see backend `CmsAuthService`)
+ * and, per this codebase's XSS-defense posture, must never sit
+ * somewhere JS-readable across reloads. Persistent login doesn't change
+ * that — it's the httpOnly refresh-
  * token cookie (never touched by this store, or by any JS at all) that
  * survives a reload, not this in-memory access token. `AuthProvider`'s
  * mount-time bootstrap silently exchanges that cookie for a fresh

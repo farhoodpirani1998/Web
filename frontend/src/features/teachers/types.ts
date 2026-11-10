@@ -24,8 +24,7 @@ import type { PublicSeoDto, StructuredDataItem } from "@/shared/seo";
  *   "degrade gracefully rather than fabricate data" approach
  *   `campuses`'s `toCampus` uses for its own backend-less fields.
  * - The list endpoint carries `excerpt`, never the teacher's full
- *   `bio` — that only exists on the (unused-by-this-feature)
- *   `GET /public/teachers/:slug` detail response. `toTeacher` falls
+ *   `bio` — that exists on `GET /public/teachers/:slug`. `toTeacher` falls
  *   back to `department` and then `""` when `excerpt` is absent, same
  *   "degrade gracefully" approach `campuses`'s `toCampus` uses for its
  *   own `body`-vs-`excerpt` gap.
@@ -92,7 +91,7 @@ export interface TeacherImage {
 export interface Teacher {
   /** Stable identifier, also used as the React list key. */
   id: string;
-  /** Public slug (`/public/teachers/:slug`); not currently routed to, kept for future per-teacher pages. */
+  /** Public slug used by the teacher detail route. */
   slug: string;
   name: string;
   /** Subject or role, e.g. "دبیر ریاضی". */

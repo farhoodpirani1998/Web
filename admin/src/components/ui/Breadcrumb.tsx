@@ -1,11 +1,8 @@
 /**
  * Breadcrumb.
  *
- * Sprint 1.6 scope: foundation only — renders a static list of labels
- * with a separator, last item styled as "current page". Items accept
- * an optional `href` for forward-compatibility, but no routing/link
- * behavior is wired up yet; that is planned for a later sprint once
- * nested admin routes exist to justify it.
+ * Renders labels with separators and styles the last item as the current
+ * page. `href` is reserved for callers; items are currently non-interactive.
  */
 export interface BreadcrumbItem {
   label: string;

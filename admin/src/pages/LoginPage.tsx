@@ -1,7 +1,7 @@
 /**
  * Login page.
  *
- * Sprint 2.4B scope: the full login flow —
+ * Login flow —
  *   submit credentials -> POST /admin/auth/login -> store token
  *   -> GET /admin/auth/me -> store admin -> redirect.
  *

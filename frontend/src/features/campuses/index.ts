@@ -6,13 +6,8 @@
  * section components only from here — never from the individual
  * section files directly.
  *
- * `EmptyState` is exported for future wiring (see its own file's doc
- * comment) but is not composed by `CampusesPage` today.
- *
- * `fetchCampuses`/`useCampuses`/`campusesQueryKey` are additive
- * exports, following the same shape `@/features/news`'s and
- * `@/features/gallery`'s public surfaces already export their fetch
- * layer through.
+ * Exports the page sections, API functions, query hooks, and their
+ * associated public types.
  */
 export { HomeCampuses } from "./HomeCampuses";
 export { Hero } from "./Hero";

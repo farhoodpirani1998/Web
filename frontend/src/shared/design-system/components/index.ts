@@ -45,5 +45,5 @@ export { LoadingState, type LoadingStateProps } from "./LoadingState";
 export { VisuallyHidden, type VisuallyHiddenProps } from "./VisuallyHidden";
 export { SkipLink, type SkipLinkProps } from "./SkipLink";
 
-// Loading primitive (Phase 1; size/tone variants added in Sprint 2B)
+// Loading primitive
 export { Spinner, type SpinnerProps } from "./Spinner";

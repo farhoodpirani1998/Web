@@ -85,7 +85,7 @@ class EnvironmentVariables {
   // values, a fallback secret here would be a real vulnerability if
   // ever shipped unchanged.
   //
-  // @MinLength(32) (Sprint 2.3B hardening): a short secret is brute-
+  // @MinLength(32): a short secret is brute-
   // forceable against a captured token's HMAC, defeating the point of
   // signing at all. 32 chars is a floor, not a target — the .env.example
   // guidance generates a much longer random value in practice.
@@ -120,7 +120,7 @@ class EnvironmentVariables {
   // (Sprint — Persistent Login), for what would otherwise be a
   // long-lived stateless credential.
   //
-  // @Matches (Sprint 2.3B hardening): constrains the *shape* only, so a
+  // @Matches: constrains the *shape* only, so a
   // typo'd value (e.g. a stray word) fails loudly at startup instead of
   // reaching `jsonwebtoken` and failing per-request at sign time; it
   // does not second-guess whether the resulting duration is itself a
@@ -152,7 +152,7 @@ class EnvironmentVariables {
   CMS_REFRESH_COOKIE_SAMESITE?: string;
 
   // --- CMS Admin login throttle (see identity/auth/cms-auth-rate-limit.constants.ts) ---
-  // Sprint 2.3B hardening: a dedicated, tighter override of the global
+  // A dedicated, tighter override of the global
   // 'default' throttler applied only to POST /admin/auth/login, on top
   // of argon2id's own per-attempt cost. Both optional; each falls back
   // to the hardcoded value documented in that file (5 attempts per

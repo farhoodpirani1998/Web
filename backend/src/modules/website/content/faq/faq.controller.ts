@@ -18,12 +18,7 @@ import { RequireCmsPermission } from '../../identity/auth/cms-permission.decorat
 import { WebsitePermission } from '../../auth/website-role.enum';
 import { PublishStatus } from '../../core/publishing/publish-status.enum';
 
-/**
- * Admin CRUD for the FAQ list. There is deliberately no public read
- * endpoint here — that belongs to the public-api layer (Phase 3+),
- * which will read published FAQs through its own cached, unauthenticated
- * routes rather than this admin surface.
- */
+/** Admin CRUD for FAQs; public reads are handled by the public API. */
 @Controller('admin/faqs')
 export class FaqController {
   constructor(private readonly faqService: FaqService) {}

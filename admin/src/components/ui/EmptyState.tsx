@@ -1,10 +1,8 @@
 /**
  * Empty state.
  *
- * Sprint 1.6 scope: reusable placeholder UI for sections/pages with no
- * content yet — an optional icon slot, title, description, and an
- * optional action slot. No business-specific copy lives here; callers
- * supply their own text.
+ * Reusable UI for sections/pages with no content, with optional icon,
+ * description, and action slots. Callers supply the copy.
  */
 import type { ReactNode } from "react";
 

@@ -5,9 +5,8 @@
  * directly — everything else should import `env` from here. Mirrors the
  * pattern used by the public frontend (`frontend/src/shared/config/env.ts`).
  *
- * Sprint 2.4A scope: adds `adminApiBaseUrl` for the CMS admin API client.
- * This points at the CMS admin API (`/admin/auth/...`). The public
- * frontend uses a separate `/public` API base URL.
+ * `adminApiBaseUrl` points at the CMS admin API (`/admin/auth/...`).
+ * The public frontend uses a separate `/public` API base URL.
  */
 
 function requireEnv(name: keyof ImportMetaEnv, fallback?: string): string {

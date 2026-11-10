@@ -6,8 +6,8 @@
  * section components only from here — never from the individual
  * section files directly.
  *
- * `EmptyState` is exported for future wiring (see its own file's doc
- * comment) but is not composed by `EventsPage` today.
+ * Exports the page sections, API functions, query hooks, and their
+ * associated public types.
  */
 export { Hero } from "./Hero";
 export { EventList } from "./EventList";

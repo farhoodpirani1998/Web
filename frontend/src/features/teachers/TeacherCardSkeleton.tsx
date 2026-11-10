@@ -8,7 +8,7 @@ export type TeacherCardSkeletonProps = React.HTMLAttributes<HTMLDivElement>;
  * Skeleton placeholder for `TeacherCard` — sized to match the card's
  * eventual portrait-card layout with avatar, name, subject, bio,
  * specialties, and link. Used by `TeacherGrid` during data loading
- * (Phase 3).
+ * data loading.
  *
  * Mirrors the card's structure: gradient header with avatar ring,
  * name/subject text, bio excerpt, specialty badges, and detail link.

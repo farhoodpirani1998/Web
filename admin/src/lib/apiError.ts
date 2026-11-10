@@ -12,7 +12,7 @@ import type { FieldPath, FieldValues, UseFormSetError } from "react-hook-form";
  * `"unauthorized"` is its own kind (rather than folding into `"unknown"`)
  * because `apiClient`'s response interceptor uses it to clear auth
  * state on any 401, and `RequireAuth`/`RedirectIfAuthenticated`
- * (Sprint 2.4B) redirect based on the resulting auth state — not on
+ * redirect based on the resulting auth state — not on
  * this kind directly.
  */
 export type ApiErrorKind =

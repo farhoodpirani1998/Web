@@ -5,20 +5,8 @@
  * than reaching into `./authStore`, `./api`, `./AuthProvider`, etc.
  * directly.
  *
- * Sprint 2.4B: adds `AuthProvider`/`useAuth` (bootstrap + reactive auth
- * status) and the `RequireAuth`/`RedirectIfAuthenticated` route guards
- * consumed by `routes/index.tsx`.
- *
- * Sprint — Persistent Login: adds `refreshAccessToken` (silent-login
- * bootstrap, called from `AuthProvider` — `apiClient`'s own 401-retry
- * logic makes an inline call to the same endpoint instead, to avoid a
- * circular import; see `api.ts`'s doc comment) and `logout` (revokes
- * the refresh-token cookie server-side, used by `AdminHeader`'s logout
- * button).
- *
- * Sprint — Route permissions: adds `RequireRouteAccess`, the pathless
- * layout route that blocks `/admin/*` pages the current admin's role
- * cannot open (see `routes/route-permissions.ts`).
+ * Exposes authentication state, API functions, providers, and route
+ * guards to consumers without requiring imports from internal files.
  */
 export {
   getAccessToken,

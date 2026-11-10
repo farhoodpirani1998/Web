@@ -14,9 +14,8 @@ import { normalizeApiError } from "./apiError";
  * - Every error is normalized into an `ApiError` before it leaves this
  *   module, so calling code never parses raw HTTP responses.
  *
- * No request functions are defined yet in Phase 1 (bootstrap only) —
- * per-endpoint typed query functions (homepage aggregate, campuses,
- * news, etc.) are added alongside their corresponding feature, not here.
+ * Typed request functions live alongside their corresponding features;
+ * this module only provides the shared client and error normalization.
  */
 export const apiClient: AxiosInstance = axios.create({
   baseURL: env.publicApiBaseUrl,

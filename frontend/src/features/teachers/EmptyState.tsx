@@ -6,14 +6,9 @@ import {
 /**
  * Teachers "no results" state.
  *
- * Standalone presentation only — this is the visual `TeacherGrid`
- * would show in place of the grid if a future filtered/searched
- * teacher list came back empty (a future `useTeachers()`-style data
- * hook with query params, e.g. filtering by subject). There is no
- * filter/search state to make empty today, so this component is
- * exported for future wiring but intentionally not composed into
- * `TeachersPage` — mirroring the same precedent as
- * `@/features/campuses`'s `EmptyState`.
+ * Feature-specific empty-state composition. The directory currently
+ * uses the shared empty state directly, so this component is not
+ * composed into `TeachersPage`.
  *
  * Reuses the existing `EmptyState` composite (§12, §13, §19) rather
  * than introducing a new "no results" primitive — its icon/title/

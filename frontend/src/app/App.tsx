@@ -6,8 +6,8 @@ import { router } from "@/app/routes/router";
 
 /**
  * The application's single root component (§3): one entry point, one
- * provider tree, one router, wrapped in ErrorBoundary for render-time crashes
- * (Phase 2, §18). Nothing else composes providers or routing — a page never
+ * provider tree, one router, wrapped in ErrorBoundary for render-time
+ * crashes. Nothing else composes providers or routing — a page never
  * reaches around this to add its own provider.
  *
  * ErrorBoundary: the outermost safety net for unhandled render exceptions.

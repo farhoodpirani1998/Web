@@ -6,13 +6,8 @@
  * section components only from here — never from the individual
  * `./NewsHero`, `./NewsList`, etc. files directly.
  *
- * `NewsHero` and `NewsList` are the feature's original exports and
- * are unchanged by this extension — every existing import of either
- * keeps working exactly as before. `NewsCard`, `NewsDetails`, `FAQ`,
- * `EmptyState`, and the `NewsItem` type are additive exports,
- * following the same `campuses`/`teachers`/`gallery` feature shape.
- * `EmptyState` is exported for future wiring (see its own file's doc
- * comment) but is not composed by `NewsPage` today.
+ * Exports the page sections, API functions, query hooks, and their
+ * associated public types.
  */
 export { HomeNews } from "./HomeNews";
 export { NewsHero } from "./NewsHero";

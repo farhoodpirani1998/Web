@@ -22,7 +22,7 @@ export interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
 
 /**
  * Content-agnostic "nothing here yet" primitive (§12, §13, §19),
- * composed entirely from Sprint 2A primitives (`Stack`, `Heading`,
+ * composed entirely from existing primitives (`Stack`, `Heading`,
  * `Text`, `Button`) — no new styling vocabulary introduced. A feature
  * supplies copy/an action; this component owns only the layout.
  */

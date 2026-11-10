@@ -24,9 +24,8 @@ export async function fetchCampuses(): Promise<readonly Campus[]> {
  * Fetches one campus's full detail response
  * (`GET /public/campuses/:slug`). Same rationale as `@/features/news`'s
  * `fetchNewsBySlug`: returned as the raw `PublicCampusDetailDto` rather
- * than adapted into `Campus` — no page/component consumes it yet (no
- * per-campus route) — with `seo`/`structuredData` preserved exactly as
- * the backend returns them.
+ * than adapted into `Campus`; the campus detail pages consume
+ * this DTO directly, including its `seo`/`structuredData` fields.
  */
 export async function fetchCampusBySlug(slug: string): Promise<PublicCampusDetailDto> {
   const response = await apiClient.get<PublicCampusDetailDto>(`/campuses/${slug}`);
@@ -37,16 +36,16 @@ export async function fetchCampusBySlug(slug: string): Promise<PublicCampusDetai
  * Adapts one wire `PublicCampusListItemDto` into the `Campus` shape
  * `CampusCard`/`CampusList`/`CampusDetails` already render.
  *
- * Locale: Phase 1 ships Persian-only (§28), so every `Translatable`
- * field resolves `.fa` directly, same as `news`'s `toNewsItem`.
+ * The site currently renders Persian content, so each `Translatable`
+ * field resolves `.fa` directly, as in `news`'s `toNewsItem`.
  *
  * Known contract gap: the list DTO only carries `excerpt`, never the
  * campus's full `body` — that field only exists on the
- * `GET /public/campuses/:slug` detail response, and `CampusDetails`
- * renders every campus inline on one page (no per-campus route)
- * rather than through that per-slug endpoint. Fetching the detail
- * endpoint once per list item to fill in `body` would mean N extra
- * requests every time the campuses list loads, so — same "degrade
+ * `GET /public/campuses/:slug` detail response. `CampusDetails`
+ * renders list records inline, while the separate detail page loads
+ * the full response. Fetching the detail endpoint once per list item
+ * to fill in `body` would mean N extra requests every time the
+ * campuses list loads, so — same "degrade
  * gracefully rather than fabricate data" approach `news`'s
  * `toNewsItem` uses for its `body` field — `detailedDescription`
  * falls back to the same `excerpt` text `description` already shows.
