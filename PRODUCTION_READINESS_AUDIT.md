@@ -30,8 +30,8 @@
 
 This checkout is a Git repository. Current tracked-file checks found no
 `backend/.env`, root `.env`, `frontend/.env`, or `admin/.env` among the
-checked paths. The tracked `backend/keys/sms-public-key.pem` is a local
-placeholder public key, not a production key. A complete historical secret
+checked paths. The tracked the former backend identity verification key was a local
+placeholder, not a production key. A complete historical secret
 scan was not performed; rotate any credential known to have been exposed.
 
 Several blockers listed in the historical sections below have since been
@@ -121,7 +121,6 @@ and 'TypographyVariants'. Named property 'color' of types are incompatible.
 **Previously reported issues (current Git status unverified)**:
 - `backend/.env` was previously reported as committed. Re-verified 2026-10-25 against the full history (`git log --all --name-only`): **no `.env` file is tracked in any commit** — the root and backend `.gitignore` rules exclude it. The credential it held is still treated as disclosed, because its literal value was written into this document, and this document is pushed to the public remote. Rotate it.
 - The `DATABASE_PASSWORD` value that used to be printed on this line has been redacted; it must not be restored. Regenerate the password and keep the value out of any tracked file.
-- `backend/keys/sms-public-key.pem` is a locally-generated placeholder, not production key
 
 **Required Action** (URGENT):
 1. Verify whether environment files are tracked in the actual Git checkout; the current working directory has no Git metadata, so this cannot be confirmed or safely remediated here.
@@ -435,8 +434,6 @@ Fix this before any deployment attempt. Should take 1-2 hours.
 ### Authentication & Authorization
 - âœ“ Admin JWT: HS256 symmetric, short-lived (15m default)
 - âœ“ Admin refresh tokens: httpOnly, rotation with reuse detection
-- âœ“ SMS JWT verification: RS256 public key verification only, no shared DB
-- âœ“ RBAC: WebsiteRoleAssignment mapping SMS user_id to local permissions
 - âœ“ Auth guards: Guards protecting /admin/*, /admin/auth/me endpoints
 
 ### Frontend
@@ -482,7 +479,6 @@ Fix this before any deployment attempt. Should take 1-2 hours.
 - [ ] Verify `npm run build` passes in all 3 apps
 - [ ] Verify and, if needed, remove exposed secrets from Git history in the actual Git checkout; rotate any exposed credentials
 - [x] Add ignore rules for admin local `.env*` files; frontend/backend have their own `.gitignore` files
-- [ ] Replace placeholder SMS public key with real key
 - [x] Generate CMS_JWT_SECRET in setup.sh and validate minimum length
 
 **Estimated Time**: 2-3 days

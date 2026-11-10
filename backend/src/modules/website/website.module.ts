@@ -11,7 +11,6 @@ import { MediaModule } from './core/media/media.module';
 import { HealthModule } from './core/health/health.module';
 import { RevisionsModule } from './core/revisions/revisions.module';
 import { AuditLogModule } from './core/audit-log/audit-log.module';
-import { WebsiteAuthModule } from './auth/auth.module';
 import { AdminUsersModule } from './identity/admin-users/admin-users.module';
 import { CmsAuthModule } from './identity/auth/cms-auth.module';
 import { FaqModule } from './content/faq/faq.module';
@@ -60,7 +59,6 @@ import { PublicApiModule } from './public-api/public-api.module';
     HealthModule,
     RevisionsModule,
     AuditLogModule,
-    WebsiteAuthModule,
     AdminUsersModule,
     CmsAuthModule,
     FaqModule,

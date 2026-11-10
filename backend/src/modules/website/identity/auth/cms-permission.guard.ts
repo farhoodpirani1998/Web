@@ -13,20 +13,16 @@ import { CMS_PERMISSION_KEY } from './cms-permission.constants';
 import { CmsRequestUser } from './cms-jwt-payload.interface';
 
 /**
- * The CMS-native counterpart to `WebsitePermissionGuard`
- * (`auth/website-permission.guard.ts`) — same job (check the acting
- * identity's role against `ROLE_PERMISSIONS` for the permission a route
- * declares), but reading the identity `CmsAuthGuard` already verified
- * and attached to `request.user`, never `WebsiteRoleAssignment` (that
- * table maps an *SMS* externalUserId to a role and has nothing to do
- * with CMS Admin identities).
+ * Checks the acting identity's role against `ROLE_PERMISSIONS` for
+ * the permission a route declares, using the CMS identity attached to
+ * `request.user` by `CmsAuthGuard`.
  *
  * Must run after `CmsAuthGuard` — see `RequireCmsPermission`, which
  * always composes the two together so this is never accidentally used
  * on its own.
  *
- * No database lookup here, unlike `WebsitePermissionGuard`: `role` is
- * already sitting on `request.user`, taken directly from the verified
+ * No database lookup is needed here: `role` is already sitting on
+ * `request.user`, taken directly from the verified
  * CMS JWT payload (`CmsAuthGuard`). This mirrors `CmsAuthGuard`'s own
  * documented stateless tradeoff — a role change/deactivation on
  * `CmsAdminUser` is only reflected once a new token is issued (login)

@@ -1,8 +1,7 @@
 # nhg-website-backend
 
-Standalone backend for the public website + CMS. **Independent deployable
-from the School Management System (SMS)** — separate repo, separate
-database, separate process, separate scaling.
+Standalone backend for the public website and CMS, with its own API,
+database, and authentication.
 
 ## What's here
 
@@ -28,30 +27,21 @@ and the public API:
 Each kernel piece is its own NestJS module with explicit `imports`/`exports`
 — no barrel module. `WebsiteModule` is a composition root only.
 
-## What's different from the original (merged-into-SMS) design
+## Authentication and authorization
 
-This backend does **not** share SMS's database, RBAC tables, or audit log.
-The single biggest adaptation is in `modules/website/auth/`:
-
-- `WebsiteAuthGuard` verifies the **signature only** of a JWT issued by SMS,
-  using SMS's RSA **public** key (`SMS_JWT_PUBLIC_KEY_PATH`). No shared
-  secret, no call back to SMS on the request path, no shared session.
-- Authorization is **this backend's own** — `WebsiteRoleAssignment` maps an
-  SMS user id (`sub` claim) to one of five fixed roles
-  (`WebsiteRole`), each with a fixed permission set (`ROLE_PERMISSIONS`).
-  This table lives only in this database.
-- Parent/teacher/admin *login* still happens in SMS; this backend only
-  verifies the token SMS issued and decides website-specific permissions
-  locally.
+CMS administrators authenticate locally with email and password. Access
+tokens are signed with `CMS_JWT_SECRET`; refresh tokens are stored hashed
+and delivered in an httpOnly cookie. The fixed `WebsiteRole` roles map to
+permissions in `ROLE_PERMISSIONS`, and CMS routes use the CMS auth and
+permission guards. `npm run bootstrap:admin` creates the initial
+administrator.
 
 ## Remaining production work
 
-- Replace `keys/sms-public-key.pem`, which is a local-development
-  placeholder, with the production SMS verification public key.
 - Configure production secrets and isolated staging/production
   infrastructure; follow the operational procedures in `docs/DEPLOYMENT.md`.
-- Provision the first `website_super_admin` role assignment and verify
-  initial site content as a controlled deployment/onboarding step.
+- Provision the first CMS administrator and verify initial site content
+  as a controlled deployment/onboarding step.
 
 ## Running locally
 

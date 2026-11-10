@@ -164,7 +164,7 @@ async function bootstrap() {
   app.use(hpp());
 
   // CORS: public content routes are open by design (cacheable,
-  // unauthenticated) and admin routes are protected by the SMS-JWT/CMS
+  // unauthenticated) and admin routes are protected by CMS
   // guards regardless of origin — CORS here only controls which origins
   // a browser will let read the response, not authorization. In
   // production, CORS_ALLOWED_ORIGINS is required (validateEnvironment
@@ -260,10 +260,9 @@ async function bootstrap() {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
-          description:
-            'SMS-issued JWT (RS256), verified against SMS_JWT_PUBLIC_KEY_PATH',
+          description: 'CMS Admin access token',
         },
-        'sms-jwt',
+        'cms-jwt',
       )
       .build();
     const document = SwaggerModule.createDocument(app, swaggerConfig);

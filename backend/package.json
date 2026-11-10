@@ -1,7 +1,7 @@
 {
   "name": "nhg-website-backend",
   "version": "0.1.0",
-  "description": "Standalone backend for the Nedaye Haghighat Educational Group public website + CMS. Independent deployable — no code or database dependency on the School Management System (SMS).",
+  "description": "Standalone backend for the Nedaye Haghighat Educational Group public website + CMS.",
   "scripts": {
     "build": "nest build",
     "start": "nest start",

@@ -45,8 +45,6 @@ describe('Application integration', () => {
       'DATABASE_USER',
       'DATABASE_PASSWORD',
       'CMS_JWT_SECRET',
-      'SMS_JWT_PUBLIC_KEY_PATH',
-      'SMS_JWT_ISSUER',
     ];
     const missing = requiredEnvironment.filter((key) => !process.env[key]);
     if (missing.length > 0) {

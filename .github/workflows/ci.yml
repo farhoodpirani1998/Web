@@ -80,8 +80,6 @@ jobs:
       DATABASE_PASSWORD: test-password
       DATABASE_SYNCHRONIZE: "false"
       CMS_JWT_SECRET: integration-test-secret-that-is-at-least-32-characters
-      SMS_JWT_PUBLIC_KEY_PATH: ./keys/sms-public-key.pem
-      SMS_JWT_ISSUER: nhg-sms
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
       STORAGE_DRIVER: local

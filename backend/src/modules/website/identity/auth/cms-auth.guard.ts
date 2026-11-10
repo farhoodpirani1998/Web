@@ -10,26 +10,16 @@ import { CmsJwtPayload } from './cms-jwt-payload.interface';
 import { WebsiteRole } from '../../auth/website-role.enum';
 
 /**
- * Verifies a CMS access token's signature/issuer/expiry and attaches
- * the decoded identity to `request.user`. This is the CMS Admin
- * counterpart to `WebsiteAuthGuard` (`auth/website-auth.guard.ts`) —
- * same shape/role, but intentionally not reused from or merged with
- * it: that guard trusts SMS's externally-issued RS256 tokens against
- * SMS's public key, while this guard verifies tokens *this backend
- * itself issued* (`CmsAuthService.login`) against a local HS256
- * secret. Sharing one guard between the two would mean a token from
- * either system could plausibly authenticate the other's routes,
- * exactly the coupling the architecture decision (see
- * `CmsAdminUser`'s doc comment) rules out.
+ * Verifies a CMS access token's signature, issuer, and expiry, then
+ * attaches the decoded identity to `request.user`.
  *
- * Stateless by design, same as `WebsiteAuthGuard`: no database lookup
- * happens here, only signature/issuer/expiry verification. That means
+ * Stateless by design: no database lookup happens here, only
+ * signature/issuer/expiry verification. That means
  * deactivating a `CmsAdminUser` (`isActive = false`) does not
  * invalidate an access token already issued to them — it only
  * prevents *new* logins and is reflected the next time `GET
  * /admin/auth/me` re-reads the row. This is an accepted, documented
- * tradeoff (see Sprint 2.3A report's Security Decisions and Sprint
- * 2.3B's Remaining Work) mitigated by a short token expiry
+ * tradeoff mitigated by a short token expiry
  * (`CMS_JWT_EXPIRES_IN`); a revocation list or refresh-token scheme
  * remains explicitly out of scope.
  *

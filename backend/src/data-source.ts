@@ -5,8 +5,6 @@ config();
 
 /**
  * Used only by the TypeORM CLI for generating/running migrations.
- * Independent from SMS's data source entirely — separate connection,
- * separate credentials, separate database.
  *
  * TypeScript globs are for `npm run migration:run` (ts-node). Compiled
  * globs are for the production image (`npm run migration:run:prod`),

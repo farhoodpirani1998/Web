@@ -6,9 +6,8 @@
  * pattern used by the public frontend (`frontend/src/shared/config/env.ts`).
  *
  * Sprint 2.4A scope: adds `adminApiBaseUrl` for the CMS admin API client.
- * This must only ever point at the CMS admin API (`/admin/auth/...`) —
- * never the SMS/public API base URL. See `frontend/.env.example` for the
- * contrasting public-API-only variable this deliberately does not reuse.
+ * This points at the CMS admin API (`/admin/auth/...`). The public
+ * frontend uses a separate `/public` API base URL.
  */
 
 function requireEnv(name: keyof ImportMetaEnv, fallback?: string): string {
@@ -25,9 +24,8 @@ function requireEnv(name: keyof ImportMetaEnv, fallback?: string): string {
 
 export const env = {
   /**
-   * Base URL of the CMS admin API (never the SMS/public API — CMS admin
-   * auth is entirely independent, per the Sprint 2.4A architecture
-   * context). Endpoint functions append paths like `/auth/login` to this,
+   * Base URL of the CMS admin API. Endpoint functions append paths like
+   * `/auth/login` to this,
    * matching the NestJS `@Controller('admin/auth')` route prefix.
    */
   adminApiBaseUrl: requireEnv(

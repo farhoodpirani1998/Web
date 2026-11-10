@@ -10,7 +10,7 @@ import { PermissionGate } from "@/components/ui/PermissionGate";
 import { Section } from "@/components/ui/Section";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { ApiError } from "@/lib/apiError";
-import { useToast } from "@/components/ui/ToastProvider";
+import { useToast } from "@/components/ui/ToastContext";
 
 import { archiveMedia, deleteMedia } from "./api";
 import { evictCachedMedia, setCachedMedia } from "./mediaCache";

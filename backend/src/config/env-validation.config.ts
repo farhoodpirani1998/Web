@@ -13,7 +13,6 @@ import {
   ValidateIf,
   validateSync,
 } from 'class-validator';
-import { existsSync, readFileSync } from 'fs';
 
 enum NodeEnvironment {
   Development = 'development',
@@ -28,7 +27,7 @@ enum StorageDriver {
 
 /**
  * Shape of every environment variable this backend reads anywhere in the
- * app (see app.module.ts, data-source.ts, website-auth.guard.ts, and the
+ * app (see app.module.ts, data-source.ts, CMS auth, and the
  * media module's storage providers). This class only describes and
  * validates that shape — it doesn't change how any of those places
  * consume the values once ConfigModule/`process.env` hands them out.
@@ -75,19 +74,10 @@ class EnvironmentVariables {
   @IsIn(['true', 'false'])
   DATABASE_SYNCHRONIZE?: string;
 
-  // --- SMS identity trust (see website-auth.guard.ts) ---
-  @IsString()
-  @IsNotEmpty()
-  SMS_JWT_PUBLIC_KEY_PATH!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  SMS_JWT_ISSUER!: string;
-
   // --- CMS Admin local identity (see modules/website/identity/auth/) ---
   // Symmetric (HS256) secret used only to sign/verify CMS Admin access
-  // tokens. Entirely independent from SMS_JWT_PUBLIC_KEY_PATH above:
-  // this backend is the *issuer* here, not a verifier of someone
+  // tokens.
+  // This backend is the *issuer* here, not a verifier of someone
   // else's asymmetric keypair, so a shared secret is sufficient and
   // simpler — there's no second party that needs to verify these
   // tokens without also being able to mint them. Required, with no
@@ -434,8 +424,8 @@ class EnvironmentVariables {
 /**
  * Passed as `ConfigModule.forRoot({ validate })` in app.module.ts. Runs
  * once, synchronously, as part of evaluating that `forRoot()` call —
- * before any other provider (the TypeORM connection, the SMS JWT guard,
- * the storage providers) gets a chance to read `process.env` or
+ * before any other provider (the TypeORM connection, the storage
+ * providers) gets a chance to read `process.env` or
  * ConfigService itself. A missing or malformed variable fails startup
  * immediately with one readable list, instead of surfacing later as a
  * raw ENOENT, a TypeORM connection error, or a `getOrThrow` "not found"
@@ -455,15 +445,6 @@ export function validateEnvironment(
     Object.values(error.constraints ?? {}),
   );
 
-  // Shape is valid at this point; confirming the JWT public key actually
-  // exists and looks like a PEM key needs the filesystem, not a
-  // class-validator decorator, so it runs as a separate step.
-  if (messages.length === 0) {
-    messages.push(
-      ...validateSmsPublicKey(validatedConfig.SMS_JWT_PUBLIC_KEY_PATH),
-    );
-  }
-
   if (messages.length > 0) {
     throw new Error(
       `Invalid environment configuration:\n${messages.map((m) => `  - ${m}`).join('\n')}`,
@@ -471,28 +452,4 @@ export function validateEnvironment(
   }
 
   return validatedConfig;
-}
-
-function validateSmsPublicKey(keyPath: string): string[] {
-  if (!existsSync(keyPath)) {
-    return [
-      `SMS_JWT_PUBLIC_KEY_PATH does not point to an existing file: "${keyPath}"`,
-    ];
-  }
-  try {
-    const contents = readFileSync(keyPath, 'utf8');
-    if (
-      !contents.includes('BEGIN PUBLIC KEY') &&
-      !contents.includes('BEGIN RSA PUBLIC KEY')
-    ) {
-      return [
-        `SMS_JWT_PUBLIC_KEY_PATH ("${keyPath}") does not look like a PEM public key`,
-      ];
-    }
-  } catch (err) {
-    return [
-      `SMS_JWT_PUBLIC_KEY_PATH ("${keyPath}") could not be read: ${(err as Error).message}`,
-    ];
-  }
-  return [];
 }

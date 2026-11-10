@@ -1,6 +1,4 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { QueryResult } from 'typeorm/browser';
-
 /**
  * Adds the Statistics CMS module: the `statistics` table — the same
  * structural/list-content shape as `features` (translatable `label`,

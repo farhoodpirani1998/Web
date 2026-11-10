@@ -12,9 +12,7 @@ import { normalizeApiError } from "./apiError";
  * The single, exclusive HTTP client for the CMS Admin API.
  *
  * Rules enforced here:
- * - Base URL points only at the CMS admin API (`env.adminApiBaseUrl`) —
- *   this codebase has no code path capable of reaching the SMS/public
- *   API, and must not gain one (see Sprint 2.4A architecture context).
+ * - Base URL points only at the CMS admin API (`env.adminApiBaseUrl`).
  * - Every request that has a token attaches it as a Bearer token.
  * - Every error is normalized into an `ApiError` before it leaves this
  *   module, so calling code never parses raw HTTP responses.

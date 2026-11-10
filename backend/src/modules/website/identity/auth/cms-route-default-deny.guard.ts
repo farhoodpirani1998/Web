@@ -7,8 +7,6 @@ import {
 } from '@nestjs/common';
 import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { Reflector } from '@nestjs/core';
-import { WebsiteAuthGuard } from '../../auth/website-auth.guard';
-import { PERMISSION_KEY } from '../../auth/website-permission.constants';
 import { CmsAuthGuard } from './cms-auth.guard';
 import { CMS_PERMISSION_KEY } from './cms-permission.constants';
 import { CMS_ANONYMOUS_ENTRY_KEY } from './cms-route-authorization.constants';
@@ -16,17 +14,12 @@ import { CMS_ANONYMOUS_ENTRY_KEY } from './cms-route-authorization.constants';
 /**
  * Guards that already verify an identity and put it on `request.user`.
  * A route carrying one of these has declared its auth policy, even when the
- * decorator that applied it sets no metadata of its own
- * (`RequireWebsiteSuperAdmin` is exactly that case).
+ * decorator that applied it sets no metadata of its own.
  */
-const IDENTITY_GUARDS = [CmsAuthGuard, WebsiteAuthGuard] as const;
+const IDENTITY_GUARDS = [CmsAuthGuard] as const;
 
 /** Metadata keys that each mean "this route's auth policy was declared". */
-const POLICY_KEYS = [
-  CMS_PERMISSION_KEY,
-  PERMISSION_KEY,
-  CMS_ANONYMOUS_ENTRY_KEY,
-] as const;
+const POLICY_KEYS = [CMS_PERMISSION_KEY, CMS_ANONYMOUS_ENTRY_KEY] as const;
 
 const CMS_PATH_ROOT = '/admin';
 
@@ -49,12 +42,11 @@ function isIdentityGuard(entry: unknown): boolean {
 /**
  * Fails closed on every `/admin/*` route nobody gave an auth policy to.
  *
- * `CmsPermissionGuard` and `WebsitePermissionGuard` both answer "no
- * permission was required here" by returning `true`, which is the right call
- * for a guard whose only job is the permission check — but it means coverage
- * depended entirely on every future controller author remembering to put a
- * decorator on. All 26 CMS controllers are covered today; this guard is what
- * makes "forgot the decorator" a 403 instead of an unauthenticated write.
+ * `CmsPermissionGuard` answers "no permission was required here" by
+ * returning `true`, which is the right call for a guard whose only job
+ * is the permission check — but it means coverage depends on every
+ * controller author remembering to put a decorator on. This guard
+ * makes a missing decorator a 403 instead of an unauthenticated write.
  *
  * Registered as `APP_GUARD` after `ThrottlerGuard`, and it deliberately reads
  * metadata rather than `request.user`: global guards run before controller
@@ -83,7 +75,7 @@ export class CmsRouteDefaultDenyGuard implements CanActivate {
     const handlerName = context.getHandler()?.name ?? 'unknown';
     this.logger.error(
       `Blocked ${request.method} ${request.path}: handler ${handlerName} declares no auth policy. ` +
-        `Add @RequireCmsPermission(), @RequireWebsitePermission(), an identity guard, ` +
+        `Add @RequireCmsPermission(), an identity guard, ` +
         `or @AllowAnonymousCmsEntry() if it is a token entrypoint.`,
     );
     throw new ForbiddenException('Route authorization policy not declared');

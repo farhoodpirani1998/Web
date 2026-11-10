@@ -7,15 +7,13 @@ This deployment runs the public site, admin app, and NestJS API behind Caddy. Ca
 - Docker Engine and the `docker compose` plugin.
 - A server with inbound TCP ports 80 and 443 available (UDP 443 is optional for HTTP/3).
 - Public DNS A/AAAA records for the site, admin, and API hostnames pointing to that server. Do not publish an AAAA record unless IPv6 reaches the server.
-- A production SMS JWT verification **public** key file. Never mount the SMS private key.
 
 ## Configure
 
-1. Copy the root `.env.example` to `.env` and set real hostnames, database credentials, the public key file path, and exact allowed browser origins. The root `.env` is ignored by Git.
+1. Copy the root `.env.example` to `.env` and set real hostnames, database credentials, and exact allowed browser origins. The root `.env` is ignored by Git.
 2. Create `backend/.env` from `backend/.env.example`. For a production deployment, supply `CMS_JWT_SECRET` from a secrets manager or generate a strong value with `openssl rand -hex 32`; keep it at least 32 characters, and do not commit the file. `setup.sh` generates a local development value when the field is blank and rejects values shorter than 32 characters.
-3. Set `SMS_JWT_PUBLIC_KEY_FILE` in root `.env` to the absolute or project-relative path of the production public key. Its path must exist on the Docker host.
-4. Make sure `DATABASE_NAME` and `DATABASE_USER` agree between root `.env` and `backend/.env`. Compose overrides the backend database host, credentials, Redis host, CORS origins, TLS-related cookie settings, and production mode.
-5. Replace the placeholder SMS public key and any sample credentials before going live. Do not use `.env.example` values in production.
+3. Make sure `DATABASE_NAME` and `DATABASE_USER` agree between root `.env` and `backend/.env`. Compose overrides the backend database host, credentials, Redis host, CORS origins, TLS-related cookie settings, and production mode.
+4. Replace all sample credentials before going live. Do not use `.env.example` values in production.
 
 ## Start
 
