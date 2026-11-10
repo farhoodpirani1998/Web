@@ -2,7 +2,7 @@
   "name": "website-admin",
   "private": true,
   "version": "0.1.0",
-  "description": "Nedaye Haghighat Educational Group — CMS Admin Panel Frontend (foundation scaffold)",
+  "description": "Nedaye Haghighat Educational Group — CMS Admin Panel",
   "type": "module",
   "engines": {
     "node": ">=22.12.0"

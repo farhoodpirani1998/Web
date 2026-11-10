@@ -8,6 +8,8 @@ This deployment runs the public site, admin app, and NestJS API behind Caddy. Ca
 - A server with inbound TCP ports 80 and 443 available (UDP 443 is optional for HTTP/3).
 - Public DNS A/AAAA records for the site, admin, and API hostnames pointing to that server. Do not publish an AAAA record unless IPv6 reaches the server.
 
+For development outside Docker, the frontend declares Node.js `>=18.18.0`, the admin declares `>=22.12.0`, and the backend has no `engines` declaration. CI and all three Dockerfiles use Node 22; Node 22 is the common local runtime.
+
 ## Configure
 
 1. Copy the root `.env.example` to `.env` and set real hostnames, database credentials, and exact allowed browser origins. The root `.env` is ignored by Git.
@@ -79,6 +81,8 @@ sh ops/staging-bootstrap.sh
 The bootstrap script builds and starts Compose, waits for `/health`, runs `npm run migration:run:prod` inside the backend container, and creates the first Super Admin when those two env vars are set. It refuses to create a second admin; that is expected on later deploys. Confirm the public site and admin shell load in the browser after DNS and certificates are in place.
 
 This repository does not deploy to staging or production automatically.
+
+GitHub Actions uses Node 22. It builds and tests all three applications, runs admin lint, runs backend migrations and e2e tests with PostgreSQL and Redis, and builds the three images. The workflow does not run the frontend lint or the full backend source lint script.
 
 ## Smoke test
 

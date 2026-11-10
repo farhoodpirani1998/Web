@@ -1,57 +1,61 @@
-# Admin Panel — Frontend
+# CMS Admin Panel
 
-CMS Admin Panel frontend for Nedaye Haghighat Educational Group. A
-separate application from `../frontend` (the public website), sharing
-the same backend (`../backend`, NestJS) as its eventual API.
+The authenticated content-management application for Nedaye Haghighat. It is a separate React SPA from `../frontend` and uses the NestJS API in `../backend`.
 
-## Status
+## Current functionality
 
-The admin includes persistent authentication, permission-gated routes
-and controls, and CMS management screens for site content and
-administration. Login uses an httpOnly refresh-token cookie to restore
-sessions; the access token stays in memory only. See
-`src/features/auth/AuthProvider.tsx`, `src/features/auth/authStore.ts`,
-and `../backend/src/modules/website/identity/auth/` for the session
-flow and token rotation details.
+The admin provides local CMS authentication with persistent refresh sessions, role- and permission-protected routes, CMS content editing, media management, incoming form submissions, administrator management, and an audit log. The access token is held in memory; the refresh token is delivered in an httpOnly cookie.
 
-## Stack
+The route tree is defined in `src/routes/index.tsx`. It includes:
 
-- React 18
-- Vite 5
-- TypeScript 5 (strict)
-- Tailwind CSS 3
+- Overview and content: dashboard, pages, news, events, gallery, hero slides, FAQs, and textbooks.
+- Site sections: about, achievements, academic calendar, admissions, CTA, features, statistics, testimonials, and trust badges.
+- People and navigation: campuses and campus map, teachers, menus, and portal links.
+- Submissions and administration: pre-registrations, contact messages, newsletter subscribers, audit log, admin users, and settings.
+- Login and not-found routes.
+
+Access to admin routes is checked by the route guard and permission map; the sidebar filters links using the same access rules.
+
+## Stack and requirements
+
+- Node.js `>=22.12.0` (from `package.json`; CI and Docker use Node 22)
+- React 18, TypeScript, Vite 8, React Router 7, TanStack Query 5, and TanStack Table 9
+- React Hook Form and Zod for forms; Tailwind CSS and Lucide React for UI
+- Vitest and Testing Library for tests
 
 ## Getting started
 
+Configure `VITE_ADMIN_API_BASE_URL` in `.env` if the API is not at its local default. The backend must allow the admin origin in `CORS_ALLOWED_ORIGINS` when the browser and API use different origins.
+
 ```bash
-npm install
-npm run dev       # start dev server (http://localhost:5174)
-npm run build     # type-check + production build
-npm run typecheck # type-check only
-npm run lint      # eslint
-npm run format    # prettier --write
+npm ci
+npm run dev
 ```
 
-## Project structure
+Vite serves the app at `http://localhost:5174` by default.
 
-```
-src/
- ├── app/        # Root App component (composition root)
- ├── pages/      # Route-level page components
- ├── features/   # Feature-sliced CMS modules (auth/ so far — 2.4A)
- ├── routes/     # Router configuration
- ├── components/ # Shared/reusable UI components
- ├── lib/        # Shared utilities (env config, API client, API errors)
- ├── hooks/      # Shared React hooks                   (empty so far)
- ├── types/      # Shared TypeScript types (auth.ts — 2.4A)
- └── assets/     # Static assets, global styles
-```
+## Commands
 
-Path aliases (`@/...`) mirror this structure — see `tsconfig.app.json`.
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the Vite development server |
+| `npm run build` | Type-check and create the production build |
+| `npm run typecheck` | Type-check without emitting build output |
+| `npm run lint` | Run ESLint |
+| `npm test` | Run the Vitest suite |
+| `npm run test:watch` | Run Vitest in watch mode |
+| `npm run format` | Format files with Prettier |
+| `npm run format:check` | Check formatting without writing files |
 
-## Environment variables
+## Environment
 
-Copy `.env.example` to `.env` (or `.env.development` for local dev,
-already committed with safe defaults) before running. See
-`.env.example` for the current variable list and notes on what's
-deferred to later sprints.
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `VITE_ADMIN_API_BASE_URL` | Base URL for the CMS admin API | `http://localhost:3100/admin` |
+| `VITE_APP_ENV` | Non-sensitive environment label | `development` |
+
+Only variables prefixed with `VITE_` are exposed to the browser. Do not put credentials or secrets in this file.
+
+## Source layout
+
+`src/app/` composes providers and the root component; `src/routes/` defines routes, navigation, and access rules; `src/features/` contains auth and CMS features; `src/pages/` contains route-level page compositions; and `src/components/`, `src/hooks/`, and `src/lib/` provide shared UI, hooks, and API utilities.
