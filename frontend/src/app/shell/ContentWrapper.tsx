@@ -18,7 +18,7 @@ export interface ContentWrapperProps extends React.HTMLAttributes<HTMLElement> {
  */
 export function ContentWrapper({ children, className, ...props }: ContentWrapperProps) {
   return (
-    <main id="main-content" className={cn("flex-1", className)} {...props}>
+    <main id="main-content" tabIndex={-1} className={cn("flex-1", className)} {...props}>
       {children}
     </main>
   );

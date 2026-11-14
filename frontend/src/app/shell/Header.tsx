@@ -113,7 +113,7 @@ export function Header() {
             <BrandMark className="h-12 w-12 shrink-0 transition-transform duration-300 group-hover:scale-105 sm:h-14 sm:w-14" />
           )}
           <span className="flex min-w-0 flex-col leading-tight">
-            <span className="max-w-[12rem] truncate font-heading text-lg font-bold tracking-tight text-foreground sm:max-w-none sm:text-xl">
+            <span className="max-w-[9rem] truncate font-heading text-lg font-bold tracking-tight text-foreground sm:max-w-none sm:text-xl">
               {siteName}
             </span>
             <span className="text-xs font-medium tracking-wide text-brand-gold">

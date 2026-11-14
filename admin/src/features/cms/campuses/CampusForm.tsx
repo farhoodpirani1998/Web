@@ -211,9 +211,14 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
             dir="ltr"
             {...register("latitude")}
             aria-invalid={!!errors.latitude}
-            aria-describedby={errors.latitude ? "latitude-error" : undefined}
+            aria-describedby={
+              errors.latitude ? "latitude-guidance latitude-error" : "latitude-guidance"
+            }
             className="w-full rounded border px-3 py-2 text-sm"
           />
+          <span id="latitude-guidance" className="text-xs text-slate-500">
+            از Google Maps مختصات را کپی کنید، عدد اول عرض و عدد دوم طول است
+          </span>
           {errors.latitude && (
             <span id="latitude-error" className="text-xs text-red-600">
               {errors.latitude.message}
@@ -338,11 +343,11 @@ export function CampusForm({ campus, onCancel, onSaved }: CampusFormProps) {
           <input type="checkbox" {...register("noindex")} /> جلوگیری از نمایه‌سازی
         </label>
       </div>
-      {mapUrl || (latitude && longitude) ? (
+      {mapUrl || (latitude?.trim() && longitude?.trim()) ? (
         <CampusMapEmbed
           mapUrl={mapUrl}
-          latitude={latitude ? Number(latitude) : undefined}
-          longitude={longitude ? Number(longitude) : undefined}
+          latitude={latitude?.trim() ? Number(latitude) : undefined}
+          longitude={longitude?.trim() ? Number(longitude) : undefined}
           title="موقعیت پردیس"
         />
       ) : null}

@@ -1,13 +1,10 @@
 import * as React from "react";
-import { useEffect } from "react";
 
 import { SkipLink } from "@/shared/design-system/components/SkipLink";
 import { Header } from "@/app/shell/Header";
 import { ContentWrapper } from "@/app/shell/ContentWrapper";
 import { Footer } from "@/app/shell/Footer";
 import { SiteSettingsHead } from "@/features/site";
-
-const HOLO_FOIL_RUNTIME_URL = "https://cdn.aidesigner.ai/effects/runtime/v1.js";
 
 export interface AppShellProps {
   children: React.ReactNode;
@@ -37,16 +34,6 @@ export interface AppShellProps {
  * `Header`.
  */
 export function AppShell({ children }: AppShellProps) {
-  useEffect(() => {
-    if (document.querySelector(`script[src="${HOLO_FOIL_RUNTIME_URL}"]`)) return;
-
-    const script = document.createElement("script");
-    script.src = HOLO_FOIL_RUNTIME_URL;
-    script.async = true;
-    script.onerror = () => console.error("Failed to load the visual effects runtime.");
-    document.head.appendChild(script);
-  }, []);
-
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <SkipLink />

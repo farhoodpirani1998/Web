@@ -20,6 +20,9 @@ export interface TextbookStorage {
     data: Buffer,
     originalName: string,
   ): Promise<{ key: string; size: number; checksum: string }>;
+  saveCover(
+    data: Buffer,
+  ): Promise<{ key: string; size: number; checksum: string }>;
   remove(key: string): Promise<void>;
   open(key: string, range?: TextbookByteRange): Promise<TextbookStoredFile>;
 }

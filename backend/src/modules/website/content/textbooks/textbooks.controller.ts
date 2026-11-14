@@ -14,6 +14,7 @@ import {
   Query,
   Req,
   Res,
+  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -65,6 +66,12 @@ export class TextbooksController {
       subject,
       year,
     });
+  }
+
+  @Get('stats')
+  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
+  stats() {
+    return this.textbooks.getStats();
   }
 
   @Get(':id')
@@ -124,6 +131,22 @@ export class TextbooksController {
     return book;
   }
 
+  @Post(':id/cover')
+  @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024 } }),
+  )
+  async uploadCover(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile() file: Express.Multer.File | undefined,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    if (!file) throw new BadRequestException('تصویر جلد الزامی است.');
+    const book = await this.textbooks.uploadCover(id, file);
+    await this.audit('cover-upload', book.id, request);
+    return book;
+  }
+
   @Delete(':id')
   @RequireCmsPermission(WebsitePermission.CONTENT_WRITE)
   async remove(
@@ -133,12 +156,6 @@ export class TextbooksController {
     await this.textbooks.remove(id);
     await this.audit('delete', id, request);
     return { success: true };
-  }
-
-  @Get('stats')
-  @RequireCmsPermission(WebsitePermission.CONTENT_READ)
-  stats() {
-    return this.textbooks.getStats();
   }
 
   private audit(action: string, id: string, request: AuthenticatedRequest) {
@@ -276,8 +293,24 @@ export class PublicTextbooksController {
       licenseNote: book.licenseNote,
       downloadCount: book.downloadCount,
       createdAt: book.createdAt,
+      coverUrl: this.textbooks.getCoverUrl(book),
       downloadUrl: `/api/public/textbooks/${encodeURIComponent(book.slug)}/download`,
     };
+  }
+
+  @Get(':slug/cover')
+  async cover(
+    @Param('slug') slug: string,
+    @Res({ passthrough: true }) response: ExpressResponse,
+  ) {
+    const { file, contentType } = await this.textbooks.getCover(slug);
+    response.setHeader(
+      'Cache-Control',
+      'public, max-age=60, stale-while-revalidate=300',
+    );
+    response.setHeader('Content-Type', contentType);
+    response.setHeader('X-Content-Type-Options', 'nosniff');
+    return new StreamableFile(file.stream);
   }
 
   @Get(':slug/download')
@@ -360,6 +393,7 @@ export class PublicTextbooksController {
     } else {
       response.status(200);
     }
+    await this.textbooks.recordDownload(book, request.ip);
     file.stream.on('error', () => response.status(500).end());
     file.stream.pipe(response);
   }

@@ -47,7 +47,10 @@ export class PublishingService {
         ...updatedPayload,
         publishedAt: new Date(),
       };
-      await this.events.emitAsync(WEBSITE_EVENTS.CONTENT_PUBLISHED, publishedPayload);
+      await this.events.emitAsync(
+        WEBSITE_EVENTS.CONTENT_PUBLISHED,
+        publishedPayload,
+      );
     }
 
     return params.to;

@@ -13,11 +13,14 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:seo": "playwright test e2e/SeoCrawlability.spec.ts",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc -b --noEmit"
+    "typecheck": "tsc -b --noEmit",
+    "measure:bundle": "node scripts/measure-bundle.mjs",
+    "test:a11y": "playwright test e2e/AccessibilitySmoke.spec.ts"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.0",
@@ -26,6 +29,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.446.0",
+    "maplibre-gl": "^6.17.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2",

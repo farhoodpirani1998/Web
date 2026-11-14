@@ -25,14 +25,9 @@ fi
 
 previous_tag="$1"
 
-if [ "${2:-}" = "--with-db-restore" ]; then
-  if [ "$#" -ne 4 ]; then
-    echo "Usage: $0 <previous-RELEASE_TAG> --with-db-restore path/to.dump new_database_name" >&2
-    exit 2
-  fi
-  echo "Restoring database into a new name before switching containers..."
-  sh ops/restore-postgres-to-new-db.sh "$3" "$4"
-  echo "Point DATABASE_NAME at $4 in root .env and backend/.env after you verify the restored data."
+if [ "${2:-}" = "--with-db-restore" ] && [ "$#" -ne 4 ]; then
+  echo "Usage: $0 <previous-RELEASE_TAG> --with-db-restore path/to.dump new_database_name" >&2
+  exit 2
 fi
 
 if ! docker image inspect "nhg-website-backend:${previous_tag}" >/dev/null 2>&1 \
@@ -41,6 +36,14 @@ if ! docker image inspect "nhg-website-backend:${previous_tag}" >/dev/null 2>&1 
   echo "One or more images for RELEASE_TAG=${previous_tag} are missing locally." >&2
   echo "Check out that git revision and rebuild, or load the images from your registry." >&2
   exit 1
+fi
+
+if [ "${2:-}" = "--with-db-restore" ]; then
+  echo "Restoring database into a new name; containers will not be changed."
+  sh ops/restore-postgres-to-new-db.sh "$3" "$4"
+  printf 'Verify the restored data, then point DATABASE_NAME at %s in root .env and backend/.env.\n' "$4"
+  printf 'After updating configuration, run: sh ops/rollback.sh %s\n' "$previous_tag"
+  exit 0
 fi
 
 RELEASE_TAG="$previous_tag" docker compose up -d --no-build

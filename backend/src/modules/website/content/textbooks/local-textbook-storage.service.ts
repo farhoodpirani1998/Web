@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { createHash, randomUUID } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { mkdir, realpath, rm, stat, writeFile } from 'node:fs/promises';
@@ -18,6 +22,8 @@ import { TextbookByteRange } from './textbook-storage.interface';
 
 const PDF_MAGIC = Buffer.from('%PDF-');
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
+const MAX_COVER_SIZE = 5 * 1024 * 1024;
+const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 @Injectable()
 export class LocalTextbookStorageService implements TextbookStorage {
@@ -41,6 +47,29 @@ export class LocalTextbookStorageService implements TextbookStorage {
       throw new Error('پسوند فایل باید PDF باشد.');
     }
     const key = `${randomUUID()}.pdf`;
+    const resolvedPath = await this.resolveKey(key);
+    await mkdir(dirname(resolvedPath), { recursive: true });
+    await writeFile(resolvedPath, data, { flag: 'wx' });
+    return {
+      key,
+      size: data.length,
+      checksum: createHash('sha256').update(data).digest('hex'),
+    };
+  }
+
+  async saveCover(data: Buffer) {
+    if (data.length > MAX_COVER_SIZE) {
+      throw new BadRequestException('حجم تصویر جلد نباید بیشتر از ۵ مگابایت باشد.');
+    }
+
+    const extension = this.coverExtension(data);
+    if (!extension) {
+      throw new BadRequestException(
+        'فرمت تصویر جلد باید JPEG، PNG یا WebP باشد.',
+      );
+    }
+
+    const key = `${randomUUID()}.${extension}`;
     const resolvedPath = await this.resolveKey(key);
     await mkdir(dirname(resolvedPath), { recursive: true });
     await writeFile(resolvedPath, data, { flag: 'wx' });
@@ -100,7 +129,9 @@ export class LocalTextbookStorageService implements TextbookStorage {
     }
 
     const candidateParent = dirname(resolved);
-    const realParent = await realpath(candidateParent).catch(() => candidateParent);
+    const realParent = await realpath(candidateParent).catch(
+      () => candidateParent,
+    );
     const parentRelativePath = relative(root, realParent);
     const isParentWithinRoot =
       parentRelativePath === '' ||
@@ -128,6 +159,28 @@ export class LocalTextbookStorageService implements TextbookStorage {
     }
 
     return resolved;
+  }
+
+  private coverExtension(data: Buffer): 'jpg' | 'png' | 'webp' | null {
+    if (
+      data.length >= 3 &&
+      data[0] === 0xff &&
+      data[1] === 0xd8 &&
+      data[2] === 0xff
+    ) {
+      return 'jpg';
+    }
+    if (data.length >= PNG_MAGIC.length && data.subarray(0, 8).equals(PNG_MAGIC)) {
+      return 'png';
+    }
+    if (
+      data.length >= 12 &&
+      data.toString('ascii', 0, 4) === 'RIFF' &&
+      data.toString('ascii', 8, 12) === 'WEBP'
+    ) {
+      return 'webp';
+    }
+    return null;
   }
 
   private async ensureRoot(): Promise<string> {

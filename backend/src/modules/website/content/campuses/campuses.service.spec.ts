@@ -214,6 +214,30 @@ describe('CampusesService', () => {
       expect(redis.delete).toHaveBeenCalledWith('public-api:campuses:list');
     });
 
+    it('clears coordinates when explicitly set to null', async () => {
+      repo.findOneByOrFail.mockResolvedValue({
+        id: 'campus-1',
+        siteId,
+        slug: 'map-campus',
+        latitude: 35.7,
+        longitude: 51.42,
+        status: PublishStatus.DRAFT,
+      });
+
+      const result = await service.update(
+        'campus-1',
+        { latitude: null, longitude: null },
+        'author-1',
+      );
+
+      expect(result.latitude).toBeNull();
+      expect(result.longitude).toBeNull();
+      expect(redis.delete).toHaveBeenCalledWith(
+        'public-api:campuses:detail:map-campus',
+      );
+      expect(redis.delete).toHaveBeenCalledWith('public-api:campuses:list');
+    });
+
     it('re-checks slug uniqueness only when the slug actually changes', async () => {
       repo.findOneByOrFail.mockResolvedValue({
         id: 'campus-1',

@@ -13,6 +13,8 @@ import {
   deleteTextbook,
   fetchTextbookTaxonomies,
   fetchTextbooks,
+  uploadTextbookCover,
+  uploadTextbook,
   updateTextbook,
   updateTextbookStatus,
 } from "./api";
@@ -34,9 +36,14 @@ const STATUS_LABELS: Record<CmsTextbookStatus, string> = {
 function availableStatuses(
   sourceType: CmsTextbookSourceType,
   currentStatus: CmsTextbookStatus,
+  hasSelectedFile = false,
 ): CmsTextbookStatus[] {
   const statuses: CmsTextbookStatus[] = ["draft", "archived"];
-  if (sourceType === "EXTERNAL_LINK" || currentStatus === "published") {
+  if (
+    sourceType === "EXTERNAL_LINK" ||
+    currentStatus === "published" ||
+    hasSelectedFile
+  ) {
     statuses.splice(1, 0, "published");
   }
   return statuses;
@@ -126,8 +133,20 @@ function asPayload(values: BookForm, book: CmsTextbook | null): TextbookPayload 
   };
 }
 
+function errorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error && error.message ? error.message : fallback;
+}
+
 export function TextbooksPage() {
+  const pageLimit = 20;
   const [books, setBooks] = useState<CmsTextbook[]>([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: pageLimit,
+    total: 0,
+    totalPages: 1,
+  });
+  const [page, setPage] = useState(1);
   const [taxonomies, setTaxonomies] = useState<CmsTextbookTaxonomy[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -135,15 +154,22 @@ export function TextbooksPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<CmsTextbook | null>(null);
   const [form, setForm] = useState<BookForm>({ ...EMPTY_FORM });
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [savedPayload, setSavedPayload] = useState<TextbookPayload | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [busyBookId, setBusyBookId] = useState<string | null>(null);
 
-  const loadBooks = useCallback(async () => {
+  const loadBooks = useCallback(async (requestedPage: number) => {
     setIsLoading(true);
     setLoadError(null);
     try {
-      const result = await fetchTextbooks();
+      const result = await fetchTextbooks(requestedPage, pageLimit);
       setBooks(result.items);
+      setPagination(result.meta);
+      if (requestedPage > Math.max(1, result.meta.totalPages)) {
+        setPage(Math.max(1, result.meta.totalPages));
+      }
     } catch (error) {
       setLoadError(
         error instanceof ApiError ? error.message : "بارگذاری کتاب‌ها انجام نشد.",
@@ -154,15 +180,21 @@ export function TextbooksPage() {
   }, []);
 
   useEffect(() => {
-    void loadBooks();
+    void loadBooks(page);
+  }, [loadBooks, page]);
+
+  useEffect(() => {
     void fetchTextbookTaxonomies()
       .then(setTaxonomies)
       .catch(() => setTaxonomies([]));
-  }, [loadBooks]);
+  }, []);
 
   function openForm(book: CmsTextbook | null = null) {
     setEditing(book);
     setForm(formValues(book));
+    setPdfFile(null);
+    setCoverFile(null);
+    setSavedPayload(null);
     setActionError(null);
     setFormOpen(true);
   }
@@ -173,23 +205,65 @@ export function TextbooksPage() {
     setActionError(null);
     try {
       const payload = asPayload(form, editing);
-      let saved: CmsTextbook;
-      if (editing) {
-        saved = await updateTextbook(editing.id, payload);
-      } else {
+      let saved = editing;
+      if (!saved) {
         saved = await createTextbook(payload);
+        setEditing(saved);
+        setSavedPayload({ ...payload, slug: saved.slug });
+      } else if (JSON.stringify(payload) !== JSON.stringify(savedPayload)) {
+        saved = await updateTextbook(saved.id, payload);
+        setSavedPayload({ ...payload, slug: saved.slug });
+      }
+      if (form.sourceType === "UPLOADED" && pdfFile) {
+        try {
+          await uploadTextbook(saved.id, pdfFile);
+        } catch (error) {
+          setActionError(
+            `اطلاعات کتاب ذخیره شد، اما بارگذاری PDF انجام نشد. برای تلاش دوباره، «ذخیره» را انتخاب کنید. ${errorMessage(error, "بارگذاری فایل ناموفق بود.")}`,
+          );
+          await loadBooks(page);
+          return;
+        }
+        setPdfFile(null);
+      }
+      if (coverFile) {
+        try {
+          await uploadTextbookCover(saved.id, coverFile);
+        } catch (error) {
+          setActionError(
+            `اطلاعات کتاب ذخیره شد، اما بارگذاری تصویر جلد انجام نشد. برای تلاش دوباره، «ذخیره» را انتخاب کنید. ${errorMessage(error, "بارگذاری تصویر ناموفق بود.")}`,
+          );
+          await loadBooks(page);
+          return;
+        }
+        setCoverFile(null);
       }
       if (saved.status !== form.status) {
         saved = await updateTextbookStatus(saved.id, form.status);
       }
       setFormOpen(false);
       setEditing(null);
-      await loadBooks();
+      setPdfFile(null);
+      setCoverFile(null);
+      setSavedPayload(null);
+      await loadBooks(page);
     } catch (error) {
-      setActionError(error instanceof ApiError ? error.message : "ذخیره کتاب انجام نشد.");
+      setActionError(errorMessage(error, "ذخیره کتاب انجام نشد."));
     } finally {
       setIsSaving(false);
     }
+  }
+
+  function changeSourceType(sourceType: CmsTextbookSourceType) {
+    setForm({
+      ...form,
+      sourceType,
+      status:
+        sourceType === "UPLOADED" && form.status === "published"
+          ? "draft"
+          : form.status,
+    });
+    if (sourceType !== "UPLOADED") setPdfFile(null);
   }
 
   async function changeStatus(book: CmsTextbook, status: CmsTextbookStatus) {
@@ -215,7 +289,7 @@ export function TextbooksPage() {
     setActionError(null);
     try {
       await deleteTextbook(book.id);
-      setBooks((current) => current.filter((item) => item.id !== book.id));
+      await loadBooks(page);
     } catch (error) {
       setActionError(error instanceof ApiError ? error.message : "حذف کتاب انجام نشد.");
     } finally {
@@ -289,7 +363,7 @@ export function TextbooksPage() {
           </PermissionGate>
         </PageHeader>
         <Section>
-          {actionError ? (
+          {actionError && !formOpen ? (
             <p role="alert" className="mb-3 text-sm text-red-600">
               {actionError}
             </p>
@@ -305,7 +379,7 @@ export function TextbooksPage() {
               <button
                 type="button"
                 className="underline"
-                onClick={() => void loadBooks()}
+                onClick={() => void loadBooks(page)}
               >
                 تلاش دوباره
               </button>
@@ -395,6 +469,34 @@ export function TextbooksPage() {
               </table>
             </div>
           ) : null}
+          {!isLoading && !loadError && pagination.totalPages > 1 ? (
+            <nav
+              className="mt-4 flex items-center justify-center gap-3"
+              aria-label="صفحه‌بندی کتاب‌ها"
+            >
+              <button
+                type="button"
+                className="rounded-md border border-slate-300 px-3 py-2 text-sm disabled:opacity-50"
+                disabled={page <= 1}
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+              >
+                صفحه قبلی
+              </button>
+              <span aria-live="polite" className="text-sm text-slate-600">
+                صفحه {pagination.page} از {pagination.totalPages}، {pagination.total} کتاب
+              </span>
+              <button
+                type="button"
+                className="rounded-md border border-slate-300 px-3 py-2 text-sm disabled:opacity-50"
+                disabled={page >= pagination.totalPages}
+                onClick={() =>
+                  setPage((current) => Math.min(pagination.totalPages, current + 1))
+                }
+              >
+                صفحه بعد
+              </button>
+            </nav>
+          ) : null}
         </Section>
 
         {formOpen ? (
@@ -480,17 +582,9 @@ export function TextbooksPage() {
                   <select
                     className={inputClass}
                     value={form.sourceType}
-                    onChange={(event) => {
-                      const sourceType = event.target.value as CmsTextbookSourceType;
-                      setForm({
-                        ...form,
-                        sourceType,
-                        status:
-                          sourceType === "UPLOADED" && form.status === "published"
-                            ? "draft"
-                            : form.status,
-                      });
-                    }}
+                    onChange={(event) =>
+                      changeSourceType(event.target.value as CmsTextbookSourceType)
+                    }
                   >
                     {Object.entries(SOURCE_LABELS).map(([value, label]) => (
                       <option key={value} value={value}>
@@ -515,13 +609,49 @@ export function TextbooksPage() {
                         })
                       }
                     >
-                      {availableStatuses(form.sourceType, form.status).map((value) => (
+                      {availableStatuses(
+                        form.sourceType,
+                        form.status,
+                        Boolean(pdfFile),
+                      ).map((value) => (
                         <option key={value} value={value}>
                           {STATUS_LABELS[value]}
                         </option>
                       ))}
                     </select>
                   </PermissionGate>
+                </label>
+                {form.sourceType === "UPLOADED" ? (
+                  <label className="space-y-1 text-sm sm:col-span-2">
+                    فایل PDF {editing ? "(اختیاری برای جایگزینی)" : "(اختیاری)"}
+                    <input
+                      className={inputClass}
+                      type="file"
+                      accept="application/pdf,.pdf"
+                      aria-label="فایل PDF"
+                      onChange={(event) =>
+                        setPdfFile(event.target.files?.[0] ?? null)
+                      }
+                    />
+                    <span className="block text-xs text-slate-500">
+                      برای انتشار کتاب بارگذاری‌شده، ابتدا فایل PDF را انتخاب کنید.
+                    </span>
+                  </label>
+                ) : null}
+                <label className="space-y-1 text-sm sm:col-span-2">
+                  تصویر جلد {editing ? "(اختیاری برای جایگزینی)" : "(اختیاری)"}
+                  <input
+                    className={inputClass}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                    aria-label="تصویر جلد"
+                    onChange={(event) =>
+                      setCoverFile(event.target.files?.[0] ?? null)
+                    }
+                  />
+                  <span className="block text-xs text-slate-500">
+                    فرمت‌های JPEG، PNG و WebP؛ حداکثر ۵ مگابایت.
+                  </span>
                 </label>
                 {form.sourceType === "EXTERNAL_LINK" ? (
                   <label className="space-y-1 text-sm sm:col-span-2">

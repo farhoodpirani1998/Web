@@ -5,7 +5,9 @@ describe('PublicNewsletterController', () => {
     const newsletter = { subscribe: jest.fn().mockResolvedValue(undefined) };
     const controller = new PublicNewsletterController(newsletter as any);
 
-    const response = await controller.subscribe({ email: 'private@example.com' });
+    const response = await controller.subscribe({
+      email: 'private@example.com',
+    });
 
     expect(newsletter.subscribe).toHaveBeenCalledWith('private@example.com');
     expect(response).toEqual({

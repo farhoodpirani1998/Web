@@ -12,6 +12,34 @@ export interface PublicPaginatedResponse<T> {
   meta: PublicPaginationMeta;
 }
 
+export interface PublicTextbookTaxonomyOption {
+  value: string;
+  label: string;
+}
+
+export interface PublicTextbookTaxonomies {
+  stage: PublicTextbookTaxonomyOption[];
+  grade: PublicTextbookTaxonomyOption[];
+  field: PublicTextbookTaxonomyOption[];
+  subject: PublicTextbookTaxonomyOption[];
+  year: PublicTextbookTaxonomyOption[];
+}
+
+export type PublicTextbookSort = "title" | "year" | "sortOrder";
+export type PublicTextbookSortOrder = "ASC" | "DESC";
+
+export interface TextbookListParams {
+  page?: number;
+  q?: string;
+  stage?: string;
+  grade?: string;
+  field?: string;
+  subject?: string;
+  year?: string;
+  sort?: PublicTextbookSort;
+  order?: PublicTextbookSortOrder;
+}
+
 export interface PublicTextbookListItemDto {
   id: string;
   title: Translatable<string>;
@@ -52,5 +80,6 @@ export interface PublicTextbookDetailDto {
   licenseNote: string | null;
   downloadCount: string;
   createdAt: string;
+  coverUrl: string | null;
   downloadUrl: string;
 }

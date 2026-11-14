@@ -2,7 +2,9 @@ import { AddNewsletterSubscribers1794150000000 } from './1794150000000-AddNewsle
 
 describe('AddNewsletterSubscribers1794150000000', () => {
   it('creates a site-scoped subscriber table with unique email and date indexes', async () => {
-    const queryRunner = { query: jest.fn().mockResolvedValue(undefined) } as any;
+    const queryRunner = {
+      query: jest.fn().mockResolvedValue(undefined),
+    } as any;
     await new AddNewsletterSubscribers1794150000000().up(queryRunner);
 
     const sql = (queryRunner.query.mock.calls as unknown[][])
@@ -14,7 +16,9 @@ describe('AddNewsletterSubscribers1794150000000', () => {
   });
 
   it('drops the table on rollback', async () => {
-    const queryRunner = { query: jest.fn().mockResolvedValue(undefined) } as any;
+    const queryRunner = {
+      query: jest.fn().mockResolvedValue(undefined),
+    } as any;
     await new AddNewsletterSubscribers1794150000000().down(queryRunner);
     expect(queryRunner.query).toHaveBeenCalledWith(
       'DROP TABLE "newsletter_subscribers"',

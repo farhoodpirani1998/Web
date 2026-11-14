@@ -15,13 +15,15 @@ describe('PublicSiteSettingsController', () => {
       set: jest.fn(),
     };
     const controller = new PublicSiteSettingsController(
-      { get: jest.fn().mockResolvedValue({
-        siteName: { fa: 'نام سایت' },
-        socialLinks: [],
-        defaultSeo: {},
-        featureFlags: {},
-        workingHours,
-      }) } as never,
+      {
+        get: jest.fn().mockResolvedValue({
+          siteName: { fa: 'نام سایت' },
+          socialLinks: [],
+          defaultSeo: {},
+          featureFlags: {},
+          workingHours,
+        }),
+      } as never,
       { resolveOne: jest.fn().mockResolvedValue(null) } as never,
       {
         resolveBaseUrl: jest.fn().mockReturnValue('https://example.test'),

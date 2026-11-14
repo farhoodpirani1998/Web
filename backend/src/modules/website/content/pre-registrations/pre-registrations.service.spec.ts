@@ -109,9 +109,7 @@ describe('PreRegistrationsService', () => {
       expect(result.assignedAdminId).toBe(
         '2a1e2e60-0ed5-4db4-b826-20f592b0878e',
       );
-      expect(result.followUpAt).toEqual(
-        new Date('2026-12-01T10:00:00.000Z'),
-      );
+      expect(result.followUpAt).toEqual(new Date('2026-12-01T10:00:00.000Z'));
       expect(result.status).toBe(PreRegistrationStatus.NEW);
     });
 

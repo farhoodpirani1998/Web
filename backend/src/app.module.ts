@@ -27,7 +27,7 @@ import { validateEnvironment } from './config/env-validation.config';
         // (see src/data-source.ts), not automatically at boot. Multiple app
         // instances starting concurrently would otherwise race to apply the
         // same migration; running it as its own deploy step avoids that.
-        migrations: ['dist/migrations/*.js'],
+        migrations: ['dist/migrations/!(*.spec).js'],
         migrationsRun: false,
       }),
     }),

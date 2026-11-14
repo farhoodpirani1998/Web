@@ -153,7 +153,9 @@ describe('EventsService', () => {
       it('includes campus-specific and shared events for a campus filter', async () => {
         await service.findAll(undefined, undefined, 'campus-1');
 
-        expect(repo.createQueryBuilder.mock.results[0].value.andWhere).toHaveBeenCalledWith(
+        expect(
+          repo.createQueryBuilder.mock.results[0].value.andWhere,
+        ).toHaveBeenCalledWith(
           '(event.campusId = :campusId OR event.campusId IS NULL)',
           { campusId: 'campus-1' },
         );

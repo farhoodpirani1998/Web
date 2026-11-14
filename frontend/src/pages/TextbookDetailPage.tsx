@@ -1,7 +1,11 @@
 import { BookOpen, Download } from "lucide-react";
 import { useParams } from "react-router-dom";
 
-import { useTextbookBySlug, getTextbookDownloadUrl } from "@/features/textbooks";
+import {
+  getTextbookCoverUrl,
+  getTextbookDownloadUrl,
+  useTextbookBySlug,
+} from "@/features/textbooks";
 import {
   Badge,
   Button,
@@ -49,7 +53,7 @@ export function TextbookDetailPage() {
             </Link>
             <div className="mx-auto w-full max-w-xl">
               <MediaFrame
-                src={null}
+                src={getTextbookCoverUrl(data.coverUrl)}
                 alt={data.title.fa}
                 icon={BookOpen}
                 label="تصویر جلد موجود نیست"

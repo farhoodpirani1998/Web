@@ -180,15 +180,31 @@ The NHG frontend is a well-structured React 18 SPA with lazy-loaded routes, Type
 
 ---
 
-## Lighthouse Baseline (To Be Measured)
+## Staging Core Web Vitals (Not Measured)
 
-*Will run Lighthouse on main routes (desktop + mobile) after audit.*
+No real staging site URL or credentials are configured in this checkout: the local `.env`
+uses `localhost`, and the staging hostnames in `docs/DEPLOYMENT.md` are examples. The
+repository has no Lighthouse/Lighthouse CI dependency, executable, or CI job, and does not
+deploy staging automatically. Therefore no staging run or field Core Web Vitals result is
+available. The score ranges previously listed here were estimates, not measurements, and
+are intentionally removed.
 
-Expected baseline:
-- **Performance**: 70–80 (good lazy loading; font swap may cause brief CLS)
-- **Accessibility**: 70–80 (missing alts, heading audit needed)
-- **SEO**: 60–70 (missing robots/sitemap/structured data)
-- **Best Practices**: 85–90 (no major anti-patterns detected)
+Once an approved staging site URL is available, set `STAGING_SITE_URL` to that exact HTTPS
+URL (do not use a production URL, a placeholder, or a local build) and run from the
+repository root in PowerShell:
+
+```powershell
+if (-not $env:STAGING_SITE_URL) { throw 'Set STAGING_SITE_URL to the approved staging URL.' }
+npx --yes lighthouse@12 --version
+npx --yes lighthouse@12 "$env:STAGING_SITE_URL" --only-categories=performance --output=json --output-path=".\lighthouse-staging-mobile.json"
+npx --yes lighthouse@12 "$env:STAGING_SITE_URL" --only-categories=performance --preset=desktop --output=json --output-path=".\lighthouse-staging-desktop.json"
+```
+
+Keep the generated reports with the run date, exact URL, Lighthouse version, and device
+profile. These are repeatable **lab** measurements (including LCP, CLS, and TBT); they do
+not establish field Core Web Vitals or INP. Use real-user/CrUX field data for the 75th
+percentile Core Web Vitals assessment (LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1), when
+available for the staging origin. A local production build is not field data.
 
 ---
 

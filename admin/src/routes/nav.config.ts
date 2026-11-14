@@ -133,7 +133,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   },
   {
     id: "campuses",
-    label: "Ù¾Ø±Ø¯ÛŒØ³â€ŒÙ‡Ø§",
+    label: "پردیس‌ها",
     route: ROUTE_PATHS.ADMIN_CAMPUSES,
     group: "people",
     icon: Building2,

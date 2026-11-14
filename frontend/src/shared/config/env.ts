@@ -47,6 +47,9 @@ export const env = {
   /** Non-sensitive environment label, useful for diagnostics/logging only. */
   appEnv: requireEnv("VITE_APP_ENV", "development"),
 
+  /** Optional MapLibre-compatible style URL. Without it the map shows a school list. */
+  mapStyleUrl: import.meta.env.VITE_MAP_STYLE_URL?.trim() || undefined,
+
   isDevelopment: import.meta.env.DEV,
   isProduction: import.meta.env.PROD,
 } as const;

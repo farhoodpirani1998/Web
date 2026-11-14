@@ -55,6 +55,7 @@ export interface MobileNavigationProps {
  */
 export function MobileNavigation({ items, brandName, isLoading = false, onOpenPortal }: MobileNavigationProps) {
   const [isOpen, setIsOpen] = React.useState(false);
+  const menuButtonRef = React.useRef<HTMLButtonElement>(null);
   const location = useLocation();
 
   // Local UI state should never persist past the interaction it belongs
@@ -69,6 +70,7 @@ export function MobileNavigation({ items, brandName, isLoading = false, onOpenPo
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setIsOpen(false);
+        menuButtonRef.current?.focus();
       }
     }
 
@@ -85,6 +87,7 @@ export function MobileNavigation({ items, brandName, isLoading = false, onOpenPo
   return (
     <div className="md:hidden">
       <button
+        ref={menuButtonRef}
         type="button"
         aria-expanded={isOpen}
         aria-controls={MOBILE_NAV_PANEL_ID}

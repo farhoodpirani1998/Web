@@ -14,7 +14,9 @@ describe('SubscribeNewsletterDto', () => {
   });
 
   it('rejects invalid addresses and overlong values', async () => {
-    const dto = plainToInstance(SubscribeNewsletterDto, { email: 'not-an-email' });
+    const dto = plainToInstance(SubscribeNewsletterDto, {
+      email: 'not-an-email',
+    });
     await expect(validate(dto)).resolves.not.toHaveLength(0);
   });
 });

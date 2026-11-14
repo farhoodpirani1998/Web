@@ -8,7 +8,10 @@ export const textbookKeys = {
 };
 
 export function useTextbooks() {
-  const query = useQuery({ queryKey: textbookKeys.all, queryFn: fetchTextbooks });
+  const query = useQuery({
+    queryKey: textbookKeys.all,
+    queryFn: () => fetchTextbooks(),
+  });
   return {
     textbooks: query.data?.items ?? [],
     isLoading: query.isLoading,

@@ -135,8 +135,8 @@ export class InitSchema1784049505842 implements MigrationInterface {
         "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
         "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
         "entityType" character varying NOT NULL,
-        "entityId" uuid NOT NULL,-
-        "versionNumber" integer NO*m  NULL,
+        "entityId" uuid NOT NULL,
+        "versionNumber" integer NOT NULL,
         "snapshot" jsonb NOT NULL,
         "authorId" uuid NOT NULL,
         CONSTRAINT "PK_content_revisions" PRIMARY KEY ("id")

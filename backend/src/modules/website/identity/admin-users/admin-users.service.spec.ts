@@ -42,11 +42,12 @@ function makeRepo(superAdminOthersCount = 1) {
     }),
   };
   repo.manager = {
-    transaction: jest.fn(async (operation: (manager: any) => Promise<unknown>) =>
-      operation({
-        query: lockQuery,
-        getRepository: () => repo,
-      }),
+    transaction: jest.fn(
+      async (operation: (manager: any) => Promise<unknown>) =>
+        operation({
+          query: lockQuery,
+          getRepository: () => repo,
+        }),
     ),
   };
   return repo;

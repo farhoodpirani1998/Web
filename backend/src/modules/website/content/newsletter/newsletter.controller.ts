@@ -29,7 +29,10 @@ export class NewsletterController {
 
   @Get('export.csv')
   @Header('Content-Type', 'text/csv; charset=utf-8')
-  @Header('Content-Disposition', 'attachment; filename="newsletter-subscribers.csv"')
+  @Header(
+    'Content-Disposition',
+    'attachment; filename="newsletter-subscribers.csv"',
+  )
   async export(@Query() query: NewsletterSubscribersQueryDto): Promise<string> {
     const subscribers = await this.newsletter.findAll(query);
     const rows = [

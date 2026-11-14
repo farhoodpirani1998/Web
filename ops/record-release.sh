@@ -2,6 +2,20 @@
 set -eu
 
 release_tag="${1:-${RELEASE_TAG:-local}}"
+
+# Docker image tags cannot contain path separators or shell metacharacters.
+# Validate before using the tag in a release-record path.
+case "$release_tag" in
+  ''|[!A-Za-z0-9_]*|*[!A-Za-z0-9_.-]*)
+    echo "Release tag must start with a letter, digit, or underscore and contain only letters, digits, underscores, dots, or hyphens." >&2
+    exit 2
+    ;;
+esac
+if [ "${#release_tag}" -gt 128 ]; then
+  echo "Release tag must be 128 characters or fewer." >&2
+  exit 2
+fi
+
 release_dir="${RELEASE_DIR:-./backups/releases}"
 mkdir -p "$release_dir"
 chmod 700 "$release_dir" 2>/dev/null || true
@@ -29,6 +43,5 @@ chmod 600 "$order_log" 2>/dev/null || true
 printf 'Release record written: %s\n' "$record"
 printf 'Release order updated: %s\n' "$order_log"
 
-printf 'Release record written: %s\n' "$record"
 printf 'Keep this tag to roll application containers back with:\n'
 printf '  RELEASE_TAG=%s docker compose up -d --no-build\n' "$release_tag"

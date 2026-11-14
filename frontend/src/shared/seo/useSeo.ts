@@ -4,8 +4,8 @@ import type { PublicSeoDto, StructuredDataItem } from "./types";
 
 /**
  * Applies a page's backend-resolved `PublicSeoDto` (§21) to the
- * document head: `document.title`, the `description`/`robots` meta
- * tags, the `og:image` meta tag, the canonical `<link>`, and one
+ * document head: `document.title`, the description/robots and Open
+ * Graph/Twitter meta tags, the canonical `<link>`, and one
  * `<script type="application/ld+json">` per `structuredData` entry.
  *
  * No react-helmet or similar dependency is used; this codebase has no
@@ -56,7 +56,14 @@ export function useSeo(
 
     upsertMeta("name", "description", seo.description);
     upsertMeta("name", "robots", seo.robots);
+    upsertMeta("property", "og:title", seo.title);
+    upsertMeta("property", "og:description", seo.description);
+    upsertMeta("property", "og:url", seo.canonicalUrl);
     upsertMeta("property", "og:image", seo.ogImageUrl);
+    upsertMeta("name", "twitter:card", seo.ogImageUrl ? "summary_large_image" : "summary");
+    upsertMeta("name", "twitter:title", seo.title);
+    upsertMeta("name", "twitter:description", seo.description);
+    upsertMeta("name", "twitter:image", seo.ogImageUrl);
 
     let canonicalEl = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!canonicalEl) {

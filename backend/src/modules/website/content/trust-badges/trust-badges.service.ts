@@ -72,7 +72,10 @@ export class TrustBadgesService {
       badge.imageMediaId = dto.imageMediaId ?? undefined;
     }
     const saved = await this.trustBadgeRepo.save(badge);
-    if (dto.imageMediaId !== undefined && dto.imageMediaId !== previousMediaId) {
+    if (
+      dto.imageMediaId !== undefined &&
+      dto.imageMediaId !== previousMediaId
+    ) {
       if (previousMediaId) {
         await this.media.detach(previousMediaId, ENTITY_TYPE, saved.id);
       }

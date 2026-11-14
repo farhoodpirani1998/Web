@@ -8,9 +8,12 @@ import type {
   TextbookPayload,
 } from "./types";
 
-export async function fetchTextbooks(): Promise<CmsTextbookListResponse> {
+export async function fetchTextbooks(
+  page = 1,
+  limit = 20,
+): Promise<CmsTextbookListResponse> {
   const response = await apiClient.get<CmsTextbookListResponse>("/textbooks", {
-    params: { page: 1, limit: 100 },
+    params: { page, limit },
   });
   return response.data;
 }
@@ -40,6 +43,29 @@ export async function updateTextbookStatus(
   const response = await apiClient.patch<CmsTextbook>(`/textbooks/${id}/status`, {
     status,
   });
+  return response.data;
+}
+
+export async function uploadTextbook(id: string, file: File): Promise<CmsTextbook> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await apiClient.post<CmsTextbook>(
+    `/textbooks/${id}/file`,
+    formData,
+  );
+  return response.data;
+}
+
+export async function uploadTextbookCover(
+  id: string,
+  file: File,
+): Promise<CmsTextbook> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await apiClient.post<CmsTextbook>(
+    `/textbooks/${id}/cover`,
+    formData,
+  );
   return response.data;
 }
 

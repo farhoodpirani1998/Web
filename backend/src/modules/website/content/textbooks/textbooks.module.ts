@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SiteModule } from '../../core/site/site.module';
+import { CmsAuthModule } from '../../identity/auth/cms-auth.module';
 import { TextbookAuditLog } from './entities/textbook-audit-log.entity';
 import { TextbookDownloadLog } from './entities/textbook-download-log.entity';
+import { TextbookFileCleanup } from './entities/textbook-file-cleanup.entity';
 import { Textbook } from './entities/textbook.entity';
 import { TextbookTaxonomy } from './entities/textbook-taxonomy.entity';
 import {
   LocalTextbookStorageService,
   localTextbookStorageProvider,
 } from './local-textbook-storage.service';
+import { TextbookFileCleanupService } from './textbook-file-cleanup.service';
 import {
   PublicTextbooksController,
   TextbookTaxonomiesController,
@@ -23,8 +26,10 @@ import { TextbooksService } from './textbooks.service';
       TextbookTaxonomy,
       TextbookDownloadLog,
       TextbookAuditLog,
+      TextbookFileCleanup,
     ]),
     SiteModule,
+    CmsAuthModule,
   ],
   controllers: [
     TextbooksController,
@@ -33,6 +38,7 @@ import { TextbooksService } from './textbooks.service';
   ],
   providers: [
     TextbooksService,
+    TextbookFileCleanupService,
     LocalTextbookStorageService,
     localTextbookStorageProvider,
   ],

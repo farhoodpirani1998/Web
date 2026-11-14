@@ -22,9 +22,9 @@ describe('LocalTextbookStorageService', () => {
     await expect((service as any).resolveKey('../escape.pdf')).rejects.toThrow(
       'کلید فایل نامعتبر است.',
     );
-    await expect((service as any).resolveKey('safe/../escape.pdf')).rejects.toThrow(
-      'کلید فایل نامعتبر است.',
-    );
+    await expect(
+      (service as any).resolveKey('safe/../escape.pdf'),
+    ).rejects.toThrow('کلید فایل نامعتبر است.');
   });
 
   it('rejects symlinked directories that point outside the storage root', async () => {
@@ -38,9 +38,9 @@ describe('LocalTextbookStorageService', () => {
       process.platform === 'win32' ? 'junction' : 'dir',
     );
 
-    await expect((service as any).resolveKey('linked/escape.pdf')).rejects.toThrow(
-      'کلید فایل نامعتبر است.',
-    );
+    await expect(
+      (service as any).resolveKey('linked/escape.pdf'),
+    ).rejects.toThrow('کلید فایل نامعتبر است.');
 
     rmSync(outsideRoot, { recursive: true, force: true });
   });

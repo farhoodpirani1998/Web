@@ -10,8 +10,6 @@ export class AddAboutSections1784950000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "about_page" DROP COLUMN "sections"`,
-    );
+    await queryRunner.query(`ALTER TABLE "about_page" DROP COLUMN "sections"`);
   }
 }

@@ -1,9 +1,25 @@
-export { fetchTextbookBySlug, fetchTextbooks, getTextbookDownloadUrl } from "./api";
+export {
+  fetchTextbookBySlug,
+  fetchTextbooks,
+  fetchTextbookTaxonomies,
+  getTextbookCoverUrl,
+  getTextbookDownloadUrl,
+} from "./api";
 export { useTextbookBySlug } from "./useTextbookBySlug";
-export { useTextbooks, textbooksQueryKey } from "./useTextbooks";
+export {
+  useTextbookTaxonomies,
+  useTextbooks,
+  textbookTaxonomiesQueryKey,
+  textbooksQueryKey,
+} from "./useTextbooks";
 export type {
   PublicPaginatedResponse,
   PublicPaginationMeta,
   PublicTextbookDetailDto,
   PublicTextbookListItemDto,
+  PublicTextbookTaxonomies,
+  PublicTextbookTaxonomyOption,
+  PublicTextbookSort,
+  PublicTextbookSortOrder,
+  TextbookListParams,
 } from "./types";

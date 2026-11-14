@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,6 +20,7 @@ import {
   TextbookTaxonomy,
   TextbookTaxonomyType,
 } from './entities/textbook-taxonomy.entity';
+import { TextbookFileCleanupService } from './textbook-file-cleanup.service';
 import {
   TextbookByteRange,
   TextbookStorage,
@@ -63,6 +65,8 @@ const normalizedTitleSql = `translate(
 
 @Injectable()
 export class TextbooksService {
+  private readonly logger = new Logger(TextbooksService.name);
+
   constructor(
     @InjectRepository(Textbook)
     private readonly textbooks: Repository<Textbook>,
@@ -75,6 +79,7 @@ export class TextbooksService {
     private readonly siteService: SiteService,
     @Inject(TEXTBOOK_STORAGE)
     private readonly storage: TextbookStorage,
+    private readonly fileCleanup: TextbookFileCleanupService,
   ) {}
 
   async findAll(filters: TextbookFilters, publicOnly = false) {
@@ -219,16 +224,24 @@ export class TextbooksService {
 
     const shouldDropUploadedAsset =
       book.fileKey && sourceType !== TextbookSourceType.UPLOADED;
+    const previousKey = shouldDropUploadedAsset ? book.fileKey : null;
 
     Object.assign(book, dto);
     if (shouldDropUploadedAsset) {
-      await this.storage.remove(book.fileKey!);
       book.fileKey = null;
       book.fileSize = '0';
       book.checksum = null;
     }
 
-    return this.textbooks.save(book);
+    const saved = await this.textbooks.manager.transaction(async (manager) => {
+      const updated = await manager.getRepository(Textbook).save(book);
+      if (previousKey) await this.fileCleanup.enqueue(manager, previousKey);
+      return updated;
+    });
+    if (previousKey) {
+      await this.processCleanupAfterCommit(previousKey, 'updating a textbook');
+    }
+    return saved;
   }
 
   async updateStatus(id: string, status: PublishStatus): Promise<Textbook> {
@@ -254,14 +267,28 @@ export class TextbooksService {
 
   async remove(id: string): Promise<void> {
     const book = await this.findAdminById(id);
-    if (book.fileKey) {
-      await this.storage.remove(book.fileKey);
-      book.fileKey = null;
-      book.fileSize = '0';
-      book.checksum = null;
-    }
+    const previousKey = book.fileKey;
+    const previousCoverKey = book.coverKey;
+    book.fileKey = null;
+    book.coverKey = null;
+    book.fileSize = '0';
+    book.checksum = null;
     book.deletedAt = new Date();
-    await this.textbooks.save(book);
+    await this.textbooks.manager.transaction(async (manager) => {
+      await manager.getRepository(Textbook).save(book);
+      if (previousKey) await this.fileCleanup.enqueue(manager, previousKey);
+      if (previousCoverKey)
+        await this.fileCleanup.enqueue(manager, previousCoverKey);
+    });
+    if (previousKey) {
+      await this.processCleanupAfterCommit(previousKey, 'removing a textbook');
+    }
+    if (previousCoverKey) {
+      await this.processCleanupAfterCommit(
+        previousCoverKey,
+        'removing a textbook cover',
+      );
+    }
   }
 
   async recordAdminAction(
@@ -284,14 +311,75 @@ export class TextbooksService {
     book.fileKey = stored.key;
     book.fileSize = String(stored.size);
     book.checksum = stored.checksum;
+    let saved: Textbook;
     try {
-      const saved = await this.textbooks.save(book);
-      if (previousKey) await this.storage.remove(previousKey);
-      return saved;
+      saved = await this.textbooks.manager.transaction(async (manager) => {
+        const updated = await manager.getRepository(Textbook).save(book);
+        if (previousKey) await this.fileCleanup.enqueue(manager, previousKey);
+        return updated;
+      });
     } catch (error) {
-      await this.storage.remove(stored.key);
+      await this.queueFailedUploadCleanup(stored.key);
       throw error;
     }
+    if (previousKey) {
+      await this.processCleanupAfterCommit(
+        previousKey,
+        'replacing an uploaded textbook',
+      );
+    }
+    return saved;
+  }
+
+  async uploadCover(id: string, file: Express.Multer.File): Promise<Textbook> {
+    if (!file?.buffer?.length) {
+      throw new BadRequestException('تصویر جلد الزامی است.');
+    }
+    const book = await this.findAdminById(id);
+    const stored = await this.storage.saveCover(file.buffer);
+    const previousKey = book.coverKey;
+    book.coverKey = stored.key;
+    let saved: Textbook;
+    try {
+      saved = await this.textbooks.manager.transaction(async (manager) => {
+        const updated = await manager.getRepository(Textbook).save(book);
+        if (previousKey) await this.fileCleanup.enqueue(manager, previousKey);
+        return updated;
+      });
+    } catch (error) {
+      await this.queueFailedUploadCleanup(stored.key);
+      throw error;
+    }
+    if (previousKey) {
+      await this.processCleanupAfterCommit(
+        previousKey,
+        'replacing a textbook cover',
+      );
+    }
+    return saved;
+  }
+
+  async getCover(slug: string) {
+    const book = await this.findPublicBySlug(slug);
+    if (!book.coverKey) throw new NotFoundException('تصویر جلد پیدا نشد.');
+    const extension = book.coverKey.split('.').pop()?.toLowerCase();
+    const contentType =
+      extension === 'jpg' || extension === 'jpeg'
+        ? 'image/jpeg'
+        : extension === 'png'
+          ? 'image/png'
+          : extension === 'webp'
+            ? 'image/webp'
+            : null;
+    if (!contentType) throw new NotFoundException('تصویر جلد پیدا نشد.');
+    const file = await this.storage.open(book.coverKey);
+    return { file, contentType };
+  }
+
+  getCoverUrl(book: Pick<Textbook, 'slug' | 'coverKey'>): string | null {
+    return book.coverKey
+      ? `/public/textbooks/${encodeURIComponent(book.slug)}/cover`
+      : null;
   }
 
   async getDownload(
@@ -307,12 +395,10 @@ export class TextbooksService {
       ) {
         throw new NotFoundException('منبع دانلود کتاب در دسترس نیست.');
       }
-      await this.recordDownload(book, requesterIp);
       return { redirectUrl: book.externalUrl };
     }
     if (!book.fileKey) throw new NotFoundException('فایل کتاب در دسترس نیست.');
     const file = await this.storage.open(book.fileKey, range);
-    await this.recordDownload(book, requesterIp);
     return { book, file };
   }
 
@@ -445,7 +531,7 @@ export class TextbooksService {
     }
   }
 
-  private async recordDownload(book: Textbook, requesterIp?: string) {
+  async recordDownload(book: Textbook, requesterIp?: string): Promise<void> {
     await this.textbooks.increment({ id: book.id }, 'downloadCount', 1);
     await this.downloadLogs.save(
       this.downloadLogs.create({
@@ -455,6 +541,44 @@ export class TextbooksService {
           : null,
       }),
     );
+  }
+
+  private async processCleanupAfterCommit(
+    key: string,
+    operation: string,
+  ): Promise<void> {
+    try {
+      await this.fileCleanup.processPending(key);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(
+        `Could not process durable textbook cleanup after ${operation} for "${key}": ${message}`,
+      );
+    }
+  }
+
+  private async queueFailedUploadCleanup(key: string): Promise<void> {
+    try {
+      await this.fileCleanup.enqueueForRetry(key);
+      await this.processCleanupAfterCommit(key, 'rolling back an upload');
+    } catch (queueError) {
+      const queueMessage =
+        queueError instanceof Error ? queueError.message : String(queueError);
+      this.logger.error(
+        `Could not persist textbook cleanup for failed upload "${key}": ${queueMessage}`,
+      );
+      try {
+        await this.storage.remove(key);
+      } catch (removeError) {
+        const removeMessage =
+          removeError instanceof Error
+            ? removeError.message
+            : String(removeError);
+        this.logger.error(
+          `Could not remove or persist failed textbook upload "${key}": ${removeMessage}`,
+        );
+      }
+    }
   }
 
   private toPublicDto(book: Textbook) {
@@ -478,7 +602,7 @@ export class TextbooksService {
       sortOrder: book.sortOrder,
       downloadCount: book.downloadCount,
       createdAt: book.createdAt,
-      coverUrl: null,
+      coverUrl: this.getCoverUrl(book),
       downloadUrl: `/api/public/textbooks/${encodeURIComponent(book.slug)}/download`,
     };
   }

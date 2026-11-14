@@ -21,14 +21,16 @@ describe('PublicTrustBadgesController', () => {
       { getDefaultSiteId: () => 'site-1' } as any,
       { filterVisible: (items: unknown[]) => items } as any,
       {
-        resolveMany: jest.fn().mockResolvedValue(
-          new Map([
-            [
-              'media-1',
-              { url: 'https://cdn.test/badge.png', altText: 'نشان' },
-            ],
-          ]),
-        ),
+        resolveMany: jest
+          .fn()
+          .mockResolvedValue(
+            new Map([
+              [
+                'media-1',
+                { url: 'https://cdn.test/badge.png', altText: 'نشان' },
+              ],
+            ]),
+          ),
       } as any,
       redis as any,
     );
@@ -58,12 +60,16 @@ describe('PublicTrustBadgesController', () => {
 
   it('suppresses published records whose media reference cannot be resolved', async () => {
     const controller = new PublicTrustBadgesController(
-      { find: jest.fn().mockResolvedValue([{
-        id: 'badge-1',
-        name: { fa: 'نشان' },
-        imageMediaId: 'missing',
-        status: PublishStatus.PUBLISHED,
-      }]) } as any,
+      {
+        find: jest.fn().mockResolvedValue([
+          {
+            id: 'badge-1',
+            name: { fa: 'نشان' },
+            imageMediaId: 'missing',
+            status: PublishStatus.PUBLISHED,
+          },
+        ]),
+      } as any,
       { getDefaultSiteId: () => 'site-1' } as any,
       { filterVisible: (items: unknown[]) => items } as any,
       { resolveMany: jest.fn().mockResolvedValue(new Map()) } as any,

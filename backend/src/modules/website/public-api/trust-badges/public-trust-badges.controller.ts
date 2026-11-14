@@ -76,11 +76,7 @@ export class PublicTrustBadgesController {
         },
       ];
     });
-    await this.redis.set(
-      PUBLIC_LIST_CACHE_KEY,
-      dto,
-      PUBLIC_CACHE_TTL_SECONDS,
-    );
+    await this.redis.set(PUBLIC_LIST_CACHE_KEY, dto, PUBLIC_CACHE_TTL_SECONDS);
     return dto;
   }
 }

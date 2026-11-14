@@ -63,3 +63,27 @@ Local development defaults to port `3100`. Do not enable TypeORM `synchronize` i
 | `npm run lint` | Run ESLint with automatic fixes (`--fix`) |
 
 The e2e suite requires the PostgreSQL and Redis services configured for it. For the production Compose setup and operational checks, see [docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md).
+
+## Textbook file cleanup
+
+Replacing or deleting an uploaded textbook commits a cleanup intent in the same PostgreSQL transaction as the textbook change. A background worker retries storage deletion with backoff; after eight failures it retains the intent and logs an error for operator recovery.
+
+Review exhausted cleanup intents before retrying:
+
+```sql
+SELECT file_key, attempt_count, last_error, exhausted_at
+FROM textbook_file_cleanup
+WHERE exhausted_at IS NOT NULL
+ORDER BY exhausted_at;
+```
+
+After confirming the storage service is healthy and the referenced key is safe to remove, requeue a specific intent:
+
+```sql
+UPDATE textbook_file_cleanup
+SET attempt_count = 0,
+    next_attempt_at = now(),
+    last_error = NULL,
+    exhausted_at = NULL
+WHERE file_key = '<verified-file-key>';
+```

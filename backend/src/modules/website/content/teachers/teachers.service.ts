@@ -158,10 +158,7 @@ export class TeachersService implements OnModuleInit {
     return teacher;
   }
 
-  async findAll(
-    status?: PublishStatus,
-    campusId?: string,
-  ): Promise<Teacher[]> {
+  async findAll(status?: PublishStatus, campusId?: string): Promise<Teacher[]> {
     const siteId = this.siteService.getDefaultSiteId();
     const qb = this.teachersRepo
       .createQueryBuilder('teacher')
@@ -208,8 +205,7 @@ export class TeachersService implements OnModuleInit {
     if (dto.bio !== undefined)
       teacher.bio = sanitizeTranslatableRichText(dto.bio);
     if (dto.department !== undefined) teacher.department = dto.department;
-    if (dto.campusId !== undefined)
-      teacher.campusId = dto.campusId ?? null;
+    if (dto.campusId !== undefined) teacher.campusId = dto.campusId ?? null;
     if (dto.phone !== undefined) teacher.phone = dto.phone ?? undefined;
     if (dto.email !== undefined) teacher.email = dto.email ?? undefined;
     if (dto.specialties !== undefined)

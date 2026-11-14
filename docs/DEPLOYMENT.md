@@ -1,4 +1,4 @@
-﻿# Docker deployment with automatic HTTPS
+# Docker deployment with automatic HTTPS
 
 This deployment runs the public site, admin app, and NestJS API behind Caddy. Caddy terminates public TLS, obtains and renews certificates automatically, and proxies requests to containers over the private Compose network. The API, PostgreSQL, and Redis are not published directly on host ports.
 
@@ -144,7 +144,9 @@ Set and periodically review an explicit recovery point objective (RPO), recovery
 
 ## Rolling back a release
 
-Record the image tag after every successful deploy (`ops/staging-bootstrap.sh` does this via `ops/record-release.sh`). Keep at least the previous tag's images on the host or in a registry.
+`ops/staging-bootstrap.sh` is for an isolated staging stack: it builds and starts the Compose services, waits for internal API health, runs migrations, and records the image tag. It does not gate traffic, run the external HTTPS smoke test, or perform the manual UI checks below. A recorded tag therefore means the bootstrap steps completed, not that release approval or production readiness has been established. Do not use this script as a production rollout mechanism.
+
+Record tags after each successful bootstrap (`ops/staging-bootstrap.sh` calls `ops/record-release.sh`). Tags must be valid Docker tags (up to 128 characters; letters, digits, `_`, `.`, and `-`, not starting with `.` or `-`). The release records and order log are stored under `RELEASE_DIR` (default `./backups/releases`), which is local state rather than a replicated or tamper-evident release ledger. Preserve the log and previous image set according to the host's recovery procedure; pass the intended previous tag explicitly when the local order log is absent or not authoritative.
 
 **Application-only rollback** (schema unchanged, or the previous release is compatible with the current database):
 
@@ -163,6 +165,8 @@ That starts the previously built `nhg-website-{backend,frontend,admin}:PREVIOUS_
 5. Start the previous application tag: `sh ops/rollback.sh PREVIOUS_RELEASE_TAG`.
 6. Run the smoke test. Keep the old database until the recovered stack is verified.
 
+`ops/rollback.sh PREVIOUS_RELEASE_TAG --with-db-restore ./backups/pre-deploy.dump nhg_website_recovery` is an optional restore helper: it verifies the previous images exist, restores into the new database, and exits without changing containers. Verify the restored data and update `DATABASE_NAME` in both env files before running `ops/rollback.sh PREVIOUS_RELEASE_TAG` without the restore flag. The helper does not switch database configuration or start the application against the restored database.
+
 Do not `migration:revert` in production unless the migration is known to be reversible and a dump already exists. Prefer restore-to-new-database over in-place revert.
 
 If the previous images are missing, check out that git revision and rebuild:
@@ -171,6 +175,19 @@ If the previous images are missing, check out that git revision and rebuild:
 git checkout PREVIOUS_GIT_SHA
 RELEASE_TAG=PREVIOUS_RELEASE_TAG docker compose up --build -d
 ```
+
+## Secrets lifecycle and release approval
+
+The repository validates that `CMS_JWT_SECRET` is present and sufficiently strong, but does not configure a secret-expiry date, rotation schedule, or automated rotation. `CMS_JWT_EXPIRES_IN` (15 minutes by default) and the refresh-token lifetime (30 days by default) are token lifetimes, not secret-rotation controls. Before production approval, assign an owner and review/rotation procedure for the signing secret, database credentials, and any S3-compatible storage credentials in use. Keep secret values in the approved secret store and out of release records, command output, and source control.
+
+The repository also cannot prove that host-managed backup scheduling/off-host replication, retention, alert routing, or on-call escalation are configured. Before go-live, retain operator evidence that:
+
+- a recent backup is present in the approved encrypted off-host destination and an isolated restore has succeeded;
+- the agreed RPO/RTO, backup retention, and restore-test cadence have owners and are being met;
+- a controlled Sentry test event and a health/backup failure test reach the intended alert recipients; and
+- the exact release tag/commit, migration outcome, HTTPS smoke-test result, and manual CMS checks have been reviewed before production traffic is approved.
+
+Treat these as unmet until verified in the target environment; repository instructions and local script success are not evidence of external service configuration.
 
 ## Sentry, alerts, and logs
 

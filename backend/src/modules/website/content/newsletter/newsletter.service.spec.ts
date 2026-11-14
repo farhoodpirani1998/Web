@@ -32,7 +32,9 @@ describe('NewsletterService', () => {
       entityType: 'newsletter_subscriber',
       entityId: 'subscriber-1',
     });
-    expect(JSON.stringify(auditLog.record.mock.calls[0])).not.toContain('user@example.com');
+    expect(JSON.stringify(auditLog.record.mock.calls[0])).not.toContain(
+      'user@example.com',
+    );
   });
 
   it('treats a unique-email race as an idempotent public subscription', async () => {
@@ -40,7 +42,9 @@ describe('NewsletterService', () => {
       driverError: { code: '23505' },
     });
 
-    await expect(service.subscribe('user@example.com')).resolves.toBeUndefined();
+    await expect(
+      service.subscribe('user@example.com'),
+    ).resolves.toBeUndefined();
     expect(auditLog.record).not.toHaveBeenCalled();
   });
 

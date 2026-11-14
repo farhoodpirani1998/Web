@@ -30,7 +30,10 @@ export class NewsletterService {
         entityId: subscriber.id,
       });
     } catch (error) {
-      if ((error as { driverError?: { code?: string } })?.driverError?.code === DUPLICATE_KEY) {
+      if (
+        (error as { driverError?: { code?: string } })?.driverError?.code ===
+        DUPLICATE_KEY
+      ) {
         return;
       }
       throw error;
@@ -64,8 +67,12 @@ export class NewsletterService {
   async getStats() {
     const siteId = this.siteService.getDefaultSiteId();
     const now = new Date();
-    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-    const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+    const today = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    );
+    const monthStart = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+    );
     const [total, todayCount, monthCount] = await Promise.all([
       this.repo.count({ where: { siteId } }),
       this.repo

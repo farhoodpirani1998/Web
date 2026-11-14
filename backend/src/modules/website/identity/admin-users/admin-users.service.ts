@@ -147,10 +147,10 @@ export class AdminUsersService {
     return this.adminRepo.manager.transaction(async (manager) => {
       // Serialize admin mutations across processes without SELECT FOR UPDATE
       // on COUNT(), which PostgreSQL rejects.
-      await manager.query('SELECT pg_advisory_xact_lock($1, $2)', [
-        1279345235,
-        1,
-      ]);
+      await manager.query(
+        'SELECT pg_advisory_xact_lock($1, $2)',
+        [1279345235, 1],
+      );
       return operation(manager.getRepository(CmsAdminUser));
     });
   }

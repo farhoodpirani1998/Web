@@ -1040,18 +1040,42 @@ async function seed(): Promise<void> {
     mapLatitude: 35.7,
     mapLongitude: 51.42,
     workingHours: [
-      { day: 'saturday', openTime: '08:00', closeTime: '16:00', isClosed: false },
+      {
+        day: 'saturday',
+        openTime: '08:00',
+        closeTime: '16:00',
+        isClosed: false,
+      },
       { day: 'sunday', openTime: '08:00', closeTime: '16:00', isClosed: false },
       { day: 'monday', openTime: '08:00', closeTime: '16:00', isClosed: false },
-      { day: 'tuesday', openTime: '08:00', closeTime: '16:00', isClosed: false },
-      { day: 'wednesday', openTime: '08:00', closeTime: '16:00', isClosed: false },
-      { day: 'thursday', openTime: '08:00', closeTime: '12:00', isClosed: false },
+      {
+        day: 'tuesday',
+        openTime: '08:00',
+        closeTime: '16:00',
+        isClosed: false,
+      },
+      {
+        day: 'wednesday',
+        openTime: '08:00',
+        closeTime: '16:00',
+        isClosed: false,
+      },
+      {
+        day: 'thursday',
+        openTime: '08:00',
+        closeTime: '12:00',
+        isClosed: false,
+      },
       { day: 'friday', openTime: '00:00', closeTime: '00:00', isClosed: true },
     ],
   });
   await api('PATCH', '/site-settings/social', {
     socialLinks: [
-      { platform: 'instagram', url: 'https://instagram.com/example', active: true },
+      {
+        platform: 'instagram',
+        url: 'https://instagram.com/example',
+        active: true,
+      },
       { platform: 'telegram', url: 'https://t.me/example', active: true },
       { platform: 'whatsapp', url: 'https://wa.me/989120000000', active: true },
     ],

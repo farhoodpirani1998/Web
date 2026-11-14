@@ -29,6 +29,20 @@ describe('Campus coordinate DTO validation', () => {
     expect(await validate(dto)).toHaveLength(0);
   });
 
+  it.each([
+    [{ latitude: -90.01, longitude: 0 }],
+    [{ latitude: 0, longitude: 180.01 }],
+  ])('rejects out-of-range coordinates on create %#', async (coordinates) => {
+    const dto = plainToInstance(CreateCampusDto, {
+      title: { fa: 'پردیس' },
+      slug: 'test-campus',
+      body: { fa: 'توضیحات' },
+      ...coordinates,
+    });
+
+    expect(await validate(dto)).not.toHaveLength(0);
+  });
+
   it('validates grade levels as unique string arrays', async () => {
     const valid = plainToInstance(UpdateCampusDto, {
       gradeLevels: ['grade-1', 'grade-2'],

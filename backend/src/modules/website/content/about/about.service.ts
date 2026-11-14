@@ -98,7 +98,11 @@ export class AboutService implements OnModuleInit {
 
     const saved = await this.aboutRepo.save(page);
 
-    await this.syncMediaUsages(previousMediaIds, this.mediaIdsFor(saved), saved.id);
+    await this.syncMediaUsages(
+      previousMediaIds,
+      this.mediaIdsFor(saved),
+      saved.id,
+    );
 
     await this.invalidatePublicCache();
     await this.revisions.record(
@@ -159,7 +163,9 @@ export class AboutService implements OnModuleInit {
     );
   }
 
-  private normalizeSections(update: UpdateAboutDto['sections']): AboutContentSections {
+  private normalizeSections(
+    update: UpdateAboutDto['sections'],
+  ): AboutContentSections {
     if (!update) return {};
     return {
       ...update,

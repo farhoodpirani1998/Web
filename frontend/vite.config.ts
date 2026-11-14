@@ -14,6 +14,10 @@ export default defineConfig({
     port: 5173,
     host: true,
     strictPort: false,
+    proxy: {
+      "/robots.txt": "http://localhost:3100",
+      "/sitemap.xml": "http://localhost:3100",
+    },
   },
   preview: {
     port: 4173,
